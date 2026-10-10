@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "container": "fortis-repo-test",
+  "containerId": "c6d7be9fe6eb4138a9dc47db3f82c32c377007c2d461c1f03ad37fe9bb3d074a",
+  "network": "fortis-repo-egress",
+  "internetEnabled": true,
+  "folders": [
+    {
+      "host": "C:\\Users\\alexa\\Repos",
+      "container": "/workspace/repos"
+    },
+    {
+      "host": "C:\\Users\\alexa\\Workfiles",
+      "container": "/workspace/files"
+    }
+  ],
+  "allowedDirectories": [
+    "/workspace/repos",
+    "/workspace/files",
+    "/workspace/repo"
+  ],
+  "gitAutocrlf": "true",
+  "internalVolume": "fortis-repo-workspace",
+  "rollbackContainer": "fortis-repo-test-before-access-20261010t112331268z",
+  "backupDirectory": "C:\\Users\\alexa\\chatgpt-repo-mode\\backups\\access-20261010T112331268Z"
+}

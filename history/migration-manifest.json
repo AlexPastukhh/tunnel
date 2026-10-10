@@ -1,0 +1,314 @@
+{
+  "date": "2026-10-10",
+  "timezone": "Asia/Bangkok",
+  "entries": [
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\README.md",
+      "dest": "history/prot/README.md",
+      "kind": "move",
+      "current": "CURRENT_STATE.md",
+      "sha256": "ed066b7472492a6f88a74f7b9d0330128db2710b3fa9364f5fe679a57b86f43e",
+      "bytes": 1313
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\ENVIRONMENT-ROADMAP.md",
+      "dest": "history/prot/ENVIRONMENT-ROADMAP.md",
+      "kind": "move",
+      "current": "CURRENT_STATE.md",
+      "sha256": "cecbc786ecca9afc628f6990c320206e8d43d52e32074a43c40666cb4ba51f43",
+      "bytes": 2869
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\REPOSITORY-MIGRATION-PLAN.md",
+      "dest": "history/prot/REPOSITORY-MIGRATION-PLAN.md",
+      "kind": "move",
+      "current": "MIGRATION.md",
+      "sha256": "5285951ca2bf4da08eace08680e6daa5b104c1d6b3a624b32738bf01d00ab40a",
+      "bytes": 4844
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\SANDBOX-GUI-PLAN.md",
+      "dest": "history/prot/SANDBOX-GUI-PLAN.md",
+      "kind": "move",
+      "current": "CURRENT_STATE.md",
+      "sha256": "fe8b174f2901b502a45b93f0e3b6ff4f9b10b5edcbe8a1e0de307fda528907d0",
+      "bytes": 4474
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\SECURE-ACCESS-CONTROL-PLAN.md",
+      "dest": "history/prot/SECURE-ACCESS-CONTROL-PLAN.md",
+      "kind": "move",
+      "current": "ACCESS.md",
+      "sha256": "60a2c7e364053af7a8a85fb293a0d0ee562795cbb1c502f325cb0d466f9ad036",
+      "bytes": 20641
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\TUNNEL-OBSERVABILITY-GUI-PROTOTYPES.md",
+      "dest": "history/prot/TUNNEL-OBSERVABILITY-GUI-PROTOTYPES.md",
+      "kind": "move",
+      "current": "OBSERVABILITY.md",
+      "sha256": "8f15efe389aee3133bb24f7f2b14285ffb80e81c4010e3598b6e95a01b9304da",
+      "bytes": 40442
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\TUNNEL-OBSERVABILITY-PLAN-V1-CANDIDATE.md",
+      "dest": "history/prot/TUNNEL-OBSERVABILITY-PLAN-V1-CANDIDATE.md",
+      "kind": "move",
+      "current": "OBSERVABILITY.md",
+      "sha256": "1cbab4e37b168c71e48c57e1f3b6dc7debd36daf8fef96f2de808e599a243083",
+      "bytes": 23660
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\TUNNEL-OBSERVABILITY-PLAN.md",
+      "dest": "history/prot/TUNNEL-OBSERVABILITY-PLAN.md",
+      "kind": "move",
+      "current": "OBSERVABILITY.md",
+      "sha256": "024ef344556cb7e716081379286891e0a5eb7fbb34143470e267a45e8c4baf7a",
+      "bytes": 16406
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\isolation\\README.md",
+      "dest": "history/prot/docs/isolation/README.md",
+      "kind": "move",
+      "current": "CURRENT_STATE.md",
+      "sha256": "8456a4604064d207d2a2eab5d5b2969ac5620b030e555ee0c60376460551f3ea",
+      "bytes": 2476
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\observability\\CHAT-TUNNEL-RECOVERY-PROMPT.md",
+      "dest": "history/prot/docs/observability/CHAT-TUNNEL-RECOVERY-PROMPT.md",
+      "kind": "move",
+      "current": "OBSERVABILITY.md",
+      "sha256": "a2fdb51e3563367fab91dfa4146c1d0d0140d997625b22124086978fbbce3822",
+      "bytes": 2323
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\observability\\HANDOFF-2026-10-08-TUNNEL-TIMEOUTS-AND-P1.md",
+      "dest": "history/prot/docs/observability/HANDOFF-2026-10-08-TUNNEL-TIMEOUTS-AND-P1.md",
+      "kind": "move",
+      "current": "OBSERVABILITY.md",
+      "sha256": "edb3e458450f44cada458dc813912e229d3c77d9b28634f3239550b924ade03b",
+      "bytes": 16856
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\observability\\README.md",
+      "dest": "history/prot/docs/observability/README.md",
+      "kind": "move",
+      "current": "OBSERVABILITY.md",
+      "sha256": "b7854cfaaa133999698c06263a6577d4daa34cd4b844e714a445787ff4f9c881",
+      "bytes": 5299
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\observability\\reviews\\REVIEW-2026-10-08-CHAT-LIVENESS-STEP-ETA.md",
+      "dest": "history/prot/docs/observability/reviews/REVIEW-2026-10-08-CHAT-LIVENESS-STEP-ETA.md",
+      "kind": "move",
+      "current": "OBSERVABILITY.md",
+      "sha256": "37ebe97d6be1aebe620ea8314858433736105f5b8ab774f52bfa411f461a2258",
+      "bytes": 1143
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\observability\\TROUBLESHOOTING-TUNNEL-CHAT-TIMEOUTS.md",
+      "dest": "history/prot/docs/observability/TROUBLESHOOTING-TUNNEL-CHAT-TIMEOUTS.md",
+      "kind": "move",
+      "current": "OBSERVABILITY.md",
+      "sha256": "7165f34e88c16ec17b24fa3aceb97c8cb11db44ac4932115345a665404074602",
+      "bytes": 8174
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\README.md",
+      "dest": "history/prot/docs/README.md",
+      "kind": "move",
+      "current": "CURRENT_STATE.md",
+      "sha256": "612b1b9c7be8d13c1d74ee2f9e4a54689963bb8b7178340d9fb71db5552fbb03",
+      "bytes": 2088
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\sandbox-plugin\\PLAN.md",
+      "dest": "history/prot/docs/sandbox-plugin/PLAN.md",
+      "kind": "move",
+      "current": "CURRENT_STATE.md",
+      "sha256": "bd19e348a2f63124bf5ca5f937a3d11b7618ab6fa27723210789df4efd99bcd7",
+      "bytes": 2185
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\sandbox-plugin\\README.md",
+      "dest": "history/prot/docs/sandbox-plugin/README.md",
+      "kind": "move",
+      "current": "CURRENT_STATE.md",
+      "sha256": "d366e3b42ec0cee7539719435455b5d7e511196cae034211b1da73269aa3f382",
+      "bytes": 2068
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\tunnel\\README.md",
+      "dest": "history/prot/docs/tunnel/README.md",
+      "kind": "move",
+      "current": "OPERATIONS.md",
+      "sha256": "33933408bf33847d0c3a2835b0058f112153cd13420b6ce056d39f559ca0216c",
+      "bytes": 4838
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\docs\\tunnel\\RUNBOOK-RUNTIME-KEY-ROTATION.md",
+      "dest": "history/prot/docs/tunnel/RUNBOOK-RUNTIME-KEY-ROTATION.md",
+      "kind": "move",
+      "current": "ACCESS.md",
+      "sha256": "4b83a6f11f7e320cadb6c8ccba33650ff5e195edf8e02c55a2b522ad7c605024",
+      "bytes": 3889
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\WORKSPACE.md",
+      "dest": "history/repo-mode/WORKSPACE.md",
+      "kind": "move",
+      "current": "CURRENT_STATE.md",
+      "sha256": "6ced8b1993202063495bfb1e67c51f05614cdf8ebee5567fb4e1219ecfc0e1ea",
+      "bytes": 1736
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-bridge\\README.md",
+      "dest": "history/bridge/README.md",
+      "kind": "move",
+      "current": "SNAPSHOT.md",
+      "sha256": "9bbbd1c23d28c146cbad5606a98b8c48ba6aefca3c7f09c34b538155ef3d594c",
+      "bytes": 2859
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-bridge\\transport\\private\\README.md",
+      "dest": "history/snapshot-transfer/README.md",
+      "kind": "reference-copy",
+      "sha256": "d78b93d7242a14d712be5c2c200592e70651d28837c267157a65aa0c5ee850de",
+      "bytes": 1435
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-bridge\\transport\\private\\CHATGPT_START_HERE.md",
+      "dest": "history/snapshot-transfer/CHATGPT_START_HERE.md",
+      "kind": "reference-copy",
+      "sha256": "84edcd684a559d95837165fef88dad3a5e21e1a49c18e9ec5158b3dc306616d6",
+      "bytes": 5647
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-bridge\\transport\\private\\docs\\CHATGPT_BRIDGE_WORKFLOW.md",
+      "dest": "history/snapshot-transfer/docs/CHATGPT_BRIDGE_WORKFLOW.md",
+      "kind": "reference-copy",
+      "sha256": "6f0149bd62b96a164e20608b84ca2a30ddf74e5067f385c05432d59fdb935084",
+      "bytes": 13199
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-bridge\\transport\\private\\prompts\\HOST_POLICY_SNAPSHOT_FIRST.md",
+      "dest": "history/snapshot-transfer/prompts/HOST_POLICY_SNAPSHOT_FIRST.md",
+      "kind": "reference-copy",
+      "sha256": "5cf5ae577dfe71316d11d3545d31942a08c3ee5c2d4a3aa792597c757c91d6cd",
+      "bytes": 11641
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-bridge\\transport\\private\\prompts\\SNAPSHOT_FIRST_TUNNEL_VERIFY.md",
+      "dest": "history/snapshot-transfer/prompts/SNAPSHOT_FIRST_TUNNEL_VERIFY.md",
+      "kind": "reference-copy",
+      "sha256": "21d79414f8892e05fa13e5dd4a6850134bfc7d460720d5249c3d909aee759246",
+      "bytes": 5691
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\Dockerfile",
+      "dest": "runtime/repo-mode/Dockerfile",
+      "kind": "source-copy",
+      "sha256": "1717e364b2f5cd92f4c6cabb039d4272598fe573b5e6cd9cfe7357a0abd4fa0b",
+      "bytes": 516
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\control.ps1",
+      "dest": "runtime/repo-mode/control.ps1",
+      "kind": "source-copy",
+      "sha256": "e80e209b4758b194d2bcc7dcafdfb83d296289e29a543f192e6726538641ae34",
+      "bytes": 3827
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\run-tunnel.ps1",
+      "dest": "runtime/repo-mode/run-tunnel.ps1",
+      "kind": "source-copy",
+      "sha256": "3877266c3c97becc82045be16d994981eb4f8973353b285236df9caac158a5a3",
+      "bytes": 929
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\configure-tunnel.ps1",
+      "dest": "runtime/repo-mode/configure-tunnel.ps1",
+      "kind": "source-copy",
+      "sha256": "b1af30ca221635c78a4dd91c1f248a725d64508baee59054a0c54743ce8fbc2e",
+      "bytes": 1180
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\probe.mjs",
+      "dest": "runtime/repo-mode/probe.mjs",
+      "kind": "source-copy",
+      "sha256": "f300ef82966ac0b12a981143d3f8ae4062f129699ab6c6e3234a790c2b747105",
+      "bytes": 7495
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\fortis-mcp-bridge.mjs",
+      "dest": "runtime/repo-mode/fortis-mcp-bridge.mjs",
+      "kind": "source-copy",
+      "sha256": "8389436658e22f213d9865a78872159e027ca33094999db64ca96b5a7c79fc21",
+      "bytes": 5344
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\check-controls.ps1",
+      "dest": "runtime/repo-mode/check-controls.ps1",
+      "kind": "source-copy",
+      "sha256": "20eae01d8ed89d5352203b93e67ab012a158d5104ed7419a7510bbd53edcf869",
+      "bytes": 3157
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\check-presentation.mjs",
+      "dest": "runtime/repo-mode/check-presentation.mjs",
+      "kind": "source-copy",
+      "sha256": "a1f2176170863bb01cc67d1eae5eeef266fcbd9fe4d2c80703b5db8ce31ace9f",
+      "bytes": 4452
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\check-schemas.mjs",
+      "dest": "runtime/repo-mode/check-schemas.mjs",
+      "kind": "source-copy",
+      "sha256": "5d6a589bb749b6c498657aff445b2c77f9af10fa6815edbd0e3002dddd7ebcc2",
+      "bytes": 690
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\expected-schemas.json",
+      "dest": "runtime/repo-mode/expected-schemas.json",
+      "kind": "source-copy",
+      "sha256": "db4dc0e7d0811a93994a1f8e208daac6dfdb6a4d32cf115f31ed7077ad3249ef",
+      "bytes": 5511
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\Fortis-Repo-Control.cmd",
+      "dest": "runtime/repo-mode/Fortis-Repo-Control.cmd",
+      "kind": "source-copy",
+      "sha256": "bb1d002bde31aae23e9f882e2ac343122ada0dd36c0cba3743867b5453c95389",
+      "bytes": 61
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\workspace-config.json",
+      "dest": "runtime/repo-mode/workspace-config.example.json",
+      "kind": "source-copy",
+      "sha256": "6e153483baf9021a74353cca3443d33ad0d38a949e3ec8488eeb9a85fa2515fc",
+      "bytes": 753
+    },
+    {
+      "source": "C:\\Users\\alexa\\Documents\\prot\\Start-Desktop-Commander-Secure-Tunnel.ps1",
+      "dest": "runtime/host/Start-Desktop-Commander-Secure-Tunnel.ps1",
+      "kind": "source-copy",
+      "sha256": "0f644d4239e60886354eb83b6438cc888d8bdf3202b944b0304508e7c1336dfe",
+      "bytes": 1114
+    },
+    {
+      "source": "C:\\Tools\\desktop-commander\\desktop-commander-trusted.cmd",
+      "dest": "runtime/host/desktop-commander-trusted.cmd",
+      "kind": "source-copy",
+      "sha256": "c9140f20071153c44393f474f79f8144658fdb45dd103672abeaafd521b5b4a3",
+      "bytes": 210
+    },
+    {
+      "source": "C:\\Users\\alexa\\chatgpt-repo-mode\\linux-tools.json",
+      "dest": "runtime/repo-mode/linux-tools.json",
+      "kind": "source-copy",
+      "sha256": "162e220de1af86a7f9d59e622ba7de8618824f487e4122177c454dfc3e5fc93a",
+      "bytes": 74318
+    }
+  ]
+}
