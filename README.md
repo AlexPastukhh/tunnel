@@ -1,6 +1,6 @@
 # Личные туннели и MCP-плагины
 
-Актуальное описание установки на FORTIS_M — **10 октября 2026, Asia/Bangkok**. Репозиторий: [AlexPastukhh/tunnel](https://github.com/AlexPastukhh/tunnel), локально: `C:\Users\alexa\Repos\tunnel`.
+Документация инфраструктуры на FORTIS_M: базовый срез HOST/Repo/Sites — **2026-10-10**, Snapshot Bridge/Broker — **2026-10-11**. Для изменяемых прав и процессов смотреть живое состояние, а не дату документа. Репозиторий: [AlexPastukhh/tunnel](https://github.com/AlexPastukhh/tunnel), локально: `C:\Users\alexa\Repos\tunnel`.
 
 Это инфраструктура для файлов, терминала и репозиториев. Подключение плагина само по себе не означает просьбу создать сайт или выбрать проект.
 
@@ -9,7 +9,7 @@
 - [Доступ, интернет и ключ](docs/ACCESS.md).
 - [Как устроены Site-плагины](docs/SITES.md).
 - [Наш алгоритм создания](docs/WORKFLOW.md) и [обновления инструкций](docs/INSTRUCTIONS.md).
-- [Snapshot Bridge](docs/SNAPSHOT.md), [наблюдаемость](docs/OBSERVABILITY.md), [перенос репозиториев](docs/MIGRATION.md).
+- [Snapshot Bridge — сценарий](docs/SNAPSHOT.md) → [Broker — команды и восстановление](runtime/broker/README.md); [наблюдаемость](docs/OBSERVABILITY.md), [перенос репозиториев](docs/MIGRATION.md).
 - [Происхождение документов и исходников](docs/PROVENANCE.md).
 
 `history/` хранит прежние документы без изменения их содержимого. Это история, а не описание текущих прав доступа. `runtime/` содержит проверенные копии действующих скриптов; ярлыки продолжают использовать прежние Windows-пути. Изменение копии в этом Git-репозитории само по себе не меняет запущенную систему.

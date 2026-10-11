@@ -11,7 +11,7 @@
 | Site snapshot README/deployment/ | В том же Sites Git | Согласовать с runtime и опубликовать нужную Site version |
 | App skills/onboarding/keywords | Plugin-owned files / metadata, точный canonical plugin | По update-plugin skill, не через случайный Site HTML |
 | Текущая эксплуатационная документация | Этот GitHub repo; старые пути — pointers | Commit/push, проверить remote HEAD |
-| Snapshot workflow/policy | Bridge runtime и owning snapshot-transfer repo | Обновить связанный start/protocol/prompts вместе |
+| Snapshot workflow/policy | `docs/SNAPSHOT.md` — сценарий; `runtime/broker/README.md` — операции; Bridge runtime — исполнение | При смене поведения обновить эти источники и только затронутые подсказки в private snapshot-transfer. Не дублировать текущие разрешения/статусы между файлами; затем проверить опубликованные ссылки и readback |
 
 ## Порядок на нашей установке
 
