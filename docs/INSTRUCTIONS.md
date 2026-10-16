@@ -13,6 +13,10 @@ Linux [Bridge source](../runtime/repo-mode/fortis-mcp-bridge.mjs) не обно�
 Изменения E44 — Markdown/JSON, без reinstall/runtime deploy/restart/commit/push.
 [Итог](ISOLATION_GUIDE.md).
 
+## Repo key rotation source-only (2026-10-16)
+
+Добавлен `runtime/repo-mode/Rotate-RepoRuntimeKey.ps1` с owner-only Preview/Install/Rollback; PowerShell AST разобран без ошибок на Windows G2, но owner Preview/Install и rollback live не выполнялись. Старый ключ/файл/profiles/ACL/runtime не читались и не менялись в этом task. Новый ключ и отзыв — отдельно на OpenAI API Platform; `Install` нужен только после Preview и согласования Repo-only restart. Процедура [ACCESS](ACCESS.md), [OPERATIONS](OPERATIONS.md). G2 имеет отдельный ввод ключа при штатном ручном старте.
+
 ## Source-only audit reader (2026-10-16; не live deployment)
 
 Изменения исходников observatory/activity_audit.py, server.py, app.js,

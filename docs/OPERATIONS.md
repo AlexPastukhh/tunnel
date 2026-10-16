@@ -66,6 +66,18 @@ StopAccess отключает Repo Tunnel; фоновые команды/кон�
 
 После E38 Repo OpenPanel открывает /health, а полной /ui у narrow Repo runtime нет. Раннее описание /ui относится только к исторической панели старого owner HOST: она не задавала права и не имела тумблера интернета.
 
+## Ротация runtime key Repo / G2 (script source, не выполнено)
+
+В Windows owner PowerShell, **не из Docker и не G2**:
+
+```powershell
+& 'C:\Users\alexa\Repos\tunnel\runtime\repo-mode\Rotate-RepoRuntimeKey.ps1' -Action Preview
+# Только после выпуска нового provider runtime key, согласования перерыва Repo и Preview PASS:
+& 'C:\Users\alexa\Repos\tunnel\runtime\repo-mode\Rotate-RepoRuntimeKey.ps1' -Action Install
+```
+
+`Install` запросит новый ключ скрыто, зашифрует старый DPAPI в owner LocalAppData и заменит существующий saved-file key; сам tunnel не перезапускает. Затем штатно перезапустить **только Repo** через существующий control (после явного разрешения на короткое прерывание), проверить native MCP/doctor и только после успешной проверки отозвать прежний ключ у OpenAI. Backup path выводится без секретов; для `-Action Rollback -BackupFile <exact-path>` старый provider key должен быть ещё действителен. G2 при каждом штатном запуске вводит отдельный key, но обновление API key у провайдера всё равно обязательно для настоящей ротации. Старый owner HOST не включать.
+
 ## Действующий G2 manual daily сценарий
 
 Пользоваться pinned guest-local Preview/LaunchTest/normal Ctrl+C/recovery
