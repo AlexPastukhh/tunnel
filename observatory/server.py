@@ -17,6 +17,8 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from repo_monitor import collect_repo
 from dual_metrics import collect_g2
+import history_archive as archive
+import sqlite3
 
 ROOT = Path(__file__).resolve().parent
 TUNNEL = "http://127.0.0.1:8080"
@@ -44,6 +46,9 @@ G2_LOCK = threading.Lock()
 G2_HISTORY = deque(maxlen=HISTORY_MAX_SAMPLES)
 G2_SAMPLES = 0
 G2_HISTORY_FILE = DATA_DIR / "g2-history.jsonl"
+ARCHIVE_DB = DATA_DIR / "native-archive.sqlite3"
+ACTIVITY_ARCHIVE_POLL_SECONDS = 30.0
+LAST_ACTIVITY_ARCHIVE_AT = 0.0
 REPO_LOCK = threading.Lock()
 REPO_HISTORY = deque(maxlen=HISTORY_MAX_SAMPLES)
 REPO_HISTORY_FILE = DATA_DIR / "repo-history.jsonl"
@@ -490,6 +495,46 @@ def capture_and_store() -> dict:
     return snapshot
 
 
+def archive_metric(route: str, row: dict) -> None:
+    # Optional export history must never break native monitoring.
+    try:
+        archive.insert_telemetry(ARCHIVE_DB, route, row)
+    except (OSError, sqlite3.Error, ValueError) as exc:
+        print(f"[p1] archive metric write unavailable: {type(exc).__name__}", flush=True)
+
+
+def archive_activity() -> None:
+    # Both are owner-local opt-in files only. Windows G2's guest ACL is never
+    # bypassed, and unconfigured routes archive zero tool events.
+    events = []
+    for route in ("repo", "g2"):
+        path = AUDIT_SOURCES.get(route)
+        if path is None:
+            continue
+        try:
+            feed = safe_activity_records(path, route, limit=200)
+            events.extend(feed["events"])
+        except (OSError, ValueError):
+            continue
+    if events:
+        try:
+            archive.insert_activity(ARCHIVE_DB, events)
+        except (OSError, sqlite3.Error, ValueError) as exc:
+            print(f"[p1] archive activity write unavailable: {type(exc).__name__}", flush=True)
+
+
+def backfill_native_archive() -> None:
+    # On first upgrade, import only still-present recent safe metrics JSONL;
+    # never reach into legacy HOST, guest-only files or deleted history.
+    for route, rows in (("g2", list(G2_HISTORY)), ("repo", list(REPO_HISTORY))):
+        for row in rows:
+            archive_metric(route, row)
+    try:
+        archive.prune(ARCHIVE_DB)
+    except (OSError, sqlite3.Error) as exc:
+        print(f"[p1] archive prune unavailable: {type(exc).__name__}", flush=True)
+
+
 def capture_g2() -> dict:
     global LATEST_G2, G2_SAMPLES
     result = collect_g2()
@@ -507,6 +552,7 @@ def capture_g2() -> dict:
             fh.write(json.dumps(safe, separators=(",", ":")) + "\n")
     except OSError:
         pass
+    archive_metric("g2", safe)
     if prune_due:
         prune_g2_history()
     return result
@@ -582,6 +628,7 @@ def capture_repo() -> dict:
             fh.write(json.dumps(safe, separators=(",", ":")) + "\n")
     except OSError:
         pass
+    archive_metric("repo", safe)
     if len(REPO_HISTORY) % 120 == 0:
         rewrite_repo_history()
     return result
@@ -638,10 +685,20 @@ def latest_repo() -> dict:
 
 
 def sampler_loop() -> None:
+    global LAST_ACTIVITY_ARCHIVE_AT
     while not STOP_EVENT.wait(SAMPLE_INTERVAL_SECONDS):
         capture_and_store()
         capture_repo()
         capture_g2()
+        now = time.time()
+        if now - LAST_ACTIVITY_ARCHIVE_AT > ACTIVITY_ARCHIVE_POLL_SECONDS:
+            LAST_ACTIVITY_ARCHIVE_AT = now
+            archive_activity()
+        if int(now // 3600) != int((now - SAMPLE_INTERVAL_SECONDS) // 3600):
+            try:
+                archive.prune(ARCHIVE_DB)
+            except (OSError, sqlite3.Error):
+                pass
 
 
 INCIDENT_ID_RE = re.compile(r"^timeout-\d{8}T\d{6}\.\d{6}Z$")
@@ -855,6 +912,48 @@ class Handler(SimpleHTTPRequestHandler):
                 limit = 50
             send_json(self, activity_feed(limit))
             return
+        if parsed.path == "/api/archive-coverage":
+            try:
+                data = archive.coverage(ARCHIVE_DB)
+                data["activity_sources"] = {route: ("configured" if route in AUDIT_SOURCES else "unconfigured") for route in ("repo", "g2")}
+                send_json(self, {"ok": True, **data})
+            except (sqlite3.Error, OSError):
+                send_json(self, {"ok": False, "error": "archive_unavailable"}, 503)
+            return
+        if parsed.path == "/api/export-history":
+            # Prevent cross-site fetches and DNS rebinding from initiating a
+            # download of owner-local history. No CORS headers are ever sent.
+            host = (self.headers.get("Host") or "").split(":")[0].lower()
+            site = (self.headers.get("Sec-Fetch-Site") or "").lower()
+            if host not in ("localhost", "127.0.0.1") or site not in ("", "same-origin", "none"):
+                send_json(self, {"ok": False, "error": "local_origin_required"}, 403)
+                return
+            query = parse_qs(parsed.query)
+            try:
+                raw_routes = (query.get("routes") or ["g2,repo"])[0].split(",")
+                if len(set(raw_routes)) != len(raw_routes):
+                    raise ValueError("duplicate route")
+                routes = tuple(raw_routes)
+                fmt = (query.get("format") or ["csv"])[0]
+                mode = (query.get("mode") or ["all"])[0]
+                if mode not in ("all", "range"):
+                    raise ValueError("invalid export mode")
+                if mode == "range":
+                    if "from" not in query or "to" not in query:
+                        raise ValueError("start and end required for range")
+                    start = archive.timestamp(query["from"][0])
+                    end = archive.timestamp(query["to"][0])
+                else:
+                    start = end = None
+                source_states = {route: ("configured" if route in AUDIT_SOURCES else "unconfigured") for route in ("repo", "g2")}
+                blob, manifest = archive.export_zip(ARCHIVE_DB, start, end, routes, fmt, source_states)
+                filename = "fortis-history-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + ".zip"
+                send_bytes(self, blob, "application/zip", filename)
+            except (ValueError, TypeError, OverflowError):
+                send_json(self, {"ok": False, "error": "invalid_export_filters"}, 400)
+            except (sqlite3.Error, OSError):
+                send_json(self, {"ok": False, "error": "archive_unavailable"}, 503)
+            return
         if parsed.path == "/api/tunnels":
             send_json(self, native_tunnels())
             return
@@ -945,6 +1044,8 @@ def main() -> None:
     load_history()
     load_repo_history()
     load_g2_history()
+    backfill_native_archive()
+    archive_activity()
     capture_and_store()
     capture_repo()
     capture_g2()
@@ -956,7 +1057,7 @@ def main() -> None:
     print("Native sources: G2 and Repo /health + /metrics (read-only)", flush=True)
     if LEGACY_HOST_ENABLED:
         print(f"Legacy HOST source enabled explicitly: {TUNNEL}", flush=True)
-    print(f"History: {HISTORY_FILE} | retention={HISTORY_RETENTION_SECONDS // 60}m", flush=True)
+    print(f"Legacy rolling history: {HISTORY_RETENTION_SECONDS // 60}m | native safe archive: {archive.RETENTION_DAYS} days", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

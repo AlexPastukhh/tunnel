@@ -61,3 +61,18 @@ read-only health checks observed G2 and Repo both live/ready with
 MCP initialized; no owner Windows installed-dashboard acceptance yet.
 Do not treat local UP or polled command counts as chat-level delivery.
 Preview instructions and limitations: observatory/README_DUAL_TUNNEL.md.
+
+## User-downloadable safe telemetry history (source, 2026-10-16)
+
+Observatory adds a local owner-only SQLite archive covering a rolling
+90-day horizon, with max 1 native G2/Repo aggregate sample per route per
+minute, plus metadata-only tool events from separately configured,
+ACL-readable Desktop Commander histories. New UI exports all available or
+date-filtered history as CSV/JSON inside ZIP, with a manifest.json for
+coverage and omissions. Old records outside the previous 60m JSONL / rolling
+DC files cannot be reconstructed. Full raw commands/chats/process descendants,
+tamper-proof forensic logging, guest-only file access, and legacy E43
+incident archives are intentionally excluded. New work does not adjust native
+tunnel configurations, ACLs, keys, Docker mounts or G2 launchers. Apply by
+restarting only the separate Windows Observatory preview after Git pull.
+See observatory/README_DUAL_TUNNEL.md for details.

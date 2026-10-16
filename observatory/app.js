@@ -211,3 +211,70 @@ window.addEventListener("resize",renderNativeChart);
 refreshNative();refreshNativeHistory();
 setInterval(refreshNative,10000);
 setInterval(refreshNativeHistory,30000);
+
+// One-click downloadable LOCAL archive: never ask for raw tool payloads.
+function localDateForInput(d) {
+  const q=n=>String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+q(d.getMonth()+1)+"-"+q(d.getDate())+"T"+q(d.getHours())+":"+q(d.getMinutes());
+}
+function exportMode() {
+  const checked=document.querySelector('input[name="exportMode"]:checked');
+  const mode=checked?.value||"all";
+  document.getElementById("exportRangeInputs").hidden=mode!=="range";
+}
+async function refreshArchiveCoverage() {
+  const label=document.getElementById("archiveCoverage");
+  try {
+    const response=await fetch("/api/archive-coverage",{cache:"no-store"});
+    if (!response.ok) throw new Error("HTTP "+response.status);
+    const data=await response.json();
+    if(!data.ok) throw new Error("archive unavailable");
+    label.textContent="Метрик: "+Number(data.telemetry?.count||0).toLocaleString("ru-RU")
+      +" · вызовов (метаданные): "+Number(data.activity?.count||0).toLocaleString("ru-RU")
+      +" · до "+data.retention_days+" дней";
+    label.title="Доступные записи: "+
+      (data.telemetry?.first||"пока нет")+" — "+(data.telemetry?.last||"пока нет")+
+      ". Наличие записей не гарантирует полноту истории.";
+  } catch (e) { label.textContent="Архив недоступен"; }
+}
+async function submitHistoryExport(e) {
+  e.preventDefault();
+  const btn=document.getElementById("downloadHistory");
+  const status=document.getElementById("exportStatus");
+  const routes=Array.from(document.querySelectorAll('input[name="exportRoute"]:checked')).map(x=>x.value);
+  if(!routes.length) { status.textContent="Выбери G2, Repo или оба источника.";return; }
+  const mode=document.querySelector('input[name="exportMode"]:checked')?.value||"all";
+  const q=new URLSearchParams({mode,routes:routes.join(","),format:document.getElementById("exportFormat").value});
+  if(mode==="range") {
+    const from=document.getElementById("exportFrom").value,to=document.getElementById("exportTo").value;
+    if(!from||!to) {status.textContent="Укажи дату и время начала и конца.";return;}
+    const fromDate=new Date(from),toDate=new Date(to);
+    if(!Number.isFinite(+fromDate)||!Number.isFinite(+toDate)||fromDate>toDate) {
+      status.textContent="Неверный диапазон дат.";return;
+    }
+    q.set("from",fromDate.toISOString());q.set("to",toDate.toISOString());
+  }
+  btn.disabled=true;status.textContent="Подготавливаю ZIP из доступных локальных записей…";
+  let url=null;
+  try {
+    const response=await fetch("/api/export-history?"+q.toString(),{cache:"no-store"});
+    if(!response.ok) {
+      const body=await response.json().catch(()=>({}));
+      throw new Error(body.error||("HTTP "+response.status));
+    }
+    const blob=await response.blob();
+    if(!blob.size) throw new Error("empty archive");
+    url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;a.download="fortis-history-"+new Date().toISOString().replace(/[:.]/g,"-")+".zip";
+    document.body.appendChild(a);a.click();a.remove();
+    status.textContent="ZIP подготовлен ("+(blob.size/1024).toFixed(1)+" КиБ). Внутри manifest.json с количеством записей и ограничениями полноты.";
+    await refreshArchiveCoverage();
+  } catch(e) {status.textContent="Не удалось скачать: "+String(e.message||e);}
+  finally {btn.disabled=false;if(url)setTimeout(()=>URL.revokeObjectURL(url),10000);}
+}
+document.querySelectorAll('input[name="exportMode"]').forEach(e=>e.addEventListener("change",exportMode));
+document.getElementById("historyExportForm").addEventListener("submit",submitHistoryExport);
+document.getElementById("exportTo").value=localDateForInput(new Date());
+document.getElementById("exportFrom").value=localDateForInput(new Date(Date.now()-24*3600000));
+exportMode();refreshArchiveCoverage();setInterval(refreshArchiveCoverage,60000);

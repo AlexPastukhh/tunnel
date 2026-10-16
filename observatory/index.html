@@ -65,6 +65,38 @@
         <p class="footnote">Счётчики полных команд из control-plane, не сообщения ChatGPT. Средняя задержка — накопительная, не p95. История хранится локально, до 60 минут.</p>
       </div>
     </section>
+    <section class="export-panel" aria-label="Скачивание истории метрик">
+      <div class="native-head">
+        <div>
+          <span class="panel-kicker">EXPORT / LOCAL ARCHIVE</span>
+          <h2>Скачать историю наблюдения</h2>
+          <p>Все <b>доступные</b> записи или выбранный промежуток. Файл ZIP: метрики + метаданные операций + описание полноты.</p>
+        </div>
+        <span id="archiveCoverage" class="muted" aria-live="polite">Проверка архива…</span>
+      </div>
+      <form id="historyExportForm" class="history-export-form">
+        <fieldset class="export-mode" aria-label="Выбор периода">
+          <legend>Период</legend>
+          <label><input type="radio" name="exportMode" value="all" checked> Вся доступная история</label>
+          <label><input type="radio" name="exportMode" value="range"> Указать даты</label>
+        </fieldset>
+        <div id="exportRangeInputs" class="export-range" hidden>
+          <label>С <input id="exportFrom" type="datetime-local"></label>
+          <label>По <input id="exportTo" type="datetime-local"></label>
+        </div>
+        <fieldset class="export-routes" aria-label="Источники">
+          <legend>Источники</legend>
+          <label><input type="checkbox" name="exportRoute" value="g2" checked> G2</label>
+          <label><input type="checkbox" name="exportRoute" value="repo" checked> Repo</label>
+        </fieldset>
+        <label class="export-format">Формат
+          <select id="exportFormat"><option value="csv" selected>CSV + ZIP</option><option value="json">JSON + ZIP</option></select>
+        </label>
+        <button id="downloadHistory" type="submit">↓ Скачать ZIP</button>
+      </form>
+      <p id="exportStatus" class="footnote" role="status">Архив хранится только в локальном каталоге Observatory. Данные G2 и Repo хранятся до 90 дней, один снимок в минуту; старые удалённые данные недоступны.</p>
+      <p class="footnote">Выгружаются только агрегированные метрики и безопасные метаданные инструментов, если их источники были отдельно подключены. <b>Сырые команды, ответы, ключи и полные чаты не скачиваются</b> — это отдельный защищённый forensic-режим, ещё не реализован.</p>
+    </section>
     <details class="legacy-details">
       <summary>Архивная диагностика старого HOST / P1 — раскрыть</summary>
       <p>Owner HOST остановлен по E43. Эти панели и старые инциденты не измеряют G2 или Repo.</p>

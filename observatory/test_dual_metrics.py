@@ -153,6 +153,7 @@ class MetricTests(unittest.TestCase):
                     "private": "DO_NOT_PERSIST"}
             with patch.object(server, "G2_HISTORY_FILE", path), \
                  patch.object(server, "DATA_DIR", Path(tmp)), \
+                 patch.object(server, "ARCHIVE_DB", Path(tmp) / "archive.sqlite3"), \
                  patch.object(server, "collect_g2", return_value=sample):
                 with server.G2_LOCK:
                     server.G2_HISTORY.clear()

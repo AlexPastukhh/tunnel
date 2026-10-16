@@ -104,3 +104,49 @@ ACLs, change mount layout or enable raw logging to make a status green.
 Running Windows owner collector and actual browser layout still require
 acceptance; synthetic Linux API/unit/HTML checks do not replace it.
 Moving preview to the installed dashboard requires a separate approval.
+
+## Download history / 90-day safe archive (source feature, 2026-10-16)
+
+Under native G2/Repo metrics, a new "Скачать историю наблюдения" area
+offers all available history or selected local start/end datetimes,
+checkboxes G2 and/or Repo, CSV or JSON, and "Скачать ZIP".
+
+The ZIP includes manifest.json, metrics.csv or metrics.json, and
+tool_activity.csv or tool_activity.json. The manifest lists actual coverage
+times and counts by route and explicitly marks incomplete coverage. The
+contents are deliberately minimized: only health/MCP state and allowlisted
+numeric counters, plus recent Desktop Commander metadata if the source
+was explicitly configured and readable. No raw command, arguments, output,
+personal paths, prompts, credentials, or full chat transcript are exported.
+The separate E43 legacy HOST incidents are not exported through this panel.
+ZIP files downloaded by the browser should be kept privately.
+
+The long-term archive is SQLite at
+P1_DATA_DIR/native-archive.sqlite3, one aggregate metric sample per
+route per UTC minute, retained up to 90 days. It begins with the available
+existing RECENT g2-history.jsonl and repo-history.jsonl samples when
+restarting the source server, then collects in the future. Expired/never
+recorded history cannot be recovered. Recent DC calls are archived about
+every 30s ONLY for explicitly configured sources; an owner process cannot
+read guest-only G2 Desktop Commander history, and Repo Docker history has no
+owner-mapped file by default. Empty tool_activity does not imply zero calls.
+
+New owner-local endpoints:
+- GET /api/archive-coverage: metadata counts/time spans, no payloads.
+- GET /api/export-history?mode=all&routes=repo,g2&format=csv: ZIP.
+- GET /api/export-history?mode=range&routes=repo&format=json&from=...&to=...
+  ZIP for a specific inclusive timezone-aware interval, max 90 days.
+
+Export requires a local Host header and same-origin fetch headers; it
+is never exposed remotely. The archive is not tamper-proof or a
+privileged forensic capture. It does not track child processes or
+full command texts and must not be treated as such. All new writes stay
+inside the selected OWNER-local P1_DATA_DIR; no tunnel runtime restart,
+ACL/mount change, secret rotation, or guest-directory access is required.
+
+This is a source change. For the active Windows preview on port 8093:
+stop only the Observatory process (Ctrl+C), git pull --ff-only origin main,
+and run the exact same preview command (P1_DATA_DIR unchanged).
+The prior rolling 60m JSONL is backfilled where available. The existing
+dashboard on port 8092 and native Repo/G2 tunnels are not modified.
+Linux source/unit/HTTP tests do not substitute Windows browser acceptance.
