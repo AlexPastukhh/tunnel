@@ -8,6 +8,8 @@ import time
 import urllib.error
 import urllib.request
 
+from dual_metrics import summarize
+
 # Explicit address is accepted only on loopback. Never proxy arbitrary URLs.
 REPO_ID = "tunnel_6ac9e4dc9e688191ae1838e858424e8d"
 ENV_URL = "OBS_REPO_URL"
@@ -82,7 +84,8 @@ def collect_repo():
                     "listener": address, "live": bool(health.get("live")),
                     "ready": bool(health.get("ready")),
                     "uptime_seconds": (health.get("runtime") or {}).get("uptime_seconds"),
-                    "mcp_state": (health.get("components") or {}).get("mcp", {}).get("state", "unknown")}
+                    "mcp_state": (health.get("components") or {}).get("mcp", {}).get("state", "unknown"),
+                    "metrics": summarize(metrics)}
         except (OSError, ValueError, urllib.error.URLError):
             continue
     return {"state": "UNKNOWN", "sampled_at": now, "verified": False,

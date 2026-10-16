@@ -115,3 +115,99 @@ async function refreshActivity() {
 document.getElementById("refreshActivity")?.addEventListener("click", refreshActivity);
 refreshActivity();
 setInterval(refreshActivity, 10000);
+
+// Native G2 and Repo are independent routes. Never treat retired owner HOST
+// telemetry as G2, or listener health as proof of a completed chat request.
+function nativeMetricText(value) {
+  return value == null || !Number.isFinite(+value) ? "—" : Math.round(+value).toLocaleString("ru-RU");
+}
+function nativeRoute(prefix, row) {
+  const state = ["UP", "DOWN", "UNKNOWN", "STALE"].includes(row?.state) ? row.state : "UNKNOWN";
+  const verified = row?.verified === true && state !== "STALE";
+  const m = verified ? (row.metrics || {}) : {};
+  const id = s => document.getElementById("native" + prefix + s);
+  id("State").textContent = state;
+  id("State").dataset.state = state;
+  id("Reason").textContent = verified
+    ? "Проверен локальный туннель " + (row.listener || "") + "; работа во всех чатах НЕ доказана"
+    : (row?.reason || "Нет подтверждённых данных");
+  id("Mcp").textContent = verified ? (row.mcp_state || "unknown") : "—";
+  id("Polled").textContent = nativeMetricText(m.polled_total);
+  id("Latency").textContent = m.command_latency_avg_ms == null ? "—" : ms(m.command_latency_avg_ms);
+  id("Queue").textContent = m.queue_length == null ? "—" : nativeMetricText(m.queue_length) + " / " + nativeMetricText(m.queue_capacity);
+  id("Dispatch").textContent = m.dispatcher_active == null ? "—" : nativeMetricText(m.dispatcher_active) + " / " + nativeMetricText(m.dispatcher_capacity);
+  const age = m.poll_last_success_at == null ? null : Date.now()/1000 - m.poll_last_success_at;
+  id("Poll").textContent = age != null && age >= 0 && age < 86400 ? sec(age) + " назад" : "—";
+  id("Stamp").textContent = row?.sampled_at ? "Замер: " + new Date(row.sampled_at*1000).toLocaleTimeString("ru-RU") : "Нет замера";
+}
+async function refreshNative() {
+  try {
+    const response = await fetch("/api/tunnels", {cache:"no-store"});
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const p = await response.json();
+    if (!p.ok) throw new Error("collector rejected response");
+    nativeRoute("G2", p.g2);
+    nativeRoute("Repo", p.repo);
+  } catch (error) {
+    nativeRoute("G2", {state:"UNKNOWN",reason:"API недоступно: " + error});
+    nativeRoute("Repo", {state:"UNKNOWN",reason:"API недоступно: " + error});
+  }
+}
+function nativeSeries(payload) {
+  const rows = (payload.history || []).filter(x => Number.isFinite(+x.sampled_at) && Number.isFinite(+x.metrics?.polled_total));
+  if (rows.length < 2) return [];
+  const sorted = rows.slice().sort((a,b) => a.sampled_at-b.sampled_at);
+  let baseline = +sorted[0].metrics.polled_total,prev=baseline,total=0;
+  return sorted.map((row,i) => {
+    const current = +row.metrics.polled_total;
+    if (i) total += current >= prev ? current-prev : current; // counter reset
+    prev = current;
+    return {time:+row.sampled_at, count:total};
+  });
+}
+let nativeSeriesRepo=[],nativeSeriesG2=[];
+function renderNativeChart() {
+  const canvas=document.getElementById("nativeHistoryChart");
+  if (!canvas) return;
+  const ratio=window.devicePixelRatio||1, w=Math.max(canvas.clientWidth||500,300),h=150;
+  canvas.width=Math.round(w*ratio);canvas.height=Math.round(h*ratio);
+  const ctx=canvas.getContext("2d");ctx.scale(ratio,ratio);ctx.clearRect(0,0,w,h);
+  const lines=[nativeSeriesRepo,nativeSeriesG2];
+  const full=lines.flat();
+  if (!full.length) return;
+  const minT=Math.min(...full.map(x=>x.time)),maxT=Math.max(...full.map(x=>x.time));
+  const span=Math.max(1,maxT-minT);
+  const maxCount=Math.max(1,...full.map(x=>x.count));
+  ctx.strokeStyle="rgba(150,170,195,.2)";ctx.lineWidth=1;
+  for(let i=1;i<=3;i++){const y=(h-14)*i/4;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  for(let j=0;j<lines.length;j++){
+    const points=lines[j];if(points.length<2)continue;
+    ctx.strokeStyle=j===0?"#6ca8ff":"#63d8e8";ctx.lineWidth=2;ctx.beginPath();
+    points.forEach((p,i)=>{const x=8+(p.time-minT)/span*(w-16),y=h-12-p.count/maxCount*(h-25); if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    ctx.stroke();
+  }
+}
+async function refreshNativeHistory() {
+  try {
+    const [repoResponse,g2Response] = await Promise.all([
+      fetch("/api/repo-history?minutes=60",{cache:"no-store"}),
+      fetch("/api/g2-history?minutes=60",{cache:"no-store"}),
+    ]);
+    if (!repoResponse.ok || !g2Response.ok) throw new Error("history API unavailable");
+    const [repo,g2] = await Promise.all([repoResponse.json(),g2Response.json()]);
+    nativeSeriesRepo=nativeSeries(repo);
+    nativeSeriesG2=nativeSeries(g2);
+    document.getElementById("nativeHistoryStatus").textContent =
+      "Образцы за 60м · Repo: "+(repo.samples||0)+" · G2: "+(g2.samples||0);
+    renderNativeChart();
+  } catch(error) {
+    document.getElementById("nativeHistoryStatus").textContent="История недоступна";
+  }
+}
+document.getElementById("refreshTunnels").addEventListener("click",()=>{
+  refreshNative();refreshNativeHistory();
+});
+window.addEventListener("resize",renderNativeChart);
+refreshNative();refreshNativeHistory();
+setInterval(refreshNative,10000);
+setInterval(refreshNativeHistory,30000);

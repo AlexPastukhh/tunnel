@@ -10,9 +10,9 @@
   <div class="shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">FORTIS_M / OBSERVABILITY / P1</div>
-        <h1>Tunnel Observatory</h1>
-        <p class="subtitle">Live shadow dashboard · read-only · рабочий MCP path не изменяется</p>
+        <div class="eyebrow">FORTIS_M / OBSERVABILITY / NATIVE</div>
+        <h1>Fortis Observatory</h1>
+        <p class="subtitle">G2 + Repo · локальные метрики · команды и ключи не собираются</p>
       </div>
       <div class="top-actions">
         <span id="modeBadge" class="mode-badge live">LIVE SHADOW</span>
@@ -20,6 +20,54 @@
       </div>
     </header>
 
+    <section class="native-live" aria-label="Действующие туннели Fortis">
+      <div class="native-head">
+        <div><span class="panel-kicker">FORTIS / NATIVE ROUTES</span>
+          <h2>G2 и Repo — текущие метрики</h2>
+          <p>Прямой health/metrics каждого туннеля. Локальный UP не гарантирует доставку вызова из каждого чата.</p>
+        </div>
+        <button id="refreshTunnels" type="button">Обновить</button>
+      </div>
+      <div class="native-grid">
+        <article class="native-card" data-route="g2">
+          <header><div><small>WINDOWS GUEST · SID 1009</small><h3>Fortis G2</h3></div><strong id="nativeG2State" data-state="UNKNOWN">UNKNOWN</strong></header>
+          <p id="nativeG2Reason" class="native-reason">Ожидание первой пробы…</p>
+          <dl class="native-stats">
+            <div><dt>MCP</dt><dd id="nativeG2Mcp">—</dd></div>
+            <div><dt>Команд получено</dt><dd id="nativeG2Polled">—</dd></div>
+            <div><dt>Средняя задержка</dt><dd id="nativeG2Latency">—</dd></div>
+            <div><dt>Очередь</dt><dd id="nativeG2Queue">—</dd></div>
+            <div><dt>Занято обработчиков</dt><dd id="nativeG2Dispatch">—</dd></div>
+            <div><dt>Последний poll</dt><dd id="nativeG2Poll">—</dd></div>
+          </dl>
+          <small class="native-stamp" id="nativeG2Stamp">Без подтверждённого образца</small>
+        </article>
+        <article class="native-card" data-route="repo">
+          <header><div><small>WINDOWS HOST · DOCKER MCP</small><h3>Fortis Repo</h3></div><strong id="nativeRepoState" data-state="UNKNOWN">UNKNOWN</strong></header>
+          <p id="nativeRepoReason" class="native-reason">Ожидание первой пробы…</p>
+          <dl class="native-stats">
+            <div><dt>MCP</dt><dd id="nativeRepoMcp">—</dd></div>
+            <div><dt>Команд получено</dt><dd id="nativeRepoPolled">—</dd></div>
+            <div><dt>Средняя задержка</dt><dd id="nativeRepoLatency">—</dd></div>
+            <div><dt>Очередь</dt><dd id="nativeRepoQueue">—</dd></div>
+            <div><dt>Занято обработчиков</dt><dd id="nativeRepoDispatch">—</dd></div>
+            <div><dt>Последний poll</dt><dd id="nativeRepoPoll">—</dd></div>
+          </dl>
+          <small class="native-stamp" id="nativeRepoStamp">Без подтверждённого образца</small>
+        </article>
+      </div>
+      <div class="native-chart">
+        <div class="panel-head"><div><span class="panel-kicker">ROLLING 60 MINUTES</span><h2>Команды, полученные туннелями</h2></div>
+        <span id="nativeHistoryStatus" class="muted">История ещё не накоплена</span></div>
+        <canvas id="nativeHistoryChart" height="150"></canvas>
+        <div class="chart-legend"><span><i class="legend-line primary"></i> Repo</span>
+          <span><i class="legend-line secondary"></i> G2</span></div>
+        <p class="footnote">Счётчики полных команд из control-plane, не сообщения ChatGPT. Средняя задержка — накопительная, не p95. История хранится локально, до 60 минут.</p>
+      </div>
+    </section>
+    <details class="legacy-details">
+      <summary>Архивная диагностика старого HOST / P1 — раскрыть</summary>
+      <p>Owner HOST остановлен по E43. Эти панели и старые инциденты не измеряют G2 или Repo.</p>
     <section class="repo-banner" aria-label="Состояние двух туннелей">
       <article><small>Old owner HOST (E43)</small><strong id="hostStatus">UNKNOWN</strong><span id="hostReason">Ожидание данных</span></article>
       <article><small>Native Fortis Repo · local health</small><strong id="repoStatus">UNKNOWN</strong><span id="repoReason">Ожидание данных</span></article>
@@ -56,7 +104,7 @@
       </div>
     </section>
 
-    <main class="dashboard">
+    <div class="dashboard legacy-dashboard">
       <section class="panel latency-panel">
         <div class="panel-head">
           <div><span class="panel-kicker">TOOLS/CALL</span><h2>Latency</h2></div>
@@ -123,6 +171,9 @@
         </div>
       </section>
 
+    </div>
+    </details>
+    <main class="dashboard">
       <section class="panel audit-panel">
         <div class="panel-head">
           <div><span class="panel-kicker">TOOL ACTIVITY · METADATA ONLY</span><h2>Fortis G2 / Repo — вызовы инструментов</h2></div>
@@ -137,7 +188,7 @@
           <div><span class="panel-kicker">DATA BOUNDARY</span><h2>What P1 can and cannot see</h2></div>
         </div>
         <dl class="provenance">
-          <div><dt>Source</dt><dd>127.0.0.1:8080 health + metrics</dd></div>
+          <div><dt>Source</dt><dd>G2 / Repo native loopback metrics; old HOST retired</dd></div>
           <div><dt>MCP path</dt><dd>unchanged</dd></div>
           <div><dt>Runtime key</dt><dd>not read</dd></div>
           <div><dt>Tool payloads</dt><dd>not collected</dd></div>

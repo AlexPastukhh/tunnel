@@ -45,3 +45,19 @@ P2 (автоматические сравнения/deltas) и request-level att
 Sandbox GUI/Windows Sandbox/VM описаны в старых isolation/sandbox-plugin планах. Они не развёрнуты как доступная GUI среда. Текущий Docker repo контур уже реализован, поэтому старое «изоляции ещё нет» относится к прошлой фазе или отдельному GUI плану, не к текущему Repo Docker.
 
 Основной Windows GUI запрещён. Нельзя выдавать broad HOST MCP или диагностическую Site-страницу за GUI sandbox.
+
+## Native G2 + Repo counters (source preview, 2026-10-16)
+
+The read-only native metrics collector at observatory/dual_metrics.py
+discovers Windows G2 by its exact guest SID, profile name and loopback
+process-owned listener. It reads health + allowlisted Prometheus numbers
+only, not keys, guest YAML, tool history or payloads. On inability to
+verify G2 identity it reports UNKNOWN. Repo stays independently verified
+by Repo tunnel identity; old owner HOST remains RETIRED.
+
+API /api/tunnels and /api/g2-history + native route cards/60m command chart
+were added. Historical HOST P1 widgets are folded away. Live guest-side
+read-only health checks observed G2 and Repo both live/ready with
+MCP initialized; no owner Windows installed-dashboard acceptance yet.
+Do not treat local UP or polled command counts as chat-level delivery.
+Preview instructions and limitations: observatory/README_DUAL_TUNNEL.md.

@@ -16,6 +16,7 @@ from activity_audit import records as safe_activity_records
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from repo_monitor import collect_repo
+from dual_metrics import collect_g2
 
 ROOT = Path(__file__).resolve().parent
 TUNNEL = "http://127.0.0.1:8080"
@@ -38,6 +39,11 @@ INCIDENT_LOCK = threading.RLock()
 HISTORY = deque(maxlen=HISTORY_MAX_SAMPLES)
 LATEST_SNAPSHOT = None
 LATEST_REPO = None
+LATEST_G2 = None
+G2_LOCK = threading.Lock()
+G2_HISTORY = deque(maxlen=HISTORY_MAX_SAMPLES)
+G2_SAMPLES = 0
+G2_HISTORY_FILE = DATA_DIR / "g2-history.jsonl"
 REPO_LOCK = threading.Lock()
 REPO_HISTORY = deque(maxlen=HISTORY_MAX_SAMPLES)
 REPO_HISTORY_FILE = DATA_DIR / "repo-history.jsonl"
@@ -484,10 +490,89 @@ def capture_and_store() -> dict:
     return snapshot
 
 
+def capture_g2() -> dict:
+    global LATEST_G2, G2_SAMPLES
+    result = collect_g2()
+    # Whitelist strictly telemetry metadata; never persist process command
+    # lines, guest history, key material or any exception text.
+    safe = {k: result[k] for k in ("state", "sampled_at", "verified", "mcp_state", "metrics") if k in result}
+    with G2_LOCK:
+        LATEST_G2 = result
+        G2_HISTORY.append(safe)
+        G2_SAMPLES += 1
+        prune_due = G2_SAMPLES % 120 == 0
+    try:
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        with G2_HISTORY_FILE.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(safe, separators=(",", ":")) + "\n")
+    except OSError:
+        pass
+    if prune_due:
+        prune_g2_history()
+    return result
+
+
+def prune_g2_history():
+    cutoff = time.time() - HISTORY_RETENTION_SECONDS
+    with G2_LOCK:
+        rows = [r for r in G2_HISTORY if r.get("sampled_at", 0) >= cutoff]
+        G2_HISTORY.clear()
+        G2_HISTORY.extend(rows)
+    try:
+        tmp = G2_HISTORY_FILE.with_suffix(".tmp")
+        tmp.write_text("".join(json.dumps(r, separators=(",", ":")) + "\n" for r in rows), encoding="utf-8")
+        tmp.replace(G2_HISTORY_FILE)
+    except OSError:
+        pass
+
+
+def load_g2_history() -> None:
+    if not G2_HISTORY_FILE.exists():
+        return
+    cutoff = time.time() - HISTORY_RETENTION_SECONDS
+    try:
+        lines = G2_HISTORY_FILE.read_text(encoding="utf-8").splitlines()[-HISTORY_MAX_SAMPLES:]
+        with G2_LOCK:
+            for line in lines:
+                try:
+                    row = json.loads(line)
+                    if cutoff <= row.get("sampled_at", 0) <= time.time() + 60:
+                        G2_HISTORY.append(row)
+                except (ValueError, TypeError):
+                    continue
+    except OSError:
+        pass
+
+
+def latest_g2() -> dict:
+    with G2_LOCK:
+        state = LATEST_G2
+    if state is None:
+        return {"state": "UNKNOWN", "verified": False, "reason": "Waiting for first G2 sample"}
+    if time.time() - state.get("sampled_at", 0) > 90:
+        return {**state, "state": "STALE", "reason": "G2 telemetry is stale"}
+    return state
+
+
+def native_tunnels() -> dict:
+    repo = latest_repo()
+    g2 = latest_g2()
+    return {"ok": True, "sampled_at": time.time(), "repo": repo, "g2": g2,
+            "scope": "native listener health and aggregate counters, not per-chat delivery",
+            "legacy_host": "RETIRED"}
+
+
+def g2_history(minutes: float = 60.0) -> dict:
+    cutoff = time.time() - max(1., min(60., float(minutes))) * 60
+    with G2_LOCK:
+        rows = [row for row in G2_HISTORY if row.get("sampled_at", 0) >= cutoff]
+    return {"ok": True, "samples": len(rows), "history": rows}
+
+
 def capture_repo() -> dict:
     global LATEST_REPO
     result = collect_repo()
-    safe = {k: result[k] for k in ("state", "sampled_at", "verified", "mcp_state") if k in result}
+    safe = {k: result[k] for k in ("state", "sampled_at", "verified", "mcp_state", "metrics") if k in result}
     with REPO_LOCK:
         LATEST_REPO = result
         REPO_HISTORY.append(safe)
@@ -556,6 +641,7 @@ def sampler_loop() -> None:
     while not STOP_EVENT.wait(SAMPLE_INTERVAL_SECONDS):
         capture_and_store()
         capture_repo()
+        capture_g2()
 
 
 INCIDENT_ID_RE = re.compile(r"^timeout-\d{8}T\d{6}\.\d{6}Z$")
@@ -755,6 +841,17 @@ class Handler(SimpleHTTPRequestHandler):
                 limit = 50
             send_json(self, activity_feed(limit))
             return
+        if parsed.path == "/api/tunnels":
+            send_json(self, native_tunnels())
+            return
+        if parsed.path == "/api/g2-history":
+            query = parse_qs(parsed.query)
+            try:
+                minutes = float((query.get("minutes") or ["60"])[0])
+            except ValueError:
+                minutes = 60.0
+            send_json(self, g2_history(minutes))
+            return
         if parsed.path == "/api/repo-history":
             query = parse_qs(parsed.query)
             try:
@@ -833,8 +930,10 @@ def main() -> None:
     STOP_EVENT.clear()
     load_history()
     load_repo_history()
+    load_g2_history()
     capture_and_store()
     capture_repo()
+    capture_g2()
     resume_pending_incidents()
     sampler = threading.Thread(target=sampler_loop, name="p1-sampler", daemon=True)
     sampler.start()

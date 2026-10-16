@@ -69,3 +69,38 @@ Repo Docker сейчас без published ports: исходный dashboard из
 Для полного forensic audit нужны раздельные approved adapters на
 native G2 и native Repo, owner-protected event storage, data-minimization,
 согласованный срок хранения и отдельная приёмка — [AUDIT](../docs/AUDIT.md).
+
+## Native G2 + Repo metrics — source preview (2026-10-16)
+
+Verified live health and metrics on the two separate Windows loopback listeners
+via guest G2 read-only access: both G2 and Repo live=true, ready=true,
+MCP initialized, queue 0/20 in one snapshot. Listener ports are dynamic.
+This is LOCAL tunnel health, NOT end-to-end ChatGPT request delivery.
+
+Source additions:
+- GET /api/tunnels: separate G2/Repo health and allowlisted numeric aggregates;
+  excludes raw Prometheus labels, tool arguments, commands and credentials.
+- GET /api/g2-history?minutes=60: rolling owner-local redacted G2 counters;
+  Repo history likewise includes safe numeric aggregates.
+- Native route cards and rolling 60-minute received-command graph; retired
+  owner HOST panels are now collapsed in a historical disclosure.
+- G2 Windows discovery: read-only CIM process identity, exact guest SID,
+  pinned fortis-host-g2-test profile and process-owned loopback listener.
+  Does not inspect guest profile contents or cross guest ACL boundaries.
+  If Windows owner cannot prove the G2 identity, status is UNKNOWN.
+- Metrics: polled/enqueued totals, poll count/age, queue and dispatcher
+  occupancy, cumulative mean command latency. Mean is NOT p95/p99. Historical
+  samples cover only up to 60 minutes (sampler wait + Windows discovery time).
+
+Windows owner preview, after pulling source, in a NEW PowerShell window:
+    cd C:\Users\alexa\Repos\tunnel\observatory
+    $env:P1_PORT = '8093'
+    $env:P1_DATA_DIR = Join-Path $env:LOCALAPPDATA 'FortisObservatoryV2Preview'
+    py -3 .\server.py
+
+Open http://127.0.0.1:8093/. Port 8093 is separate from any existing 8092
+Observatory. Ctrl+C stops preview ONLY. Do not restart native Repo/G2, modify
+ACLs, change mount layout or enable raw logging to make a status green.
+Running Windows owner collector and actual browser layout still require
+acceptance; synthetic Linux API/unit/HTML checks do not replace it.
+Moving preview to the installed dashboard requires a separate approval.
