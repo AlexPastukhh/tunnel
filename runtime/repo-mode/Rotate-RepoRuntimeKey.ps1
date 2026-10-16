@@ -65,6 +65,30 @@ foreach ($rule in $acl.Access) {
 }
 Write-Output 'Repo runtime key: existing file/owner/ACL checks passed; contents not displayed.'
 Write-Output 'Note: retired owner HOST historically references the same saved key file.'
+# Windows PowerShell 5.1 does not automatically load ProtectedData.
+# Preview must test the DPAPI dependency before accepting a real secret.
+$dpapiProbe=$null
+$dpapiEncrypted=$null
+$dpapiPlain=$null
+try {
+    Add-Type -AssemblyName System.Security -ErrorAction Stop
+    $dpapiProbe=[Text.Encoding]::ASCII.GetBytes('FORTIS_SYNTHETIC_DPAPI_CHECK_ONLY')
+    $dpapiEncrypted=[Security.Cryptography.ProtectedData]::Protect(
+        $dpapiProbe,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser)
+    $dpapiPlain=[Security.Cryptography.ProtectedData]::Unprotect(
+        $dpapiEncrypted,$null,[Security.Cryptography.DataProtectionScope]::CurrentUser)
+    if ([Convert]::ToBase64String($dpapiPlain) -cne
+        [Convert]::ToBase64String($dpapiProbe)) {
+        throw 'Synthetic DPAPI roundtrip mismatch'
+    }
+} catch {
+    throw 'DPAPI self-test failed before any saved Repo key change. Check Windows PowerShell/System.Security.'
+} finally {
+    if ($null -ne $dpapiProbe) {[Array]::Clear($dpapiProbe,0,$dpapiProbe.Length)}
+    if ($null -ne $dpapiEncrypted) {[Array]::Clear($dpapiEncrypted,0,$dpapiEncrypted.Length)}
+    if ($null -ne $dpapiPlain) {[Array]::Clear($dpapiPlain,0,$dpapiPlain.Length)}
+}
+Write-Output 'SYNTHETIC_DPAPI_CHECK_PASS: current owner DPAPI Protect/Unprotect works in memory.'
 if ($Action -eq 'Preview') {
     Write-Output 'PREVIEW ONLY: no key bytes read, file written, or tunnel restarted.'
     return
