@@ -20,7 +20,7 @@ runtime/repo-mode: выбранные Docker/MCP/launcher/probe/control/test sou
 
 Исполняемые live paths остаются C:\Users\alexa\chatgpt-repo-mode и C:\Tools / Documents\prot. Для deployment копии нужно сравнить с live, применить намеренные изменения и проверить; Git push не обновляет автоматически запущенный процесс.
 
-configure-tunnel.ps1 сохранён как существующий source: его env-key initializer устарел относительно текущего saved-file profile. Не использовать его для пересоздания текущего профиля без исправления и проверки (INSTRUCTIONS.md).
+2026-10-11 устаревший `configure-tunnel.ps1` (инициализатор с env-key reference) удалён из live `chatgpt-repo-mode` и `runtime/repo-mode`: существующие профили уже используют сохранённый file-key reference. Перед удалением проверены идентичность обеих копий и отсутствие вызовов из активных скриптов; резервная копия live файла сохранена вне Git в `chatgpt-repo-mode/backups/retired-initializer-20261011/`, прежняя Git-версия остаётся в истории. Работающие профили и ключ не менялись (INSTRUCTIONS.md).
 
 Для Site code source-of-truth — его Sites Git; SITES.md фиксирует проверенные project/plugin/version/HEAD. Нет копий временных source credentials, auth files или secret upstream URL.
 

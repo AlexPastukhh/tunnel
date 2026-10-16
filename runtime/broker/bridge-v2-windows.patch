@@ -1,0 +1,88 @@
+diff --git a/bridge_selection.py b/bridge_selection.py
+--- a/bridge_selection.py
++++ b/bridge_selection.py
+@@ -82,6 +82,9 @@ def select_paths(paths, item, bridge_root):
+     mode = item.get("selection_mode", "include")
+     if mode not in ("include", "exclude", "all"):
+         raise ValueError("unsupported selection_mode")
++    # A configured Windows export policy must never be silently ignored.
++    if mode != "exclude" and item.get("snapshot_ignore_file"):
++        raise ValueError("snapshot_ignore_file requires selection_mode=exclude")
+     eligible = [p for p in paths if mandatory_allowed(p)]
+     if mode == "include":
+         patterns = item.get("allowed_export_globs", [])
+diff --git a/bridge.py b/bridge.py
+--- a/bridge.py
++++ b/bridge.py
+@@ -187,11 +187,14 @@ def preview(ns):
+     selected = select_paths(listed, item, ROOT)
+     total = 0
+     too_large = []
++    full_manifest = []
+     for rel in selected:
+         f = confine(path, rel)
+         if not f.is_file():
+             raise BridgeError("selected file is not a regular file: " + rel)
+         n = f.stat().st_size
+         total += n
++        if getattr(ns, "full_files", False):
++            full_manifest.append(dict(path=rel, bytes=n, tracked=rel in tracked))
+         if n > item.get("max_file_bytes", 2_000_000):
+             too_large.append(rel)
+@@ -208,4 +212,6 @@ def preview(ns):
+          selected_sample=selected[:12],
+          excluded_sample=[p for p in listed if p not in selected_set][:12],
+          over_file_limit=too_large[:12], over_total_limit=total>item.get("max_total_bytes",5_000_000),
+-         published=False, selection_sha256=selection_digest)
++         published=False, selection_sha256=selection_digest,
++         **({"selected_manifest": full_manifest} if getattr(ns, "full_files", False)
++            else {}))
+@@ -462,4 +468,5 @@ def main():
+     pv=sub.add_parser("preview")
+     pv.add_argument("--repo",required=True)
+     pv.add_argument("--fingerprint",action="store_true")
++    pv.add_argument("--full-files",action="store_true")
+     s=sub.add_parser("snapshot")
+diff --git a/Bridge.ps1 b/Bridge.ps1
+--- a/Bridge.ps1
++++ b/Bridge.ps1
+@@ -9,4 +9,6 @@ param(
+   [string]$Remote,
+   [string]$Mode,
+   [switch]$ConfirmExport,
++  [switch]$Fingerprint,
++  [switch]$FullFiles,
+   [string]$SnapshotId,
+@@ -16,4 +18,5 @@ param(
+   [string]$PatchBase64,
+   [string]$PatchFile,
+   [string]$PatchSha256,
++  [string]$ExpectedSelectionSha256,
+   [switch]$CheckOnly
+@@ -28,3 +31,6 @@ if ($Remote)     { $argsList += @('--remote', $Remote) }
+ if ($Mode)       { $argsList += @('--mode', $Mode) }
+ if ($ConfirmExport) { $argsList += '--confirm-export' }
++if ($Fingerprint) { $argsList += '--fingerprint' }
++if ($FullFiles) { $argsList += '--full-files' }
++if ($ExpectedSelectionSha256) { $argsList += @('--expected-selection-sha256', $ExpectedSelectionSha256) }
+ if ($SnapshotId) { $argsList += @('--snapshot-id', $SnapshotId) }
+diff --git a/test_selection.py b/test_selection.py
+--- a/test_selection.py
++++ b/test_selection.py
+@@ -35,4 +35,15 @@ def suite():
+             "README.md", "docs/keep.log", "docs/remove.log",
+             "build/compiled.js", "src/main.py"
+         ]
++        # Supplying a policy path with all/include must never silently bypass it.
++        for mode in ("all", "include"):
++            try:
++                select_paths(candidates, {
++                    "selection_mode": mode,
++                    "snapshot_ignore_file": "policies/test.snapshotignore",
++                }, root)
++            except ValueError:
++                pass
++            else:
++                raise AssertionError("snapshotignore silently ignored in "+mode)
+         assert select_paths(candidates, {
+             "selection_mode": "include",

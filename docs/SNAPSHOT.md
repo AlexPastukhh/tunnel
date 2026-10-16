@@ -1,10 +1,10 @@
 # Snapshot Bridge — как пользоваться
 
+Этот документ описывает только **сценарий использования**; команды устранения неполадок — в [Broker runbook](../runtime/broker/README.md), доказательства и история решений — в [V2](BROKER_V2_PLAN.md). Snapshot-права не ограничивают прямой доступ native Repo — [ARCHITECTURE](ARCHITECTURE.md).
+
 **Назначение.** Через вручную запускаемый Windows Broker получить актуальный ZIP локального Git-проекта в приватном GitHub Actions Artifact, независимо проверить архив в ChatGPT и работать с его копией. Это не даёт Broker права выполнять Windows-команды или применять patch.
 
-**Проверенный срез 2026-10-11:** Broker V2 установлен, Task `FortisRepoBridgeBrokerV1` включена, но **остановлена** (`Ready`); автозапуска и перезапуска после сбоя нет. В реестре 20 alias, из них **17 имеют постоянный допуск** `broker_snapshot_enabled=true` к приватному транспорту. Не включены `obs` (объём/недоступный путь), `theory-conspects-and-banks` (15 совпадений с сигнатурой возможного ключа) и публичный synthetic `test`. Это состояние **на дату проверки**; перед операцией нужен живой `list/preview`.
-
-**Доказанная цепочка:** на `test-private` два разных snapshot прошли Broker → Bridge → private GitHub Actions → скачивание в ChatGPT; оба ZIP проверены по manifest и SHA-256 (по 8 файлов / 13 510 байт). Остальные 16 включённых alias прошли read-only preflight, **но не отдельный GitHub E2E**. ID и разбор второго сетевого сбоя — в [истории V2](BROKER_V2_PLAN.md).
+**Проверенный срез и доказательства (2026-10-11):** см. [CURRENT_STATE](CURRENT_STATE.md) для датированного состояния Task, числа alias, ограничений и результатов; [BROKER_V2_PLAN](BROKER_V2_PLAN.md) для evidence E2E. Перед новым запросом проверить актуальные `list/preview`. Два E2E на тестовом alias не означают E2E для всех разрешённых проектов.
 
 ## Обычный сеанс
 

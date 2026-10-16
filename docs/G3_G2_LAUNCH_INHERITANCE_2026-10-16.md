@@ -1,6 +1,8 @@
 # G3 — запуск G2 и наследование handles, 2026-10-16
 
-> Уточнение цели 2026-10-16 03:35: G2 заменяет прежний owner HOST. Его runtime-only migration и helper больше не являются следующей работой (NOT REQUIRED NOW). Датированные факты и JSON ниже сохранены; действующий порядок — [актуальный план](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md#целевая-замена-host-на-g2--уточнение-2026-10-16-0335). Live HOST пока не остановлен.
+> **Статус после E43 (16.10.2026):** old owner HOST остановлен. Сведения ниже о работающем HOST и будущем переключении — исторические наблюдения до приёмки. Действующий результат: [E43](G3_G2_SCOPE_ACCEPTANCE_AND_HOST_RETIREMENT_2026-10-16.md) и [план](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md).
+
+> Уточнение цели 2026-10-16 03:35: G2 заменяет прежний owner HOST. Его runtime-only migration и helper больше не являются следующей работой (NOT REQUIRED NOW). Датированные факты и JSON ниже сохранены; действующий порядок — [актуальный план](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md). Live HOST пока не остановлен.
 
 **Анализ исходников и адресная Windows-проверка завершены. 2.6 PARTIAL; G3 BLOCKED; G4–G6 не приняты.**
 [Structured evidence E24](G3_G2_LAUNCH_INHERITANCE_2026-10-16.json).

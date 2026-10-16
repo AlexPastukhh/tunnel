@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "snapshot_allowed_aliases": [],
+  "snapshot_cooldown_seconds": 3600
+}

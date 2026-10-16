@@ -16,3 +16,9 @@ snapshots/
 *.vhdx
 node_modules/
 __pycache__/
+
+# Transient connected-tool smoke output (not project source)
+/agent-io-test/
+
+# Historical launcher backup retained locally; source and chronology are in Git
+/runtime/host-g2/runtime-api-migration/*.before-*.ps1.bak

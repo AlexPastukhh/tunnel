@@ -1,6 +1,8 @@
 # G3 — совместимость owner routes: подготовка, 2026-10-16 03:23
 
-> Уточнение цели 2026-10-16 03:35: G2 заменяет прежний owner HOST. Его runtime-only migration и helper больше не являются следующей работой (NOT REQUIRED NOW). Датированные факты и JSON ниже сохранены; действующий порядок — [актуальный план](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md#целевая-замена-host-на-g2--уточнение-2026-10-16-0335). Live HOST пока не остановлен.
+> **Статус после E43 (16.10.2026):** old owner HOST остановлен. Сведения ниже о работающем HOST и будущем переключении — исторические наблюдения до приёмки. Действующий результат: [E43](G3_G2_SCOPE_ACCEPTANCE_AND_HOST_RETIREMENT_2026-10-16.md) и [план](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md).
+
+> Уточнение цели 2026-10-16 03:35: G2 заменяет прежний owner HOST. Его runtime-only migration и helper больше не являются следующей работой (NOT REQUIRED NOW). Датированные факты и JSON ниже сохранены; действующий порядок — [актуальный план](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md). Live HOST пока не остановлен.
 
 **4.8 PARTIAL; 4.9/4.10 PENDING; переключение не выполнялось. G3 BLOCKED.**
 [Structured evidence E25](G3_OWNER_ROUTE_COMPATIBILITY_2026-10-16.json).

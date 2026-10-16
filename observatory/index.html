@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tunnel Observatory — Prototype 1</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">FORTIS_M / OBSERVABILITY / P1</div>
+        <h1>Tunnel Observatory</h1>
+        <p class="subtitle">Live shadow dashboard · read-only · рабочий MCP path не изменяется</p>
+      </div>
+      <div class="top-actions">
+        <span id="modeBadge" class="mode-badge live">LIVE SHADOW</span>
+        <span id="clock" class="clock">--:--:--</span>
+      </div>
+    </header>
+
+    <section class="repo-banner" aria-label="Состояние двух туннелей">
+      <article><small>Native HOST</small><strong id="hostStatus">UNKNOWN</strong><span id="hostReason">Ожидание данных</span></article>
+      <article><small>Native Fortis Repo</small><strong id="repoStatus">UNKNOWN</strong><span id="repoReason">Ожидание данных</span></article>
+      <p>Данные только для наблюдения. UNKNOWN не означает остановку туннеля. Управление и полный аудит не включены. Repo: <span id="repoHistoryCount">—</span> записей за 60 минут.</p>
+    </section>
+    <section class="summary-grid">
+      <article class="metric-card">
+        <div class="metric-head"><span>Tunnel</span><i id="tunnelDot" class="dot gray"></i></div>
+        <strong id="tunnelState">connecting…</strong>
+        <small id="uptime">uptime —</small>
+      </article>
+      <article class="metric-card">
+        <div class="metric-head"><span>Control plane</span><i id="controlDot" class="dot gray"></i></div>
+        <strong id="controlState">—</strong>
+        <small id="controlMeta">last poll —</small>
+      </article>
+      <article class="metric-card">
+        <div class="metric-head"><span>MCP target</span><i id="mcpDot" class="dot gray"></i></div>
+        <strong id="mcpState">—</strong>
+        <small id="mcpMeta">stdio · discovery —</small>
+      </article>
+      <article class="metric-card">
+        <div class="metric-head"><span>Local work</span><i id="workDot" class="dot gray"></i></div>
+        <strong id="workState">—</strong>
+        <small id="workMeta">queue — · active —</small>
+      </article>
+    </section>
+
+    <section class="toolbar">
+      <div><b>Collector</b> <span id="collectorState" class="muted">waiting for first sample</span></div>
+      <div class="button-row">
+        <button id="markTimeout">Mark 25s timeout</button>
+        <button id="refreshNow">Refresh now</button>
+      </div>
+    </section>
+
+    <main class="dashboard">
+      <section class="panel latency-panel">
+        <div class="panel-head">
+          <div><span class="panel-kicker">TOOLS/CALL</span><h2>Latency</h2></div>
+          <div class="latency-stats">
+            <span><b id="recentLatency">—</b><small>recent avg</small></span>
+            <span><b id="cumulativeLatency">—</b><small>cumulative avg</small></span>
+            <span><b id="slowCalls">—</b><small>&gt;10s</small></span>
+          </div>
+        </div>
+        <canvas id="latencyChart" height="190"></canvas>
+        <div class="chart-legend">
+          <span><i class="legend-line primary"></i> recent tools/call avg</span>
+          <span><i class="legend-line secondary"></i> poll → response avg</span>
+        </div>
+      </section>
+
+      <section class="panel health-panel">
+        <div class="panel-head">
+          <div><span class="panel-kicker">COMPONENT HEALTH</span><h2>Layers</h2></div>
+        </div>
+        <div id="layers" class="layer-stack"></div>
+      </section>
+
+      <section class="panel triage-panel">
+        <div class="panel-head">
+          <div><span class="panel-kicker">INCIDENT TRIAGE</span><h2>Where is the failure?</h2></div>
+          <span id="riskPill" class="risk-pill neutral">collecting</span>
+        </div>
+        <h3 id="diagnosisTitle">Waiting for live telemetry…</h3>
+        <ul id="evidenceList" class="evidence"></ul>
+        <p id="hypothesis" class="hypothesis"></p>
+      </section>
+
+      <section class="panel transport-panel">
+        <div class="panel-head">
+          <div><span class="panel-kicker">TRANSPORT</span><h2>Control plane / response delivery</h2></div>
+        </div>
+        <div class="transport-grid">
+          <div><span>Poll HTTP</span><b id="pollHttp">—</b></div>
+          <div><span>Response HTTP</span><b id="responseHttp">—</b></div>
+          <div><span>tools/call 200</span><b id="tools200">—</b></div>
+          <div><span>tools/call 409</span><b id="tools409">—</b></div>
+          <div><span>Queue</span><b id="queueStat">—</b></div>
+          <div><span>Dispatcher</span><b id="dispatcherStat">—</b></div>
+        </div>
+      </section>
+
+      <section class="panel events-panel">
+        <div class="panel-head">
+          <div><span class="panel-kicker">LOCAL TIMELINE</span><h2>State changes & incident marks</h2></div>
+          <span class="muted">timeline memory · incident marks persisted</span>
+        </div>
+        <div id="eventList" class="event-list"></div>
+      </section>
+
+      <section class="panel incidents-panel">
+        <div class="panel-head">
+          <div><span class="panel-kicker">PERSISTENT INCIDENTS</span><h2>25s timeout captures</h2></div>
+          <button id="refreshIncidents">Refresh incidents</button>
+        </div>
+        <div class="incident-layout">
+          <div id="incidentList" class="incident-list"><div class="muted">No incidents loaded yet.</div></div>
+          <div id="incidentDetail" class="incident-detail"><div class="muted">Select an incident to inspect its before/after evidence.</div></div>
+        </div>
+      </section>
+
+      <section class="panel provenance-panel">
+        <div class="panel-head">
+          <div><span class="panel-kicker">DATA BOUNDARY</span><h2>What P1 can and cannot see</h2></div>
+        </div>
+        <dl class="provenance">
+          <div><dt>Source</dt><dd>127.0.0.1:8080 health + metrics</dd></div>
+          <div><dt>MCP path</dt><dd>unchanged</dd></div>
+          <div><dt>Runtime key</dt><dd>not read</dd></div>
+          <div><dt>Tool payloads</dt><dd>not collected</dd></div>
+          <div><dt>Chat/session ID</dt><dd>not available in P1</dd></div>
+          <div><dt>AV events</dt><dd>manual investigation only</dd></div>
+        </dl>
+        <p class="footnote">Если конкретный чат сообщает timeout, нажми <b>Mark 25s timeout</b>. P1 сохранит persistent incident JSON с текущим состоянием и предшествующей rolling history; runtime key, tool payloads и prompts не собираются. Рабочий MCP path не изменяется.</p>
+      </section>
+    </main>
+  </div>
+  <script src="./app.js"></script>
+</body>
+</html>

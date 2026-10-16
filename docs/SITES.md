@@ -1,5 +1,7 @@
 # Наши плагины через Site
 
+Это справочник только по **hosted Sites**: IDs, Worker/upstream, published source и gate. Независимые native-маршруты и их связь с Site — в [ARCHITECTURE](ARCHITECTURE.md); точка входа по задаче — [README](README.md).
+
 Site здесь — hosted MCP proxy с небольшой диагностической веб-страницей. Страница не обязательна для вызова инструментов из ChatGPT. MCP App с интерактивной карточкой внутри чата — отдельный механизм, не любой сайт.
 
 | | HOST Site | Repo Site |

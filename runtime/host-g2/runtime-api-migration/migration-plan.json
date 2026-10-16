@@ -1,0 +1,26 @@
+{
+  "runtime": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+  "runtimeSha256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A",
+  "entries": [
+    {
+      "candidate": "host-launcher.ps1",
+      "live": "C:\\Users\\alexa\\Documents\\prot\\Start-Desktop-Commander-Secure-Tunnel.ps1",
+      "beforeSha256": "0F644D4239E60886354EB83B6438CC888D8BDF3202B944B0304508E7C1336DFE",
+      "afterSha256": "3C93125C16ED7BB91E13E37E6546CB9BB51CF075F6A28AB934131594DE596B72"
+    },
+    {
+      "candidate": "repo-run-tunnel.ps1",
+      "live": "C:\\Users\\alexa\\chatgpt-repo-mode\\run-tunnel.ps1",
+      "beforeSha256": "3877266C3C97BECC82045BE16D994981EB4F8973353B285236DF9CAAC158A5A3",
+      "afterSha256": "52848CDA49FECB4D78589E9979781A28D114A92F694CF75BC66EA6D4412EB93B"
+    },
+    {
+      "candidate": "repo-control.ps1",
+      "live": "C:\\Users\\alexa\\chatgpt-repo-mode\\control.ps1",
+      "beforeSha256": "E80E209B4758B194D2BCC7DCAFDFB83D296289E29A543F192E6726538641AE34",
+      "afterSha256": "605F9D54A0A35FF3011DC44356A733F975A8993F1225FF53378A6B7880A193C5"
+    }
+  ],
+  "automaticRestarts": false,
+  "profileChanges": false
+}
