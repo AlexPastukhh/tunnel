@@ -69,3 +69,39 @@ async function refreshRepoHistory() {
 }
 refreshRepoHistory();
 setInterval(refreshRepoHistory, 15000);
+
+
+// Optional read-only activity stream. Never interpolate command text: the
+// server returns metadata ONLY, and HTML is escaped even for tool names.
+async function refreshActivity() {
+  const list = document.getElementById("activityList"), state = document.getElementById("activityCoverage");
+  if (!list || !state) return;
+  try {
+    const res = await fetch("/api/activity?limit=40", {cache:"no-store"});
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const info = await res.json(), feeds = info.feeds || {};
+    const details = ["repo","g2"].map(route => {
+      const src = feeds[route] || {};
+      return route.toUpperCase()+": "+(src.source_state || "unconfigured")+
+        (src.source_recent_window_incomplete ? " · incomplete window" : "");
+    });
+    state.textContent = details.join(" | ") +
+      " · Metadata only; no prompts, command text, arguments or outputs. History is rolling and incomplete.";
+    const rows = info.events || [];
+    list.innerHTML = rows.length ? rows.map(item =>
+      '<div class="activity-row"><b>'+esc(item.route || "?")+'</b>'+
+      '<span>'+esc(item.timestamp || "unknown")+'</span>'+
+      '<strong>'+esc(item.tool || "unknown")+'</strong>'+
+      '<small>'+esc(item.kind || "other")+
+        ' · '+esc(item.duration_ms == null ? "?" : String(item.duration_ms))+
+        'ms · '+esc(item.outcome || "unverified")+
+        (item.command_present ? ' · command exists (local CLI only)' : '')+'</small></div>'
+    ).join("") : '<p class="muted">No activity visible from configured sources.</p>';
+  } catch (err) {
+    state.textContent = "Activity feed unavailable; this is not evidence of zero tool calls.";
+    list.textContent = String(err);
+  }
+}
+document.getElementById("refreshActivity")?.addEventListener("click", refreshActivity);
+refreshActivity();
+setInterval(refreshActivity, 10000);

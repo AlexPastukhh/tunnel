@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 import urllib.error
 import urllib.request
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+from activity_audit import records as safe_activity_records
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 from repo_monitor import collect_repo
@@ -39,6 +40,38 @@ LATEST_REPO = None
 REPO_LOCK = threading.Lock()
 REPO_HISTORY = deque(maxlen=HISTORY_MAX_SAMPLES)
 REPO_HISTORY_FILE = DATA_DIR / "repo-history.jsonl"
+# Opt-in existing local histories only. An owner process MUST NOT bypass G2 ACLs.
+# A path is reported unavailable if the current Windows/Linux user cannot read it.
+AUDIT_SOURCES = {
+    route: Path(value).expanduser()
+    for route, value in (
+        ("repo", os.getenv("FORTIS_AUDIT_REPO_HISTORY", "")),
+        ("g2", os.getenv("FORTIS_AUDIT_G2_HISTORY", "")),
+    )
+    if value
+}
+
+def activity_feed(limit: int = 50) -> dict:
+    limit = min(100, max(1, int(limit)))
+    feeds = {}
+    for route in ("repo", "g2"):
+        if route not in AUDIT_SOURCES:
+            feeds[route] = {"route": route, "source_state": "unconfigured",
+                            "events": [], "returned": 0,
+                            "source_recent_window_incomplete": True}
+            continue
+        try:
+            feeds[route] = safe_activity_records(AUDIT_SOURCES[route], route, limit)
+        except (OSError, ValueError):
+            feeds[route] = {"route": route, "source_state": "unavailable",
+                            "events": [], "returned": 0,
+                            "source_recent_window_incomplete": True}
+    events = sorted((event for feed in feeds.values() for event in feed["events"]),
+                    key=lambda event: event["timestamp"] or "", reverse=True)
+    return {"ok": True, "feeds": feeds, "events": events[:limit],
+            "coverage": "recent Desktop Commander calls only; commands/arguments/outputs are never sent to web",
+            "chat_prompt_visibility": "not available"}
+
 STOP_EVENT = threading.Event()
 COLLECTOR = {
     "samples": 0,
@@ -708,6 +741,14 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path == "/api/activity":
+            query = parse_qs(parsed.query)
+            try:
+                limit = int((query.get("limit") or ["50"])[0])
+            except ValueError:
+                limit = 50
+            send_json(self, activity_feed(limit))
+            return
         if parsed.path == "/api/repo-history":
             query = parse_qs(parsed.query)
             try:

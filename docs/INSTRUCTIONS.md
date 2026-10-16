@@ -13,6 +13,17 @@ Linux [Bridge source](../runtime/repo-mode/fortis-mcp-bridge.mjs) не обно�
 Изменения E44 — Markdown/JSON, без reinstall/runtime deploy/restart/commit/push.
 [Итог](ISOLATION_GUIDE.md).
 
+## Source-only audit reader (2026-10-16; не live deployment)
+
+Изменения исходников observatory/activity_audit.py, server.py, app.js,
+index.html, styles.css и тесты добавляют opt-in metadata-only наблюдение
+для локального Desktop Commander tool-history.jsonl. Никакие persistent
+credentials, mounts, ACL, G2 launcher и Repo Tunnel не меняются.
+Точный командный текст только через интерактивный локальный CLI, не HTTP.
+Порядок и ограничения: [observatory runbook](../observatory/README_DUAL_TUNNEL.md).
+Mandatory JSON-RPC audit/writer, trusted chat correlation и long-term
+retention ещё не реализованы. Не считать исходники установленным P1.
+
 ## Датированная история (сохранена без удаления)
 
 ### Scope принят, прежний owner HOST остановлен — E43, 2026-10-16

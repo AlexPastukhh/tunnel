@@ -96,3 +96,10 @@ New incident API/UI:
 The export intentionally excludes runtime keys, tool payloads, prompts and transcripts. Exact request-level attribution still requires the later canary proxy.
 
 Validation used an isolated test server/data directory with a 5-second post window: normal finalize passed, ZIP contained only the expected files, no `sk-`/`Bearer ` strings were present, and a pending incident finalized correctly after sidecar restart. Production P1 was then restarted on `127.0.0.1:8092`; root and APIs are healthy.
+
+## Activity Audit (source-only)
+
+Read-only [инспектор инструментов и opt-in dashboard](README_DUAL_TUNNEL.md)
+для ограниченных Desktop Commander историй G2/Repo. GUI содержит только
+метаданные, точный командный текст только в локальном интерактивном CLI.
+Новая версия Windows P1 не устанавливалась и не перезапускалась.

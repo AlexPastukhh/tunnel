@@ -7,6 +7,17 @@ source discovery, но не обновил installed dashboard. Repo narrow со
 не legacy full /ui и /api/logs. Это не permissions gate.
 [Итог](ISOLATION_GUIDE.md), [E39](G3_REPO_MONITOR_DISCOVERY_2026-10-16.md).
 
+## Activity stream source-only, 2026-10-16
+
+В Git добавлен [read-only activity_audit.py](../observatory/activity_audit.py)
+и opt-in /api/activity для metadata по вызовам инструментов G2/Repo.
+GUI не получает аргументы, полный командный текст, ответы или секреты.
+Если источник недоступен, UI показывает unconfigured/unavailable, а не
+ложный ноль операций. Метаданные G2 не становятся доступны owner
+обходом ACL. Offline tests не заменяют native Windows acceptance.
+Руководство по настройке: [Observatory](../observatory/README_DUAL_TUNNEL.md).
+Установленный Windows P1, G2 gate и Repo MCP Bridge не изменялись.
+
 ## Датированная история (сохранена без удаления)
 
 > E39, 16 октября: [автопоиск Repo исправлен](G3_REPO_MONITOR_DISCOVERY_2026-10-16.md). Причина — discovery timeout3s; теперь bounded15s и executable-name filter. Windows source collector автоматически UP/initialized без OBS_REPO_URL, Repo11 tests PASS. Известный старый P1 не содержит repo_monitor.py и не обновлялся. Его installation/GUI не приняты. Sampler wait5s — номинальная пауза между rounds; collection time увеличивает фактический интервал. Ниже E38 UNKNOWN — исходный baseline.

@@ -24,3 +24,48 @@ Checks:
 Eleven automated tests now pass, including the existing two HTTP route checks and new discovery regression cases. Unit tests alone do not prove Windows integration; the separate E39 native collector check does. Browser rendering and dashboard installation remain unverified.
 
 Do not replace the existing P1 automatically. Before installation test on an unused loopback port with isolated P1_DATA_DIR, verify the native Repo identity in live telemetry and retain rollback. Full MCP audit and privileged controls remain out of scope.
+
+## Activity Audit — metadata-only opt-in
+
+Это source MVP от 16.10.2026, не автообновление Windows P1. Использует
+существующую rolling историю Desktop Commander. Не читает промпты,
+не перехватывает все дочерние команды и не читает пути другого Windows SID.
+
+Repo Docker, чтение только метаданных, не создаёт новый журнал:
+
+    cd /workspace/repos/tunnel
+    python3 observatory/activity_audit.py --route repo --limit 30
+    python3 observatory/activity_audit.py --route repo --tool start_process --limit 30
+
+G2 Windows guest, после размещения копии CLI в собственном Workspace:
+
+    python .\activity_audit.py --route g2 --limit 30
+
+Для точных команд (могут содержать секреты) только trusted local
+interactive terminal, не MCP/chat/screenshot/redirect:
+
+    python3 observatory/activity_audit.py --route repo --unsafe-show-commands-local --limit 5
+
+Unsafe-режим откажет при перенаправленном stdout; --json всегда метаданные.
+
+Dashboard /api/activity?limit=40 работает только с opt-in локальными
+источниками, явно указанными владельцем процесса: переменные
+FORTIS_AUDIT_REPO_HISTORY и FORTIS_AUDIT_G2_HISTORY. Например,
+если dashboard запущен **как G2** (его собственный пользователь):
+
+    $env:FORTIS_AUDIT_G2_HISTORY = "$env:USERPROFILE\.claude-server-commander\tool-history.jsonl"
+    python .\server.py
+
+Owner dashboard не должен открывать guest-only history через смену ACL:
+оставить G2 unconfigured до отдельного утверждённого collector.
+Repo Docker сейчас без published ports: исходный dashboard из контейнера
+сам собой не становится доступным из Windows. Не публиковать localhost
+внешним слушателем. Не путать source с installed Windows P1.
+
+ИСТОЧНИКИ / ГРАНИЦЫ: rolling 1000 recent calls; truncated large outputs;
+нет полного chat ID и всех prompts, Site/другие плагины вне контура;
+выводные команды скриптов/процессов не фиксируются этим логом;
+нет tamper-proof archive, pre-execution ALLOW/DENY и единого retention.
+Для полного forensic audit нужны раздельные approved adapters на
+native G2 и native Repo, owner-protected event storage, data-minimization,
+согласованный срок хранения и отдельная приёмка — [AUDIT](../docs/AUDIT.md).
