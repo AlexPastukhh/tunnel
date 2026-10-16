@@ -89,6 +89,31 @@ try {
     if ($null -ne $dpapiPlain) {[Array]::Clear($dpapiPlain,0,$dpapiPlain.Length)}
 }
 Write-Output 'SYNTHETIC_DPAPI_CHECK_PASS: current owner DPAPI Protect/Unprotect works in memory.'
+
+# Test the PowerShell-to-.NET argument binding and NTFS atomic replacement
+# using synthetic files before accepting a secret in Install mode.
+$fixture=Join-Path ([IO.Path]::GetTempPath()) ('FortisRepoKeyReplaceTest-'+[guid]::NewGuid().ToString('N'))
+$null=[IO.Directory]::CreateDirectory($fixture)
+$fixtureDest=Join-Path $fixture 'existing.synth'
+$fixtureNext=Join-Path $fixture 'replacement.synth'
+try {
+    [IO.File]::WriteAllBytes($fixtureDest,[byte[]](65,66,67))
+    [IO.File]::WriteAllBytes($fixtureNext,[byte[]](88,89,90))
+    [IO.File]::Replace($fixtureNext,$fixtureDest,[NullString]::Value,$false)
+    $fixtureData=[IO.File]::ReadAllBytes($fixtureDest)
+    if ($fixtureData.Length -ne 3 -or $fixtureData[0] -ne 88 -or
+        $fixtureData[1] -ne 89 -or $fixtureData[2] -ne 90 -or
+        (Test-Path -LiteralPath $fixtureNext)) {
+        throw 'Synthetic file replacement verification failed'
+    }
+} catch {
+    throw 'Synthetic File.Replace preflight failed: saved runtime key not touched'
+} finally {
+    if (Test-Path -LiteralPath $fixture -PathType Container) {
+        [IO.Directory]::Delete($fixture,$true)
+    }
+}
+Write-Output 'SYNTHETIC_REPLACE_CHECK_PASS: File.Replace works with nonsecret files.'
 if ($Action -eq 'Preview') {
     Write-Output 'PREVIEW ONLY: no key bytes read, file written, or tunnel restarted.'
     return
@@ -133,7 +158,7 @@ function Write-ExactKey([byte[]]$newKey) {
             throw 'Staged file security descriptor differs from old key'
         }
         # Same-volume replacement. Existing profile keeps its file: reference.
-        [IO.File]::Replace($temp,$keyPath,$null,$false)
+        [IO.File]::Replace($temp,$keyPath,[NullString]::Value,$false)
         $replacedAcl=Get-Acl -LiteralPath $keyPath
         if ($replacedAcl.Sddl -cne $acl.Sddl) {
             throw 'Replacement ACL differs. Restore using the DPAPI backup.'
