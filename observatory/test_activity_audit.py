@@ -122,5 +122,15 @@ class ActivityApiTests(unittest.TestCase):
                 thread.join(timeout=3)
 
 
+class RetirementTests(unittest.TestCase):
+    def test_retired_host_skips_old_port(self):
+        import server
+        with patch.object(server, "LEGACY_HOST_ENABLED", False):
+            with patch.object(server, "fetch_json", side_effect=AssertionError("no polling")):
+                result = server.build_snapshot()
+        self.assertTrue(result["legacy_host_retired"])
+        self.assertIsNone(result["error"])
+
+
 if __name__ == "__main__":
     unittest.main()

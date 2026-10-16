@@ -19,6 +19,7 @@ from repo_monitor import collect_repo
 
 ROOT = Path(__file__).resolve().parent
 TUNNEL = "http://127.0.0.1:8080"
+LEGACY_HOST_ENABLED = os.getenv("OBS_LEGACY_HOST_ENABLED", "0") == "1"
 LISTEN = ("127.0.0.1", int(os.getenv("P1_PORT", "8092")))
 FETCH_TIMEOUT = 2.0
 SAMPLE_INTERVAL_SECONDS = 5.0
@@ -403,6 +404,11 @@ def collector_record(ok: bool, error: str | None = None) -> dict:
 
 def build_snapshot() -> dict:
     started = time.perf_counter()
+    if not LEGACY_HOST_ENABLED:
+        return {"ok": False, "captured_at": time.time(), "collector_ms": 0,
+                "legacy_host_retired": True, "error": None,
+                "diagnosis": {"severity": "neutral", "title": "Legacy HOST retired (E43)",
+                              "evidence": ["Old HOST intentionally offline; no legacy telemetry collected."]}}
     try:
         health = fetch_json("/health?details=true")
         mcp = fetch_json("/health/mcp")

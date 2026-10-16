@@ -16,7 +16,17 @@ function transport(s){let m=s.metrics||{},h=s.health||{},q=comp(h,"queue").detai
 function diagnosis(s){let d=s.diagnosis||{},sev=d.severity||"neutral";$("#riskPill").className="risk-pill "+sev;$("#riskPill").textContent=sev.toUpperCase();$("#diagnosisTitle").textContent=d.title||"No diagnosis";$("#evidenceList").innerHTML=(d.evidence||[]).map(x=>"<li>"+esc(x)+"</li>").join("");$("#hypothesis").textContent=d.hypothesis||"";let k=sev+"|"+(d.title||"");if(lastDiagnosisKey&&k!==lastDiagnosisKey)add(sev==="bad"?"error":sev,"Diagnosis changed",d.title||"");lastDiagnosisKey=k}
 function ingest(s){for(let e of s.tunnel_events||[]){if(!e.seq||e.seq<=lastEventSeq)continue;let detail=[e.error_code,e.status_code?"HTTP "+e.status_code:"",e.error].filter(Boolean).join(" | ");add(e.level==="ERROR"?"error":"warn",e.message||"Tunnel event",detail||"see tunnel log",e.time);lastEventSeq=Math.max(lastEventSeq,e.seq)}}
 function deltas(s){if(!previous)return;let n=+(s.metrics?.tools_call_409?.count||0),o=+(previous.metrics?.tools_call_409?.count||0);if(n>o)add("warn","tools/call 409 increased","+"+(n-o)+" | possible MCP initialization/session guard")}
-function render(s){if(!s.ok){$("#collectorState").textContent="error | "+(s.error||"unknown");$("#modeBadge").className="mode-badge bad";$("#modeBadge").textContent="TELEMETRY DOWN";add("error","Collector failed",s.error||"unknown");return}$("#modeBadge").className="mode-badge live";$("#modeBadge").textContent="LIVE SHADOW";let c=s.collector||{};$("#collectorState").textContent="ok | "+s.collector_ms+"ms | samples "+(c.samples??"-")+" | failures "+(c.failures??"-")+" | consecutive "+(c.consecutive_failures??"-")+" | "+new Date(s.captured_at*1000).toLocaleTimeString("ru-RU",{hour12:false});summary(s);latency(s);layers(s.health||{});transport(s);diagnosis(s);ingest(s);deltas(s)}
+function render(s){if(s.legacy_host_retired){
+$("#collectorState").textContent="Old HOST intentionally retired (E43), not telemetry failure";
+$("#modeBadge").className="mode-badge";$("#modeBadge").textContent="LEGACY HOST RETIRED";
+for(const id of ["#tunnelState","#controlState","#mcpState","#workState"])$(id).textContent="not monitored";
+for(const id of ["#tunnelDot","#controlDot","#mcpDot","#workDot"])dot(id,"unknown");
+$("#diagnosisTitle").textContent="Old owner HOST stopped intentionally (E43)";
+$("#riskPill").className="risk-pill neutral";$("#riskPill").textContent="NOT MONITORED";
+$("#evidenceList").innerHTML="<li>G2 and Repo have separate routes.</li>";
+$("#hypothesis").textContent="Repo health cannot prove ChatGPT routing. G2 requires a separate collector.";
+$("#layers").innerHTML="<div class='muted'>Old HOST retired; no live telemetry.</div>";
+return;}if(!s.ok){$("#collectorState").textContent="error | "+(s.error||"unknown");$("#modeBadge").className="mode-badge bad";$("#modeBadge").textContent="TELEMETRY DOWN";add("error","Collector failed",s.error||"unknown");return}$("#modeBadge").className="mode-badge live";$("#modeBadge").textContent="LIVE SHADOW";let c=s.collector||{};$("#collectorState").textContent="ok | "+s.collector_ms+"ms | samples "+(c.samples??"-")+" | failures "+(c.failures??"-")+" | consecutive "+(c.consecutive_failures??"-")+" | "+new Date(s.captured_at*1000).toLocaleTimeString("ru-RU",{hour12:false});summary(s);latency(s);layers(s.health||{});transport(s);diagnosis(s);ingest(s);deltas(s)}
 async function refresh(){try{let r=await fetch("/api/snapshot",{cache:"no-store"}),s=await r.json();previous=current;current=s;render(s)}catch(e){render({ok:false,error:String(e)})}}
 function historyDelta(n,o,prefix){let dc=+(n?.metrics?.[prefix+"_count"]||0)-+(o?.metrics?.[prefix+"_count"]||0),ds=+(n?.metrics?.[prefix+"_sum_ms"]||0)-+(o?.metrics?.[prefix+"_sum_ms"]||0);return dc>0&&ds>=0?ds/dc/1000:null}
 async function loadHistory(){try{let r=await fetch("/api/history?minutes=60",{cache:"no-store"}),p=await r.json(),rows=p.history||[];history.length=0;for(let i=1;i<rows.length;i++){history.push({e2e:historyDelta(rows[i],rows[i-1],"tools_call_200"),poll:historyDelta(rows[i],rows[i-1],"tools_call_poll_200")})}if(history.length>720)history.splice(0,history.length-720);chart();add("info","History loaded",(p.samples||0)+" samples from rolling 60m window")}catch(e){add("warn","History unavailable",String(e))}}
@@ -38,7 +48,7 @@ async function refreshRepo() {
     $("#repoStatus").textContent = state;
     $("#repoStatus").dataset.state = state;
     $("#repoReason").textContent = value.verified
-      ? (value.mcp_state || "MCP unknown") + " · " + (value.listener || "verified")
+      ? (value.mcp_state || "MCP unknown") + " · " + (value.listener || "verified") + " · local health only"
       : (value.reason || "No verified data");
   } catch(e) {
     $("#repoStatus").textContent = "UNKNOWN";
@@ -49,10 +59,10 @@ const originalRender = render;
 render = function(s) {
   originalRender(s);
   const h = s.health || {};
-  const state = !s.ok ? "UNKNOWN" : (h.live && h.ready ? "UP" : "DOWN");
+  const state = s.legacy_host_retired ? "RETIRED" : (!s.ok ? "UNKNOWN" : (h.live && h.ready ? "UP" : "DOWN"));
   $("#hostStatus").textContent = state;
   $("#hostStatus").dataset.state = state;
-  $("#hostReason").textContent = s.ok ? ("MCP " + ((h.components || {}).mcp?.state || "unknown")) : "Collector unavailable";
+  $("#hostReason").textContent = s.legacy_host_retired ? "Stopped intentionally (E43); not G2" : s.ok ? ("MCP " + ((h.components || {}).mcp?.state || "unknown")) : "Collector unavailable";
 };
 refreshRepo();
 setInterval(refreshRepo, 5000);

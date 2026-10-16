@@ -7,6 +7,10 @@ source discovery, но не обновил installed dashboard. Repo narrow со
 не legacy full /ui и /api/logs. Это не permissions gate.
 [Итог](ISOLATION_GUIDE.md), [E39](G3_REPO_MONITOR_DISCOVERY_2026-10-16.md).
 
+## Обновление source-dashboard после обнаруженного ложного TELEMETRY DOWN (16.10.2026)
+
+Старый owner HOST остановлен в E43; обращение Observatory к устаревшему адресу 127.0.0.1:8080 порождало таймауты и ложный статус общей телеметрии. Новый исходник по умолчанию не опрашивает legacy HOST и показывает RETIRED; только явный OBS_LEGACY_HOST_ENABLED=1 возвращает исторический опрос. Repo UP доказывает лишь локальный health/identity, не доступность инструмента в каждом чате. G2 остаётся отдельной линией без отдельного постоянно работающего health-коллектора. После правки требуется перезапуск **только Observatory** для применения; runtime и ACL не менялись.
+
 ## Activity stream source-only, 2026-10-16
 
 В Git добавлен [read-only activity_audit.py](../observatory/activity_audit.py)
