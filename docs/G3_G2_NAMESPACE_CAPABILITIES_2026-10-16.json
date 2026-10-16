@@ -1,0 +1,4142 @@
+{
+  "Evidence": "E31",
+  "Status": "PASS_SCOPED",
+  "Final": {
+    "Check": "G2_SYNTHETIC_NAMESPACE_CAPABILITY_MATRIX",
+    "Utc": "2026-10-15T21:49:08.9075307Z",
+    "SourceSHA256": "8861428FC7D47FAA2E0DD9979F0B6510564A37FF75BBBE56AE57039F6CD4CB1C",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "AdminGroupPresent": false,
+    "OpenDisposition": "OPEN_EXISTING",
+    "Rows": [
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      }
+    ],
+    "RowCount": 135,
+    "Passed": true,
+    "ContentReads": 0,
+    "ContentWrites": 0,
+    "AclWrites": 0,
+    "FilesCreated": 0,
+    "RuntimeRestarted": false,
+    "Scope": "FIXED_SYNTHETIC_RW_RO_DENY_NORMAL_EXTENDED_LOCALHOST_C_SHARE",
+    "Limitations": [
+      "Capability opens only; no protected writes attempted",
+      "Localhost SMB authenticated identity not independently established",
+      "No conclusion about other shares, private files or owner API"
+    ]
+  },
+  "InitialRun": {
+    "Check": "G2_SYNTHETIC_NAMESPACE_CAPABILITY_MATRIX",
+    "Utc": "2026-10-15T21:47:06.0427637Z",
+    "SourceSHA256": "271A1B1A8FB3D02DFA2066890A2988A68EDE1B30E6310B4F2DE2A01FC8E26AA3",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "AdminGroupPresent": false,
+    "OpenDisposition": "OPEN_EXISTING",
+    "Rows": [
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Normal",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "Extended",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RW",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "ALLOW",
+        "Pass": false,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "RO",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "Directory",
+        "Right": "DELETE_CHILD",
+        "Mask": 64,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Namespace": "LocalhostCShare",
+        "Fixture": "DENY",
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      }
+    ],
+    "RowCount": 135,
+    "Passed": false,
+    "ContentReads": 0,
+    "ContentWrites": 0,
+    "AclWrites": 0,
+    "FilesCreated": 0,
+    "RuntimeRestarted": false,
+    "Scope": "FIXED_SYNTHETIC_RW_RO_DENY_NORMAL_EXTENDED_LOCALHOST_C_SHARE",
+    "Limitations": [
+      "Capability opens only; no protected writes attempted",
+      "Localhost SMB authenticated identity not independently established",
+      "No conclusion about other shares, private files or owner API"
+    ]
+  },
+  "InitialAssessmentCorrection": {
+    "Reason": "RW is Modify/Synchronize, not FullControl; initial expected ALLOW for WRITE_DAC, WRITE_OWNER and directory DELETE_CHILD was incorrect",
+    "FixtureAclWitness": [
+      {
+        "Kind": "Directory",
+        "GuestRules": [
+          {
+            "Type": "Allow",
+            "Rights": "Modify, Synchronize",
+            "Mask": 1245631,
+            "Inherited": false
+          }
+        ]
+      },
+      {
+        "Kind": "File",
+        "GuestRules": [
+          {
+            "Type": "Allow",
+            "Rights": "Modify, Synchronize",
+            "Mask": 1245631,
+            "Inherited": false
+          },
+          {
+            "Type": "Allow",
+            "Rights": "Modify, Synchronize",
+            "Mask": 1245631,
+            "Inherited": true
+          }
+        ]
+      }
+    ],
+    "RawInitialResultRetained": true,
+    "FinalScriptExecutedOnWindows": true
+  },
+  "Limits": [
+    "Capability opens only; no protected writes attempted",
+    "Localhost SMB authenticated identity not independently established",
+    "No conclusion about other shares, private files or owner API"
+  ]
+}

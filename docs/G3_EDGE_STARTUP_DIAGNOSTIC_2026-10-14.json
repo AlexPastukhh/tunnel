@@ -1,0 +1,89 @@
+{
+  "Schema": 1,
+  "Status": "DIAGNOSTICS_VERIFIED_ACTUAL_G2_EDGE_PENDING",
+  "UserReport": {
+    "At": "2026-10-13T17:15:19.7357704Z",
+    "ChildExit": 3,
+    "ExpectedSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "ActualSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Admin": false,
+    "Visible": false,
+    "ExpectedStation": "FortisG2-728809887f044628951d4922f86a38a4",
+    "ActualStation": "FortisG2-728809887f044628951d4922f86a38a4",
+    "NodeExit": 3,
+    "Node": {
+      "nodeVersion": "v24.12.0",
+      "nonce": "winsta-4a1d586c-61a2-4e82-908b-6d64590204ac",
+      "edgeSandbox": "default",
+      "ownerProfileUsed": false,
+      "clipboardRead": false,
+      "screenRead": false,
+      "workspaceRW": true,
+      "grandchildStation": "FortisG2-728809887f044628951d4922f86a38a4",
+      "grandchildExit": 0,
+      "grandchildMatches": true,
+      "secretRelatedNamesPresent": 0,
+      "runtimeRead": true,
+      "runtimeMutationDenied": true,
+      "ownHTTPPort": 60274,
+      "edgeExit": 21,
+      "edgeSignal": null,
+      "pass": false,
+      "error": "Error",
+      "errorMessage": "Own CDP port missing",
+      "edgeStderrBytes": 322,
+      "profileRemoved": true,
+      "scratchRemoved": true
+    }
+  },
+  "ReportSource": "User-pasted synthetic preflight JSON; observed operator 2CB5D5063DDD9F67743A5DAAF31F1A1A2A56A224619B8385FC69FC499B051ABC",
+  "CurrentPins": {
+    "Start-G2PrivateWindow.ps1": "D5ED0848A6267CC9DBE937964249F6AE120CABD29D02EA4664B1D75A1A401452",
+    "private-station-node-probe.js": "4A589A9FC038154787728B49021B1C8EC93C0BBC8E53C1ACEECEDB1CFB6A5BB0",
+    "G2WindowSupervisor.cs": "F61983384AFF51CCC007586DA614C710306FDCC52981C5C0A3B77AD98202045D"
+  },
+  "Changes": [
+    "Capture own fresh-profile Edge stderr, at most 4096 bytes, plus total bytes and truncation flag",
+    "Report early Edge exit before CDP promptly",
+    "Report own process integrity SID, LABEL-only station/desktop metadata and native delete-on-close fresh-profile file test"
+  ],
+  "Unchanged": [
+    "Default Edge sandbox and fresh synthetic profile",
+    "Supervisor, station/desktop permissions, owner deny policy and all main Apply guards",
+    "No owner browser profile, clipboard or screen read",
+    "No password/key sent to tools or chat; child has no secret-related environment names in observed report"
+  ],
+  "WindowsCheck": {
+    "At": "2026-10-13T17:46:42.9052352Z",
+    "SyntheticOwnerDiagnostics": {
+      "Station": "WinSta0",
+      "StationLabel": "S:",
+      "DesktopLabel": "S:",
+      "IntegritySid": "S-1-16-8192",
+      "ProfileLockWin32": 0,
+      "LockRemoved": true,
+      "NodeSyntax": "PASS",
+      "OperatorAst": "PASS",
+      "OperatorSha256": "D5ED0848A6267CC9DBE937964249F6AE120CABD29D02EA4664B1D75A1A401452"
+    },
+    "PinnedCombinedCompile": "PASS",
+    "PreviewAdmin": false,
+    "PreviewOwnerDaclHashes": [
+      "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+      "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17"
+    ],
+    "OwnerWriteDacForecast": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "PreviewAclWrites": 0,
+    "CredentialsPrompted": false,
+    "Inventory": "Non-elevated Preview contains five protected-process UNKNOWN entries; not a complete inventory acceptance"
+  },
+  "Pending": [
+    "Fresh elevated owner console and actual credentialed SID1009 diagnostic report",
+    "Demonstrated Edge startup fix",
+    "Main window Apply and actual private runtime acceptance",
+    "G3 OPEN; G4 NOT_ACCEPTED: owner API/whole-chat routes/services/SMB/session persistence/retirement of interactive G2 entry"
+  ]
+}

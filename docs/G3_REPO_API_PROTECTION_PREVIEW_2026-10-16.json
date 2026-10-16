@@ -1,0 +1,175 @@
+{
+  "Evidence": "E34",
+  "Status": "CANDIDATE_PREVIEW_COMPLETE_NOT_READY_FOR_APPLY",
+  "WindowsPreview": {
+    "Check": "REPO_API_PROTECTION_PREVIEW_ONLY",
+    "Utc": "2026-10-15T22:21:44.2688410Z",
+    "SourceSHA256": "424250FC7F2240CBC5F35AF47E82746DF3323193B74828DCBE779A319C98BF23",
+    "Files": [
+      {
+        "Name": "RepoRun",
+        "Live": "C:\\Users\\alexa\\chatgpt-repo-mode\\run-tunnel.ps1",
+        "Candidate": "C:\\Users\\alexa\\Repos\\tunnel\\runtime\\host-g2\\runtime-api-migration\\repo-run-tunnel.ps1",
+        "LiveSHA256": "3877266C3C97BECC82045BE16D994981EB4F8973353B285236DF9CAAC158A5A3",
+        "CandidateSHA256": "52848CDA49FECB4D78589E9979781A28D114A92F694CF75BC66EA6D4412EB93B",
+        "State": "BEFORE",
+        "WindowsParserPass": true
+      },
+      {
+        "Name": "RepoControl",
+        "Live": "C:\\Users\\alexa\\chatgpt-repo-mode\\control.ps1",
+        "Candidate": "C:\\Users\\alexa\\Repos\\tunnel\\runtime\\host-g2\\runtime-api-migration\\repo-control.ps1",
+        "LiveSHA256": "E80E209B4758B194D2BCC7DCAFDFB83D296289E29A543F192E6726538641AE34",
+        "CandidateSHA256": "605F9D54A0A35FF3011DC44356A733F975A8993F1225FF53378A6B7880A193C5",
+        "State": "BEFORE",
+        "WindowsParserPass": true
+      }
+    ],
+    "InstalledRuntimeSHA256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A",
+    "RepoProcess": {
+      "Pid": 22488,
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "Session": 1,
+      "CreatedUtc": "2026-10-15T18:59:53.4046800Z",
+      "ExeSHA256": "1946DE55A038313A9B9B2458D05FE1719FA9CF1F20A94DD5F38FC26A98BFDD42",
+      "TcpListeners": [
+        {
+          "LocalAddress": "127.0.0.1",
+          "LocalPort": 59183
+        }
+      ],
+      "ProfileMappingEvidence": "E25 exact unchanged fingerprint"
+    },
+    "PreviewComplete": true,
+    "ReadyForApply": false,
+    "Mode": "PREVIEW_ONLY_NO_APPLY_OR_ROLLBACK_IMPLEMENTATION",
+    "Unresolved": [
+      "Read-surface privacy assessment: readyz raw errors, metrics paths, bounded health details",
+      "Actual retained Repo runtime-only Docker/MCP compatibility not yet verified",
+      "Protection choice and independent two-file apply/rollback not implemented"
+    ],
+    "ProposedFileCount": 2,
+    "ActualFilesChanged": 0,
+    "BackupCreated": false,
+    "HttpRequests": 0,
+    "RuntimeRestarted": false,
+    "ProfilesRead": false,
+    "KeysRead": false,
+    "ArgvRead": false,
+    "EnvironmentRead": false,
+    "Scope": "REPO_ONLY; OWNER_HOST_AND_G2_NOT_CHANGED"
+  },
+  "PrimarySources": [
+    {
+      "Path": "pkg/runtimeconfig/config.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "a724464b28ed9684da6c8f6573474afd82c0e559",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeconfig/config.go"
+    },
+    {
+      "Path": "pkg/runtimehealth/health.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "dac598f1c816adf81261255c295d2a3ee30f89bc",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimehealth/health.go"
+    },
+    {
+      "Path": "pkg/runtimehealth/components.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "d05674e821cf1c7e71a5874908a38a42693d8333",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimehealth/components.go"
+    },
+    {
+      "Path": "pkg/healthstate/health.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "4164b16b43913dc7b28bf1ac7da1f3c428643d73",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/healthstate/health.go"
+    },
+    {
+      "Path": "pkg/healthstate/mcp.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "7ce260efc99af280d20a285bb26ffbd2a2749638",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/healthstate/mcp.go"
+    },
+    {
+      "Path": "pkg/healthstate/operations.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "a2b48c1e85754766cb54e72e37fa4efd4da68ba9",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/healthstate/operations.go"
+    },
+    {
+      "Path": "pkg/healthstate/optional.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "b15234d1bba53098461a75c210c004ab2f71fdf3",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/healthstate/optional.go"
+    },
+    {
+      "Path": "pkg/controlplane/internal/health.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "b1f69dc5307a8f0018a42e3bf744125e7ed3e03b",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/controlplane/internal/health.go"
+    },
+    {
+      "Path": "pkg/metrics/http_attributes.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "c68f20413b96c6942e7ff572e83c42f43f234de8",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/metrics/http_attributes.go"
+    },
+    {
+      "Path": "pkg/metrics/fxmodule.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "1dfe3ebf096910428ce675510e0e3b6d23af414b",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/metrics/fxmodule.go"
+    },
+    {
+      "Path": "pkg/runtimeharpoon/metrics.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "360b3cb6d4b06207e67695f159f13a8b132aaf51",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeharpoon/metrics.go"
+    },
+    {
+      "Path": "pkg/mcpclient/probe_state.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "543ecafee7b3ebe454359f3b297a1fee788fa487",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/mcpclient/probe_state.go"
+    }
+  ],
+  "SourceAssessment": {
+    "RuntimeOnlyAdminRemoval": "Reuses E08/E15; no new exhaustive route fixture",
+    "HealthDetails": "Typed bounded healthstate projections; details=false is a presentation default, not authorization",
+    "Readyz": "sanitizeReadinessError returns TrimSpace(err.Error()); actual sensitive error content on retained Repo not demonstrated",
+    "Metrics": "MetricAttributesForRequest retains URL.EscapedPath as http.route, without query; sensitivity of actual reachable labels not fully assessed",
+    "HealthNetwork": "TCP default or configured Unix socket; no SID auth implied by loopback"
+  },
+  "Compatibility": {
+    "RepoRun": "Keep existing Docker/MCP command, local saved profile/key and doctor preflight; candidate run uses pinned runtime and clears additional Harpoon",
+    "RepoControl": "Two EXE names, exact tunnel ID via metrics, PID/creation guard; OpenPanel changes UI to health",
+    "Monitor": {
+      "Source": "observatory/repo_monitor.py",
+      "SHA256": "9B15F9FDFA002FC752F0E190076344E7B8EC76CB7FEE02B8F1ACE36A5D6AB4C7",
+      "RequiredRoutes": [
+        "/metrics",
+        "/health?details=true"
+      ],
+      "SourceCompatibleWithPlainRuntimeCandidate": true,
+      "InstalledVersionAndNativeRuntimeOnlyAcceptanceVerified": false,
+      "ProtectedEndpointTransportWouldRequireFurtherChanges": true
+    }
+  },
+  "Rollback": {
+    "Implemented": false,
+    "BackupCreated": false,
+    "ProposedScope": "Exactly Repo run-tunnel.ps1 and control.ps1; separate owner-local backup, before/after hashes; refuse drift; no automatic restart; StopAccess distinct from StopContainer"
+  },
+  "Next": {
+    "First": "Bound the remaining read-surface risk for this stdio Repo, reusing reviewed typed health and existing fixtures",
+    "Then": "Select smallest adequate candidate; build independent two-file apply/rollback and verify actual Repo compatibility before agreed cutover",
+    "DoNot": "Use all-three Apply, change owner HOST, copy credentials, restart tunnels, or forbid all diagnostics without evidence"
+  },
+  "Overall": {
+    "G3": "BLOCKED",
+    "G4_G6": "NOT_ACCEPTED",
+    "LiveChanges": false,
+    "Deployment": false,
+    "CommitPush": false
+  }
+}

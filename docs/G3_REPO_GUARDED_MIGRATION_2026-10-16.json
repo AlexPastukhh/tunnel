@@ -1,0 +1,131 @@
+{
+  "Evidence": "E36",
+  "DateLocal": "2026-10-16",
+  "Timezone": "Asia/Bangkok",
+  "Status": "HELPER_IMPLEMENTED_AND_SCOPED_TESTED_LIVE_NOT_APPLIED",
+  "EvidenceFormat": "Summarized observed tool outputs, not a complete raw terminal transcript",
+  "Sources": {
+    "Core": {
+      "File": "RepoRouteMigration.Core.ps1",
+      "SHA256": "46CEE432DE4460F744517FD2F0A49073DF41B28BB1BFE68F597877DA62856BF8",
+      "Bytes": 9260
+    },
+    "Wrapper": {
+      "File": "Invoke-RepoRouteMigration.ps1",
+      "SHA256": "AE249350C3C0A6E6F3169F213D73094431D4F1C38EB3F2565F94C6ECB142A2A4",
+      "Bytes": 3094
+    },
+    "Test": {
+      "File": "Test-RepoRouteMigration.ps1",
+      "SHA256": "D202109B2F8DE6B5CBE67E34D0EE159E050C81E1F771E7D5EFE5E84A25DF9925",
+      "Bytes": 10518
+    }
+  },
+  "Scope": {
+    "ProductionTargets": [
+      "C:\\Users\\alexa\\chatgpt-repo-mode\\run-tunnel.ps1",
+      "C:\\Users\\alexa\\chatgpt-repo-mode\\control.ps1"
+    ],
+    "DefaultMode": "Preview",
+    "ProductionWrapperGuard": "Windows OS API and exact owner SID1001; pinned core and candidate hashes",
+    "AutomaticRestart": false,
+    "BackupRoot": "%LOCALAPPDATA%\\FortisRepoApiMigration",
+    "LiveApplyPerformed": false,
+    "LiveRollbackPerformed": false,
+    "ProductionBackupCreated": false
+  },
+  "RepoValidation": {
+    "PowerShell": "7.4.6",
+    "AST": "All three sources parsed",
+    "Passed": true,
+    "AssertionCount": 29,
+    "PassedAssertions": 28,
+    "SkippedAssertions": 1,
+    "SkipReason": "Windows FileShare contention semantics require Windows acceptance",
+    "FixtureCleanup": true
+  },
+  "WindowsValidation": {
+    "PowerShell": "5.1.26100.9711",
+    "Controller": "G2 SID1009 non-admin Session2; own Workspace fixtures only",
+    "Passed": true,
+    "AssertionCount": 32,
+    "SkippedAssertions": 0,
+    "FixtureCleanup": true,
+    "ExactUtc": "Not retained in summarized final test output",
+    "ImportantObservedAssertions": [
+      "ConcurrentWriter_ApplyRefused",
+      "Contention_NoTargetWrites",
+      "Contention_NoBackupCreated",
+      "Failure_ReleasesPreviouslyAcquiredTargetHandle"
+    ],
+    "Coverage": [
+      "Default Preview no backup/target writes",
+      "Candidate hash drift refusal",
+      "Apply exact two AFTER contents, immutable backup hash, completion journal",
+      "Idempotent Apply/rollback",
+      "Backup tampering and valid-hash wrong-scope refusal",
+      "Foreign live edit retained",
+      "Rollback without candidate/runtime dependency",
+      "Fault after first target write, observed AFTER/BEFORE, blind retry refused, one-file rollback",
+      "Concurrent writer refusal and handle release",
+      "One-file scope refused"
+    ]
+  },
+  "ActualOwnerPreview": {
+    "Utc": "2026-10-15T22:51:28.0973485Z",
+    "Mode": "Preview",
+    "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "AllBefore": true,
+    "CandidatePinsMatch": true,
+    "Rows": [
+      {
+        "Name": "RepoRun",
+        "State": "BEFORE",
+        "SHA256": "3877266C3C97BECC82045BE16D994981EB4F8973353B285236DF9CAAC158A5A3"
+      },
+      {
+        "Name": "RepoControl",
+        "State": "BEFORE",
+        "SHA256": "E80E209B4758B194D2BCC7DCAFDFB83D296289E29A543F192E6726538641AE34"
+      }
+    ],
+    "FilesChanged": 0,
+    "BackupCreated": false,
+    "RuntimeRestarted": false,
+    "RuntimeBoundaryAccepted": false
+  },
+  "CorrectionsAndCleanup": [
+    {
+      "Observation": "Linux initial suite did not refuse same-process concurrent writer",
+      "Effect": "Synthetic contention fixture AFTER/AFTER; standard/partial fixtures BEFORE/BEFORE",
+      "Action": "Platform-specific test conditional; actual Windows acceptance required",
+      "InitialOwnFixtureCleanup": true
+    },
+    {
+      "Observation": "First in-memory Windows runner had script variable scope error",
+      "Effect": "Both synthetic files BEFORE, no backup; six entries only",
+      "Action": "Initialize script-scoped assertion collection; marked fixture removed after effect check",
+      "Cleanup": true
+    },
+    {
+      "Observation": "G2 sanitized OS environment caused Windows test branch to skip",
+      "Action": "Use Environment.OSVersion.Platform in runner/wrapper; final Windows run32/32 with no skip",
+      "PriorCleanFixtureWasNotCountedAsContentionPass": true
+    }
+  ],
+  "Limitations": [
+    "Two-file operation is not atomic across files; mid-file/power failure can produce unknown DRIFT requiring inspection",
+    "Backup manifest immutable by tool convention and pinned bytes/hash, not OS/WORM protection",
+    "Reparse path guard implemented; no new Windows reparse negative fixture or hardlink audit",
+    "Same-SID/owner or privileged attacker and all filesystem race variants not excluded",
+    "Real Repo profile/Docker/MCP runtime-only compatibility and effective config acceptance remain",
+    "Real production apply/rollback and restart not performed"
+  ],
+  "Next": "Bounded effective-config/native compatibility preflight and agreed Repo-only cutover; no repeat of passing fixture suite without change",
+  "Overall": {
+    "G3": "BLOCKED",
+    "G4_G6": "NOT_ACCEPTED",
+    "OwnerHostMigration": "NOT_REQUIRED_NOW",
+    "CommitPush": false
+  }
+}

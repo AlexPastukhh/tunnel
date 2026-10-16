@@ -1,0 +1,1112 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E26",
+  "Source": {
+    "Path": "runtime/host-g2/runtime-api-migration/Test-G2CurrentRuntimeAcl.ps1",
+    "SHA256": "5F5C5BC56D6F385588678AA63BF77FE3ACEE13A7C6EF983FD133615BDCD3FFE8",
+    "Bytes": 5701,
+    "RepoValidation": "PowerShell AST and C# compile",
+    "WindowsValidation": "Executed via actual G2 current chain; captured bytes hash verified after delivery"
+  },
+  "Result": {
+    "Check": "G2_CURRENT_CHAIN_TARGETED_RUNTIME_ACL",
+    "Utc": "2026-10-15T20:42:57.5584892Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "Chain": [
+      {
+        "Pid": 23896,
+        "Parent": 32088,
+        "Name": "tunnel-client-runtime.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.2338390Z"
+      },
+      {
+        "Pid": 32480,
+        "Parent": 23896,
+        "Name": "python.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.6040720Z"
+      },
+      {
+        "Pid": 32496,
+        "Parent": 32480,
+        "Name": "node.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.9683230Z"
+      }
+    ],
+    "OwnWorkspaceRoundtrip": true,
+    "PositiveControls": [
+      {
+        "Kind": "Directory",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "Directory",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "Directory",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "Directory",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "Directory",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "Directory",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "File",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "File",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "File",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "File",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "File",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      },
+      {
+        "Kind": "File",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        },
+        "Pass": true
+      }
+    ],
+    "Rows": [
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools",
+        "Right": "EXECUTE_OR_TRAVERSE",
+        "Mask": 32,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\tunnel-client",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\tunnel-client",
+        "Right": "EXECUTE_OR_TRAVERSE",
+        "Mask": 32,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\tunnel-client",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\tunnel-client",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\tunnel-client",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\tunnel-client",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\tunnel-client",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\tunnel-client",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander-runtime",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander-runtime",
+        "Right": "EXECUTE_OR_TRAVERSE",
+        "Mask": 32,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander-runtime",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander-runtime",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander-runtime",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander-runtime",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander-runtime",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander-runtime",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander",
+        "Right": "EXECUTE_OR_TRAVERSE",
+        "Mask": 32,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "Directory",
+        "Path": "C:\\Tools\\desktop-commander",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+        "Right": "EXECUTE_OR_TRAVERSE",
+        "Mask": 32,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "EXECUTE_OR_TRAVERSE",
+        "Mask": 32,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "Right": "EXECUTE_OR_TRAVERSE",
+        "Mask": 32,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+        "Right": "READ_OR_LIST",
+        "Mask": 1,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+        "Right": "EXECUTE_OR_TRAVERSE",
+        "Mask": 32,
+        "Expected": "ALLOW",
+        "Pass": true,
+        "Result": {
+          "Opened": true,
+          "Closed": true,
+          "Win32": 0,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+        "Right": "WRITE_DATA_OR_CREATE_FILE",
+        "Mask": 2,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+        "Right": "APPEND_OR_CREATE_DIRECTORY",
+        "Mask": 4,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+        "Right": "WRITE_ATTRIBUTES",
+        "Mask": 256,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+        "Right": "DELETE",
+        "Mask": 65536,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      },
+      {
+        "Kind": "File",
+        "Path": "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "Expected": "DENY_ACCESS_5",
+        "Pass": true,
+        "Result": {
+          "Opened": false,
+          "Closed": true,
+          "Win32": 5,
+          "CloseWin32": 0
+        }
+      }
+    ],
+    "Cleanup": true,
+    "Error": null,
+    "Passed": true,
+    "Scope": "8_SELECTED_RUNTIME_OBJECTS_64_OPEN_CLOSE_TESTS",
+    "SharedRuntimeContentWrites": 0,
+    "AclWrites": 0,
+    "OwnerPrivateContentReads": 0,
+    "RuntimeRestarted": false
+  },
+  "Assessment": {
+    "Status": "PASS_SCOPE",
+    "Scope": "8 selected shared runtime files/directories; 48 mutation open requests DENY5 and 16 read/execute opens ALLOW, all handles closed. 12 own fixture positives, Workspace exact roundtrip and cleanup PASS.",
+    "NoAclChanges": true,
+    "NoSharedContentWrites": true,
+    "NoPrivateOwnerContentReads": true,
+    "Limitations": [
+      "Not a repeat of 22758-object scan.",
+      "Not production project root grants or protected-asset acceptance.",
+      "Does not close owner GUI/API/IPC or G2 lifecycle acceptance."
+    ],
+    "Plan6_5": "ACL regression component covered; overall PARTIAL",
+    "Plan7_1": "Existing PASS preserved with current regression",
+    "Plan7_2": "Own RW control current; earlier RO/DENY evidence reused, not repeated"
+  },
+  "TransientRepoInitialization": "One read-only command returned 409 initialization_required; get_config and safe read retry succeeded. No mutation had been attempted or repeated."
+}

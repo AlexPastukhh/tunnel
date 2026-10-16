@@ -1,0 +1,90 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E30",
+  "Status": "PARTIAL_SOURCE_AND_METADATA",
+  "RawMetadata": {
+    "Check": "SELECTED_SERVICE_HANDLER_PREREQUISITES",
+    "Utc": "2026-10-15T21:33:29.3343758Z",
+    "Rows": [
+      {
+        "Name": "GoodbyeDPI",
+        "Exists": true,
+        "State": "Stopped",
+        "StartMode": "Auto",
+        "SystemAccount": true,
+        "Executable": "goodbyedpi.exe",
+        "ExecutablePathScope": "PATH_WITHHELD_NOT_READ",
+        "ExecutableExists": false,
+        "FileVersion": null,
+        "Company": null,
+        "SHA256": null,
+        "MetadataError": null
+      },
+      {
+        "Name": "MySQL80",
+        "Exists": true,
+        "State": "Running",
+        "StartMode": "Auto",
+        "SystemAccount": true,
+        "Executable": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
+        "ExecutablePathScope": "INSTALLED_PUBLIC_PROGRAM",
+        "ExecutableExists": true,
+        "FileVersion": "8.0.44.0",
+        "Company": "Oracle Corporation",
+        "SHA256": "45796B4FD95FAD6BD64E88E2EF8AF33E229B45685E0B108679769B6B6358049E",
+        "MetadataError": null
+      }
+    ],
+    "RawServiceArgumentsPrinted": false,
+    "ServiceControlsSent": 0,
+    "ServicesChanged": 0
+  },
+  "Normalization": {
+    "GoodbyeDPIExecutableExists": null,
+    "Reason": "Raw ExecutableExists=false was initial/default value while PATH_WITHHELD_NOT_READ; file existence was NOT probed. It is not PATH_NOT_FOUND or DENY."
+  },
+  "Sources": [
+    {
+      "Repository": "mysql/mysql-server",
+      "Ref": "mysql-8.0.44",
+      "Path": "sql/nt_servc.cc",
+      "GitBlob": "6a923d05f54859c0bfcfc64d31d5d007139a22cf",
+      "HandlerLines": "315–337"
+    },
+    {
+      "Repository": "mysql/mysql-server",
+      "Ref": "mysql-8.0.44",
+      "Path": "sql/nt_servc.h",
+      "GitBlob": "d67b6d66f82c3d7d009469511949f9997e8763da"
+    },
+    {
+      "Repository": "ValdikSS/GoodbyeDPI",
+      "Ref": "master fetched 2026-10-16",
+      "Path": "src/service.c",
+      "GitBlob": "4de164a073b21329d70a5f6e4d5a318fc4996bd0",
+      "HandlerLines": "81–97"
+    },
+    {
+      "Url": "https://learn.microsoft.com/en-us/windows/win32/api/winsvc/nf-winsvc-controlservice",
+      "Relevant": "Application-defined controls128–255 require SERVICE_USER_DEFINED_CONTROL; SCM does not dispatch controls to STOPPED service."
+    }
+  ],
+  "Assessment": {
+    "Plan5_4": "PARTIAL; reviewed handler effects narrowed, source/binary binding not fully established",
+    "MySQL80": "Running with builtin account (exact StartName not recorded in E30; E41 observes NetworkService); declared installed executable version8.0.44.0, Oracle Corporation, SHA45796B4F… recorded. Matching-version source registers static NTService handler; STOP/SHUTDOWN call StopService, other codes including128–255 call SetStatus with current state. No arbitrary command/start/stop function found in this default branch. No live control sent.",
+    "GoodbyeDPI": "Stopped/Auto/LocalSystem at snapshot. Current stopped service has no dispatched control handler under SCM contract. Selected upstream handler defaults to status report for other codes, but installed version/source binding unknown; executable private/nonstandard path withheld and not read.",
+    "NotEstablished": [
+      "Installed binary corresponds exactly to reviewed source; no signed/reproducible-build attestation performed.",
+      "GoodbyeDPI file existence, installed version, or immutable program path not checked in this query.",
+      "Future GoodbyeDPI running state or custom/changed service binary behavior.",
+      "No live control effect, exploit or universal service safety proof."
+    ],
+    "Decision": "No basis to claim SERVICE_USER_DEFINED_CONTROL ALLOW alone grants administrative command execution. No live control-code fuzzing, service changes or blanket DACL denial planned from this fact. Revisit concrete service/version/path only if necessary for final threat scope; retain residual source/binary limitation.",
+    "G3": "BLOCKED",
+    "G4_G6": "NOT_ACCEPTED",
+    "Next": "Relevant owner boundary/bridges/protected paths and final G2 takeover; reuse E29 lifecycle case, avoid unnecessary new stop/reboot/AV/service-control tests."
+  },
+  "Corrections": {
+    "E41": "Raw SystemAccount=true does not establish LocalSystem. E03 and actual G2 query 2026-10-16T00:55:39.6919429Z report MySQL80 NT AUTHORITY\\NetworkService. No service configuration changed; RawMetadata preserved."
+  }
+}

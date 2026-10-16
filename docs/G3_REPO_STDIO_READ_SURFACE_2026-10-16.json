@@ -1,0 +1,181 @@
+{
+  "Evidence": "E35",
+  "Status": "SCOPED_SOURCE_REVIEW_COMPLETE_CANDIDATE_NOT_DEPLOYED",
+  "DateLocal": "2026-10-16",
+  "Timezone": "Asia/Bangkok",
+  "Scenario": "Existing Repo command=docker exec -i fortis-repo-test node /workspace/repo/.fortis/mcp-bridge.mjs; main MCP stdio; pinned normal runtime graph",
+  "Results": {
+    "McpReadyzRawErrorConcern": "Excluded through reviewed stdio branch: probeMcpServer sets nil and returns before HTTP probe",
+    "OAuthReadyzConcern": "Discovery skipped for stdio; fixed disabled reason accepted by IsOptionalDiscoveryFailure",
+    "ScopeOfReadyzConclusion": "Ordinary pinned runtime CLI graph and main stdio; not HTTP main or extension-injected readiness gates",
+    "MetricsPayloadFlow": "Reviewed producers project HTTP path, request method/kind, channel/tunnel ID, status/count/latency; no stdio params/results body projection found",
+    "ControlPlanePaths": "Fixed /v1/tunnels/{id}, /poll, /response plus configured prefix; helper does not retain query",
+    "HarpoonMetrics": "Project label/status-class/outcome/count/size/latency, not CallEvent URL/body/error; extra HTTP transport remains disabled by candidate",
+    "Health": "E34 typed bounded snapshot review reused, no blanket diagnostic denial required"
+  },
+  "BridgeBinding": {
+    "RepoSource": "runtime/repo-mode/fortis-mcp-bridge.mjs",
+    "InstalledContainerSource": "/workspace/repo/.fortis/mcp-bridge.mjs",
+    "RepoSHA256": "8389436658E22F213D9865A78872159E027CA33094999DB64CA96B5A7C79FC21",
+    "InstalledSHA256": "8389436658E22F213D9865A78872159E027CA33094999DB64CA96B5A7C79FC21",
+    "BytesMatch": true,
+    "ContentWrites": false
+  },
+  "Candidate": {
+    "PreferredForFurtherPreparation": "Existing official narrow runtime plus justified diagnostics",
+    "NewAuthBrokerOrCustomBuildRequiredByThisReview": false,
+    "CommittedRollout": false,
+    "ReadyForApply": false,
+    "ReasonNotReady": "Repo-only two-file apply/rollback, exact effective configuration and native profile/Docker/MCP acceptance remain; no live restart approval implied",
+    "ConfigConditionsToCheckDuringExistingPreflight": [
+      "Main binding actually stdio; no unreviewed additional HTTP bindings",
+      "No sensitive custom control-plane route prefix, Harpoon labels or metric resource values left unassessed",
+      "Use pinned ordinary runtime graph; no injected readiness extension",
+      "Keep empty additional Harpoon flag; no all-three Apply"
+    ],
+    "NoNewSeparateMandatoryAudit": true
+  },
+  "Limits": [
+    "Source-only analysis of pinned commit plus local bridge byte comparison, no new Windows runtime/HTTP test",
+    "Not a full metrics dependency or all-configuration audit",
+    "Real owner profile, environment and private upstream values not read",
+    "Actual installed binary source attestation not established anew; existing official artifact/pins E08/E34 reused",
+    "No claim that readyz200 or runtime exit0 proves successful MCP operation"
+  ],
+  "Next": "Prepare independent Repo-only default-Preview two-file guarded apply/rollback and local recovery; effective-config checks join existing compatibility preflight; actual cutover remains separately agreed",
+  "PrimarySources": [
+    {
+      "Path": "pkg/mcpclient/fxmodule.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "a64c973ee1cc31af053768a858f59d12665e0023",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/mcpclient/fxmodule.go"
+    },
+    {
+      "Path": "pkg/mcpclient/transport_provider.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "771fe3362238ed068d2e4e62cd5550b9ed0e9b08",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/mcpclient/transport_provider.go"
+    },
+    {
+      "Path": "pkg/mcpclient/channel_transport_factory.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "38262239efb7411a158e4828815e1db1ffc0cf5d",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/mcpclient/channel_transport_factory.go"
+    },
+    {
+      "Path": "pkg/oauth/module.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "8a1deed4e9a7c4b90be949a3ff2ae4fb3a00f806",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/oauth/module.go"
+    },
+    {
+      "Path": "pkg/oauth/discovery_failure.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "48379c6c6e3d8a86d2623b85a9a86fe0299950ef",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/oauth/discovery_failure.go"
+    },
+    {
+      "Path": "pkg/controlplane/internal/tunnel_service_client.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "88d4b64d966159eb649675f07dae37762b00c026",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/controlplane/internal/tunnel_service_client.go"
+    },
+    {
+      "Path": "pkg/dispatcher/internal/processor.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "f22424ff353ca31ed31ea1a04415bf628f1811e4",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/dispatcher/internal/processor.go"
+    },
+    {
+      "Path": "pkg/runtimeapp/app.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "8dbaba54c0339da3ca2af54cf921164c835d9c48",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeapp/app.go"
+    },
+    {
+      "Path": "cmd/client-runtime/root_command.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "162a87b83d1a134d8f29f411d2c98009147473d4",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/cmd/client-runtime/root_command.go"
+    },
+    {
+      "Path": "pkg/runtimeharpoon/shared_wiring.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "5c6496d7fa476c345859414492ffdd2cec8ba0c7",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeharpoon/shared_wiring.go"
+    },
+    {
+      "Path": "pkg/runtimeharpoon/fxmodule.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "79486e03ffe282b5f8092307ce30e444762d38c0",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeharpoon/fxmodule.go"
+    },
+    {
+      "Path": "pkg/runtimeconfig/profile.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "ad80cdaca362bbdded5f712370351592d146bfe6",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeconfig/profile.go"
+    },
+    {
+      "Path": "pkg/runtimeconfig/file_config.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "fe27bd5f9f791a19a06bf164e1b89dbc7f099659",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeconfig/file_config.go"
+    },
+    {
+      "Path": "pkg/runtimehealth/health.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "dac598f1c816adf81261255c295d2a3ee30f89bc",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimehealth/health.go",
+      "ReusedFrom": "E34"
+    },
+    {
+      "Path": "pkg/runtimeconfig/config.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "a724464b28ed9684da6c8f6573474afd82c0e559",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeconfig/config.go",
+      "ReusedFrom": "E34"
+    },
+    {
+      "Path": "pkg/metrics/http_attributes.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "c68f20413b96c6942e7ff572e83c42f43f234de8",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/metrics/http_attributes.go",
+      "ReusedFrom": "E34"
+    },
+    {
+      "Path": "pkg/runtimeharpoon/metrics.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "360b3cb6d4b06207e67695f159f13a8b132aaf51",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/runtimeharpoon/metrics.go",
+      "ReusedFrom": "E34"
+    },
+    {
+      "Path": "pkg/healthstate/health.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "4164b16b43913dc7b28bf1ac7da1f3c428643d73",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/healthstate/health.go",
+      "ReusedFrom": "E34"
+    },
+    {
+      "Path": "pkg/healthstate/mcp.go",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Blob": "7ce260efc99af280d20a285bb26ffbd2a2749638",
+      "URL": "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/healthstate/mcp.go",
+      "ReusedFrom": "E34"
+    }
+  ],
+  "LiveChanges": {
+    "InstalledRuntime": false,
+    "Launchers": false,
+    "Acl": false,
+    "Network": false,
+    "Restarts": false,
+    "ProfilesOrKeys": false,
+    "CommitPush": false
+  },
+  "Overall": {
+    "G3": "BLOCKED",
+    "G4_G6": "NOT_ACCEPTED"
+  }
+}

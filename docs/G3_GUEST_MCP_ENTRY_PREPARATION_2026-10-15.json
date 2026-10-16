@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-15",
+  "scope": "source preparation, targeted Windows HOST checks, and user-local guest Preview; no G2 start",
+  "source": "runtime/host-g2/runtime-api-migration/start-g2-guest-session.ps1",
+  "source_sha256": "0638D14A92F78006526281BEC98C391FAD96F6C0F3F70D9C02475DA3A56C481D",
+  "source_bytes": 10355,
+  "repo": {
+    "powershell": "7.4.6 Linux Docker",
+    "ast_errors": 0,
+    "csharp_language_version": 5,
+    "validate_same_process_runs": 2,
+    "context_cases": 10,
+    "scoped_cim_fixture": true,
+    "child_environment_and_argv_fixture": true,
+    "file_lock_deny_release_fixture": true,
+    "windows_api_calls": 0,
+    "runtime_starts": 0
+  },
+  "windows_host": {
+    "powershell": "5.1.26100.9711",
+    "captured_source_validate_compiled": true,
+    "token_sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "session": 1,
+    "wts_user": "alexa",
+    "wts_domain": "FORTIS_M",
+    "station": "WinSta0",
+    "desktop": "Default",
+    "station_visible": true,
+    "file_lock_same_process_deny_release": true,
+    "own_fixture_removed": true,
+    "guest_context_preview_executed": false
+  },
+  "delivery": {
+    "path": "C:\\Users\\Public\\Documents\\Fortis-G2-GuestEntry-0638D14A.ps1",
+    "status": "CREATED",
+    "readback_sha256": "0638D14A92F78006526281BEC98C391FAD96F6C0F3F70D9C02475DA3A56C481D",
+    "guest_readback": "PASS_USER_REPORTED_PREVIEW"
+  },
+  "targeted_tunnel_process_snapshot": [
+    {
+      "pid": 21172,
+      "name": "tunnel-client.exe",
+      "session": 1,
+      "owner_sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "owner_query_status": 0
+    },
+    {
+      "pid": 16632,
+      "name": "tunnel-client.exe",
+      "session": 1,
+      "owner_sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "owner_query_status": 0
+    }
+  ],
+  "limits": [
+    "snapshot covers only named full/runtime tunnel-client processes at check time",
+    "HOST own-session WTS success is not guest Preview acceptance",
+    "file-lock fixture is not full cross-session launch/cleanup acceptance",
+    "profile contents and keys not read",
+    "existing launchers/profiles/ACL unchanged",
+    "no G2 start/restart or existing process termination",
+    "no commit/push"
+  ],
+  "user_local_guest_preview": {
+    "evidence_source": "user-pasted JSON in this conversation",
+    "received_local": "2026-10-15T23:03:51+07:00",
+    "execution_time": "not recorded by Preview",
+    "independent_mcp_verification": false,
+    "result": {
+      "Mode": "Preview",
+      "SourceSHA256": "0638D14A92F78006526281BEC98C391FAD96F6C0F3F70D9C02475DA3A56C481D",
+      "Context": {
+        "TokenSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "AdminGroupPresent": false,
+        "Impersonating": false,
+        "SessionId": 2,
+        "SessionOwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Station": "WinSta0",
+        "Desktop": "Default",
+        "StationVisible": true
+      },
+      "RuntimeSHA256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A",
+      "Profile": "fortis-host-g2-test",
+      "ProfileExists": true,
+      "ProfileContentsRead": false,
+      "Workspace": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace",
+      "ExistingSessionTunnels": [],
+      "DuplicateScope": "CURRENT_GUEST_SESSION_PLUS_NEW_ENTRY_LOCK",
+      "LegacyG2InOtherSessions": "NOT_INSPECTED_NOT_EXCLUDED",
+      "OwnerProcessQueries": 0,
+      "LaunchTestPrerequisitesPass": true,
+      "ExclusiveLock": "ACQUIRED_ONLY_IN_LAUNCHTEST",
+      "RuntimeStarted": false,
+      "WindowsAcceptance": "PENDING"
+    }
+  }
+}

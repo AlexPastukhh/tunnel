@@ -1,0 +1,89 @@
+{
+  "Schema": 1,
+  "Status": "G3_OPEN_LOCAL_NAMED_MUTEX_DENIED_PRIVATE_RUNTIME_NOT_ACCEPTED",
+  "UserReport": {
+    "At": "2026-10-13T18:18:24.6589259Z",
+    "ChildExit": 3,
+    "ExpectedSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "ActualSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Admin": false,
+    "Visible": false,
+    "ExpectedStation": "FortisG2-6eec7df02aa44994a050521a39513df5",
+    "ActualStation": "FortisG2-6eec7df02aa44994a050521a39513df5",
+    "NodeExit": 3,
+    "Node": {
+      "nodeVersion": "v24.12.0",
+      "nonce": "winsta-5f59deba-ca48-47bf-947f-b91c41f2af74",
+      "edgeSandbox": "default",
+      "ownerProfileUsed": false,
+      "clipboardRead": false,
+      "screenRead": false,
+      "workspaceRW": true,
+      "grandchildStation": "FortisG2-6eec7df02aa44994a050521a39513df5",
+      "grandchildExit": 0,
+      "grandchildMatches": true,
+      "secretRelatedNamesPresent": 0,
+      "runtimeRead": true,
+      "runtimeMutationDenied": true,
+      "ownHTTPPort": 58351,
+      "edgeExit": 21,
+      "edgeSignal": null,
+      "pass": false,
+      "error": "Error",
+      "errorMessage": "Edge exited before own CDP: 21",
+      "edgeStderrBytes": 322,
+      "profileRemoved": true,
+      "scratchRemoved": true,
+      "stationLabel": "S:NO_ACCESS_CONTROL",
+      "desktopLabel": "",
+      "integritySid": "S-1-16-8192",
+      "profileLockWin32": 0,
+      "edgeStderr": "[21540:21872:1014/011824.556:ERROR:chrome\\app\\chrome_main_delegate.cc:735] Failed to create a ProcessSingleton for your profile directory. This means that running multiple instances would start multiple browser processes rather than opening a new window in the existing process. Aborting now to avoid profile corruption.\r\n",
+      "edgeStderrTruncated": false,
+      "startupMutexOpenWin32": 5,
+      "ownMutexCreateWin32": 5,
+      "messageWindowWin32": 0
+    }
+  },
+  "OwnerWindowReadOnlyPreview": {
+    "At": "2026-10-13T18:30:37.8278859Z",
+    "AclWrites": 0,
+    "CredentialsPrompted": false,
+    "Objects": [
+      {
+        "Kind": "Station",
+        "Name": "WinSta0",
+        "BeforeHash": "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+        "Applied": false
+      },
+      {
+        "Kind": "Desktop",
+        "Name": "Default",
+        "BeforeHash": "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17",
+        "Applied": false
+      }
+    ]
+  },
+  "SourcePins": {
+    "Start-G2PrivateWindow.ps1": "05B63616B857699DF6E19D957DDDAB7BA1196E977A6CE3D4B21706F7C8F42434",
+    "G2WindowSupervisor.cs": "E63C215501DE2F5D5AA19FF569C107014E77E04BDAF287906B362B21A0CFEFE0",
+    "private-station-node-probe.js": "BE064FBE5F7FBF12CDEE4DF6E04FA766FDD2DE1DAD6D2F6FC42B03CEBB9E016E"
+  },
+  "Observed": [
+    "Private owned message-only window returns 0",
+    "Native fresh-profile lock probe returns 0",
+    "Even new unique Local named mutex creation returns Win32 5",
+    "Existing startup mutex open returns Win32 5",
+    "CLI/workspace/runtime-read/runtime-mutation-deny/descendant station/cleanup PASS in this scope",
+    "Main owner DACL hashes remain original at 2026-10-14 01:30:37 Asia/Bangkok"
+  ],
+  "Limits": [
+    "Private full-access ACL change did not fix installed Edge",
+    "Exact namespace directory/token/Win32 cause is not established",
+    "False clipboardRead/screenRead means not read; not OS enforcement",
+    "Full private runtime has not launched and main window deny has not applied"
+  ],
+  "Next": "Read-only diagnosis of Local named-object namespace, token context and rights, using owned unique probes; no blind shared namespace/owner ACL changes and no repeated unchanged local Launch",
+  "UserIntent": "Continue necessary G stages and fix errors without excessive restriction; G2 is future Windows Tunnel, Fortis Repo remains development channel; preserve existing owner chats",
+  "OtherGates": "Owner local APIs / whole-chat routes / service handlers / SMB/network / production G4 / G5 personal protection / G6 operations remain separate"
+}

@@ -1,0 +1,343 @@
+{
+  "Evidence": "E41",
+  "DateLocal": "2026-10-16",
+  "Timezone": "Asia/Bangkok",
+  "Status": "KNOWN_BROKER_BOUNDARY_PASS_SCOPE_SERVICE_ACCOUNT_CORRECTED_RESIDUAL_REVIEW_CANDIDATE",
+  "GuestServiceMetadata": {
+    "Check": "G2_SELECTED_SERVICE_ACCOUNT_RECONCILIATION",
+    "Utc": "2026-10-16T00:55:39.6919429Z",
+    "GuestSession": 2,
+    "Rows": [
+      {
+        "Name": "MySQL80",
+        "Exists": true,
+        "State": "Running",
+        "StartMode": "Auto",
+        "StartName": "NT AUTHORITY\\NetworkService",
+        "Pid": 5976
+      },
+      {
+        "Name": "GoodbyeDPI",
+        "Exists": true,
+        "State": "Stopped",
+        "StartMode": "Auto",
+        "StartName": "LocalSystem",
+        "Pid": 0
+      }
+    ],
+    "ServiceControlsSent": 0,
+    "ServicePathsOrArgumentsRead": false,
+    "FilesChanged": 0
+  },
+  "BrokerTaskQueueMetadata": {
+    "Check": "KNOWN_SNAPSHOT_BROKER_TASK_QUEUE_WITNESS",
+    "Utc": "2026-10-16T01:00:34.1537327Z",
+    "TaskState": "Ready",
+    "TaskEnabled": true,
+    "TriggerCount": 1,
+    "ExpectedWorkerActionCount": 1,
+    "WorkerSHA256": "EB4D10122F707375AC36D768BE439B3C679CA69B0F65F713DAA9AF001F0BA176",
+    "QueueDirectories": [
+      {
+        "Label": "BrokerInbox",
+        "Exists": true,
+        "Directory": true,
+        "ReparsePoint": false
+      },
+      {
+        "Label": "BrokerOutbox",
+        "Exists": true,
+        "Directory": true,
+        "ReparsePoint": false
+      }
+    ],
+    "QueueEntriesListed": 0,
+    "PermitsOrRegistryRead": false,
+    "TaskStartedOrStopped": false,
+    "FilesChanged": 0
+  },
+  "BrokerControlAndTriggerMetadata": {
+    "Check": "BROKER_TRIGGER_AND_CONTROL_PATH_METADATA",
+    "Utc": "2026-10-16T01:02:23.1254462Z",
+    "Triggers": [],
+    "ActionHasOnceFlag": false,
+    "TaskRunLevel": 0,
+    "ControlPaths": [
+      {
+        "Label": "BrokerWorkerParent",
+        "Exists": true,
+        "Directory": true,
+        "ReparsePoint": false
+      },
+      {
+        "Label": "BridgePython",
+        "Exists": true,
+        "Directory": false,
+        "ReparsePoint": false
+      },
+      {
+        "Label": "BridgeParent",
+        "Exists": true,
+        "Directory": true,
+        "ReparsePoint": false
+      },
+      {
+        "Label": "BridgeRegistry",
+        "Exists": true,
+        "Directory": false,
+        "ReparsePoint": false
+      }
+    ],
+    "FileContentsRead": 0,
+    "QueueEntriesListed": 0,
+    "TaskChanged": false
+  },
+  "BrokerPrincipalMetadata": {
+    "Check": "BROKER_TASK_PRINCIPAL_BINDING",
+    "Utc": "2026-10-16T01:05:26.9136328Z",
+    "PrincipalMatchesOwnerSid1001": true,
+    "RunLevel": 0,
+    "TriggerCount": 0,
+    "UserIdAndActionArgumentsPrinted": false,
+    "TaskChanged": false
+  },
+  "GuestProbe": {
+    "Check": "G2_KNOWN_SNAPSHOT_BROKER_BOUNDARY",
+    "Utc": "2026-10-16T01:04:39.3208228Z",
+    "SourceSHA256": "94B18201B37432D8EBE7C4C6D421CC2122F93CD8C197672F21A2334D0EB587AD",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "AdminGroupPresent": false,
+    "OwnPositiveCount": 6,
+    "OwnPositivesPass": true,
+    "OpenCount": 78,
+    "TargetCount": 7,
+    "Rows": [
+      {
+        "Label": "BrokerInbox",
+        "Kind": "Queue",
+        "Namespaces": {
+          "Normal": {
+            "LIST": 5,
+            "CREATE_FILE": 5,
+            "CREATE_DIRECTORY": 5,
+            "DELETE_CHILD": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "LIST": 5,
+            "CREATE_FILE": 5,
+            "CREATE_DIRECTORY": 5,
+            "DELETE_CHILD": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "BrokerOutbox",
+        "Kind": "Queue",
+        "Namespaces": {
+          "Normal": {
+            "LIST": 5,
+            "CREATE_FILE": 5,
+            "CREATE_DIRECTORY": 5,
+            "DELETE_CHILD": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "LIST": 5,
+            "CREATE_FILE": 5,
+            "CREATE_DIRECTORY": 5,
+            "DELETE_CHILD": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "BrokerWorker",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "WRITE": 5,
+            "APPEND": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "WRITE": 5,
+            "APPEND": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "BrokerWorkerParent",
+        "Kind": "Parent",
+        "Namespaces": {
+          "Normal": {
+            "CREATE_FILE": 5,
+            "CREATE_DIRECTORY": 5,
+            "DELETE_CHILD": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "CREATE_FILE": 5,
+            "CREATE_DIRECTORY": 5,
+            "DELETE_CHILD": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "BridgePython",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "WRITE": 5,
+            "APPEND": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "WRITE": 5,
+            "APPEND": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "BridgeParent",
+        "Kind": "Parent",
+        "Namespaces": {
+          "Normal": {
+            "CREATE_FILE": 5,
+            "CREATE_DIRECTORY": 5,
+            "DELETE_CHILD": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "CREATE_FILE": 5,
+            "CREATE_DIRECTORY": 5,
+            "DELETE_CHILD": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "BridgeRegistry",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "WRITE": 5,
+            "APPEND": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "WRITE": 5,
+            "APPEND": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      }
+    ],
+    "Passed": true,
+    "AllHandlesClosed": true,
+    "OpenDisposition": "OPEN_EXISTING",
+    "QueueEntriesListed": 0,
+    "QueueMessagesCreated": 0,
+    "ContentReads": 0,
+    "ContentWrites": 0,
+    "AclWrites": 0,
+    "TaskStartedOrStopped": false,
+    "SnapshotRequested": false,
+    "RuntimeRestarted": false,
+    "Limits": [
+      "Selected queue directory capabilities and mutation handles for worker/bridge/registry/parents",
+      "No request files read, written or submitted",
+      "Individual historical queue responses, private permits/claims and all other IPC not audited",
+      "Independent Repo access to queue intentionally remains outside G2 token scope"
+    ]
+  },
+  "ProbeSource": {
+    "Path": "runtime/host-g2/runtime-api-migration/Test-G2BrokerQueueBoundary.ps1",
+    "Bytes": 4511,
+    "SHA256": "94B18201B37432D8EBE7C4C6D421CC2122F93CD8C197672F21A2334D0EB587AD",
+    "Delivery": "Own G2 Workspace/e41-broker-boundary, Windows AST and pinned-byte/readback guard, native C# compiled",
+    "RepoReview": "Inspected source; no Windows API execution or unavailable pwsh AST claimed in Docker"
+  },
+  "WorkerSource": {
+    "Path": "runtime/broker/worker.py",
+    "SHA256": "EB4D10122F707375AC36D768BE439B3C679CA69B0F65F713DAA9AF001F0BA176",
+    "InstalledWorkerHashMatches": true,
+    "ReviewedScope": "ROOT/USER queue paths; fixed OPS; request-field allowlist; uuid/alias validation; argv-list subprocess; private per-alias standing/one-shot snapshot permission",
+    "NotAudited": "Full live Bridge implementation/config/export behavior not retested; no permits or registry contents read"
+  },
+  "Corrections": {
+    "E30": "SystemAccount=true did not establish LocalSystem specifically. E03 and current actual G2 metadata report MySQL80 NT AUTHORITY\\NetworkService; old LocalSystem prose corrected without changing E30 raw observations. No service reconfiguration occurred.",
+    "TriggerCount": "Initial CIM wrapper reported1 using @($t.Triggers).Count; this can count a scalar null. COM enumeration independently returned0 triggers twice. Use COM result; no task drift or autostart change established."
+  },
+  "Disposition": {
+    "AlreadySufficient": [
+      "Owner fresh station opens denied E21, selected pull-DUP_HANDLE denied E22; launch/standard-stream inheritance reviewed E24",
+      "Repo admin graph removed and actual guest/owner compatibility E38; source monitor fixed E39",
+      "Selected owner files/backups denied E40",
+      "Selected Broker queue/control/parent capability requests78 DENY5 with6 own positives"
+    ],
+    "KnownRemaining": "Old owner HOST still full and callable; needs separately agreed retirement and after-check. Baseline scope/final operating instructions not yet accepted.",
+    "ConditionalAdditionalWork": [
+      "Specific additional configured broker, owner API, service version/path change or contrary observation",
+      "Specific additional important personal asset/backup path; no arbitrary private scan"
+    ],
+    "EvidenceLimitations": [
+      "184 unnamed PSS entries/relative desktop names; no exhaustive inherited handle/IPC proof",
+      "E22 clipboard flag NOT_CONFIGURED is not effective disabled policy; no full clipboard bridge exclusion",
+      "Service source/installed binary binding incomplete, especially GoodbyeDPI; no live custom controls sent",
+      "Current stopped GoodbyeDPI not guaranteed to remain stopped; standard start/config rights denied in E03",
+      "Individual historical queue response files, private permits/claims and all Bridge code/dependencies not tested",
+      "Independent owner Repo and all-chat product route restriction remain separate"
+    ]
+  },
+  "Proposal": {
+    "Id": "P01",
+    "Status": "CANDIDATE_NOT_ACCEPTED",
+    "Text": "Accept a bounded G2 baseline using already-tested Windows session/user separation, standard launch/inheritance, selected handle and relevant broker/API/file controls; retain explicit limitations. Do not make exhaustive PSS/IPC/service-control fuzzing mandatory without a concrete material path. Final owner HOST retirement and operating acceptance remain separate explicit steps.",
+    "ChangesCommittedScope": false,
+    "ApprovalsOrRuntimeMutationsPerformed": false
+  },
+  "ServiceControlsSent": 0,
+  "SnapshotRequestsCreated": 0,
+  "TaskStartedOrStopped": false,
+  "RuntimeRestarted": false,
+  "ProtectedFilesOrAclChanged": false,
+  "OverallG3": "BLOCKED",
+  "G4_G6": "NOT_ACCEPTED"
+}

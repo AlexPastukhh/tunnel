@@ -1,0 +1,176 @@
+{
+  "date": "2026-10-15",
+  "scope": "Existing G2 MCP reachability, own Windows session/process ancestry, own Workspace file and CLI smoke. Not full isolation acceptance.",
+  "connector": "Fortis HOST G2 — Restricted Test",
+  "config_excerpt": {
+    "version": "0.2.52",
+    "defaultShell": "powershell.exe",
+    "allowedDirectories": [
+      "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace",
+      "C:\\Tools\\tunnel-client",
+      "C:\\Tools\\desktop-commander-runtime",
+      "C:\\Tools\\desktop-commander"
+    ],
+    "mcp_server_pid": 21540,
+    "node_executable": "C:\\Tools\\desktop-commander-runtime\\node.exe"
+  },
+  "own_context": {
+    "Check": "G2_OWN_CONTEXT_AND_ANCESTRY",
+    "Utc": "2026-10-15T16:15:07.9524080Z",
+    "TokenSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "AdminGroupPresent": false,
+    "Session": 2,
+    "CurrentDirectory": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace",
+    "LocalAppData": "C:\\Users\\FortisHostG1\\AppData\\Local",
+    "McpUiDisabled": "1",
+    "Ancestors": [
+      {
+        "Pid": 35256,
+        "ParentPid": 21540,
+        "Name": "powershell.exe",
+        "Session": 2,
+        "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "OwnerQueryStatus": 0,
+        "Executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "SHA256": null,
+        "Created": "2026-10-15T16:14:57.4731750Z"
+      },
+      {
+        "Pid": 21540,
+        "ParentPid": 34508,
+        "Name": "node.exe",
+        "Session": 2,
+        "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "OwnerQueryStatus": 0,
+        "Executable": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+        "SHA256": "2FFE3ACC0458FDDE999F50D11809BBE7C9B7EF204DCF17094E325D26ACE101D8",
+        "Created": "2026-10-15T16:13:13.7431060Z"
+      },
+      {
+        "Pid": 34508,
+        "ParentPid": 19888,
+        "Name": "python.exe",
+        "Session": 2,
+        "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "OwnerQueryStatus": 0,
+        "Executable": "C:\\Users\\FortisHostG1\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "SHA256": null,
+        "Created": "2026-10-15T16:13:13.1598000Z"
+      },
+      {
+        "Pid": 19888,
+        "ParentPid": 31096,
+        "Name": "tunnel-client-runtime.exe",
+        "Session": 2,
+        "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "OwnerQueryStatus": 0,
+        "Executable": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "SHA256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A",
+        "Created": "2026-10-15T16:13:11.5767120Z"
+      },
+      {
+        "Pid": 31096,
+        "ParentPid": 33936,
+        "Name": "powershell.exe",
+        "Session": 2,
+        "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "OwnerQueryStatus": 0,
+        "Executable": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "SHA256": null,
+        "Created": "2026-10-15T16:02:20.7155470Z"
+      },
+      {
+        "Pid": 33936,
+        "ParentPid": 25716,
+        "Name": "WindowsTerminal.exe",
+        "Session": 2,
+        "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "OwnerQueryStatus": 0,
+        "Executable": "C:\\Program Files\\WindowsApps\\Microsoft.WindowsTerminal_1.24.12741.0_x64__8wekyb3d8bbwe\\WindowsTerminal.exe",
+        "SHA256": null,
+        "Created": "2026-10-15T15:03:31.8635370Z"
+      }
+    ],
+    "GuiContentRead": false,
+    "SecretsRead": false
+  },
+  "workspace_and_lifecycle_metadata": {
+    "Check": "G2_OWN_WORKSPACE_AND_LIFECYCLE_METADATA",
+    "Utc": "2026-10-15T16:17:20.2119924Z",
+    "GuestSession": 2,
+    "ActiveConsoleSession": 1,
+    "GuestIsActiveConsole": false,
+    "FixtureExactReadback": true,
+    "FixtureSHA256": "6856567B7F9F2BB8F51442FDE667FADE247C3862C4495E4089F1A8406AA988F0",
+    "FixtureRemoved": true,
+    "LauncherLock": "SHARING_VIOLATION_32",
+    "ChainFlags": [
+      {
+        "Pid": 19888,
+        "Name": "tunnel-client-runtime.exe",
+        "ProfileArgumentPresent": true,
+        "KeyEnvReferencePresent": true,
+        "EmptyAdditionalTransportArgument": true
+      },
+      {
+        "Pid": 34508,
+        "Name": "python.exe",
+        "StdioGatePath": null,
+        "StdioGateSHA256": null
+      },
+      {
+        "Pid": 21540,
+        "Name": "node.exe",
+        "DesktopCommanderEntrypointPresent": true
+      }
+    ],
+    "GuiContentRead": false,
+    "OwnerProcessQueries": 0,
+    "ProfileContentsRead": false,
+    "RawCommandLinesPrinted": false
+  },
+  "python_entry_identification": {
+    "Check": "OWN_PYTHON_ENTRY_IDENTIFICATION",
+    "Pid": 34508,
+    "Session": 2,
+    "CommandLineAvailable": true,
+    "ScriptNames": [
+      "g2-stdio-gate.py"
+    ],
+    "ScriptArtifacts": [],
+    "RawCommandLinePrinted": false
+  },
+  "results": {
+    "mcp_config_reachable": true,
+    "guest_cli_exit_code": 0,
+    "guest_sid1009_non_admin_session2": true,
+    "observed_ancestry_same_sid_and_session": true,
+    "runtime_hash_matches": true,
+    "workspace_mcp_write_cli_read_remove": true,
+    "own_lock_held_sharing_violation32": true,
+    "guest_responds_while_other_console_session_active": true,
+    "active_console_session": 1,
+    "guest_session": 2,
+    "gate_script_basename_seen": "g2-stdio-gate.py",
+    "gate_full_path_and_source_pin_confirmed": false,
+    "full_transport_discovery_accepted": false,
+    "stop_and_descendant_cleanup_accepted": false,
+    "owner_boundary_accepted": false
+  },
+  "limits": [
+    "Active console session ID alone does not establish its owner identity.",
+    "Process observations are dated snapshots, not continuous enforcement or exhaustive ancestry/lifecycle audit.",
+    "Python command line identifies gate basename; its full path/hash was not resolved by limited pattern checks. Known old absolute Public path did not match.",
+    "Raw command lines, credentials, profile contents and GUI/clipboard contents were not output.",
+    "Own lock remains held; no duplicate runtime was started for this smoke.",
+    "Only our exact verified Workspace fixture was removed; G2 and other processes remain running.",
+    "G3 BLOCKED; G4-G6 unaccepted. No commit/push, ACL/mount/network/service/task changes."
+  ],
+  "last_gate_path_probe": {
+    "result": "INCONCLUSIVE_PARSER_ERROR",
+    "stage": "GetFullPath candidate normalization",
+    "exception": "NotSupportedException",
+    "files_modified": false,
+    "raw_command_line_printed": false
+  }
+}

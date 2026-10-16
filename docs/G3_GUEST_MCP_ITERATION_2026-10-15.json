@@ -1,0 +1,166 @@
+{
+  "date": "2026-10-15",
+  "scope": "Repo to G2 own Workspace source iteration, exact gate artifact identity, synthetic local Git and scoped G2 TCP/GET routes",
+  "probe": {
+    "source": "runtime/host-g2/runtime-api-migration/Test-G2OwnEntryArtifacts.ps1",
+    "sha256": "B454946153807F61F3BB2992135DA6BB0A9C080EF20F4B50B8D4CE1ADD1B7DFF",
+    "bytes": 3400,
+    "delivered_to": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace\\Test-G2OwnEntryArtifacts-B4549461.ps1",
+    "delivery_hash_verified": true,
+    "repo_ast_errors": 0,
+    "repo_csharp_language_version": 5,
+    "repo_csharp_compiled": true,
+    "repo_windows_api_calls": 0,
+    "repo_globalization_invariant_for_validator": true,
+    "windows_probe_exit_code": 0
+  },
+  "entry_artifacts": {
+    "Check": "G2_OWN_ENTRY_ARTIFACTS",
+    "Utc": "2026-10-15T16:38:51.6620126Z",
+    "ProbeSourceSHA256": "B454946153807F61F3BB2992135DA6BB0A9C080EF20F4B50B8D4CE1ADD1B7DFF",
+    "GuestSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "McpNodePid": 21540,
+    "PythonPid": 34508,
+    "ArgvParser": "CommandLineToArgvW",
+    "ArgumentCount": 2,
+    "GatePathCandidates": 1,
+    "Artifacts": [
+      {
+        "Path": "C:\\Users\\Public\\Documents\\FortisHostG1Probe\\RW\\g2-stdio-gate.py",
+        "SHA256": "146E60B028276F871353A113571306002942461F0446E519A63B28DCC068418D",
+        "Bytes": 2564
+      }
+    ],
+    "InlinePythonArgument": false,
+    "RawCommandLinePrinted": false,
+    "ProfileContentsRead": false,
+    "OwnerProcessQueries": 0,
+    "RuntimeRestarted": false
+  },
+  "gate_repo_sha256": "146E60B028276F871353A113571306002942461F0446E519A63B28DCC068418D",
+  "gate_repo_live_match": true,
+  "git": {
+    "Check": "G2_GIT_FUNCTIONAL",
+    "Utc": "2026-10-15T16:44:21.0765477Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "GitVersion": "git version 2.54.0.windows.1",
+    "OldFixtureCleanup": true,
+    "Passed": true,
+    "Cleanup": true,
+    "ProjectCommitOrPush": false,
+    "RemoteConfigured": false,
+    "CommitCreated": true,
+    "WorktreeClean": true
+  },
+  "tcp_listeners": {
+    "Check": "G2_SCOPED_TCP_LISTENERS",
+    "Utc": "2026-10-15T16:44:34.4529244Z",
+    "Session": 2,
+    "Network": [
+      {
+        "Pid": 19888,
+        "Name": "tunnel-client-runtime.exe",
+        "TcpListeners": [
+          {
+            "LocalAddress": "127.0.0.1",
+            "LocalPort": 57494
+          }
+        ],
+        "QueryErrors": 0
+      },
+      {
+        "Pid": 34508,
+        "Name": "python.exe",
+        "TcpListeners": [],
+        "QueryErrors": 0
+      },
+      {
+        "Pid": 21540,
+        "Name": "node.exe",
+        "TcpListeners": [],
+        "QueryErrors": 0
+      }
+    ],
+    "NetworkConfigChanged": false,
+    "OwnerEndpointsQueried": false
+  },
+  "diagnostic_routes": {
+    "Check": "G2_CURRENT_DIAGNOSTIC_ROUTE_SMOKE",
+    "Utc": "2026-10-15T16:46:31.3362024Z",
+    "Pid": 19888,
+    "Session": 2,
+    "Port": 57494,
+    "TargetRevalidated": true,
+    "Results": [
+      {
+        "Method": "GET",
+        "Path": "/healthz",
+        "Status": 200,
+        "TransportError": null
+      },
+      {
+        "Method": "GET",
+        "Path": "/readyz",
+        "Status": 200,
+        "TransportError": null
+      },
+      {
+        "Method": "GET",
+        "Path": "/api/status",
+        "Status": 404,
+        "TransportError": null
+      },
+      {
+        "Method": "GET",
+        "Path": "/api/restart",
+        "Status": 404,
+        "TransportError": null
+      },
+      {
+        "Method": "GET",
+        "Path": "/harpoon",
+        "Status": 404,
+        "TransportError": null
+      },
+      {
+        "Method": "GET",
+        "Path": "/mcp",
+        "Status": 404,
+        "TransportError": null
+      },
+      {
+        "Method": "GET",
+        "Path": "/sse",
+        "Status": 404,
+        "TransportError": null
+      }
+    ],
+    "ResponseBodiesRead": false,
+    "CredentialsUsed": false,
+    "OwnerEndpointsQueried": false,
+    "MutatingHttpRequests": 0
+  },
+  "earlier_failures_and_recovery": [
+    {
+      "stage": "Repo PowerShell validator startup",
+      "result": "ICU unavailable",
+      "recovery": "Retried validator with process-scoped DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1; AST and C#5 passed; no installation/system config change"
+    },
+    {
+      "stage": "First synthetic Git cleanup",
+      "result": "Directory.Delete failed on three read-only Git object files, leaving a partial fixture; Git result JSON not emitted",
+      "recovery": "Inspected remaining own exact paths and attributes; removed only verified fixture with Remove-Item -Force; fresh functional Git check and cleanup passed; no project Git touched"
+    }
+  ],
+  "limits": [
+    "Previous SESSION2_SMOKE evidence remains unchanged; this is subsequent evidence resolving its gate path/hash gap.",
+    "Gate file hash identifies current on-disk artifact, not an attestation of Python code bytes already loaded in memory.",
+    "GET-only selected routes and three known live chain PIDs; not an exhaustive method/endpoint/transport audit or continuous monitor.",
+    "No owner endpoints, owner GUI/clipboard contents, keys or private profile contents read.",
+    "Git used a separate temporary synthetic repository, with no remote, network auth or project commit/push; both fixture cleanups completed.",
+    "Installed runtime/profile/ACL/mount/network/service/task settings unchanged; existing G2 not restarted/stopped.",
+    "Own guest GUI/clipboard, browser CDP/DOM/storage, owner boundary and final descendant cleanup still need applicable acceptance."
+  ]
+}

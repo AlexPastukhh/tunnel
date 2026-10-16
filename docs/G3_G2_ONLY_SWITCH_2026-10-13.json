@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "status": "G2_ONLY_STAGED_WAITING_LOCAL_START",
+  "at": "2026-10-13T11:06:18.5547221Z",
+  "userScope": {
+    "g2Only": true,
+    "keepOwnerHOSTAndRepoRunning": true,
+    "repoChangesRequested": false,
+    "g2AsFutureFinalHOST": true,
+    "g4Acceptance": false
+  },
+  "launcherRepair": {
+    "At": "2026-10-13T11:02:41.8539907Z",
+    "Source": "C:\\Users\\alexa\\Repos\\tunnel\\runtime\\host-g2\\runtime-api-migration\\start-g2-runtime.ps1",
+    "Staged": "C:\\Users\\Public\\Documents\\FortisHostG1Probe\\RW\\start-g2-runtime.ps1",
+    "BeforeHash": "416DE2EB01708B81EF4C645F46D4FDB80D2C58FC0C96EFC28FDD2DD7802F9110",
+    "AfterHash": "A0680EB311B1BE2C0F7C3B1F9A0362DAC9F69C59A01C0AC293C3F08626ECF8F4",
+    "Backup": "C:\\Users\\alexa\\Repos\\tunnel\\runtime\\host-g2\\runtime-api-migration\\start-g2-runtime.before-sid-guard-20261013.ps1.bak",
+    "Syntax": "PASS",
+    "Guard": "Actual Windows owner SID, no argv dependency",
+    "TunnelsRestarted": false
+  },
+  "guardRetest": {
+    "At": "2026-10-13T11:04:06.1600506Z",
+    "SID": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "LauncherHash": "A0680EB311B1BE2C0F7C3B1F9A0362DAC9F69C59A01C0AC293C3F08626ECF8F4",
+    "ExistingProcessGuard": "PASS",
+    "CredentialPromptReached": false,
+    "NoRestart": true
+  },
+  "initialGuardFailure": {
+    "cause": "The previous regex required --profile immediately after run; actual argv had --profile-dir before --profile.",
+    "realCredentialPrompt": false,
+    "newTunnelStarted": false,
+    "interceptedAtReadHost": true
+  },
+  "dockerMetadata": {
+    "At": "2026-10-13T10:48:39.7551988Z",
+    "Name": "/fortis-repo-test",
+    "Running": true,
+    "StartedAt": "2026-10-13T03:00:25.216498666Z",
+    "User": "1000:1000",
+    "ReadonlyRootfs": true,
+    "CapDrop": [
+      "ALL"
+    ],
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Ports": {},
+    "Mounts": [
+      {
+        "Type": "bind",
+        "Source": "/run/desktop/mnt/host/c/Users/alexa/Workfiles",
+        "Destination": "/workspace/files",
+        "RW": true
+      },
+      {
+        "Type": "volume",
+        "Source": "/var/lib/docker/volumes/fortis-repo-workspace/_data",
+        "Destination": "/workspace/repo",
+        "RW": true
+      },
+      {
+        "Type": "bind",
+        "Source": "/run/desktop/mnt/host/c/Users/alexa/Repos",
+        "Destination": "/workspace/repos",
+        "RW": true
+      }
+    ]
+  },
+  "baseline": {
+    "At": "2026-10-13T10:56:25.4277993Z",
+    "Processes": [
+      {
+        "Name": "HOST",
+        "PID": 5580,
+        "Created": "2026-10-13T02:59:43.4833490Z",
+        "SID": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "Repo",
+        "PID": 23904,
+        "Created": "2026-10-13T03:00:34.2137140Z",
+        "SID": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "G2",
+        "PID": 8452,
+        "Created": "2026-10-13T06:43:30.0963580Z",
+        "SID": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Health": 200,
+        "Ready": 200
+      }
+    ],
+    "LiveLauncherHashes": [
+      {
+        "Path": "C:\\Users\\alexa\\Documents\\prot\\Start-Desktop-Commander-Secure-Tunnel.ps1",
+        "Hash": "0F644D4239E60886354EB83B6438CC888D8BDF3202B944B0304508E7C1336DFE"
+      },
+      {
+        "Path": "C:\\Users\\alexa\\chatgpt-repo-mode\\run-tunnel.ps1",
+        "Hash": "3877266C3C97BECC82045BE16D994981EB4F8973353B285236DF9CAAC158A5A3"
+      },
+      {
+        "Path": "C:\\Users\\alexa\\chatgpt-repo-mode\\control.ps1",
+        "Hash": "E80E209B4758B194D2BCC7DCAFDFB83D296289E29A543F192E6726538641AE34"
+      }
+    ],
+    "NoSwitchYet": true
+  },
+  "finalObserver": {
+    "At": "2026-10-13T11:06:18.5547221Z",
+    "Processes": [
+      {
+        "Name": "HOST",
+        "PID": 5580,
+        "Created": "2026-10-13T02:59:43.4833490Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "Repo",
+        "PID": 23904,
+        "Created": "2026-10-13T03:00:34.2137140Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "G2",
+        "PID": 8452,
+        "Created": "2026-10-13T06:43:30.0963580Z",
+        "Health": 200,
+        "Ready": 200
+      }
+    ],
+    "NoSwitchYet": true,
+    "StagedLauncherHash": "A0680EB311B1BE2C0F7C3B1F9A0362DAC9F69C59A01C0AC293C3F08626ECF8F4"
+  },
+  "ownerLaunchersChanged": false,
+  "profilesChanged": false,
+  "keysReadOrCopied": false,
+  "processesRestarted": false,
+  "localCommand": "$g2Launcher = 'C:\\Users\\Public\\Documents\\FortisHostG1Probe\\RW\\start-g2-runtime.ps1'\n$g2Bytes = [IO.File]::ReadAllBytes($g2Launcher)\n$g2SHA = [Security.Cryptography.SHA256]::Create()\ntry { $g2Hash = ([BitConverter]::ToString($g2SHA.ComputeHash($g2Bytes))).Replace('-', '') } finally { $g2SHA.Dispose() }\nif ($g2Hash -ne 'A0680EB311B1BE2C0F7C3B1F9A0362DAC9F69C59A01C0AC293C3F08626ECF8F4') { throw 'G2 launcher changed' }\n& ([scriptblock]::Create([Text.Encoding]::UTF8.GetString($g2Bytes)))",
+  "postStartAcceptance": "PENDING"
+}

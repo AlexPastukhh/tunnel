@@ -1,0 +1,110 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E25",
+  "Scope": "Owner route/profile/PID/launcher metadata and source-only compatibility; no switch",
+  "OwnerMetadata": {
+    "Check": "OWNER_ROUTE_PROFILE_METADATA",
+    "Utc": "2026-10-15T20:23:06.2794012Z",
+    "Rows": [
+      {
+        "Pid": 13520,
+        "Name": "tunnel-client.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:19.7775460Z",
+        "Profile": "desktop-commander",
+        "ExeSHA256": "1946DE55A038313A9B9B2458D05FE1719FA9CF1F20A94DD5F38FC26A98BFDD42",
+        "TcpListeners": [
+          {
+            "LocalAddress": "127.0.0.1",
+            "LocalPort": 8080
+          }
+        ]
+      },
+      {
+        "Pid": 22488,
+        "Name": "tunnel-client.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:59:53.4046800Z",
+        "Profile": "repo-mode",
+        "ExeSHA256": "1946DE55A038313A9B9B2458D05FE1719FA9CF1F20A94DD5F38FC26A98BFDD42",
+        "TcpListeners": [
+          {
+            "LocalAddress": "127.0.0.1",
+            "LocalPort": 59183
+          }
+        ]
+      }
+    ],
+    "LauncherFiles": [
+      {
+        "Path": "C:\\Users\\alexa\\Documents\\prot\\Start-Desktop-Commander-Secure-Tunnel.ps1",
+        "SHA256": "0F644D4239E60886354EB83B6438CC888D8BDF3202B944B0304508E7C1336DFE"
+      },
+      {
+        "Path": "C:\\Users\\alexa\\chatgpt-repo-mode\\run-tunnel.ps1",
+        "SHA256": "3877266C3C97BECC82045BE16D994981EB4F8973353B285236DF9CAAC158A5A3"
+      },
+      {
+        "Path": "C:\\Users\\alexa\\chatgpt-repo-mode\\control.ps1",
+        "SHA256": "E80E209B4758B194D2BCC7DCAFDFB83D296289E29A543F192E6726538641AE34"
+      }
+    ],
+    "NarrowRuntimeSHA256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A",
+    "RawArgvPrinted": false,
+    "EnvironmentRead": false,
+    "ProfileContentsRead": false,
+    "HttpRequests": 0,
+    "RuntimeRestarted": false
+  },
+  "Dependencies": [
+    {
+      "Component": "HOST Observatory",
+      "Source": "observatory/server.py",
+      "Routes": [
+        "/health?details=true",
+        "/health/mcp",
+        "/metrics",
+        "/api/logs"
+      ],
+      "Effect": "Runtime-only omits /api/logs. recent_tunnel_events catches request errors and returns []; WARN/ERROR input lost, not proof of tunnel down."
+    },
+    {
+      "Component": "Live Repo control",
+      "Source": "runtime/repo-mode/control.ps1",
+      "Effect": "Get-RepoTunnel searches only tunnel-client.exe; cannot discover runtime-only. Candidate control must accompany Repo run launcher."
+    },
+    {
+      "Component": "Candidate Repo control",
+      "Source": "runtime/host-g2/runtime-api-migration/repo-control.ps1",
+      "Effect": "Recognises both EXEs, checks creation time, changes OpenPanel from /ui to /health; source only, not deployed."
+    }
+  ],
+  "Unknown": [
+    "Actual need for full UI/Codex/Harpoon in owner workflows.",
+    "Installed/running Observatory version; repository sources do not attest live deployment.",
+    "Actual owner runtime-only profile/MCP and monitoring schema compatibility.",
+    "Safety of remaining runtime health/metrics data for guest; adminui removal is not complete listener data protection."
+  ],
+  "Assessment": {
+    "Plan4_8": "PARTIAL",
+    "Plan4_9": "PENDING",
+    "Plan4_10": "PENDING",
+    "G3": "BLOCKED",
+    "G4_G6": "NOT_ACCEPTED",
+    "NoProfilesRead": true,
+    "NoHttpRequests": true,
+    "NoGuiAutomation": true,
+    "NoFileDeployment": true,
+    "NoRestart": true,
+    "NoAvAclNetworkChanges": true,
+    "Next": "Prepare independent one-route Preview/backup/hash-and-file-identity guarded apply/rollback, without automatic restart. Resolve full-only needs and monitoring behavior before approving concrete route cutover."
+  },
+  "Reuse": [
+    "E08 pinned runtime/synthetic fixtures",
+    "E14 historical all-three BEFORE Preview; no switch approval",
+    "E15 exact source route/guard review",
+    "E24 launch/inheritance"
+  ]
+}

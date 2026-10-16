@@ -1,0 +1,327 @@
+{
+  "Evidence": "E40",
+  "DateLocal": "2026-10-16",
+  "Timezone": "Asia/Bangkok",
+  "Status": "SELECTED_OWNER_ASSET_EFFECTIVE_ACCESS_PASS_SCOPE_7_6_PARTIAL_OVERALL",
+  "Source": {
+    "Path": "runtime/host-g2/runtime-api-migration/Test-G2SelectedOwnerAssets.ps1",
+    "Bytes": 6144,
+    "SHA256": "805EF36816DA4824E729F6BADC0D5BF75C38A5A0029E9FD56D1AD797D6B5B970",
+    "RepoCheck": "Source reviewed; attempted pwsh AST unavailable after container restart (pwsh command not found); no Linux AST PASS claimed",
+    "WindowsCheck": "Delivered to own G2 Workspace; source/readback SHA guard; Windows PowerShell AST PASS, C# compiled and actual probe executed",
+    "DeliveredCopy": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace\\e40-owner-assets\\Test-G2SelectedOwnerAssets.ps1"
+  },
+  "OwnerMetadata": {
+    "Utc": "2026-10-16T00:42:09.0423835Z",
+    "PreexistingFilesConfirmed": [
+      "RepoNamedProfile",
+      "RepoRun",
+      "RepoControl",
+      "RepoRecoveryBackup",
+      "RuntimeDaclBackup",
+      "OwnerEdgeLocalState"
+    ],
+    "ReparsePointOnThoseFiles": false,
+    "MissingOptionalTarget": {
+      "Label": "AwsCredentials",
+      "Path": "C:\\Users\\alexa\\.aws\\credentials",
+      "Interpretation": "ABSENT_NOT_DENY_NOT_TESTED"
+    },
+    "OwnerDirectoryEnumerations": 0,
+    "ContentsReadForExistence": 0
+  },
+  "CredentialMetadata": {
+    "Label": "RepoRuntimeKeyFile",
+    "Path": "C:\\Users\\alexa\\AppData\\Roaming\\tunnel-client\\runtime.key",
+    "Exists": true,
+    "ReparseOrSymlink": false,
+    "ProfilePinVerified": true,
+    "Scope": "Known named-profile bytes parsed locally only to obtain existing file reference; no key bytes opened/read/hashed",
+    "CredentialContentsRead": false
+  },
+  "Result": {
+    "Check": "G2_SELECTED_OWNER_ASSET_CAPABILITIES",
+    "Utc": "2026-10-16T00:45:23.0550279Z",
+    "SourceSHA256": "805EF36816DA4824E729F6BADC0D5BF75C38A5A0029E9FD56D1AD797D6B5B970",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "AdminGroupPresent": false,
+    "PositiveControlCount": 15,
+    "PositiveControlsPass": true,
+    "Rows": [
+      {
+        "Label": "RepoNamedProfile",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "RepoRuntimeKeyFile",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "RepoRun",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "RepoControl",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "RepoRecoveryBackup",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "RuntimeDaclBackup",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "OwnerEdgeLocalState",
+        "Kind": "File",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "RepoRecoveryParent",
+        "Kind": "Directory",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5,
+            "DELETE_CHILD": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5,
+            "DELETE_CHILD": 5
+          }
+        },
+        "Pass": true
+      },
+      {
+        "Label": "RuntimeDaclBackupParent",
+        "Kind": "Directory",
+        "Namespaces": {
+          "Normal": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5,
+            "DELETE_CHILD": 5
+          },
+          "LocalhostCShare": {
+            "READ_OR_LIST": 5,
+            "WRITE_OR_CREATE": 5,
+            "APPEND_OR_MKDIR": 5,
+            "WRITE_ATTRIBUTES": 5,
+            "DELETE": 5,
+            "WRITE_DAC": 5,
+            "WRITE_OWNER": 5,
+            "DELETE_CHILD": 5
+          }
+        },
+        "Pass": true
+      }
+    ],
+    "TargetCount": 9,
+    "ProtectedOpenCount": 130,
+    "Passed": true,
+    "ErrorKind": null,
+    "OwnFixtureCleanup": true,
+    "OpenDisposition": "OPEN_EXISTING",
+    "OwnerContentsRead": 0,
+    "OwnerContentWrites": 0,
+    "OwnerDirectoryEnumerations": 0,
+    "AclWrites": 0,
+    "ProfilesOrKeysModified": false,
+    "RuntimeRestarted": false,
+    "Limits": [
+      "Only 7 selected existing owner files and 2 immediate backup directories",
+      "File-parent DELETE_CHILD tested for two selected backups",
+      "No key/browser/backup bytes read or hashed",
+      "Other personal assets, links, handles, backup restoration and independent Repo mounts not accepted"
+    ]
+  },
+  "Assessment": {
+    "SelectedFiles": 7,
+    "SelectedBackupParents": 2,
+    "ProtectedAccessRequests": 130,
+    "ProtectedAccessDeniedWin32_5": 130,
+    "OwnPositiveRequestsAllowed": 15,
+    "SelectedStatus": "PASS_SCOPE",
+    "Plan7_6": "PARTIAL_OVERALL",
+    "Plan7_3": "Existing root evidence E05 retained, not repeated",
+    "NoAclChangeNeededForSelectedTargets": true,
+    "OwnerContentDataReads": 0,
+    "OwnerWrites": 0,
+    "ScopeOfNoContentReads": "Capability probe; owner metadata step locally parsed known FILE_REFERENCE profile, never key/browser/backup data",
+    "BackupResilience": "Selected backup files and immediate parents deny content writes/delete/DELETE_CHILD/ACL ownership rights; not a full backup/restoration/offline resilience audit",
+    "IndependentRepo": "G2 token checks do not constrain independent owner Repo RW mounts or whole-chat tools",
+    "MandatoryPolicy": "baseline-policy.json is documented source/design in Repo, not mandatory enforcement; no general policy manager claimed"
+  },
+  "Limitations": [
+    "Other documents/photos/financial/recovery assets and backup locations have not been selected or inventoried",
+    "No recursive child/link/hardlink/ADS enumeration or inherited/open-handle audit",
+    "SMB authenticated identity not independently established; measured effective access only",
+    "Backup restore, media failure, versioning/offline copies not tested",
+    "No new grants, ACL, mounts, network, tunnel or container restart; production protected files unmodified"
+  ],
+  "OverallG3": "BLOCKED",
+  "G4_G6": "NOT_ACCEPTED"
+}

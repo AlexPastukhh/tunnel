@@ -1,0 +1,878 @@
+{
+    "date":  "2026-10-13",
+    "timezone":  "Asia/Bangkok",
+    "status":  "G3_FAIL_STOP_SHARED_RUNTIME_WRITABLE",
+    "identity":  {
+                     "user":  "FORTIS_M\\FortisHostG1",
+                     "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009",
+                     "admin":  false,
+                     "uiDisabled":  true,
+                     "secretNamesPresent":  0,
+                     "tree":  [
+                                  {
+                                      "pid":  1708,
+                                      "parent":  23140,
+                                      "name":  "powershell.exe",
+                                      "created":  "2026-10-13T06:44:37.7207330Z",
+                                      "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009"
+                                  },
+                                  {
+                                      "pid":  23140,
+                                      "parent":  5152,
+                                      "name":  "node.exe",
+                                      "created":  "2026-10-13T06:43:32.6549940Z",
+                                      "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009"
+                                  },
+                                  {
+                                      "pid":  5152,
+                                      "parent":  8452,
+                                      "name":  "python.exe",
+                                      "created":  "2026-10-13T06:43:32.5170460Z",
+                                      "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009"
+                                  },
+                                  {
+                                      "pid":  8452,
+                                      "parent":  21828,
+                                      "name":  "tunnel-client.exe",
+                                      "created":  "2026-10-13T06:43:30.0963580Z",
+                                      "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009"
+                                  },
+                                  {
+                                      "pid":  21828,
+                                      "parent":  21888,
+                                      "name":  "powershell.exe",
+                                      "created":  "2026-10-13T02:57:06.0350170Z",
+                                      "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009"
+                                  }
+                              ]
+                 },
+    "servicesAndDirectTaskRetrieval":  {
+                                           "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009",
+                                           "services":  [
+                                                            {
+                                                                "name":  "GoodbyeDPI",
+                                                                "state":  "Stopped",
+                                                                "startName":  "LocalSystem",
+                                                                "serviceRightsWin32":  {
+                                                                                           "query_config":  0,
+                                                                                           "query_status":  0,
+                                                                                           "change_config":  5,
+                                                                                           "start":  5,
+                                                                                           "stop":  5,
+                                                                                           "pause":  5,
+                                                                                           "user_control":  0,
+                                                                                           "delete":  5,
+                                                                                           "write_dac":  5,
+                                                                                           "write_owner":  5
+                                                                                       },
+                                                                "binaryAndParent":  [
+                                                                                        {
+                                                                                            "path":  "C:\\Users\\alexa\\Downloads\\goodbyedpi-0.2.3rc3-2\\goodbyedpi-0.2.3rc3-2\\x86_64\\goodbyedpi.exe",
+                                                                                            "write_data_or_create":  3,
+                                                                                            "append_or_subdir":  3,
+                                                                                            "delete":  3,
+                                                                                            "write_dac":  3,
+                                                                                            "write_owner":  3
+                                                                                        },
+                                                                                        {
+                                                                                            "path":  "C:\\Users\\alexa\\Downloads\\goodbyedpi-0.2.3rc3-2\\goodbyedpi-0.2.3rc3-2\\x86_64",
+                                                                                            "write_data_or_create":  3,
+                                                                                            "append_or_subdir":  3,
+                                                                                            "delete":  3,
+                                                                                            "write_dac":  3,
+                                                                                            "write_owner":  3
+                                                                                        }
+                                                                                    ]
+                                                            },
+                                                            {
+                                                                "name":  "MySQL80",
+                                                                "state":  "Running",
+                                                                "startName":  "NT AUTHORITY\\NetworkService",
+                                                                "serviceRightsWin32":  {
+                                                                                           "query_config":  0,
+                                                                                           "query_status":  0,
+                                                                                           "change_config":  5,
+                                                                                           "start":  5,
+                                                                                           "stop":  5,
+                                                                                           "pause":  5,
+                                                                                           "user_control":  0,
+                                                                                           "delete":  5,
+                                                                                           "write_dac":  5,
+                                                                                           "write_owner":  5
+                                                                                       },
+                                                                "binaryAndParent":  [
+                                                                                        {
+                                                                                            "path":  "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe",
+                                                                                            "write_data_or_create":  5,
+                                                                                            "append_or_subdir":  5,
+                                                                                            "delete":  5,
+                                                                                            "write_dac":  5,
+                                                                                            "write_owner":  5
+                                                                                        },
+                                                                                        {
+                                                                                            "path":  "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin",
+                                                                                            "write_data_or_create":  5,
+                                                                                            "append_or_subdir":  5,
+                                                                                            "delete":  5,
+                                                                                            "write_dac":  5,
+                                                                                            "write_owner":  5
+                                                                                        }
+                                                                                    ]
+                                                            }
+                                                        ],
+                                           "tasks":  [
+                                                         {
+                                                             "name":  "AMDLinkUpdate",
+                                                             "result":  "ERROR",
+                                                             "hresult":  "0x80070005",
+                                                             "errorType":  "System.UnauthorizedAccessException"
+                                                         },
+                                                         {
+                                                             "name":  "AMDRyzenMasterSDKTask",
+                                                             "result":  "ERROR",
+                                                             "hresult":  "0x80070005",
+                                                             "errorType":  "System.UnauthorizedAccessException"
+                                                         },
+                                                         {
+                                                             "name":  "StartAUEP",
+                                                             "result":  "ERROR",
+                                                             "hresult":  "0x80070005",
+                                                             "errorType":  "System.UnauthorizedAccessException"
+                                                         },
+                                                         {
+                                                             "name":  "FortisRepoBridgeBrokerV1",
+                                                             "result":  "ERROR",
+                                                             "hresult":  "0x80070005",
+                                                             "errorType":  "System.UnauthorizedAccessException"
+                                                         }
+                                                     ],
+                                           "meaning":  "Service/file: Win32 0=handle allowed,5=access denied; no operations performed. Tasks: AccessCheck against scheduler SD, no Run/Update."
+                                       },
+    "tasksUnderActualG2Token":  {
+                                    "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009",
+                                    "source":  "Live scheduler SD read by authorized alexa observer; AccessCheck with actual G2 token",
+                                    "tasks":  [
+                                                  {
+                                                      "name":  "AMDLinkUpdate",
+                                                      "principal":  "alexa",
+                                                      "runLevel":  1,
+                                                      "aclAccessCheck":  {
+                                                                             "read":  "DENY",
+                                                                             "write":  "DENY",
+                                                                             "append":  "DENY",
+                                                                             "execute":  "DENY",
+                                                                             "delete":  "DENY",
+                                                                             "write_dac":  "DENY",
+                                                                             "write_owner":  "DENY"
+                                                                         }
+                                                  },
+                                                  {
+                                                      "name":  "AMDRyzenMasterSDKTask",
+                                                      "principal":  "alexa",
+                                                      "runLevel":  1,
+                                                      "aclAccessCheck":  {
+                                                                             "read":  "DENY",
+                                                                             "write":  "DENY",
+                                                                             "append":  "DENY",
+                                                                             "execute":  "DENY",
+                                                                             "delete":  "DENY",
+                                                                             "write_dac":  "DENY",
+                                                                             "write_owner":  "DENY"
+                                                                         }
+                                                  },
+                                                  {
+                                                      "name":  "StartAUEP",
+                                                      "principal":  "alexa",
+                                                      "runLevel":  1,
+                                                      "aclAccessCheck":  {
+                                                                             "read":  "DENY",
+                                                                             "write":  "DENY",
+                                                                             "append":  "DENY",
+                                                                             "execute":  "DENY",
+                                                                             "delete":  "DENY",
+                                                                             "write_dac":  "DENY",
+                                                                             "write_owner":  "DENY"
+                                                                         }
+                                                  },
+                                                  {
+                                                      "name":  "FortisRepoBridgeBrokerV1",
+                                                      "principal":  "alexa",
+                                                      "runLevel":  0,
+                                                      "aclAccessCheck":  {
+                                                                             "read":  "DENY",
+                                                                             "write":  "DENY",
+                                                                             "append":  "DENY",
+                                                                             "execute":  "DENY",
+                                                                             "delete":  "DENY",
+                                                                             "write_dac":  "DENY",
+                                                                             "write_owner":  "DENY"
+                                                                         }
+                                                  }
+                                              ]
+                                },
+    "runtimeAndIpc":  {
+                          "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009",
+                          "sharedRuntime":  [
+                                                {
+                                                    "path":  "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+                                                    "win32":  {
+                                                                  "write_or_create":  32,
+                                                                  "append_or_subdir":  0,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  0,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                },
+                                                {
+                                                    "path":  "C:\\Tools\\tunnel-client",
+                                                    "win32":  {
+                                                                  "write_or_create":  0,
+                                                                  "append_or_subdir":  0,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  0,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                },
+                                                {
+                                                    "path":  "C:\\Tools\\desktop-commander-runtime\\node.exe",
+                                                    "win32":  {
+                                                                  "write_or_create":  32,
+                                                                  "append_or_subdir":  0,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  0,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                },
+                                                {
+                                                    "path":  "C:\\Tools\\desktop-commander-runtime",
+                                                    "win32":  {
+                                                                  "write_or_create":  0,
+                                                                  "append_or_subdir":  0,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  0,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                },
+                                                {
+                                                    "path":  "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+                                                    "win32":  {
+                                                                  "write_or_create":  0,
+                                                                  "append_or_subdir":  0,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  0,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                },
+                                                {
+                                                    "path":  "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist",
+                                                    "win32":  {
+                                                                  "write_or_create":  0,
+                                                                  "append_or_subdir":  0,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  0,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                },
+                                                {
+                                                    "path":  "C:\\Tools\\desktop-commander",
+                                                    "win32":  {
+                                                                  "write_or_create":  0,
+                                                                  "append_or_subdir":  0,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  0,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                },
+                                                {
+                                                    "path":  "C:\\Tools",
+                                                    "win32":  {
+                                                                  "write_or_create":  0,
+                                                                  "append_or_subdir":  0,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  0,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                },
+                                                {
+                                                    "path":  "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin",
+                                                    "win32":  {
+                                                                  "write_or_create":  5,
+                                                                  "append_or_subdir":  5,
+                                                                  "delete_child_if_directory":  5,
+                                                                  "delete":  5,
+                                                                  "write_dac":  5,
+                                                                  "write_owner":  5
+                                                              }
+                                                }
+                                            ],
+                          "dockerPipes":  [
+                                              {
+                                                  "name":  "docker_engine",
+                                                  "read":  5,
+                                                  "write":  5
+                                              },
+                                              {
+                                                  "name":  "dockerDesktopLinuxEngine",
+                                                  "read":  5,
+                                                  "write":  5
+                                              }
+                                          ],
+                          "listeners":  [
+                                            {
+                                                "address":  "::",
+                                                "port":  49681,
+                                                "pid":  1620,
+                                                "name":  "services"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  49668,
+                                                "pid":  4116,
+                                                "name":  "spoolsv"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  49667,
+                                                "pid":  3040,
+                                                "name":  "svchost"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  49666,
+                                                "pid":  2584,
+                                                "name":  "svchost"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  49665,
+                                                "pid":  1464,
+                                                "name":  "wininit"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  49664,
+                                                "pid":  1648,
+                                                "name":  "lsass"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  33060,
+                                                "pid":  6632,
+                                                "name":  "mysqld"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  5432,
+                                                "pid":  7064,
+                                                "name":  "postgres"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  5357,
+                                                "pid":  4,
+                                                "name":  "System"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  3306,
+                                                "pid":  6632,
+                                                "name":  "mysqld"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  2179,
+                                                "pid":  3864,
+                                                "name":  "vmms"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  445,
+                                                "pid":  4,
+                                                "name":  "System"
+                                            },
+                                            {
+                                                "address":  "::",
+                                                "port":  135,
+                                                "pid":  1956,
+                                                "name":  "svchost"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  65069,
+                                                "pid":  8452,
+                                                "name":  "tunnel-client"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  62875,
+                                                "pid":  18584,
+                                                "name":  "ollama app"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  60858,
+                                                "pid":  15848,
+                                                "name":  "ThroneCore"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  58122,
+                                                "pid":  23904,
+                                                "name":  "tunnel-client"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  49681,
+                                                "pid":  1620,
+                                                "name":  "services"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  49677,
+                                                "pid":  5440,
+                                                "name":  "avp"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  49668,
+                                                "pid":  4116,
+                                                "name":  "spoolsv"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  49667,
+                                                "pid":  3040,
+                                                "name":  "svchost"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  49666,
+                                                "pid":  2584,
+                                                "name":  "svchost"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  49665,
+                                                "pid":  1464,
+                                                "name":  "wininit"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  49664,
+                                                "pid":  1648,
+                                                "name":  "lsass"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  25002,
+                                                "pid":  5708,
+                                                "name":  "ZKCropFaceSvr"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  22352,
+                                                "pid":  5420,
+                                                "name":  "CmWebAdmin"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  22350,
+                                                "pid":  5432,
+                                                "name":  "CodeMeter"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  11434,
+                                                "pid":  18876,
+                                                "name":  "ollama"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  8080,
+                                                "pid":  5580,
+                                                "name":  "tunnel-client"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  5533,
+                                                "pid":  15848,
+                                                "name":  "ThroneCore"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  5432,
+                                                "pid":  7064,
+                                                "name":  "postgres"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  5040,
+                                                "pid":  9232,
+                                                "name":  "svchost"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  4709,
+                                                "pid":  15992,
+                                                "name":  "wpscloudsvr"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  4197,
+                                                "pid":  22412,
+                                                "name":  "node"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  4196,
+                                                "pid":  3436,
+                                                "name":  "node"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  3050,
+                                                "pid":  5512,
+                                                "name":  "fb_inet_server"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  2179,
+                                                "pid":  3864,
+                                                "name":  "vmms"
+                                            },
+                                            {
+                                                "address":  "127.0.0.1",
+                                                "port":  2080,
+                                                "pid":  15848,
+                                                "name":  "ThroneCore"
+                                            },
+                                            {
+                                                "address":  "0.0.0.0",
+                                                "port":  135,
+                                                "pid":  1956,
+                                                "name":  "svchost"
+                                            }
+                                        ]
+                      },
+    "liveAcl":  [
+                    {
+                        "path":  "C:\\Tools",
+                        "sddl":  "O:BAG:S-1-5-21-303538662-3368424508-2654684973-1001D:AI(A;OICIID;FA;;;BA)(A;OICIID;FA;;;SY)(A;OICIID;0x1200a9;;;BU)(A;ID;0x1301bf;;;AU)(A;OICIIOID;SDGXGWGR;;;AU)",
+                        "protected":  false
+                    },
+                    {
+                        "path":  "C:\\Tools\\tunnel-client",
+                        "sddl":  "O:BAG:S-1-5-21-303538662-3368424508-2654684973-1001D:AI(A;OICIID;FA;;;BA)(A;OICIID;FA;;;SY)(A;OICIID;0x1200a9;;;BU)(A;ID;0x1301bf;;;AU)(A;OICIIOID;SDGXGWGR;;;AU)",
+                        "protected":  false
+                    },
+                    {
+                        "path":  "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+                        "sddl":  "O:BAG:S-1-5-21-303538662-3368424508-2654684973-1001D:AI(A;ID;FA;;;BA)(A;ID;FA;;;SY)(A;ID;0x1200a9;;;BU)(A;ID;0x1301bf;;;AU)",
+                        "protected":  false
+                    },
+                    {
+                        "path":  "C:\\Tools\\desktop-commander-runtime",
+                        "sddl":  "O:BAG:S-1-5-21-303538662-3368424508-2654684973-1001D:AI(A;OICIID;FA;;;BA)(A;OICIID;FA;;;SY)(A;OICIID;0x1200a9;;;BU)(A;ID;0x1301bf;;;AU)(A;OICIIOID;SDGXGWGR;;;AU)",
+                        "protected":  false
+                    },
+                    {
+                        "path":  "C:\\Tools\\desktop-commander-runtime\\node.exe",
+                        "sddl":  "O:BAG:S-1-5-21-303538662-3368424508-2654684973-1001D:AI(A;ID;FA;;;BA)(A;ID;FA;;;SY)(A;ID;0x1200a9;;;BU)(A;ID;0x1301bf;;;AU)",
+                        "protected":  false
+                    },
+                    {
+                        "path":  "C:\\Tools\\desktop-commander",
+                        "sddl":  "O:BAG:S-1-5-21-303538662-3368424508-2654684973-1001D:AI(A;OICIID;FA;;;BA)(A;OICIID;FA;;;SY)(A;OICIID;0x1200a9;;;BU)(A;ID;0x1301bf;;;AU)(A;OICIIOID;SDGXGWGR;;;AU)",
+                        "protected":  false
+                    },
+                    {
+                        "path":  "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+                        "sddl":  "O:BAG:S-1-5-21-303538662-3368424508-2654684973-1001D:AI(A;ID;FA;;;BA)(A;ID;FA;;;SY)(A;ID;0x1200a9;;;BU)(A;ID;0x1301bf;;;AU)",
+                        "protected":  false
+                    }
+                ],
+    "processPaths":  [
+                         {
+                             "pid":  5580,
+                             "parent":  2860,
+                             "exe":  "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+                             "sid":  "S-1-5-21-303538662-3368424508-2654684973-1001",
+                             "usesSharedDcIndex":  false,
+                             "created":  "2026-10-13T02:59:43.4833490Z"
+                         },
+                         {
+                             "pid":  17056,
+                             "parent":  20888,
+                             "exe":  "C:\\Tools\\desktop-commander-runtime\\node.exe",
+                             "sid":  "S-1-5-21-303538662-3368424508-2654684973-1001",
+                             "usesSharedDcIndex":  true,
+                             "created":  "2026-10-13T02:59:43.9687080Z"
+                         },
+                         {
+                             "pid":  23904,
+                             "parent":  11416,
+                             "exe":  "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+                             "sid":  "S-1-5-21-303538662-3368424508-2654684973-1001",
+                             "usesSharedDcIndex":  false,
+                             "created":  "2026-10-13T03:00:34.2137140Z"
+                         },
+                         {
+                             "pid":  8452,
+                             "parent":  21828,
+                             "exe":  "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+                             "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009",
+                             "usesSharedDcIndex":  false,
+                             "created":  "2026-10-13T06:43:30.0963580Z"
+                         },
+                         {
+                             "pid":  23140,
+                             "parent":  5152,
+                             "exe":  "C:\\Tools\\desktop-commander-runtime\\node.exe",
+                             "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009",
+                             "usesSharedDcIndex":  false,
+                             "created":  "2026-10-13T06:43:32.6549940Z"
+                         }
+                     ],
+    "aclConfirmation":  {
+                            "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009",
+                            "aclChecks":  [
+                                              {
+                                                  "path":  "C:\\Tools",
+                                                  "write":  "ALLOW",
+                                                  "append":  "ALLOW",
+                                                  "delete":  "ALLOW"
+                                              },
+                                              {
+                                                  "path":  "C:\\Tools\\tunnel-client",
+                                                  "write":  "ALLOW",
+                                                  "append":  "ALLOW",
+                                                  "delete":  "ALLOW"
+                                              },
+                                              {
+                                                  "path":  "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+                                                  "write":  "ALLOW",
+                                                  "append":  "ALLOW",
+                                                  "delete":  "ALLOW"
+                                              },
+                                              {
+                                                  "path":  "C:\\Tools\\desktop-commander-runtime",
+                                                  "write":  "ALLOW",
+                                                  "append":  "ALLOW",
+                                                  "delete":  "ALLOW"
+                                              },
+                                              {
+                                                  "path":  "C:\\Tools\\desktop-commander-runtime\\node.exe",
+                                                  "write":  "ALLOW",
+                                                  "append":  "ALLOW",
+                                                  "delete":  "ALLOW"
+                                              },
+                                              {
+                                                  "path":  "C:\\Tools\\desktop-commander",
+                                                  "write":  "ALLOW",
+                                                  "append":  "ALLOW",
+                                                  "delete":  "ALLOW"
+                                              },
+                                              {
+                                                  "path":  "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+                                                  "write":  "ALLOW",
+                                                  "append":  "ALLOW",
+                                                  "delete":  "ALLOW"
+                                              }
+                                          ],
+                            "volumeRootDeleteChildWin32":  5,
+                            "volumeRootWriteDacWin32":  5
+                        },
+    "remediationSimulationOnly":  {
+                                      "mode":  "IN-MEMORY ONLY; no Set-Acl, no filesystem mutation",
+                                      "sid":  "S-1-5-21-303538662-3368424508-2654684973-1009",
+                                      "results":  [
+                                                      {
+                                                          "path":  "C:\\Tools",
+                                                          "simulatedAcl":  {
+                                                                               "read":  "ALLOW",
+                                                                               "execute":  "ALLOW",
+                                                                               "write":  "DENY",
+                                                                               "append":  "DENY",
+                                                                               "delete":  "DENY",
+                                                                               "write_dac":  "DENY",
+                                                                               "write_owner":  "DENY"
+                                                                           }
+                                                      },
+                                                      {
+                                                          "path":  "C:\\Tools\\tunnel-client",
+                                                          "simulatedAcl":  {
+                                                                               "read":  "ALLOW",
+                                                                               "execute":  "ALLOW",
+                                                                               "write":  "DENY",
+                                                                               "append":  "DENY",
+                                                                               "delete":  "DENY",
+                                                                               "write_dac":  "DENY",
+                                                                               "write_owner":  "DENY"
+                                                                           }
+                                                      },
+                                                      {
+                                                          "path":  "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+                                                          "simulatedAcl":  {
+                                                                               "read":  "ALLOW",
+                                                                               "execute":  "ALLOW",
+                                                                               "write":  "DENY",
+                                                                               "append":  "DENY",
+                                                                               "delete":  "DENY",
+                                                                               "write_dac":  "DENY",
+                                                                               "write_owner":  "DENY"
+                                                                           }
+                                                      },
+                                                      {
+                                                          "path":  "C:\\Tools\\desktop-commander-runtime",
+                                                          "simulatedAcl":  {
+                                                                               "read":  "ALLOW",
+                                                                               "execute":  "ALLOW",
+                                                                               "write":  "DENY",
+                                                                               "append":  "DENY",
+                                                                               "delete":  "DENY",
+                                                                               "write_dac":  "DENY",
+                                                                               "write_owner":  "DENY"
+                                                                           }
+                                                      },
+                                                      {
+                                                          "path":  "C:\\Tools\\desktop-commander-runtime\\node.exe",
+                                                          "simulatedAcl":  {
+                                                                               "read":  "ALLOW",
+                                                                               "execute":  "ALLOW",
+                                                                               "write":  "DENY",
+                                                                               "append":  "DENY",
+                                                                               "delete":  "DENY",
+                                                                               "write_dac":  "DENY",
+                                                                               "write_owner":  "DENY"
+                                                                           }
+                                                      },
+                                                      {
+                                                          "path":  "C:\\Tools\\desktop-commander",
+                                                          "simulatedAcl":  {
+                                                                               "read":  "ALLOW",
+                                                                               "execute":  "ALLOW",
+                                                                               "write":  "DENY",
+                                                                               "append":  "DENY",
+                                                                               "delete":  "DENY",
+                                                                               "write_dac":  "DENY",
+                                                                               "write_owner":  "DENY"
+                                                                           }
+                                                      },
+                                                      {
+                                                          "path":  "C:\\Tools\\desktop-commander\\node_modules\\@wonderwhy-er\\desktop-commander\\dist\\index.js",
+                                                          "simulatedAcl":  {
+                                                                               "read":  "ALLOW",
+                                                                               "execute":  "ALLOW",
+                                                                               "write":  "DENY",
+                                                                               "append":  "DENY",
+                                                                               "delete":  "DENY",
+                                                                               "write_dac":  "DENY",
+                                                                               "write_owner":  "DENY"
+                                                                           }
+                                                      }
+                                                  ]
+                                  },
+    "runtimeTreeInventory":  [
+                                 {
+                                     "root":  "C:\\Tools\\tunnel-client",
+                                     "itemCount":  9,
+                                     "protectedAclPaths":  [
+
+                                                           ],
+                                     "reparsePaths":  [
+
+                                                      ],
+                                     "errorCount":  0
+                                 },
+                                 {
+                                     "root":  "C:\\Tools\\desktop-commander-runtime",
+                                     "itemCount":  2,
+                                     "protectedAclPaths":  [
+
+                                                           ],
+                                     "reparsePaths":  [
+
+                                                      ],
+                                     "errorCount":  0
+                                 },
+                                 {
+                                     "root":  "C:\\Tools\\desktop-commander",
+                                     "itemCount":  22747,
+                                     "protectedAclPaths":  [
+
+                                                           ],
+                                     "reparsePaths":  [
+
+                                                      ],
+                                     "errorCount":  0
+                                 }
+                             ],
+    "finalHealth":  {
+                        "checkedUtc":  "2026-10-13T06:58:00.7034171Z",
+                        "processes":  [
+                                          {
+                                              "pid":  5580,
+                                              "name":  "tunnel-client.exe",
+                                              "created":  "2026-10-13T02:59:43.4833490Z"
+                                          },
+                                          {
+                                              "pid":  23904,
+                                              "name":  "tunnel-client.exe",
+                                              "created":  "2026-10-13T03:00:34.2137140Z"
+                                          },
+                                          {
+                                              "pid":  8452,
+                                              "name":  "tunnel-client.exe",
+                                              "created":  "2026-10-13T06:43:30.0963580Z"
+                                          }
+                                      ],
+                        "health":  [
+                                       {
+                                           "port":  8080,
+                                           "path":  "/healthz",
+                                           "status":  200
+                                       },
+                                       {
+                                           "port":  8080,
+                                           "path":  "/readyz",
+                                           "status":  200
+                                       },
+                                       {
+                                           "port":  58122,
+                                           "path":  "/healthz",
+                                           "status":  200
+                                       },
+                                       {
+                                           "port":  58122,
+                                           "path":  "/readyz",
+                                           "status":  200
+                                       },
+                                       {
+                                           "port":  65069,
+                                           "path":  "/healthz",
+                                           "status":  200
+                                       },
+                                       {
+                                           "port":  65069,
+                                           "path":  "/readyz",
+                                           "status":  200
+                                       }
+                                   ]
+                    },
+    "proposalValidation":  {
+                               "syntax":  "PASS",
+                               "preview":  "PASS",
+                               "fourLiveDaclsUnchanged":  true,
+                               "scriptSha256":  "0A7E0F496F314A7A5C272FEA9032DC6E4F274147E6E1AAEE3D2937E428CF5B76",
+                               "applied":  false,
+                               "rollbackTested":  false
+                           }
+}

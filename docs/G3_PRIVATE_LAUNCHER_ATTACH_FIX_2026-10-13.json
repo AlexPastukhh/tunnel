@@ -1,0 +1,80 @@
+{
+  "Schema": 1,
+  "At": "2026-10-13T16:00:16.8605164Z",
+  "Status": "SCOPED_PRIVILEGE_FIX_STAGED_CREDENTIALED_RETRY_PENDING",
+  "UserAttempt": {
+    "LocalAt": "2026-10-13T22:43:30+07:00",
+    "Win32Code": 5,
+    "PreservedStack": "G2WindowSupervisor.Attach -> G2WindowSupervisor.StartUser",
+    "ProcessCreationReached": true,
+    "ExactOldNativeApi": "Not uniquely identified by the old inlined stack; Attach contains OpenProcessToken and job calls.",
+    "RuntimeKeyPromptReached": false,
+    "MainWindowAclApplyReached": false
+  },
+  "Fix": {
+    "CallerOnlySeDebugScope": true,
+    "OnlyCrossAccountVerification": true,
+    "PreviousPrivilegeStateCaptured": true,
+    "RestoreBeforeChildResume": true,
+    "G2IdentitySessionNonAdminChecksRetained": true,
+    "KillOnCloseJobRetained": true,
+    "StageLabelsAdded": true
+  },
+  "Sources": {
+    "Start-G2PrivateWindow.ps1": "3A30DF3BCBA12E6B08611A2316ACD13F8F2AC5986E3CB8B584F2F85F311FEC26",
+    "G2WindowSupervisor.cs": "1A7D66AFC9B7933DA2AFF8EAB7915D008DA4752EF76702020E33974BB680038B"
+  },
+  "WindowsVerification": {
+    "At": "2026-10-13T16:00:16.8605164Z",
+    "Syntax": "PASS",
+    "ComponentCompilePins": "PASS",
+    "PreviewWrites": 0,
+    "OwnerWriteDacAfter": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "OwnerWindowHashes": [
+      "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+      "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17"
+    ],
+    "CallerAdmin": false,
+    "DebugBefore": "ABSENT",
+    "DebugDuring": null,
+    "DebugAfter": "ABSENT",
+    "ScopeError": {
+      "Code": 1300,
+      "Stage": "Attach/EnableSeDebugPrivilege failed (Win32 1300)"
+    },
+    "PrivilegeScopePass": true,
+    "OwnerProcesses": [
+      {
+        "Name": "HOST",
+        "Pid": 5580,
+        "Created": "2026-10-13T02:59:43.4833490Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "Repo",
+        "Pid": 23904,
+        "Created": "2026-10-13T03:00:34.2137140Z",
+        "Health": 200,
+        "Ready": 200
+      }
+    ],
+    "CredentialsPrompted": false,
+    "LiveWindowAclApplied": false
+  },
+  "Live": {
+    "CredentialedRetry": false,
+    "OwnerWindowAclApplied": false,
+    "NewRuntimeAccepted": false,
+    "OwnerProcessesPreserved": true
+  },
+  "G3": "OPEN",
+  "G4": "NOT_ACCEPTED",
+  "PrimarySources": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocesstoken",
+    "https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-adjusttokenprivileges"
+  ]
+}

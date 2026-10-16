@@ -1,0 +1,113 @@
+{
+  "Evidence": "E33",
+  "Status": "PARTIAL_NOT_REMEDIATED",
+  "Primary": {
+    "Check": "SELECTED_OWNER_TCP_LISTENERS_METADATA_ONLY",
+    "Utc": "2026-10-15T22:02:30.4391495Z",
+    "SourceSHA256": "0DEAF24A50A7AA0CDB710A6F53B8A4B4BF1CB49BB4AF2210F4F9F52772CA9A06",
+    "ObserverSid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "ObserverSession": 1,
+    "ObservationComplete": true,
+    "Rows": [
+      {
+        "Role": "TransitionalOwnerHost",
+        "Pid": 13520,
+        "Parent": 18904,
+        "Name": "tunnel-client.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:19.7775460Z",
+        "ExeSHA256": "1946DE55A038313A9B9B2458D05FE1719FA9CF1F20A94DD5F38FC26A98BFDD42",
+        "TcpListeners": [
+          {
+            "LocalAddress": "127.0.0.1",
+            "LocalPort": 8080
+          }
+        ],
+        "ExpectedKnownListenerPresent": true,
+        "UnexpectedTcpListeners": []
+      },
+      {
+        "Role": "RetainedOwnerRepo",
+        "Pid": 22488,
+        "Parent": 4452,
+        "Name": "tunnel-client.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:59:53.4046800Z",
+        "ExeSHA256": "1946DE55A038313A9B9B2458D05FE1719FA9CF1F20A94DD5F38FC26A98BFDD42",
+        "TcpListeners": [
+          {
+            "LocalAddress": "127.0.0.1",
+            "LocalPort": 59183
+          }
+        ],
+        "ExpectedKnownListenerPresent": true,
+        "UnexpectedTcpListeners": []
+      },
+      {
+        "Role": "SelectedOwnerDesktopCommander",
+        "Pid": 24724,
+        "Parent": 16092,
+        "Name": "node.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:20.0652940Z",
+        "ExeSHA256": "2FFE3ACC0458FDDE999F50D11809BBE7C9B7EF204DCF17094E325D26ACE101D8",
+        "TcpListeners": [],
+        "ExpectedKnownListenerPresent": null,
+        "UnexpectedTcpListeners": []
+      }
+    ],
+    "SelectedNodeHasNoTcpListener": true,
+    "HttpRequests": 0,
+    "PrivateContentReads": 0,
+    "RawArgvRead": false,
+    "EnvironmentRead": false,
+    "ProfileContentsRead": false,
+    "AclWrites": 0,
+    "RuntimeRestarted": false,
+    "OwnerFilesChanged": 0,
+    "Limitations": [
+      "Three exact existing process fingerprints only, one metadata snapshot",
+      "No named-pipe, other-process or future-listener exclusion",
+      "Known full-client API exposure not remediated; no mutating or sensitive body requests"
+    ]
+  },
+  "IntermediateProcess": {
+    "Check": "SELECTED_OWNER_MCP_INTERMEDIATE_METADATA",
+    "Utc": "2026-10-15T22:03:33.3138872Z",
+    "Pid": 16092,
+    "Parent": 13520,
+    "Name": "cmd.exe",
+    "Session": 1,
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "CreatedUtc": "2026-10-15T18:57:20.0262350Z",
+    "NodeAnchor": 24724,
+    "TcpListeners": [],
+    "HttpRequests": 0,
+    "RawArgvRead": false,
+    "EnvironmentRead": false,
+    "PrivateContentReads": 0,
+    "Changes": 0
+  },
+  "IntermediateReadOnlyCommand": "& { $ErrorActionPreference='Stop'; $sid='S-1-5-21-303538662-3368424508-2654684973-1001'; if([Security.Principal.WindowsIdentity]::GetCurrent().User.Value -ne $sid -or [Diagnostics.Process]::GetCurrentProcess().SessionId -ne 1){throw 'Owner observer required'}; $n=Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,Name,SessionId,CreationDate -Filter 'ProcessId=24724';if(!$n -or $n.Name -ne 'node.exe' -or $n.ParentProcessId -ne 16092 -or $n.CreationDate.ToUniversalTime().ToString('o') -cne '2026-10-15T18:57:20.0652940Z'){throw 'Node anchor drift'}; $p=Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,Name,SessionId,CreationDate -Filter 'ProcessId=16092';if(!$p){throw 'Intermediate process absent'}; $o=Invoke-CimMethod -InputObject $p -MethodName GetOwnerSid;if($o.ReturnValue -ne 0 -or $o.Sid -ne $sid -or $p.SessionId -ne 1 -or $p.ParentProcessId -ne 13520){throw 'Intermediate chain drift'}; $l=@(Get-NetTCPConnection -State Listen -ErrorAction Stop|Where-Object OwningProcess -eq 16092|Select-Object LocalAddress,LocalPort);[pscustomobject]@{Check='SELECTED_OWNER_MCP_INTERMEDIATE_METADATA';Utc=[DateTime]::UtcNow.ToString('o');Pid=$p.ProcessId;Parent=$p.ParentProcessId;Name=$p.Name;Session=$p.SessionId;Sid=$o.Sid;CreatedUtc=$p.CreationDate.ToUniversalTime().ToString('o');NodeAnchor=24724;TcpListeners=$l;HttpRequests=0;RawArgvRead=$false;EnvironmentRead=$false;PrivateContentReads=0;Changes=0}|ConvertTo-Json -Depth 5 }",
+  "Assessment": {
+    "SelectedChainTcpSurface": "KNOWN_HOST_8080_REPO_59183_ONLY_IN_TWO_SNAPSHOTS",
+    "NoAdditionalSelectedNodeOrCmdTcpListener": true,
+    "OwnerApiBoundaryAccepted": false,
+    "SecuritySettingsChanged": false,
+    "ReusedEvidence": [
+      "E13 cross-session reachability, not live owner mutation",
+      "E15 source route/auth review",
+      "E25 owner route/profile mapping"
+    ],
+    "RequiredNext": "Prepare separate retained Repo protection/compatibility Preview; HOST retirement after sufficient G2 acceptance, no separate HOST runtime-only migration"
+  },
+  "Limits": [
+    "Not all owner processes or IPC, no named-pipe enumeration",
+    "No fresh guest HTTP test; old GET not repeated",
+    "No owner private response bodies, credentials, export/streams or mutating methods",
+    "Different snapshot timestamps, not continuous monitoring"
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E24",
+  "Utc": "2026-10-15T20:18:58.9970657Z",
+  "Scope": "Launch and handle-inheritance source review with targeted installed guest metadata; no runtime/configuration changes",
+  "Installed": {
+    "GuestSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "LauncherParent": {
+      "Pid": 32088,
+      "Name": "powershell.exe",
+      "CreatedUtc": "2026-10-15T19:11:15.0851740Z",
+      "PublicLauncherSHA256": "0638D14A92F78006526281BEC98C391FAD96F6C0F3F70D9C02475DA3A56C481D"
+    },
+    "Chain": [
+      {
+        "Pid": 23896,
+        "Parent": 32088,
+        "Name": "tunnel-client-runtime.exe",
+        "CreatedUtc": "2026-10-15T19:12:10.2338390Z",
+        "SHA256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A"
+      },
+      {
+        "Pid": 32480,
+        "Parent": 23896,
+        "Name": "python.exe",
+        "CreatedUtc": "2026-10-15T19:12:10.6040720Z",
+        "SHA256": "31FE10B4ED82A2F960AF0EF9931F46A4B84FF286F8B6FFD9DEE098CF4F10F17F"
+      },
+      {
+        "Pid": 32496,
+        "Parent": 32480,
+        "Name": "node.exe",
+        "CreatedUtc": "2026-10-15T19:12:10.9683230Z",
+        "SHA256": "2FFE3ACC0458FDDE999F50D11809BBE7C9B7EF204DCF17094E325D26ACE101D8"
+      }
+    ],
+    "AllProcessSidsAndSessionsChecked": true,
+    "GateSHA256": "146E60B028276F871353A113571306002942461F0446E519A63B28DCC068418D",
+    "PythonVersion": [
+      3,
+      13,
+      16
+    ],
+    "PythonCloseFdsDefault": true,
+    "PythonShellDefault": false,
+    "RawArgvPrinted": false,
+    "EnvironmentValuesRead": false,
+    "ProfileContentsRead": false
+  },
+  "Source": {
+    "Launcher": "runtime/host-g2/runtime-api-migration/start-g2-guest-session.ps1",
+    "Gate": "runtime/host-g2/g2-stdio-gate.py",
+    "TunnelCommit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+    "TunnelFiles": [
+      {
+        "Path": "pkg/mcpclient/stdio_command.go",
+        "GitBlob": "6962f85cb413c465e36abb40d5b2b7b75bc30842"
+      },
+      {
+        "Path": "pkg/mcpclient/stdio_command_factory.go",
+        "GitBlob": "4f930a99530c2f9cac9678f18cee685b1436287f"
+      },
+      {
+        "Path": "go.mod",
+        "GitBlob": "783c9e24ba5f87743d021f17719cd7958f190e25",
+        "Go": "1.27.0"
+      }
+    ],
+    "GoTag": "go1.27.0",
+    "GoWindowsPath": "src/syscall/exec_windows.go",
+    "GoWindowsGitBlob": "96089fcd93a63478dab7c821773b23ef1bb2a1ff",
+    "RuntimeVersionProvenance": "G3_LOCAL_API_RUNTIME_2026-10-13.json records this binary SHA256 and self-reported commit/Go version. Current SHA256 matches; no reproducible-build attestation claimed."
+  },
+  "Assessment": {
+    "Status": "PARTIAL",
+    "PlanSteps": [
+      "2.5",
+      "2.6"
+    ],
+    "Established": [
+      "Ordinary CreateProcess handle inheritance across Windows sessions is unsupported by documented Windows contract; observed launcher and G2 chain run in separate guest Session2, not owner Session1.",
+      "Launcher validates own SID, non-admin primary identity, WTS session owner and own interactive WinSta0/Default; UseShellExecute=false. This does not by itself mean all handle inheritance is disabled.",
+      "Reviewed tunnel transport uses exec.Command, StdinPipe, StdoutPipe, os.Stderr; no SysProcAttr/AdditionalInheritedHandles assignment in this command construction.",
+      "Go1.27.0 Windows StartProcess builds an explicit PROC_THREAD_ATTRIBUTE_HANDLE_LIST from standard files plus requested additional handles.",
+      "Hash-matching Python gate redirects three standard streams, omits startupinfo/custom handle_list and uses actual installed close_fds=True, shell=False defaults.",
+      "This is intended same-guest stdio exchange, not a new prohibition on guest GUI/clipboard."
+    ],
+    "NotEstablished": [
+      "E23 empty types and relative desktop names remain observational limits; source review does not retroactively classify them.",
+      "No claim that every runtime module, dependency, descendant, privileged helper, IPC broker or explicit handle transfer is excluded.",
+      "E22 denied guest PROCESS_DUP_HANDLE pull from three selected owner processes; this does not exclude owner-initiated transfer or all owner processes.",
+      "Owner HTTP API problem identified in E13/E15 remains open; runtime source review does not remediate it.",
+      "Clipboard sync/third-party bridge coverage remains limited to E22 metadata; NOT_CONFIGURED is not effective disabled policy."
+    ],
+    "ProportionalityDecision": "Do not make exhaustive classification of 184 PSS entries, a fresh OS theorem test, private-station launch or owner GUI content test a mandatory next gate without a concrete unsupported path. Preserve limits; prioritise known owner API protection and concrete broker channels.",
+    "Next": "Review isolated owner runtime-only compatibility and per-route cutover prerequisites using existing E14/E15 and current plan 4; no live owner restart, profile export, ACL/network/AV changes without separately agreed concrete rollout."
+  },
+  "DiagnosticCorrection": {
+    "InitialPythonMetadataAttempt": "PowerShell native argv quoting removed Python string quotes; NameError before metadata print. No installed state changed. Repeated only metadata portion via stdin succeeded.",
+    "NoIsolationFailureInferred": true
+  },
+  "References": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessw",
+    "https://learn.microsoft.com/en-us/windows/win32/winstation/process-connection-to-a-window-station",
+    "https://learn.microsoft.com/en-us/windows/win32/winstation/thread-connection-to-a-desktop",
+    "https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-duplicatehandle",
+    "https://docs.python.org/3.13/library/subprocess.html",
+    "https://github.com/openai/tunnel-client/blob/a390c168ff1b2d14e73a95991c186c6aba3ff5a0/pkg/mcpclient/stdio_command.go",
+    "https://github.com/golang/go/blob/go1.27.0/src/syscall/exec_windows.go"
+  ]
+}

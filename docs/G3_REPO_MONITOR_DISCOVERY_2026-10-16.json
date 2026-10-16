@@ -1,0 +1,98 @@
+{
+  "Evidence": "E39",
+  "DateLocal": "2026-10-16",
+  "Timezone": "Asia/Bangkok",
+  "Status": "SOURCE_COLLECTOR_FIXED_REPO_TESTS_AND_WINDOWS_AUTOMATIC_DISCOVERY_PASS_NOT_INSTALLED_IN_LEGACY_DASHBOARD",
+  "Sources": {
+    "Collector": {
+      "Path": "observatory/repo_monitor.py",
+      "BeforeSHA256": "9B15F9FDFA002FC752F0E190076344E7B8EC76CB7FEE02B8F1ACE36A5D6AB4C7",
+      "AfterSHA256": "2F0D337774F487B6D8575A5BA15969737EA986625760EA6BDEEBBF0EF632D4C8",
+      "Bytes": 4220
+    },
+    "Tests": {
+      "Path": "observatory/test_repo_monitor.py",
+      "BeforeSHA256": "EE310CE1440C90E56A3B280AC1E71D78FCF7EF3E7D5026DA5B048BD8D80C9021",
+      "AfterSHA256": "D5837E718408A487D493E563086F1D96D35ACE3A906343ADAC95DA074767CCB6",
+      "Bytes": 5553
+    }
+  },
+  "Baseline": {
+    "Check": "REPO_MONITOR_DISCOVERY_BASELINE",
+    "OverridePresent": false,
+    "Events": [
+      {
+        "TimeoutSeconds": 3,
+        "ElapsedSeconds": 3.047,
+        "Outcome": "TimeoutExpired"
+      },
+      {
+        "TimeoutSeconds": 15,
+        "ElapsedSeconds": 6.516,
+        "Outcome": "RETURNED",
+        "ReturnCode": 0
+      }
+    ],
+    "DefaultCandidates": [],
+    "DefaultError": "Native Repo listener discovery unavailable",
+    "SourceChanged": false,
+    "ExtendedDeadlineCandidates": [
+      "http://127.0.0.1:50385"
+    ],
+    "ExtendedDeadlineError": null
+  },
+  "FixedWindows": {
+    "Check": "REPO_MONITOR_FIXED_NATIVE_AUTOMATIC_DISCOVERY",
+    "Events": [
+      {
+        "DeadlineSeconds": 15,
+        "ElapsedSeconds": 5.594,
+        "ReturnCode": 0
+      }
+    ],
+    "Sample": {
+      "state": "UP",
+      "sampled_at": 1792110755.2403235,
+      "verified": true,
+      "listener": "http://127.0.0.1:50385",
+      "live": true,
+      "ready": true,
+      "uptime_seconds": 1596.578935,
+      "mcp_state": "initialized"
+    },
+    "ExplicitUrlOverridePresent": false,
+    "FilesChanged": 0,
+    "RuntimeRestarted": false,
+    "InstalledDashboardChanged": false
+  },
+  "RepoTests": {
+    "Check": "REPO_MONITOR_UNIT_API_REGRESSION",
+    "Passed": true,
+    "TestsRun": 11,
+    "Failures": 0,
+    "Errors": 0,
+    "PrivateOwnerDataUsed": false
+  },
+  "TestHarnessCorrection": "Initial test run had two subtest TypeErrors because CompletedProcess was incorrectly passed as mock side_effect. Test helper corrected to use return_value; no production fix was needed for that test error. Final 11-test run passed.",
+  "KnownDashboardMetadata": {
+    "Utc": "2026-10-16T00:31:25.2527648Z",
+    "KnownDirectory": "C:\\Users\\alexa\\Documents\\prot\\observability-ui-prototype-1",
+    "RepoMonitorExists": false,
+    "ServerExists": true,
+    "ServerSHA256": "9B02601BDD3990173F182D847175A49F7C6B1CEBCF7241A47CAE4F14F2233CA5",
+    "MatchingOrdinaryPythonServerProcesses": [],
+    "Scope": "Only two known files and python/pythonw command-line matching known P1/Repo-observatory server.py paths. Not exhaustive installation or service inventory.",
+    "FilesChanged": 0
+  },
+  "RootCause": "Existing Windows discovery exceeded the original 3-second subprocess deadline; same unchanged query succeeded in 6.516s when diagnostic deadline was 15s.",
+  "Change": "Discovery deadline15s; CIM WQL restricted to two actual tunnel-client executable names; separate fixed redacted timeout/start/invalid-output/command-failed reasons. Existing loopback and metric Repo identity checks retained.",
+  "VerificationScope": "Actual Windows owner Python312 source collector; no OBS_REPO_URL, native Repo health/metrics. Source file in existing Windows Repo mount; no copy into old P1 installation.",
+  "OperationalLimits": [
+    "Deadline15s is a bound, not a latency guarantee; observed fixed query5.594s",
+    "Sampler loop waits nominal5s between rounds, actual cadence includes HOST/Repo collection; no hard5s guarantee",
+    "Legacy dashboard not updated/started; GUI/installation acceptance not claimed",
+    "No persistent port pin/cache or env override; no restart of any tunnel/container; no ACL/network/credentials/logging changes"
+  ],
+  "OverallG3": "BLOCKED",
+  "G4_G6": "NOT_ACCEPTED"
+}

@@ -1,0 +1,441 @@
+{
+  "schema": 1,
+  "date_local": "2026-10-16",
+  "timezone": "Asia/Bangkok",
+  "scope": "Fresh native GUI-object handle opens from actual G2 guest session; named owner objects corroborated through owner HOST channel before and after.",
+  "source": {
+    "path": "runtime/host-g2/window-isolation/Test-G2GuestOwnerGuiCapabilities.ps1",
+    "sha256": "023EF3F289238550C5ECAA0615E3E840509E018FF444521930EC899DFAF834AF",
+    "bytes": 4428,
+    "helper_sha256": "8F1BC80CA8A2C9625B32340203ABA5AEFEDFBB0BC244AA2C5E1FF7CDBC90B222",
+    "repo_validation": "PowerShell AST passed with ErrorActionPreference Stop, initialized token/error refs and empty stderr; initial invalid validator invocation was corrected and is not counted as a pass.",
+    "windows_delivery_readback": true
+  },
+  "guest": {
+    "Check": "G2_OWNER_GUI_FRESH_OPEN_CAPABILITIES",
+    "Utc": "2026-10-15T19:47:17.7336071Z",
+    "GuestSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "GuestSession": 2,
+    "OwnerSession": 1,
+    "OwnerWitnessPid": 25808,
+    "OwnerWitnessCreated": "134365671721497693",
+    "HelperSHA256": "8F1BC80CA8A2C9625B32340203ABA5AEFEDFBB0BC244AA2C5E1FF7CDBC90B222",
+    "WitnessAgeSeconds": 62,
+    "GuestObjects": {
+      "Station": "WinSta0",
+      "Desktop": "Default",
+      "StationPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+      "DesktopPath": "\\Default"
+    },
+    "Rows": [
+      {
+        "Object": "Station",
+        "Right": "ACCESSCLIPBOARD",
+        "Mask": 4,
+        "OwnPositivePass": true,
+        "Verdict": "DENY_ACCESS_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": false,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "TARGET",
+          "RootOpened": false,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Station",
+        "Right": "READSCREEN",
+        "Mask": 512,
+        "OwnPositivePass": true,
+        "Verdict": "DENY_ACCESS_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": false,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "TARGET",
+          "RootOpened": false,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Station",
+        "Right": "WRITE_DAC",
+        "Mask": 262144,
+        "OwnPositivePass": true,
+        "Verdict": "DENY_ACCESS_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": false,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "TARGET",
+          "RootOpened": false,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Station",
+        "Right": "WRITE_OWNER",
+        "Mask": 524288,
+        "OwnPositivePass": true,
+        "Verdict": "DENY_ACCESS_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": false,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "TARGET",
+          "RootOpened": false,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Desktop",
+        "Right": "READOBJECTS",
+        "Mask": 1,
+        "OwnPositivePass": true,
+        "Verdict": "BLOCKED_AT_STATION_ROOT_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Default",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": true,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0"
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "STATION_ROOT",
+          "RootOpened": false,
+          "RootWin32": 5,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Desktop",
+        "Right": "HOOKCONTROL",
+        "Mask": 8,
+        "OwnPositivePass": true,
+        "Verdict": "BLOCKED_AT_STATION_ROOT_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Default",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": true,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0"
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "STATION_ROOT",
+          "RootOpened": false,
+          "RootWin32": 5,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Desktop",
+        "Right": "WRITEOBJECTS",
+        "Mask": 128,
+        "OwnPositivePass": true,
+        "Verdict": "BLOCKED_AT_STATION_ROOT_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Default",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": true,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0"
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "STATION_ROOT",
+          "RootOpened": false,
+          "RootWin32": 5,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Desktop",
+        "Right": "SWITCHDESKTOP",
+        "Mask": 256,
+        "OwnPositivePass": true,
+        "Verdict": "BLOCKED_AT_STATION_ROOT_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Default",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": true,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0"
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "STATION_ROOT",
+          "RootOpened": false,
+          "RootWin32": 5,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Desktop",
+        "Right": "WRITE_DAC_WITH_READ_WRITE",
+        "Mask": 262273,
+        "OwnPositivePass": true,
+        "Verdict": "BLOCKED_AT_STATION_ROOT_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Default",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": true,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0"
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "STATION_ROOT",
+          "RootOpened": false,
+          "RootWin32": 5,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      },
+      {
+        "Object": "Desktop",
+        "Right": "WRITE_OWNER_WITH_READ_WRITE",
+        "Mask": 524417,
+        "OwnPositivePass": true,
+        "Verdict": "BLOCKED_AT_STATION_ROOT_5",
+        "Own": {
+          "Opened": true,
+          "Win32": 0,
+          "Closed": true,
+          "ResolvedPath": "\\Default",
+          "MethodError": "",
+          "FailureStage": "",
+          "RootOpened": true,
+          "RootWin32": 0,
+          "RootClosed": true,
+          "RootResolvedPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0"
+        },
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true,
+          "ResolvedPath": "",
+          "MethodError": "",
+          "FailureStage": "STATION_ROOT",
+          "RootOpened": false,
+          "RootWin32": 5,
+          "RootClosed": true,
+          "RootResolvedPath": ""
+        }
+      }
+    ],
+    "Overall": "PROVISIONAL_UNTIL_OWNER_CHANNEL_AFTER_CHECK",
+    "ForeignProcessQueriesFromGuest": 0,
+    "OwnerContentReads": 0,
+    "ClipboardOperations": 0,
+    "Captures": 0,
+    "InputInjection": 0,
+    "AclWrites": 0,
+    "StationDesktopSwitches": 0,
+    "ExistingHandlesInventoried": false,
+    "ClipboardBridgesChecked": false
+  },
+  "owner_after": {
+    "Check": "OWNER_GUI_TARGET_AFTER_CHECK",
+    "Utc": "2026-10-15T19:49:11.1596557Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "Session": 1,
+    "OwnObjects": {
+      "Station": "WinSta0",
+      "Desktop": "Default",
+      "StationPath": "\\Sessions\\1\\Windows\\WindowStations\\WinSta0",
+      "DesktopPath": "\\Default"
+    },
+    "StationExistence": {
+      "Opened": true,
+      "Win32": 0,
+      "Closed": true,
+      "ResolvedPath": "\\Sessions\\1\\Windows\\WindowStations\\WinSta0",
+      "MethodError": "",
+      "FailureStage": "",
+      "RootOpened": false,
+      "RootWin32": 0,
+      "RootClosed": true,
+      "RootResolvedPath": ""
+    },
+    "DesktopExistence": {
+      "Opened": true,
+      "Win32": 0,
+      "Closed": true,
+      "ResolvedPath": "\\Default",
+      "MethodError": "",
+      "FailureStage": "",
+      "RootOpened": true,
+      "RootWin32": 0,
+      "RootClosed": true,
+      "RootResolvedPath": "\\Sessions\\1\\Windows\\WindowStations\\WinSta0"
+    },
+    "OwnerTargetCorroborated": true,
+    "WitnessProcessLivenessRequired": false,
+    "Reason": "Targets are named session station/desktop objects, independently observed through owner channel before and after; not the witness PowerShell process",
+    "OwnerContentReads": 0,
+    "ClipboardOperations": 0,
+    "Captures": 0,
+    "InputInjection": 0,
+    "AclWrites": 0,
+    "StationDesktopSwitches": 0
+  },
+  "classification": {
+    "own_positive_controls_passed": 10,
+    "station_rights_access_denied_5": 4,
+    "desktop_paths_blocked_at_station_root_5": 6,
+    "owner_capabilities_opened": 0,
+    "accepted_scope": "PASS for the observed fresh station-open denials and station-root blocking of desktop paths, with matching own positives and independent target corroboration.",
+    "plan_2_5": "PARTIAL; do not expand scope to every GUI method or inherited/duplicated handles."
+  },
+  "clipboard_recheck": {
+    "utc": "2026-10-15T19:41:33.8023058Z",
+    "sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "session": 2,
+    "result": "SKIPPED_NONEMPTY",
+    "existing_contents_read": false,
+    "existing_contents_replaced": false,
+    "window_created_visible_destroyed": true,
+    "roundtrip_accepted": false
+  },
+  "limits": [
+    "For six desktop cases the denial was at station-root open, not an individual desktop DACL decision.",
+    "No owner screen/clipboard/window content was read; no input, captures, ACL changes or station/desktop switch performed.",
+    "Target is a named session station/desktop, not the witness PowerShell process. Its liveness is not used as target validity; owner channel observed actual target paths/identity before and after. Continuous object identity between observations is not claimed.",
+    "No guest foreign-process QUERY permission is required or treated as GUI denial.",
+    "Existing/inherited/duplicated handle paths, clipboard bridges, owner API and long-lived G2 stop/cleanup remain unaccepted.",
+    "Guest clipboard remained nonempty; marker roundtrip not run.",
+    "This diagnostic witness is evidence from the owner channel, not a production authentication mechanism.",
+    "G3 BLOCKED; G4-G6 unaccepted."
+  ],
+  "owner_before": {
+    "Schema": 3,
+    "CreatedUtc": "2026-10-15T19:46:15.4406684Z",
+    "CreatedUnixSeconds": 1792093575,
+    "SourceSHA256": "8F1BC80CA8A2C9625B32340203ABA5AEFEDFBB0BC244AA2C5E1FF7CDBC90B222",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "Session": 1,
+    "Pid": 25808,
+    "ProcessCreated": "134365671721497693",
+    "StationPath": "\\Sessions\\1\\Windows\\WindowStations\\WinSta0",
+    "DesktopName": "Default",
+    "DesktopObjectName": "\\Default",
+    "KeepAliveSeconds": 55,
+    "OwnerContentRead": false
+  }
+}

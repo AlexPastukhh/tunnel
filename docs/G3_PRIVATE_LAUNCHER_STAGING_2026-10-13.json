@@ -1,0 +1,202 @@
+{
+  "Schema": 1,
+  "At": "2026-10-13T15:35:25.2034066Z",
+  "Status": "STAGED_TESTED_LIVE_NOT_APPLIED",
+  "G3": "OPEN",
+  "G4": "NOT_ACCEPTED",
+  "SourceDirectory": "C:\\Users\\alexa\\Repos\\tunnel\\runtime\\host-g2\\window-isolation",
+  "SourceSha256": {
+    "Start-G2PrivateWindow.ps1": "E56E0A40AA96D686FBD5C07ECCCC7000B5DF0F14BCA8D8D91368FE05E52ED763",
+    "G2WindowSupervisor.cs": "0A097A40EA867639D7537533FE89171CCA71399B1C18AB31AF4C85FD3AF068EB",
+    "WindowPolicy.ps1": "02486600F12D2A3E29FBA4ABFF8440320B2BCA289EB93BCBB120743C0329CA50",
+    "G2WindowMeta.cs": "BFAFAB4805B7210B11768C591E4FD5B672322514B1E53B5F5EF9382EF1B238AA",
+    "WindowBoundaryProbe.cs": "29CF0CFA83412084F3573747DEAD73BAFC90E3121B34FE1C9EEF0BB347F838B2",
+    "ProcessInventory.cs": "6A59D74F1C6261DAF44E04BA1830D559543879A9F0BCFB4E8C32D5AB36BACDD3",
+    "private-station-node-probe.js": "C1B1C54977F5478F36C34905AAFDF614D43EBE934968729B0651AF528B58D3B1"
+  },
+  "UserElevatedPreview": {
+    "At": "2026-10-13T14:26:22.9042054Z",
+    "Admin": true,
+    "Session": 1,
+    "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "TargetSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "InventoryComplete": true,
+    "UnknownProcesses": [],
+    "G2Processes": [
+      "21828:powershell.exe",
+      "21780:conhost.exe",
+      "28148:tunnel-client-runtime.exe",
+      "19376:python.exe",
+      "21812:node.exe"
+    ],
+    "OwnerWriteDacBefore": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "OwnerWriteDacAfter": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "StationBeforeHash": "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+    "DesktopBeforeHash": "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17",
+    "AclWrites": 0,
+    "ProcessesStopped": 0,
+    "ClipboardRead": false,
+    "ScreenRead": false,
+    "SecretsPrompted": false
+  },
+  "OperatorParseAndCapturedPreview": {
+    "At": "2026-10-13T15:28:37.5521170Z",
+    "ParseErrors": 0,
+    "Mode": "Preview",
+    "Admin": false,
+    "OriginalHashesMatch": true,
+    "OwnerWriteDacAfter": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "AclWrites": 0,
+    "CredentialsPrompted": false,
+    "InventoryLimit": "Non-elevated metadata inventory has five UNKNOWN system-named processes; Launch requires elevated complete inventory, as demonstrated by the user's separate local Preview."
+  },
+  "SyntheticPolicyEnvironmentJobTest": {
+    "At": "2026-10-13T15:06:16.7222525Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Deny": [
+      "DENY",
+      "DENY",
+      "DENY",
+      "DENY"
+    ],
+    "BackupRoundtrip": "Restored",
+    "CasRejected": true,
+    "LaterAclPreserved": true,
+    "ChildPid": 12864,
+    "Exit": 0,
+    "Environment": {
+      "syntheticKeyMatches": true,
+      "userProfileMatches": true,
+      "uiFlag": true,
+      "privateDescendant": true
+    },
+    "MainStation": "WinSta0",
+    "MainObjectsChanged": false
+  },
+  "SyntheticPipeApiTest": {
+    "At": "2026-10-13T15:33:17.9186645Z",
+    "PipeSecurityConstructor": "PASS",
+    "WriterConstructor": "PASS",
+    "ReaderConstructor": "PASS",
+    "ClientPidMatched": true,
+    "WrongPidWouldReject": true,
+    "BoundedRead": "PASS",
+    "ChildExit": 0,
+    "SyntheticOnly": true,
+    "AclWrites": 0
+  },
+  "EarlierActualG2CliEdgePrivateFixture": {
+    "At": "2026-10-13T13:52:21.8310387Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "PrivateStation": "Service-0x0-580e2e$",
+    "ChildExit": 0,
+    "Child": {
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+      "Station": "Service-0x0-580e2e$",
+      "Visible": false,
+      "Node": {
+        "nodeVersion": "v24.12.0",
+        "nonce": "winsta-0022f879-13eb-419a-a6dd-cddea470fdf8",
+        "edgeSandbox": "default",
+        "ownerProfileUsed": false,
+        "clipboardRead": false,
+        "screenRead": false,
+        "workspaceRW": true,
+        "grandchildStation": "Service-0x0-580e2e$",
+        "grandchildExit": 0,
+        "grandchildMatches": true,
+        "secretRelatedNamesPresent": 0,
+        "runtimeRead": true,
+        "runtimeMutationDenied": true,
+        "ownHTTPPort": 54759,
+        "ownCDPPort": 54762,
+        "cdpAttempts": 5,
+        "edgeStorageDOM": true,
+        "cdpPass": true,
+        "edgeExit": 0,
+        "edgeSignal": null,
+        "pass": true,
+        "edgeStderrBytes": 100,
+        "profileRemoved": true,
+        "scratchRemoved": true
+      },
+      "Exit": 0
+    },
+    "SyntheticDeny": [
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5,
+      5
+    ],
+    "MainStation": "WinSta0",
+    "MainObjectsChanged": false,
+    "ClipboardRead": false,
+    "ScreenRead": false
+  },
+  "FinalObserver": {
+    "At": "2026-10-13T15:35:25.2034066Z",
+    "OwnerStationHash": "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+    "OwnerDesktopHash": "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17",
+    "OwnerStationUnchanged": true,
+    "OwnerDesktopUnchanged": true,
+    "Processes": [
+      {
+        "Name": "HOST",
+        "Pid": 5580,
+        "Created": "2026-10-13T02:59:43.4833490Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "Repo",
+        "Pid": 23904,
+        "Created": "2026-10-13T03:00:34.2137140Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "G2",
+        "Pid": 28148,
+        "Created": "2026-10-13T11:19:05.6815740Z",
+        "Health": 200,
+        "Ready": 200
+      }
+    ],
+    "AclWrites": 0
+  },
+  "Live": {
+    "OwnerWindowAclApplied": false,
+    "CredentialedStartUserExercised": false,
+    "RuntimeSwitched": false,
+    "ServicesChanged": false,
+    "TasksCreated": false,
+    "KeyFilesWritten": false,
+    "SitesPublished": false,
+    "GitCommittedOrPushed": false
+  },
+  "PendingAcceptance": [
+    "Local masked Windows password; credentialed private station CLI/Edge selftest before main ACL writes",
+    "Local masked separate G2 key; zero old SID1009/UNKNOWN inventory; owner-only backup and main object deny",
+    "Actual G2 native MCP identity/private-station/owner-object fresh-open DENY and compatibility; owner HOST/Repo preservation",
+    "Owner localhost API, whole-chat tool routes, services/SMB residual gates; G4"
+  ],
+  "Limits": [
+    "Synthetic pipeline test used same-account child and no real secrets; cross-account StartUser remains gated by local preflight.",
+    "Window-object DACLs are per owner logon session; no reboot/logon persistence or interactive launch-path retirement claimed.",
+    "No clipboard/screen content, owner browser profile or authenticated sessions read."
+  ]
+}

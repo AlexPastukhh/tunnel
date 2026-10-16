@@ -1,0 +1,225 @@
+{
+  "Evidence": "E38",
+  "Status": "REPO_RUNTIME_APPLIED_NATIVE_MCP_AND_SELECTED_BOUNDARY_VERIFIED_MONITOR_AUTO_GAP",
+  "UserAuthorization": "2026-10-16T06:50:25+07:00: ок.давай выполним замену.",
+  "ApplyReceipt": {
+    "Check": "REPO_ONLY_GUARDED_FILE_MIGRATION",
+    "Utc": "2026-10-15T23:51:58.6477843Z",
+    "Mode": "Apply",
+    "OwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "CoreSHA256": "46CEE432DE4460F744517FD2F0A49073DF41B28BB1BFE68F597877DA62856BF8",
+    "FileResult": {
+      "Mode": "Apply",
+      "State": "APPLIED",
+      "FilesChanged": 2,
+      "BackupCreated": true,
+      "BackupPath": "C:\\Users\\alexa\\AppData\\Local\\FortisRepoApiMigration\\a6d1e489e8b74a6dbbcc17978070641b\\backup.json",
+      "BackupSHA256": "7234D724730813F5E50F8A7215054B851B3323C4A4759DD65C5E383F1B14766C",
+      "JournalPath": "C:\\Users\\alexa\\AppData\\Local\\FortisRepoApiMigration\\a6d1e489e8b74a6dbbcc17978070641b\\journal-57715a6a2b794f6fa9fe92d60fdf7356.jsonl",
+      "RuntimeRestarted": false
+    },
+    "Scope": "EXACT_REPO_RUN_AND_CONTROL_ONLY",
+    "InstalledRuntimeChanged": false,
+    "RuntimeRestarted": false,
+    "RuntimeBoundaryAccepted": false,
+    "HostOrG2Changed": false,
+    "ContainerStopped": false,
+    "ProfileOrKeyChanged": false,
+    "AclOrNetworkChanged": false,
+    "Note": "File state is not live runtime acceptance. Apply/Rollback never restart a process."
+  },
+  "Prestart": {
+    "Utc": "2026-10-15T23:51:30.5397367Z",
+    "RepoPid": 22488,
+    "RepoCreated": "2026-10-15T18:59:53.4046800Z",
+    "OwnerHostPid": 13520,
+    "OwnerHostCreated": "2026-10-15T18:57:19.7775460Z",
+    "G2Pid": 25920,
+    "G2Created": "2026-10-15T21:01:23.7848810Z",
+    "ContainerId": "c6d7be9fe6eb4138a9dc47db3f82c32c377007c2d461c1f03ad37fe9bb3d074a",
+    "ContainerStartedAt": "2026-10-15T18:48:24.218118202Z"
+  },
+  "ObservedResults": {
+    "NativeIdentityAndHealth": {
+      "Check": "REPO_NARROW_NATIVE_IDENTITY_HEALTH",
+      "Utc": "2026-10-15T23:54:29.5962370Z",
+      "Matches": [
+        {
+          "Pid": 24720,
+          "Created": "2026-10-15T23:53:49.9302510Z",
+          "Session": 1,
+          "OwnerSidMatches": true,
+          "RuntimePinMatches": true,
+          "Port": 65202,
+          "MetricsRepoIdentity": true,
+          "Live": true,
+          "Ready": true,
+          "McpState": "not_observed",
+          "BodyOrProfileValuesPrinted": false
+        }
+      ],
+      "OwnerHostSame": true,
+      "G2Same": true,
+      "Container": "c6d7be9fe6eb4138a9dc47db3f82c32c377007c2d461c1f03ad37fe9bb3d074a true 2026-10-15T18:48:24.218118202Z"
+    },
+    "NativeRepoMcpRead": {
+      "Check": "REPO_NATIVE_POST_CUTOVER_MCP_READ",
+      "Uid": 1000,
+      "Cwd": "/workspace/repos",
+      "Evidence": "E38",
+      "ReceiptState": "APPLIED",
+      "BridgeSHA256": "8389436658E22F213D9865A78872159E027CA33094999DB64CA96B5A7C79FC21",
+      "FilesChanged": 0
+    },
+    "GuestSelectedSurface": {
+      "Check": "G2_REPO_NARROW_SELECTED_GET_SURFACE",
+      "Utc": "2026-10-15T23:55:53.9511372Z",
+      "Session": 2,
+      "OrdinaryGuest": true,
+      "Rows": [
+        {
+          "Path": "/healthz",
+          "Status": 200,
+          "BodyRead": false
+        },
+        {
+          "Path": "/ui",
+          "Status": 404,
+          "BodyRead": false
+        },
+        {
+          "Path": "/api/log-level",
+          "Status": 404,
+          "BodyRead": false
+        },
+        {
+          "Path": "/api/logs",
+          "Status": 404,
+          "BodyRead": false
+        },
+        {
+          "Path": "/api/codex/status",
+          "Status": 404,
+          "BodyRead": false
+        },
+        {
+          "Path": "/harpoon/mcp",
+          "Status": 404,
+          "BodyRead": false
+        }
+      ],
+      "MutatingMethodsSent": 0,
+      "ExportOrStreamRequested": false
+    },
+    "ControlStatus": {
+      "Check": "REPO_CONTROL_NATIVE_STATUS",
+      "Utc": "2026-10-15T23:55:30.7781216Z",
+      "MatchedTunnelCount": 1,
+      "MatchedPid": [
+        24720
+      ],
+      "PanelUsesHealth": true,
+      "ContainerRunning": true,
+      "ContainerIdentityMatches": true,
+      "PythonAvailable": true,
+      "FilesChanged": 0
+    },
+    "MonitorCollector": {
+      "Check": "REPO_MONITOR_NATIVE_COLLECTOR",
+      "Automatic": {
+        "state": "UNKNOWN",
+        "sampled_at": 1792108664.8597102,
+        "reason": "Native Repo listener discovery unavailable",
+        "verified": false
+      },
+      "PersistentEnvironmentChanged": false,
+      "FilesChanged": 0,
+      "InstalledDashboardTested": false,
+      "ExplicitVerifiedListener": {
+        "state": "UP",
+        "sampled_at": 1792108667.9149108,
+        "verified": true,
+        "listener": "http://127.0.0.1:65202",
+        "live": true,
+        "ready": true,
+        "uptime_seconds": 238.0915251,
+        "mcp_state": "initialized"
+      }
+    },
+    "FinalReadback": {
+      "Check": "REPO_CUTOVER_FINAL_READBACK",
+      "Utc": "2026-10-15T23:58:56.7666212Z",
+      "NewRuntimePid": 24720,
+      "NewRuntimeCreationMatches": true,
+      "OldPidAbsent": true,
+      "RunAfterPinMatches": true,
+      "ControlAfterPinMatches": true,
+      "ProfileHashUnchanged": true,
+      "StartupReportUtc": "2026-10-15T23:53:49.572Z",
+      "StartupReportContainerMatches": true,
+      "StartupReportUid": 1000,
+      "StartupReportRootReadOnly": true,
+      "StartupReportPublishedPorts": 0,
+      "OwnerHostUnchanged": true,
+      "G2Unchanged": true,
+      "FilesChanged": 0
+    },
+    "OldProcessStop": {
+      "Check": "REPO_SELECTED_OLD_PROCESS_STOP",
+      "Utc": "2026-10-15T23:53:23.9300729Z",
+      "OldPid": 22488,
+      "OldProcessAbsent": true,
+      "OldListenerAbsent": true,
+      "BackupIdentityVerified": true,
+      "ContainerStopInvoked": false
+    },
+    "Startup": {
+      "RunnerProcessPid": 28180,
+      "LaunchedVia": "Existing pinned run-tunnel.ps1 under owner SID1001/Session1",
+      "LauncherOutput": "Withheld via redirection to null for this MCP-launched run; no new persistent file logging configured",
+      "ExpectedStartupSideEffects": "Existing probe refreshes linux-tools.json/verification.json, temporary write/unlink controls, Docker-volume DC configuration and Git configuration; no new mount/ACL/network/container restart",
+      "Doctor": "Existing full-client doctor preflight retained; official processes use existing local credential references normally; no credentials exported"
+    },
+    "Limitations": [
+      "Installed dashboard not exercised; pinned source collector tested on Windows",
+      "Monitor automatic listener discovery returned UNKNOWN; explicit verified listener returned UP/initialized; no permanent OBS_REPO_URL configured and no collector source changed",
+      "Live rollback not exercised; E36 fixture recovery evidence reused",
+      "Start button/OpenPanel GUI not exercised; pinned launcher actual start, control discovery/status/selected StopAccess tested",
+      "No new full routes-times-methods matrix, GUI/clipboard, reboot or broad audit",
+      "Owner HOST remains full client; global owner boundary/G3 not accepted"
+    ]
+  },
+  "OverallG3": "BLOCKED",
+  "G4_G6": "NOT_ACCEPTED",
+  "UserRestartChecks": [
+    {
+      "UserReportedRestartLocal": "2026-10-16T07:06:41+07:00",
+      "NativeMcp": {
+        "Check": "REPO_AFTER_USER_RESTART_NATIVE_MCP",
+        "Uid": 1000,
+        "PriorEvidence": "E38",
+        "PriorApplyState": "APPLIED",
+        "FilesChanged": 0
+      },
+      "RuntimeIdentity": {
+        "Check": "REPO_AFTER_USER_RESTART_IDENTITY",
+        "Utc": "2026-10-16T00:19:00.4229348Z",
+        "Matches": [
+          {
+            "Pid": 31420,
+            "Created": "2026-10-16T00:06:04.3124340Z",
+            "Session": 1,
+            "NarrowRuntimePinMatches": true,
+            "Port": 50385,
+            "Live": true,
+            "Ready": true,
+            "McpState": "initialized"
+          }
+        ],
+        "FilesChanged": 0,
+        "RestartInvoked": false
+      },
+      "Scope": "User performed restart; assistant only read checks. Earlier boundary evidence reused for same pinned artifact. No monitor automatic discovery retest."
+    }
+  ]
+}

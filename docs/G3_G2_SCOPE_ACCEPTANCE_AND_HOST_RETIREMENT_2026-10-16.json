@@ -1,0 +1,254 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E43",
+  "Status": "ACCEPTED_SCOPE_HOST_RETIRED",
+  "UserDecision": {
+    "LocalTime": "2026-10-16T08:33:06+07:00",
+    "Message": "давай",
+    "RespondsTo": "Approve E42 initial scope and stop only legacy owner HOST, retaining G2/Repo",
+    "Scope": "E42/P01 bounded initial G2 baseline and selected shared owner HOST retirement; no universal isolation claim"
+  },
+  "Before": {
+    "Check": "E43_BEFORE",
+    "Utc": "2026-10-16T01:34:01.9005125Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "AdminGroupPresent": false,
+    "Rows": [
+      {
+        "Pid": 13520,
+        "ParentPid": 18904,
+        "Name": "tunnel-client.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:19.7775460Z"
+      },
+      {
+        "Pid": 16092,
+        "ParentPid": 13520,
+        "Name": "cmd.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:20.0262350Z"
+      },
+      {
+        "Pid": 24724,
+        "ParentPid": 16092,
+        "Name": "node.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:20.0652940Z"
+      },
+      {
+        "Pid": 25920,
+        "ParentPid": 19900,
+        "Name": "tunnel-client-runtime.exe",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:23.7848810Z"
+      },
+      {
+        "Pid": 31420,
+        "ParentPid": 4452,
+        "Name": "tunnel-client-runtime.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-16T00:06:04.3124340Z"
+      }
+    ],
+    "Tcp": [
+      {
+        "OwningProcess": 25920,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 54647
+      },
+      {
+        "OwningProcess": 31420,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 50385
+      },
+      {
+        "OwningProcess": 13520,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 8080
+      }
+    ]
+  },
+  "Preview": {
+    "Check": "E43_SELECTED_LEGACY_HOST_STOP",
+    "Utc": "2026-10-16T01:37:01.1645337Z",
+    "Mode": "Preview",
+    "Rows": [
+      {
+        "Pid": 13520,
+        "Name": "tunnel-client",
+        "CreatedUtc": "2026-10-15T18:57:19.7775467Z"
+      },
+      {
+        "Pid": 16092,
+        "Name": "cmd",
+        "CreatedUtc": "2026-10-15T18:57:20.0262353Z"
+      },
+      {
+        "Pid": 24724,
+        "Name": "node",
+        "CreatedUtc": "2026-10-15T18:57:20.0652942Z"
+      }
+    ],
+    "HeldProcessHandles": true,
+    "RawArgvPrinted": false,
+    "Scope": "ONLY_13520_16092_24724",
+    "KillAttempted": [],
+    "Completed": false
+  },
+  "Dispatch": {
+    "Check": "E43_STOP_WORKER_DISPATCHED",
+    "Utc": "2026-10-16T01:37:33.3755354Z",
+    "WorkerPid": 25304,
+    "Targets": [
+      13520,
+      16092,
+      24724
+    ],
+    "Effect": "VERIFY_THROUGH_G2_AND_JOURNAL"
+  },
+  "After": {
+    "Check": "E43_G2_AFTER",
+    "Utc": "2026-10-16T01:38:02.2023923Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "AdminGroupPresent": false,
+    "Rows": [
+      {
+        "Pid": 25920,
+        "ParentPid": 19900,
+        "Name": "tunnel-client-runtime.exe",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:23.7848810Z"
+      },
+      {
+        "Pid": 18956,
+        "ParentPid": 25920,
+        "Name": "python.exe",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:24.1300680Z"
+      },
+      {
+        "Pid": 32272,
+        "ParentPid": 18956,
+        "Name": "node.exe",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:24.3527150Z"
+      },
+      {
+        "Pid": 31420,
+        "ParentPid": 4452,
+        "Name": "tunnel-client-runtime.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-16T00:06:04.3124340Z"
+      }
+    ],
+    "Tcp": [
+      {
+        "OwningProcess": 25920,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 54647
+      },
+      {
+        "OwningProcess": 31420,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 50385
+      }
+    ],
+    "OldSelectedPidsAbsent": true,
+    "Port8080Absent": true,
+    "NativeMcpCliCompleted": true,
+    "ProfileContentsRead": false,
+    "RuntimeRestarted": false
+  },
+  "Source": {
+    "Path": "runtime/host-g2/runtime-api-migration/Stop-LegacyOwnerHost.ps1",
+    "Bytes": 3127,
+    "SHA256": "557C3AEC158C82CD0C1FFA63797F4A5A8FC1487A5920FEB422B012CF85264742",
+    "Default": "Preview",
+    "StopRunCount": 1,
+    "HeldOriginalProcessHandles": true,
+    "ExactTargets": [
+      13520,
+      16092,
+      24724
+    ],
+    "SelectedOwnerSid": "S-1-5-21-303538662-3368424508-2654684973-1001"
+  },
+  "PrecisionCorrection": {
+    "InitialPreview": "REFUSED_BEFORE_MUTATION",
+    "Reason": "CIM timestamps have microsecond precision; native Process.StartTime retains additional100ns ticks",
+    "NativeCreatedUtc": [
+      "2026-10-15T18:57:19.7775467Z",
+      "2026-10-15T18:57:20.0262353Z",
+      "2026-10-15T18:57:20.0652942Z"
+    ],
+    "Correction": "Pinned exact freshly observed native timestamps, not tolerance or removal of identity checks",
+    "StopAttemptsBeforeCorrection": 0
+  },
+  "RepoAfter": {
+    "Check": "E43_REPO_AFTER",
+    "Uid": 1000,
+    "Cwd": "/workspace/repos/tunnel",
+    "NativeMcpCliCompleted": true,
+    "JournalExists": true
+  },
+  "DecisionStatus": {
+    "G3": "BOUNDED_BASELINE_ACCEPTED_SCOPE_NOT_UNIVERSAL_PASS",
+    "G4": "INITIAL_WORKSPACE_POLICY_ACCEPTED_SCOPE",
+    "G5": "SELECTED_ASSETS_PASS_SCOPE_FULL_PERSONAL_SECURITY_NOT_ACCEPTED",
+    "G6": "MANUAL_ENTRY_NORMAL_STOP_RECOVERY_RUNBOOK_ACCEPTED_SCOPE",
+    "WholeChat1_4": "PENDING_NOT_ACCEPTED",
+    "GeneralCrashLogoffRecovery": "NOT_ACCEPTED"
+  },
+  "Limitations": [
+    "No universal all-IPC/handle/clipboard/service or all-private-assets guarantee",
+    "Independent Repo Windows RW mounts and other connector routes retain authority",
+    "No permanent key/connector revocation or launcher/autostart suppression; manual legacy relaunch reopens owner route",
+    "Selected-chain and TCP after-check point-in-time, not exhaustive machine inventory or uptime guarantee",
+    "Legacy owner HOST recovery not exercised now; G2 normal lifecycle previously E28/E29"
+  ],
+  "Changes": {
+    "LegacySelectedStop": true,
+    "Method": "System.Diagnostics.Process.Kill on original held handles; not Ctrl+C graceful stop",
+    "G2Restart": false,
+    "RepoRestart": false,
+    "StopContainer": false,
+    "StopAccessGlobal": false,
+    "CredentialRevocation": false,
+    "PluginsChatsDeleted": false,
+    "AvAclMountNetworkTaskServiceAutostartChanges": false,
+    "CommitPush": false
+  },
+  "StopJournal": {
+    "Check": "E43_SELECTED_LEGACY_HOST_STOP",
+    "Utc": "2026-10-16T01:37:38.8049698Z",
+    "Mode": "Stop",
+    "Rows": [
+      {
+        "Pid": 13520,
+        "Name": "tunnel-client",
+        "CreatedUtc": "2026-10-15T18:57:19.7775467Z"
+      },
+      {
+        "Pid": 16092,
+        "Name": "cmd",
+        "CreatedUtc": "2026-10-15T18:57:20.0262353Z"
+      },
+      {
+        "Pid": 24724,
+        "Name": "node",
+        "CreatedUtc": "2026-10-15T18:57:20.0652942Z"
+      }
+    ],
+    "HeldProcessHandles": true,
+    "RawArgvPrinted": false,
+    "Scope": "ONLY_13520_16092_24724",
+    "KillAttempted": [
+      13520,
+      16092,
+      24724
+    ],
+    "Completed": true
+  }
+}

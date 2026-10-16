@@ -1,0 +1,168 @@
+{
+  "Evidence": "E37",
+  "DateLocal": "2026-10-16",
+  "Timezone": "Asia/Bangkok",
+  "Status": "BOUNDED_PROFILE_SHAPE_PREFLIGHT_COMPLETE_NATIVE_CUTOVER_NOT_PERFORMED",
+  "EvidenceFormat": "Exact JSON summaries emitted on owner Windows plus source review and synthetic Repo test result",
+  "Reader": {
+    "File": "repo-profile-shape-preflight.mjs",
+    "Bytes": 7534,
+    "SHA256": "A89FE795D4C0DF8BF060A463272AAA768C501271E6F89054E9DC2EA42DD70024"
+  },
+  "Test": {
+    "File": "test-repo-profile-shape-preflight.mjs",
+    "Bytes": 1738,
+    "SHA256": "968F4F4A2D1ED473A2377E6D75B3A5FD0F4F273E429FE2DC8DC01294BF75A298",
+    "Observed": {
+      "Check": "REPO_PROFILE_PREFLIGHT_PRIVACY_AND_SHAPE",
+      "Passed": true,
+      "Cases": 6,
+      "OwnerDataUsed": false
+    }
+  },
+  "WindowsProfileSummary": {
+    "Check": "REPO_NAMED_PROFILE_SHAPE_PREFLIGHT",
+    "Utc": "2026-10-15T23:29:40.772Z",
+    "ProfileName": "repo-mode",
+    "ProfileLocationKind": "WINDOWS_USER_CONFIG",
+    "ProfileSHA256": "EEB6000A4FC8A84AADA1718306A99A810A55A75BC4666A1DB09BAD954142F39E",
+    "Parser": "EXISTING_JS_YAML_JSON_SCHEMA",
+    "Result": {
+      "Complete": true,
+      "ProfileTunnelIdMatches": true,
+      "ConfigVersion": 1,
+      "MainTransportForFixedCandidate": "STDIO_COMMAND_OVERRIDE",
+      "ProfileMcpHttpBindingCount": 0,
+      "ProfileCommandCount": 1,
+      "ProfileCommandMatchesFixed": false,
+      "HarpoonTargetCount": 0,
+      "ControlPlaneProductionOrigin": true,
+      "ControlPlaneDefaultPrefix": true,
+      "CredentialRepresentation": "FILE_REFERENCE",
+      "HealthLoopbackTcp": true,
+      "FullOnlyConflicts": [],
+      "ReviewItems": [],
+      "UnknownTopLevelFieldCount": 0,
+      "ObserverEnvironmentPresence": {
+        "TUNNEL_CLIENT_PROFILE_DIR": false,
+        "TUNNEL_CLIENT_CONFIG": false,
+        "TUNNEL_CLIENT_PROFILE_FILE": false,
+        "MCP_SERVER_URL": false,
+        "MCP_COMMAND": false,
+        "MCP_SERVER_MAIN_URL": false,
+        "CONTROL_PLANE_BASE_URL": false,
+        "CONTROL_PLANE_URL_PATH": false,
+        "HARPOON_TARGETS": false,
+        "HARPOON_ADDITIONAL_TRANSPORTS": false,
+        "OTEL_RESOURCE_ATTRIBUTES": false,
+        "OTEL_SERVICE_NAME": false,
+        "HEALTH_LISTEN_ADDR": false,
+        "HEALTH_UNIX_SOCKET": false
+      },
+      "CandidateAdditionalHarpoonOverride": "EXPLICIT_EMPTY_REUSES_E08",
+      "NoShapeIssuesFound": true,
+      "NativeGoValidationExecuted": false
+    },
+    "Scope": "NAMED_PROFILE_AND_CURRENT_OWNER_OBSERVER_ENV_FOR_NEXT_LAUNCH",
+    "RunningProcessEnvironmentRead": false,
+    "ProfileParsedLocally": true,
+    "CredentialReferencesResolved": false,
+    "CredentialFilesOpened": 0,
+    "ProfileOrEnvironmentValuesPrinted": false,
+    "NetworkRequests": 0,
+    "FilesChanged": 0,
+    "RuntimeRestarted": false,
+    "Limits": [
+      "Not the native Go config loader",
+      "Existing process environment not reconstructed",
+      "Does not prove actual runtime-only MCP compatibility"
+    ]
+  },
+  "WindowsEnvironmentSupplement": {
+    "Check": "REPO_RUNTIME_FLAVOR_ENV_PRESENCE",
+    "Utc": "2026-10-15T23:31:25.4630789Z",
+    "Scope": "CURRENT_OWNER_OBSERVER_PROCESS_ONLY",
+    "EnvironmentVariablePresent": {
+      "ALLOW_REMOTE_UI": false,
+      "OPEN_WEB_UI": false,
+      "ADMIN_UI_LOG_BUFFER_EVENTS": false,
+      "PROXY_CHECK_INTERVAL": false,
+      "HARPOON_CAPTURE_PAYLOADS": false,
+      "CLOUDFLARED_TUNNEL_TOKEN": false,
+      "CLOUDFLARED_MANAGED": false,
+      "CLOUDFLARED_PATH": false,
+      "CLOUDFLARED_READY_TIMEOUT": false,
+      "LOG_HTTP_RAW_UNSAFE": false,
+      "CONTROL_PLANE_TUNNEL_ID": false
+    },
+    "EnvironmentValuesPrinted": false,
+    "RunningProcessEnvironmentRead": false,
+    "FilesChanged": 0,
+    "RuntimeRestarted": false
+  },
+  "WindowsContinuitySummary": {
+    "Check": "REPO_CONTINUITY_AFTER_PREFLIGHT",
+    "Utc": "2026-10-15T23:31:11.1413779Z",
+    "Pid": 22488,
+    "Session": 1,
+    "OwnerSidMatches": true,
+    "CreationMatches": true,
+    "PublicExecutablePinMatches": true,
+    "Files": [
+      {
+        "Name": "RepoRun",
+        "BeforePinMatches": true
+      },
+      {
+        "Name": "RepoControl",
+        "BeforePinMatches": true
+      }
+    ],
+    "ArgvOrEnvironmentValuesPrinted": false,
+    "FilesChanged": 0,
+    "RuntimeRestarted": false
+  },
+  "Sources": [
+    {
+      "Repository": "openai/tunnel-client",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Path": "pkg/runtimeconfig/profile.go",
+      "BlobSHA": "ad80cdaca362bbdded5f712370351592d146bfe6",
+      "Scope": "Profile resolver reviewed in preparation"
+    },
+    {
+      "Repository": "openai/tunnel-client",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Path": "pkg/runtimeconfig/file_config.go",
+      "BlobSHA": "fe27bd5f9f791a19a06bf164e1b89dbc7f099659",
+      "Scope": "Runtime rejects full-only profile settings before final CLI binding resolution"
+    },
+    {
+      "Repository": "openai/tunnel-client",
+      "Commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "Path": "pkg/runtimeconfig/config.go",
+      "BlobSHA": "a724464b28ed9684da6c8f6573474afd82c0e559",
+      "Scope": "resolveMCPEntries returns changed CLI array without appending profile/env command; fullOnlyEnv and cloudflaredEnv"
+    }
+  ],
+  "Interpretation": {
+    "ProfileCommandDiffers": true,
+    "CommandDifferenceIsBlocker": false,
+    "Reason": "Fixed candidate explicitly supplies --mcp.command; source resolveMCPEntries selects flag array. Profile still parsed/resolved first, so native validation is not claimed.",
+    "NextLaunchEnvironmentScope": "CURRENT_OWNER_OBSERVER_PROCESS; not a future arbitrary console or existing process environment",
+    "ProfileChanged": false,
+    "CredentialFilesOpened": 0,
+    "LiveApplyPerformed": false,
+    "LiveRollbackPerformed": false,
+    "RuntimeRestarted": false,
+    "ReadyForUnattendedApply": false
+  },
+  "ReviewLimitations": [
+    "Bounded JS shape classifier, not native Go strict-schema validation, complete effective configuration, or exhaustive nested schema validation",
+    "Selected observer environment only; no environment of existing Repo process read",
+    "Does not prove runtime-only real named-profile/Docker/MCP/monitor/control compatibility",
+    "No final security acceptance; G3 BLOCKED and G4-G6 not accepted"
+  ],
+  "PreparationCorrection": "Earlier exists-only probe used an incorrect profiles subdirectory. It read no profile and is not evidence of a missing configuration; source-derived resolver subsequently found the actual named profile.",
+  "Next": "Concrete approval for exactly two Repo launcher files and only Repo interruption, then guarded Apply/save backup identity, selected Repo restart, native MCP and monitor/control acceptance. Owner HOST and G2 untouched."
+}

@@ -1,0 +1,1133 @@
+{
+  "schemaVersion": 1,
+  "status": "ISOLATED_TEST_PASS_PRODUCTION_SWITCH_PENDING",
+  "preparedAt": "2026-10-13T09:12:51.929Z",
+  "sources": {
+    "tag": "v0.0.15",
+    "commit": "a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+    "archiveUrl": "https://persistent.oaistatic.com/tunnel-client/v0.0.15/tunnel-client-runtime-v0.0.15-windows-amd64.zip",
+    "archiveSHA256": "AA5DDB14DDDD602FA59F3E6F4401AA8A79A218E341466226B7434127DFF65DBC",
+    "manifestSHA256": "9C711A47A09325939E8C486A8C3805C74AACE7B58E3699EB51B1756AFA18ACEF",
+    "manifestArtifactCheck": {
+      "ManifestFlavor": "runtime",
+      "Release": "v0.0.15",
+      "Artifact": {
+        "name": "tunnel-client-runtime-v0.0.15-windows-amd64.zip",
+        "sha256": "aa5ddb14dddd602fa59f3e6f4401aa8a79a218e341466226b7434127dff65dbc",
+        "url": "https://persistent.oaistatic.com/tunnel-client/v0.0.15/tunnel-client-runtime-v0.0.15-windows-amd64.zip"
+      },
+      "ExcludedPackages": [
+        "cmd/client",
+        "pkg/adminui",
+        "pkg/app",
+        "pkg/cloudflared",
+        "pkg/codexappserver",
+        "pkg/codexplugin",
+        "pkg/config",
+        "pkg/harpoon",
+        "pkg/health",
+        "pkg/localproxy",
+        "pkg/proxyhealth",
+        "plugins"
+      ]
+    }
+  },
+  "installation": {
+    "At": "2026-10-13T08:47:50.7144292Z",
+    "Target": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15",
+    "Files": [
+      {
+        "Name": "LICENSE",
+        "Sha256": "F4C1D7BA32EF5BCF5CF03E2EEFEC5825EBAFEDF50FA330A36700A49C605C1EF4"
+      },
+      {
+        "Name": "NOTICE",
+        "Sha256": "1364C020D86ECF948B78B7C655175032068203D13AECE70FB0BFE112D7802DC2"
+      },
+      {
+        "Name": "tunnel-client-runtime-v0.0.15-windows-amd64-licenses.txt",
+        "Sha256": "083BEACE674C38536CD1D4FFE3E8AE3D4DBB7911154B959963AC4FC6AFEC1759"
+      },
+      {
+        "Name": "tunnel-client-runtime-v0.0.15-windows-amd64.spdx.json",
+        "Sha256": "09A4DAACCCBA8A7263496BCF077665432C80EDAC5637749DEEBABBF10E613022"
+      },
+      {
+        "Name": "tunnel-client-runtime.exe",
+        "Sha256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A"
+      }
+    ],
+    "SID1009Deny": [
+      {
+        "FileSystemRights": 852310,
+        "IsInherited": true
+      }
+    ],
+    "FullBinaryUnchanged": true,
+    "RuntimeVersion": "0.0.15 git sha: a390c168ff1b2d14e73a95991c186c6aba3ff5a0 go: go1.27.0 build flags: -trimpath -buildvcs=false flavor=runtime",
+    "ProductionSwitched": false
+  },
+  "baselineFixture": {
+    "startedAt": "2026-10-13T08:42:28.958Z",
+    "fixturePID": 3124,
+    "synthetic": true,
+    "controlRequests": [
+      {
+        "method": "GET",
+        "path": "/v1/tunnels/tunnel_00000000000000000000000000000003/poll",
+        "syntheticAuth": true
+      },
+      {
+        "method": "GET",
+        "path": "/v1/tunnels/tunnel_00000000000000000000000000000003",
+        "syntheticAuth": true
+      },
+      {
+        "method": "POST",
+        "path": "/v1/tunnels/tunnel_00000000000000000000000000000003/response",
+        "syntheticAuth": true
+      }
+    ],
+    "responses": [
+      {
+        "requestID": "fixture-0",
+        "code": 200,
+        "type": "jsonrpc_response",
+        "result": {
+          "jsonrpc": "2.0",
+          "id": "init",
+          "result": {
+            "protocolVersion": "2025-06-18",
+            "capabilities": {
+              "tools": {}
+            },
+            "serverInfo": {
+              "name": "fortis-synthetic-echo",
+              "version": "1"
+            }
+          }
+        }
+      },
+      {
+        "requestID": "fixture-1",
+        "code": 200,
+        "type": "notify_ack"
+      },
+      {
+        "requestID": "fixture-2",
+        "code": 200,
+        "type": "jsonrpc_response",
+        "result": {
+          "jsonrpc": "2.0",
+          "id": "list",
+          "result": {
+            "tools": [
+              {
+                "name": "synthetic_echo",
+                "description": "Return a fixed synthetic marker",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "requestID": "fixture-3",
+        "code": 200,
+        "type": "jsonrpc_response",
+        "result": {
+          "jsonrpc": "2.0",
+          "id": "echo",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "FORTIS_G3_SYNTHETIC_OK"
+              }
+            ],
+            "isError": false
+          }
+        }
+      }
+    ],
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/healthz",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/readyz",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/metrics",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/ui",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/status",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/system",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/oauth",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs/export",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs/stream",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/log-level",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/status",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/targets",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/calls",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/codex/status",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/codex/events",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/harpoon/mcp",
+        "status": 404
+      },
+      {
+        "method": "PUT",
+        "path": "/api/log-level",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/login/device",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/login/cancel",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/thread/start",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/turn/start",
+        "status": 404
+      }
+    ],
+    "status": "READY",
+    "controlBase": "http://127.0.0.1:55911",
+    "runtimePID": 5900,
+    "healthBase": "http://127.0.0.1:55924"
+  },
+  "baselineRestrictedHTTP": {
+    "At": "2026-10-13T08:45:34.6693354Z",
+    "SID": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Base": "http://127.0.0.1:55924",
+    "Rows": [
+      {
+        "method": "GET",
+        "path": "/healthz",
+        "status": 200,
+        "expected": 200,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/readyz",
+        "status": 200,
+        "expected": 200,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "status": 200,
+        "expected": 200,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/metrics",
+        "status": 200,
+        "expected": 200,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/ui",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/status",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/system",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/oauth",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs/export",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs/stream",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/log-level",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/status",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/targets",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/calls",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/codex/status",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/api/codex/events",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/harpoon/mcp",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "PUT",
+        "path": "/api/log-level",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/login/device",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/login/cancel",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/thread/start",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/turn/start",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      }
+    ],
+    "Pass": true
+  },
+  "overrideFixture": {
+    "startedAt": "2026-10-13T09:00:43.006Z",
+    "fixturePID": 2656,
+    "synthetic": true,
+    "controlRequests": [
+      {
+        "method": "GET",
+        "path": "/v1/tunnels/tunnel_00000000000000000000000000000003",
+        "syntheticAuth": true
+      },
+      {
+        "method": "GET",
+        "path": "/v1/tunnels/tunnel_00000000000000000000000000000003/poll",
+        "syntheticAuth": true
+      },
+      {
+        "method": "POST",
+        "path": "/v1/tunnels/tunnel_00000000000000000000000000000003/response",
+        "syntheticAuth": true
+      }
+    ],
+    "responses": [
+      {
+        "requestID": "fixture-0",
+        "code": 200,
+        "type": "jsonrpc_response",
+        "result": {
+          "jsonrpc": "2.0",
+          "id": "init",
+          "result": {
+            "protocolVersion": "2025-06-18",
+            "capabilities": {
+              "tools": {}
+            },
+            "serverInfo": {
+              "name": "fortis-synthetic-echo",
+              "version": "1"
+            }
+          }
+        }
+      },
+      {
+        "requestID": "fixture-1",
+        "code": 200,
+        "type": "notify_ack"
+      },
+      {
+        "requestID": "fixture-2",
+        "code": 200,
+        "type": "jsonrpc_response",
+        "result": {
+          "jsonrpc": "2.0",
+          "id": "list",
+          "result": {
+            "tools": [
+              {
+                "name": "synthetic_echo",
+                "description": "Return a fixed synthetic marker",
+                "inputSchema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "requestID": "fixture-3",
+        "code": 200,
+        "type": "jsonrpc_response",
+        "result": {
+          "jsonrpc": "2.0",
+          "id": "echo",
+          "result": {
+            "content": [
+              {
+                "type": "text",
+                "text": "FORTIS_G3_SYNTHETIC_OK"
+              }
+            ],
+            "isError": false
+          }
+        }
+      }
+    ],
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/healthz",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/readyz",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/metrics",
+        "status": 200
+      },
+      {
+        "method": "GET",
+        "path": "/",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/ui",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/status",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/system",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/oauth",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs/export",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/logs/stream",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/log-level",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/status",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/targets",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/harpoon/calls",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/codex/status",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/api/codex/events",
+        "status": 404
+      },
+      {
+        "method": "GET",
+        "path": "/harpoon/mcp",
+        "status": 404
+      },
+      {
+        "method": "PUT",
+        "path": "/api/log-level",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/login/device",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/login/cancel",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/thread/start",
+        "status": 404
+      },
+      {
+        "method": "POST",
+        "path": "/api/codex/turn/start",
+        "status": 404
+      }
+    ],
+    "status": "READY",
+    "controlBase": "http://127.0.0.1:56477",
+    "transportOverride": {
+      "inherited": "http-streamable",
+      "flag": "--harpoon.additional-transport="
+    },
+    "runtimePID": 23080,
+    "healthBase": "http://127.0.0.1:56482"
+  },
+  "overrideRestrictedHTTP": {
+    "At": "2026-10-13T09:03:13.9459060Z",
+    "SID": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Base": "http://127.0.0.1:56482",
+    "Rows": [
+      {
+        "method": "GET",
+        "path": "/healthz",
+        "status": 200,
+        "expected": 200,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/readyz",
+        "status": 200,
+        "expected": 200,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/metrics",
+        "status": 200,
+        "expected": 200,
+        "pass": true
+      },
+      {
+        "method": "GET",
+        "path": "/harpoon/mcp",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "POST",
+        "path": "/harpoon/mcp",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      },
+      {
+        "method": "PUT",
+        "path": "/api/log-level",
+        "status": 404,
+        "expected": 404,
+        "pass": true
+      }
+    ],
+    "Pass": true
+  },
+  "installedRuntimeRestrictedACL": {
+    "At": "2026-10-13T08:51:05.5951958Z",
+    "SID": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Rows": [
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15",
+        "Right": "read",
+        "Win32": 0,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15",
+        "Right": "write",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15",
+        "Right": "append",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15",
+        "Right": "delete",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15",
+        "Right": "writeDac",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15",
+        "Right": "writeOwner",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\LICENSE",
+        "Right": "read",
+        "Win32": 0,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\LICENSE",
+        "Right": "write",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\LICENSE",
+        "Right": "append",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\LICENSE",
+        "Right": "delete",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\LICENSE",
+        "Right": "writeDac",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\LICENSE",
+        "Right": "writeOwner",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\NOTICE",
+        "Right": "read",
+        "Win32": 0,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\NOTICE",
+        "Right": "write",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\NOTICE",
+        "Right": "append",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\NOTICE",
+        "Right": "delete",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\NOTICE",
+        "Right": "writeDac",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\NOTICE",
+        "Right": "writeOwner",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64-licenses.txt",
+        "Right": "read",
+        "Win32": 0,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64-licenses.txt",
+        "Right": "write",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64-licenses.txt",
+        "Right": "append",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64-licenses.txt",
+        "Right": "delete",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64-licenses.txt",
+        "Right": "writeDac",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64-licenses.txt",
+        "Right": "writeOwner",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64.spdx.json",
+        "Right": "read",
+        "Win32": 0,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64.spdx.json",
+        "Right": "write",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64.spdx.json",
+        "Right": "append",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64.spdx.json",
+        "Right": "delete",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64.spdx.json",
+        "Right": "writeDac",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime-v0.0.15-windows-amd64.spdx.json",
+        "Right": "writeOwner",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "read",
+        "Win32": 0,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "write",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "append",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "delete",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "writeDac",
+        "Win32": 5,
+        "Pass": true
+      },
+      {
+        "Path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+        "Right": "writeOwner",
+        "Win32": 5,
+        "Pass": true
+      }
+    ],
+    "Pass": true,
+    "Version": "0.0.15 git sha: a390c168ff1b2d14e73a95991c186c6aba3ff5a0 go: go1.27.0 build flags: -trimpath -buildvcs=false flavor=runtime"
+  },
+  "privateFixtureAccess": [
+    {
+      "Access": "Read",
+      "Result": "DENY",
+      "HResult": -2147024891
+    },
+    {
+      "Access": "Write",
+      "Result": "DENY",
+      "HResult": -2147024891
+    }
+  ],
+  "candidateFiles": {
+    "plan": {
+      "runtime": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+      "runtimeSha256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A",
+      "entries": [
+        {
+          "candidate": "host-launcher.ps1",
+          "live": "C:\\Users\\alexa\\Documents\\prot\\Start-Desktop-Commander-Secure-Tunnel.ps1",
+          "beforeSha256": "0F644D4239E60886354EB83B6438CC888D8BDF3202B944B0304508E7C1336DFE",
+          "afterSha256": "3C93125C16ED7BB91E13E37E6546CB9BB51CF075F6A28AB934131594DE596B72"
+        },
+        {
+          "candidate": "repo-run-tunnel.ps1",
+          "live": "C:\\Users\\alexa\\chatgpt-repo-mode\\run-tunnel.ps1",
+          "beforeSha256": "3877266C3C97BECC82045BE16D994981EB4F8973353B285236DF9CAAC158A5A3",
+          "afterSha256": "52848CDA49FECB4D78589E9979781A28D114A92F694CF75BC66EA6D4412EB93B"
+        },
+        {
+          "candidate": "repo-control.ps1",
+          "live": "C:\\Users\\alexa\\chatgpt-repo-mode\\control.ps1",
+          "beforeSha256": "E80E209B4758B194D2BCC7DCAFDFB83D296289E29A543F192E6726538641AE34",
+          "afterSha256": "605F9D54A0A35FF3011DC44356A733F975A8993F1225FF53378A6B7880A193C5"
+        }
+      ],
+      "automaticRestarts": false,
+      "profileChanges": false
+    },
+    "files": [
+      {
+        "name": "host-launcher.ps1",
+        "sha256": "3C93125C16ED7BB91E13E37E6546CB9BB51CF075F6A28AB934131594DE596B72"
+      },
+      {
+        "name": "migration-plan.json",
+        "sha256": "9EB03A985E71FDC32944DCDD8D327008C989C3091E0A0BB46B90EA4A8A0773D8"
+      },
+      {
+        "name": "repo-control.ps1",
+        "sha256": "605F9D54A0A35FF3011DC44356A733F975A8993F1225FF53378A6B7880A193C5"
+      },
+      {
+        "name": "repo-run-tunnel.ps1",
+        "sha256": "52848CDA49FECB4D78589E9979781A28D114A92F694CF75BC66EA6D4412EB93B"
+      },
+      {
+        "name": "start-g2-runtime.ps1",
+        "sha256": "416DE2EB01708B81EF4C645F46D4FDB80D2C58FC0C96EFC28FDD2DD7802F9110"
+      },
+      {
+        "name": "switch-launchers.ps1",
+        "sha256": "0D68581ADD6F0126D1E8A0F6DF993C92D52096F7E13028CA9A79D3F602BC2612"
+      },
+      {
+        "name": "synthetic-runtime-fixture.js",
+        "sha256": "5B65842025F0C9F7FDBEE7D618ABE2A46AE07036B25BB195689593852E4CE874"
+      }
+    ]
+  },
+  "syntaxChecks": [
+    {
+      "Name": "host-launcher.ps1",
+      "ParseErrors": 0,
+      "Sha256": "3C93125C16ED7BB91E13E37E6546CB9BB51CF075F6A28AB934131594DE596B72"
+    },
+    {
+      "Name": "repo-control.ps1",
+      "ParseErrors": 0,
+      "Sha256": "605F9D54A0A35FF3011DC44356A733F975A8993F1225FF53378A6B7880A193C5"
+    },
+    {
+      "Name": "repo-run-tunnel.ps1",
+      "ParseErrors": 0,
+      "Sha256": "52848CDA49FECB4D78589E9979781A28D114A92F694CF75BC66EA6D4412EB93B"
+    },
+    {
+      "Name": "start-g2-runtime.ps1",
+      "ParseErrors": 0,
+      "Sha256": "416DE2EB01708B81EF4C645F46D4FDB80D2C58FC0C96EFC28FDD2DD7802F9110"
+    },
+    {
+      "Name": "switch-launchers.ps1",
+      "ParseErrors": 0,
+      "Sha256": "0D68581ADD6F0126D1E8A0F6DF993C92D52096F7E13028CA9A79D3F602BC2612"
+    }
+  ],
+  "preview": [
+    {
+      "Live": "C:\\Users\\alexa\\Documents\\prot\\Start-Desktop-Commander-Secure-Tunnel.ps1",
+      "Candidate": "C:\\Users\\alexa\\Repos\\tunnel\\runtime\\host-g2\\runtime-api-migration\\host-launcher.ps1",
+      "State": "BEFORE"
+    },
+    {
+      "Live": "C:\\Users\\alexa\\chatgpt-repo-mode\\run-tunnel.ps1",
+      "Candidate": "C:\\Users\\alexa\\Repos\\tunnel\\runtime\\host-g2\\runtime-api-migration\\repo-run-tunnel.ps1",
+      "State": "BEFORE"
+    },
+    {
+      "Live": "C:\\Users\\alexa\\chatgpt-repo-mode\\control.ps1",
+      "Candidate": "C:\\Users\\alexa\\Repos\\tunnel\\runtime\\host-g2\\runtime-api-migration\\repo-control.ps1",
+      "State": "BEFORE"
+    }
+  ],
+  "ownerSIDGuard": "PASS",
+  "liveApply": "NOT_RUN",
+  "liveRollback": "NOT_RUN",
+  "finalObserver": {
+    "At": "2026-10-13T09:06:04.4413853Z",
+    "SyntheticProcessesLeft": [],
+    "SyntheticListenersLeft": [],
+    "FixtureSourceHash": "5B65842025F0C9F7FDBEE7D618ABE2A46AE07036B25BB195689593852E4CE874",
+    "ShutdownReason": "owner synthetic stop",
+    "Production": [
+      {
+        "Name": "HOST",
+        "PID": 5580,
+        "Created": "2026-10-13T02:59:43.4833490Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "Repo",
+        "PID": 23904,
+        "Created": "2026-10-13T03:00:34.2137140Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "G2",
+        "PID": 8452,
+        "Created": "2026-10-13T06:43:30.0963580Z",
+        "Health": 200,
+        "Ready": 200
+      }
+    ],
+    "Markers": [
+      {
+        "Name": "RW",
+        "Length": 23,
+        "LastWriteUTC": "2026-10-12T13:30:35.1744508Z"
+      },
+      {
+        "Name": "RO",
+        "Length": 23,
+        "LastWriteUTC": "2026-10-12T13:30:35.3931000Z"
+      },
+      {
+        "Name": "DENY",
+        "Length": 25,
+        "LastWriteUTC": "2026-10-12T13:30:35.4084159Z"
+      }
+    ]
+  },
+  "routes": {
+    "ownerHOSTAdvertised": true,
+    "ownerRepoAdvertised": true,
+    "wholeChatIsolation": "OPEN",
+    "g3Overall": "OPEN"
+  },
+  "mutations": {
+    "sideBySideRuntimeInstalled": true,
+    "liveLaunchersChanged": false,
+    "profilesChanged": false,
+    "ownerKeysReadOrCopied": false,
+    "aclChanged": false,
+    "servicesRestarted": false,
+    "productionTunnelsRestarted": false,
+    "sitesPublished": false,
+    "committedOrPushed": false
+  }
+}

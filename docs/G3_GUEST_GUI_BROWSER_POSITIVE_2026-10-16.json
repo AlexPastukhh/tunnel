@@ -1,0 +1,713 @@
+{
+  "schema": 1,
+  "date_local": "2026-10-16",
+  "timezone": "Asia/Bangkok",
+  "scope": "Own guest GUI positive, initial failed browser smoke, historical delivery/security/transport incidents and later explicitly approved successful corrected browser repeat.",
+  "gui": {
+    "Check": "G2_OWN_GUI_CLIPBOARD_POSITIVE",
+    "Utc": "2026-10-15T16:57:22.4773301Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "HelperSHA256": "8F1BC80CA8A2C9625B32340203ABA5AEFEDFBB0BC244AA2C5E1FF7CDBC90B222",
+    "OwnObjects": {
+      "Station": "WinSta0",
+      "Desktop": "Default",
+      "StationPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+      "DesktopPath": "\\Default"
+    },
+    "Gui": {
+      "WindowCreated": true,
+      "WindowVisible": true,
+      "WindowDestroyed": true,
+      "Clipboard": "SKIPPED_NONEMPTY",
+      "ClipboardCleanup": "NOT_NEEDED"
+    },
+    "OwnWindowPass": true,
+    "ClipboardPass": false,
+    "ExistingClipboardReplacementAllowed": false,
+    "OwnerContentReads": 0,
+    "OwnerProbesExecuted": 0,
+    "Captures": 0,
+    "InputInjection": 0
+  },
+  "browser_first_run": {
+    "Check": "G2_GUEST_BROWSER_FUNCTIONAL",
+    "Utc": "2026-10-15T17:02:02.3038885Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "WorkerSHA256": "64971A85E8EB715ED6D83B0D2689FB5A936D86AD0B647B8B843A07887C11B20E",
+    "Native": {
+      "NodePid": 20664,
+      "Assigned": true,
+      "TimedOut": false,
+      "ExitCode": 3,
+      "ActiveBeforeStop": 0,
+      "TerminateRequested": false,
+      "ActiveAfterStop": 0,
+      "JobClosed": true,
+      "NodeStopped": true
+    },
+    "Worker": {
+      "check": "G2_OWN_BROWSER_CDP",
+      "utc": "2026-10-15T17:01:55.388Z",
+      "sandbox": "default",
+      "ownerProfileUsed": false,
+      "externalPageUsed": false,
+      "pass": false,
+      "httpPort": 55334,
+      "browserFlagsDisableSandbox": false,
+      "browserPid": 19052,
+      "cdpPort": 55335,
+      "domQuery": false,
+      "storageAndDomExact": false,
+      "storageAfterReload": true,
+      "browserCloseRequested": true,
+      "browserExitedBeforeJobStop": true
+    },
+    "ProfileAndScratchRemoved": true,
+    "RetainedRoot": null,
+    "Passed": false,
+    "ErrorType": null,
+    "OwnerProfileRead": false,
+    "BrowserSandboxDisabled": false,
+    "G2Restarted": false,
+    "process_exit_code": 1
+  },
+  "source_preparation": {
+    "gui_source": "runtime/host-g2/window-isolation/Test-G2GuestGuiPositive.ps1",
+    "gui_sha256": "075B4DE37E3B148925B0EF2003E6DAD7D998B3DCE57B97150F182EF4D1520AE0",
+    "gui_bytes": 1886,
+    "browser_source": "runtime/host-g2/window-isolation/Test-G2GuestBrowserFunctional.ps1",
+    "browser_current_sha256": "9E3FA703897B97821ACDC16F8D435937A6D75D6C9BDA44C3502187021E542860",
+    "browser_bytes": 8140,
+    "worker_source": "runtime/host-g2/window-isolation/guest-browser-functional.js",
+    "worker_current_sha256": "16BCAE4F18441156C329EB586123414EE618B039EA95605DCDB109158B81A118",
+    "worker_bytes": 6099,
+    "repo_ps_ast_errors": 0,
+    "repo_csharp5_compiled": true,
+    "repo_node_syntax_exit": 0,
+    "repo_windows_calls": 0,
+    "windows_current_browser_version_executed": true
+  },
+  "failures_and_corrections": [
+    {
+      "stage": "Initial own GUI wrapper",
+      "source_sha256": "0EDD1D9D932EA62C7F64E2829A033B530B8150EBBF4800D2FB133D880E3E74C1",
+      "result": "PUBLIC environment absent in filtered G2 shell; Join-Path failed before GUI helper execution",
+      "correction": "Use Windows CommonDocuments Known Folder; no environment allowlist expansion; fixed GUI result recorded above"
+    },
+    {
+      "stage": "Initial browser assertions",
+      "browser_source_sha256": "045A9B0C41EC61116F6367C2CF8F72102787A0EE3F57EBD6BC97D6CC646BB036",
+      "result": "DOM queried before document ready; initial dom/storage false while post-reload marker true",
+      "correction": "Added initial document readiness wait and changed performance.timeOrigin check after reload. Corrected source passes Repo AST/C#5/JS syntax; not rerun on Windows."
+    },
+    {
+      "stage": "Corrected browser source delivery",
+      "result": "Error: spawn EPERM",
+      "error_code": "INVALID_ARGUMENT",
+      "after_effect_checks": {
+        "g2_get_config_responded": true,
+        "g2_server_pid": 21540,
+        "new_job_file": "ENOENT",
+        "new_worker_file": "ENOENT"
+      },
+      "blocked_action_retried": false,
+      "security_cause": "UNKNOWN; generic EPERM does not identify security product or policy",
+      "event_triage": "HOST read-only event query returned UNAVAILABLE / Connection timed out. No event contents or security cause established."
+    }
+  ],
+  "limits": [
+    "Own test window success is not owner GUI DENY.",
+    "Guest clipboard contained formats; contents were neither read nor replaced. Roundtrip remains pending, not denied.",
+    "First browser run is a failed smoke; post-reload marker alone does not close DOM/storage acceptance.",
+    "Test-job cleanup succeeded for the first browser run; this does not prove shutdown/cleanup of the long-lived G2 chain.",
+    "Initial corrected delivery left new files absent after EPERM; later explicit user-approved delivery and bounded browser repeat succeeded with unchanged pinned sources and AV settings.",
+    "No owner GUI automation, clipboard content reads, input injection, captures, owner HTTP probes, ACL/network/mount/task/service changes, project commit/push or G2 restart.",
+    "G3 BLOCKED; G4-G6 unaccepted."
+  ],
+  "documentation_delivery": "Canonical E20 and linked documentation written in verified /workspace/repos/tunnel checkout; script performs exact read-back. Prior delivery timeouts remain historical incident evidence.",
+  "user_provided_security_screenshots": {
+    "received_local": "2026-10-16T00:22:31+07:00",
+    "files": [
+      {
+        "name": "image(20261015-172213).png",
+        "sha256": "36640c1a94a548cf6ac5180e5706ad72b7bca55c99e0df6ed363235f5a173730"
+      },
+      {
+        "name": "image(20261015-172216).png",
+        "sha256": "3471dd72d2414eb3b8a3bf854422953a0626dd6ac14ef117109ea2d24a7cd3e0"
+      }
+    ],
+    "activity_report": {
+      "event_local": "2026-10-16T00:04:25+07:00",
+      "visible_rows": [
+        {
+          "application": "Node.js JavaScript Runtime",
+          "image": "node.exe",
+          "event": "Запрещено",
+          "visible_directory": "C:\\Tools\\desktop-commander-runtime"
+        },
+        {
+          "application": "Windows PowerShell",
+          "image": "powershell.exe",
+          "event": "Запрещено",
+          "visible_directory_prefix": "C:\\Windows\\System32\\WindowsPowerShell\\v1"
+        },
+        {
+          "application": "Node.js JavaScript Runtime",
+          "image": "node.exe",
+          "event": "Запрещено",
+          "visible_directory": "C:\\Tools\\desktop-commander-runtime"
+        }
+      ],
+      "rule_operation_parent_and_exact_object": "NOT_VISIBLE"
+    },
+    "notification_center": {
+      "runtime_path": "C:\\Tools\\tunnel-client\\runtime\\v0.0.15\\tunnel-client-runtime.exe",
+      "runtime_notification_local": "2026-10-15T23:13:00+07:00",
+      "classification_text": "Легальное приложение, которое может быть использовано злоумышленниками для нанесения вреда компьютеру или данным пользователя.",
+      "other_visible_notifications": "Two earlier synthetic runtime fixture paths at 2026-10-15 22:50",
+      "detection_name_and_action": "NOT_VISIBLE"
+    },
+    "interpretation": "Confirmed security report denials for Node and PowerShell coincide with spawn EPERM. Exact triggering operation/policy and definitive causal chain remain unestablished. Legitimate dual-use warning alone is not proof of malware. Windows tests paused; no exclusion/protection change or alternate execution attempted."
+  },
+  "user_reported_security_event_detail": {
+    "received_local": "2026-10-16T00:25:32+07:00",
+    "source": "user pasted event detail; associated by conversation with activity row 2026-10-16 00:04:25",
+    "event": "Запрещено",
+    "application": "Windows PowerShell",
+    "user": "FORTIS_M\\FortisHostG1",
+    "user_type": "Инициатор",
+    "component": "Мониторинг активности",
+    "result": "Запрещено",
+    "type": "Троянское приложение",
+    "detection": "PDM:Exploit.Win32.Generic",
+    "severity": "Высокая",
+    "object_type": "Процесс",
+    "object_directory": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0",
+    "object_name": "powershell.exe",
+    "database_release_as_displayed": "Вчера, 15.10.2026 15:15:00",
+    "exact_command_line_parent_and_blocked_operation": "NOT_PROVIDED",
+    "assessment": "Security detection and denial confirmed; true-positive vs false-positive unresolved. Does not by itself establish infection of signed PowerShell/runtime binary. No rerun, alternate launch route, exclusion, protection disablement or privilege change authorized/performed."
+  },
+  "windows_test_status": "APPROVED_BROWSER_REPEAT_PASSED_SCOPE; CLIPBOARD_AND_OWNER_BOUNDARY_PENDING",
+  "user_reported_connectivity_incident": {
+    "received_local": "2026-10-16T00:31:31+07:00",
+    "report": "No tunnels work, including HOST and Fortis Repo",
+    "verification_scope": "User report plus previously observed HOST/Repo connection timeouts; live process/network/quarantine state not available",
+    "user_hypothesis": "Kaspersky false positive on our work",
+    "assessment": "Plausible temporal association; false positive and shared failure mechanism not established",
+    "priority": "Restore original permitted access safely; Windows isolation tests paused; preserve security evidence; no global exclusion/protection disable or shared tunnel restart performed"
+  },
+  "controlplane_504_and_exclusion_update": {
+    "received_local": "2026-10-16T00:36:50+07:00",
+    "user_logs": [
+      {
+        "surface": "HOST",
+        "time": "2026-10-16T00:28:58.9015173+07:00",
+        "component": "controlplane",
+        "message": "poll failed; backing off",
+        "http_status": 504,
+        "retry_in_ms": 60000
+      },
+      {
+        "surface": "Repo",
+        "time": "2026-10-16T00:31:42.9806785+07:00",
+        "component": "controlplane",
+        "message": "poll failed; backing off",
+        "http_status": 504,
+        "retry_in_ms": 60000
+      }
+    ],
+    "log_error_text": "The origin web server did not respond to Cloudflare within the allowed time. This typically means the origin is overloaded or a backend process is taking too long.",
+    "node_event_detail": {
+      "application": "Node.js JavaScript Runtime",
+      "user": "FORTIS_M\\FortisHostG1",
+      "component": "Мониторинг активности",
+      "event": "Обнаружен вредоносный объект",
+      "result": "Обнаружено",
+      "type": "Троянское приложение",
+      "detection": "PDM:Exploit.Win32.Generic",
+      "severity": "Высокая",
+      "object_type": "Процесс",
+      "path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+      "reason": "Поведенческий анализ",
+      "database_release": "15.10.2026 15:15:00"
+    },
+    "exclusion_screenshots": [
+      {
+        "name": "image(20261015-173627).png",
+        "sha256": "94b5533ec582d3a06d65919c41c997946cd2f7edd58343e8c92d329e401c636a"
+      },
+      {
+        "name": "image(20261015-173629).png",
+        "sha256": "4daa3177e820eda83f5c294e83469d590e8f448b5dd2a2ad333834244d95e3a9"
+      }
+    ],
+    "visible_settings": {
+      "exact_node_trusted_path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+      "do_not_monitor_application_activity": true,
+      "do_not_monitor_child_application_activity": true,
+      "apply_recursively": false,
+      "do_not_inherit_parent_restrictions": false,
+      "allow_kaspersky_ui_interaction": false,
+      "do_not_block_AMSI_interaction": false,
+      "skip_all_traffic_scan": false,
+      "active_saved_at_event_time": "UNKNOWN",
+      "folder_exclusion_desktop_commander_components": [
+        "Проверка",
+        "Файловый Антивирус"
+      ],
+      "pdm_specific_exclusion": "Different truncated path under desktop-commander/node_modules; fixed hash starting a4145198; match to node.exe not established"
+    },
+    "public_service_status": {
+      "url": "https://status.openai.com/incidents/01M506BA4XRSWH7THR53HQGN3Z",
+      "title": "Widespread feature degradation",
+      "state": "Monitoring",
+      "message": "We have applied the mitigation and are monitoring the recovery.",
+      "tunnel_component_explicitly_confirmed": false
+    },
+    "official_exclusion_reference": "https://support.kaspersky.com/help/kaspersky/win21.7/en-us/201385.htm",
+    "revised_assessment": [
+      "Both clients were running and polling at the recorded times. Gateway 504 is not evidence they were killed by Kaspersky.",
+      "A contemporaneous public OpenAI incident supports investigating an external control-plane failure, but exact Tunnel impact is unconfirmed.",
+      "Kaspersky behavioral detection is independently confirmed. Causality linking it to all tunnel outages is unestablished.",
+      "Trusted application settings do not guarantee exemption from every process/executable threat check; exact rules, components, hash/path and event-time activation matter.",
+      "No exclusions, services, tunnels, network settings or security protection changed. Windows security tests remain paused."
+    ]
+  },
+  "checkpoint_updated_utc": "2026-10-15T17:53:56.600403+00:00",
+  "recovery_check_after_0050": {
+    "checked_utc": "2026-10-15T17:52:13.457949+00:00",
+    "public_incident": "Widespread feature degradation",
+    "public_state": "Resolved",
+    "public_statement": "All impacted services have now fully recovered.",
+    "public_incident_url": "https://status.openai.com/incidents/01M506BA4XRSWH7THR53HQGN3Z",
+    "HOST_read_only": "UNAVAILABLE: Connection timed out",
+    "Repo_read_only": "UNAVAILABLE: Connection timed out",
+    "meaning": "Public incident resolution does not establish native tunnel recovery; both read-only calls still fail. Need latest client-side poll result after this check to distinguish ongoing control-plane504 from another error.",
+    "mutations": 0
+  },
+  "fresh_controlplane_logs_0053": {
+    "received_local": "2026-10-16T00:53:13+07:00",
+    "HOST": {
+      "running_client_instance": "4d10fdc13ba8bceb95a664dca7626cd5",
+      "events": [
+        {
+          "time": "2026-10-16T00:48:39.3550888+07:00",
+          "http": 504,
+          "operation": "poll"
+        },
+        {
+          "time": "2026-10-16T00:48:49.0158401+07:00",
+          "operation": "metadata GET",
+          "result": "Client.Timeout exceeded while awaiting headers"
+        },
+        {
+          "time": "2026-10-16T00:49:41.057001+07:00",
+          "http": 503,
+          "result": "upstream connect/reset before headers; connection timeout"
+        },
+        {
+          "time": "2026-10-16T00:50:16.1372584+07:00",
+          "result": "poller recovered; polling operational",
+          "request_id": "req_55a9c2df22f14bfbaca8374974bd304a"
+        },
+        {
+          "time": "2026-10-16T00:50:17.9281105+07:00",
+          "http": 503
+        },
+        {
+          "time": "2026-10-16T00:50:37.1098786+07:00",
+          "http": 504
+        },
+        {
+          "time": "2026-10-16T00:52:01.9242595+07:00",
+          "http": 504,
+          "retry_in_ms": 60000
+        }
+      ]
+    },
+    "Repo": {
+      "running_client_instance": "9628dab1abef2a8fdc6586116883ac2d",
+      "events": [
+        {
+          "time": "2026-10-16T00:48:47.9890111+07:00",
+          "http": 504,
+          "operation": "poll"
+        },
+        {
+          "time": "2026-10-16T00:48:51.5398568+07:00",
+          "http": 504,
+          "operation": "metadata fetch"
+        },
+        {
+          "time": "2026-10-16T00:50:00.7137903+07:00",
+          "http": 504
+        },
+        {
+          "time": "2026-10-16T00:51:27.1683243+07:00",
+          "http": 503,
+          "error_code": "tunnel_transport_unavailable",
+          "error_message": "Tunnel transport temporarily unavailable; retry the request",
+          "request_id": "req_c6c839298f9f4377a45a1dc4caf0bd1e",
+          "retry_in_ms": 10000
+        },
+        {
+          "time": "2026-10-16T00:51:53.928271+07:00",
+          "http": 504,
+          "retry_in_ms": 60000
+        }
+      ]
+    },
+    "assessment": "Clients are running and receiving control-plane responses; explicit service-origin tunnel_transport_unavailable plus cross-route503/504 is direct evidence of unavailable Tunnel transport. This is distinct from the independently confirmed Kaspersky behavior detection. Precise backend root cause remains unknown. No restart, rebuild, auth change, security weakening or script retry justified by these logs alone.",
+    "next_action": "Keep automatic client retry active; preserve request IDs and timestamps for service support escalation. No additional Task Manager or Kaspersky screenshots needed to classify this transport failure. Windows test remains paused pending independent security analysis."
+  },
+  "remote_desktop_commander_npm_setup": {
+    "attachment": "Вставленный текст(20261015-180240).txt",
+    "bytes": 98389,
+    "sha256": "f97e9990841886444c4f3c23ba71607235e160366a452e669486ac0a80e6f71e",
+    "node": "24.12.0",
+    "npm": "11.6.2",
+    "platform": "Windows_NT 10.0.26300",
+    "command": "npm exec -- @wonderwhy-er/desktop-commander@latest remote",
+    "selected_package": "@wonderwhy-er/desktop-commander@0.3.0",
+    "error": "ECOMPROMISED: Lock compromised",
+    "stage": "libnpmexec with-lock.js / touchLock during npx cache installation",
+    "observed_user_cache": "alexa",
+    "remote_started": "NOT_ESTABLISHED_INSTALLATION_FAILED",
+    "relationship_to_prior_incidents": "Distinct from control-plane HTTP 503/504 and from confirmed Kaspersky PDM detection. This log does not establish an AV block.",
+    "upstream_issue": "https://github.com/npm/cli/issues/8710",
+    "upstream_fix": "https://github.com/npm/cli/pull/8733",
+    "assessment": "Matches known npm 11.6.2 / Windows / Node 24 lock race; exact local cause not independently reproduced.",
+    "proposed_remedy": "Install npm@11.6.3 under a dedicated current-user LOCALAPPDATA prefix, then invoke its npx-cli.js with Node. No global Node/npm change or cache deletion.",
+    "remedy_execution": "NOT_EXECUTED_ON_WINDOWS",
+    "isolation_tests": "REMAIN_PAUSED; new remote route is not authorization to repeat AV-blocked tests",
+    "canonical_documentation_delivery": "PENDING_REPO_CONNECTIVITY"
+  },
+  "tunnel_client_restricted_group_screenshot": {
+    "attachment": "image(20261015-181836).png",
+    "bytes": 49999,
+    "sha256": "2aba0a9547ef20d079de96249f5a129aea73f02340f6aa1ae06a77aa8c28bb18",
+    "events_local": [
+      "2026-10-16T01:13:20+07:00",
+      "2026-10-16T01:13:29+07:00",
+      "2026-10-16T01:13:30+07:00"
+    ],
+    "application": "tunnel-client.exe",
+    "directory": "C:\\Tools\\tunnel-client",
+    "event": "Приложение помещено в группу с ограничениями",
+    "component": "Предотвращение вторжений",
+    "threat_degree": "Низкая",
+    "object_type": "Группа приложений",
+    "group": "Слабые ограничения",
+    "reason": "Не удалось определить группу доверия",
+    "assessment": "Screenshot confirms restricted group assignment, not malware detection or quarantine. Its visible events alone postdate earlier errors, but subsequently supplied full event history starts 00:22:41, so no temporal exclusion of Kaspersky involvement is justified.",
+    "next_read_only_check": "Inspect actual per-application network/access rules and denied-operation history without changing trust group or exclusions."
+  },
+  "tunnel_client_trust_group_extended_history": {
+    "source": "User-pasted Kaspersky event export",
+    "date_local": "2026-10-16",
+    "timezone": "Asia/Bangkok",
+    "account": "FORTIS_M\\alexa",
+    "application": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+    "event_times": [
+      "00:22:41",
+      "00:23:06",
+      "00:23:07",
+      "00:29:14",
+      "00:40:42",
+      "00:41:03",
+      "00:41:05",
+      "00:48:15",
+      "00:48:30",
+      "00:48:32",
+      "01:11:22",
+      "01:11:36",
+      "01:11:38",
+      "01:13:20",
+      "01:13:29",
+      "01:13:30"
+    ],
+    "event": "Приложение помещено в группу с ограничениями",
+    "group": "Слабые ограничения",
+    "threat_degree": "Низкая",
+    "reason": "Не удалось определить группу доверия",
+    "corrected_chronology": "First supplied event at 00:22:41 precedes supplied 00:28 onward control-plane failures. Prior screenshot-only temporal argument cannot exclude Kaspersky involvement.",
+    "causality": "NOT_ESTABLISHED. Restricted classification could affect operations; no specific denied network/process operation shown. Remote HTTP 503/504 responses remain separate observed evidence.",
+    "next_check": "Inspect effective application network rules and operation-denial history before changing protection settings."
+  },
+  "after_user_trust_group_change": {
+    "reported_local_time": "2026-10-16T01:47:17+07:00",
+    "user_action": "Changed trust group; reports no recovery. Exact modified executable set and effective saved rules not independently verified.",
+    "fresh_mcp_read_only_probes": {
+      "HOST": "UNAVAILABLE: McpServerError: Connection timed out.",
+      "Fortis_Repo": "UNAVAILABLE: McpServerError: Connection timed out."
+    },
+    "assessment": "Trust-group change alone has not restored access. Does not exclude other Kaspersky rules or a separate remote service failure.",
+    "next_evidence": "One current tunnel log excerpt after the change, without restart or new launch, to distinguish HTTP service errors from local TLS/access/process errors.",
+    "changes_by_assistant": "None to HOST, Repo, Kaspersky settings, tunnel lifecycle or authentication."
+  },
+  "host_poll_logs_after_trust_change": {
+    "source": "User-provided native HOST log excerpt",
+    "date_local": "2026-10-16",
+    "timezone": "Asia/Bangkok",
+    "range_local": [
+      "01:46:44.8164413",
+      "01:48:49.8179526"
+    ],
+    "client_instance_id": "50f18073ee0d2650c8d3e56dab6bbd35",
+    "errors": [
+      "poll transport failed (network_error)",
+      "poll transport failed (timeout)"
+    ],
+    "retry_in_ms": 10000,
+    "poll_timeout_ms": 30000,
+    "poll_deadline_ms": 35000,
+    "http_status_present": false,
+    "request_id_present": false,
+    "assessment": "Native client is alive and retries. These excerpts establish transport/network failure but expose no root cause or explicit certificate/security denial. Prior HTTP503/504 cannot be assumed to describe current attempts.",
+    "next_read_only_probe": "Unauthenticated HTTPS GET with curl.exe from alexa to known api.openai.com tunnel metadata URL, normal certificate verification and bounded timeout. Tests basic client connectivity only, not authenticated polling or MCP.",
+    "current_status_page": "https://status.openai.com/",
+    "status_page_observation": "Fetched page showed an active Costs/Compliance API reporting delay, no explicit tunnel incident; not proof that tunnel service is healthy.",
+    "canonical_delivery": "PENDING_REPO_CONNECTIVITY"
+  },
+  "alexa_unauthenticated_curl_metadata_probe": {
+    "source": "User screenshot",
+    "attachment": "image(20261015-185144).png",
+    "sha256": "3b5a2ab63865a92f47b6deec466df842816299cb2018edc82ef0baebcdfcdc93",
+    "reported_local_time": "2026-10-16T01:52:01+07:00",
+    "request": "Unauthenticated GET https://api.openai.com/v1/tunnels/<existing HOST tunnel ID>",
+    "tls_verification": "Default curl.exe verification retained; no insecure flag",
+    "observed_results": [
+      {
+        "visible_prompt": "C:\\Users\\alexa",
+        "window_title": "Administrator: Windows PowerShell",
+        "http_status": 401
+      },
+      {
+        "visible_prompt": "C:\\WINDOWS\\system32",
+        "account": "NOT_ESTABLISHED_FROM_PROMPT",
+        "http_status": 503
+      }
+    ],
+    "assessment": "Both attempts received HTTP responses. Basic HTTPS access works for curl in these contexts. 401 is expected for missing authentication and does not establish broken tunnel credentials. 503 shows an unavailable HTTP service/gateway on one attempt; precise responder cannot be identified without headers/body. Does not prove tunnel executable traffic or authenticated polling is healthy, nor establish elevation as cause of response difference.",
+    "next_action": "Do not expand AV exclusions based on this evidence. Existing logs/request IDs and screenshot are sufficient for an initial tunnel-service support report; no secret tokens needed.",
+    "canonical_delivery": "PENDING_REPO_CONNECTIVITY"
+  },
+  "host_recovery_0202": {
+    "date_local": "2026-10-16",
+    "timezone": "Asia/Bangkok",
+    "user_log": {
+      "client_instance_id": "1e0bb12da663237710c95f97bc6f0734",
+      "version": "0.0.15+a390c168ff1b2d14e73a95991c186c6aba3ff5a0",
+      "started_local": "01:57:20.8218604",
+      "polling_recovered_local": "01:59:26.5693598",
+      "request_id": "req_dafb126117444b359d2da5cbfe07649f",
+      "dispatch_to_mcp_observed_local": [
+        "01:59:35.912494",
+        "01:59:36.4492446",
+        "01:59:46.1936187"
+      ]
+    },
+    "fresh_assistant_read_only_probe": {
+      "tool": "HOST get_config",
+      "result": "SUCCESS",
+      "platform": "win32",
+      "desktop_commander_version": "0.2.52",
+      "node_path": "C:\\Tools\\desktop-commander-runtime\\node.exe",
+      "node_pid": 24724
+    },
+    "scope": "Successful HOST MCP configuration response now confirmed. No claim of sustained stability, terminal/file operation coverage, G2 acceptance, or Repo recovery.",
+    "repo_last_observation": "Session terminated during preceding read-only probe; not rechecked in this HOST-only recovery step.",
+    "causality": "Restoration does not establish whether trust group change, service recovery, client restart by user, or another factor caused restoration.",
+    "canonical_delivery": "PENDING_REPO_CONNECTIVITY"
+  },
+  "g2_manual_relaunch_after_reboot": {
+    "date_local": "2026-10-16",
+    "timezone": "Asia/Bangkok",
+    "user_report_local": "02:13:10",
+    "launch": "User manually entered FortisHostG1 interactive session and reported starting existing G2 launcher.",
+    "launcher_owner_preflight": {
+      "public_copy_exists": true,
+      "sha256": "0638D14A92F78006526281BEC98C391FAD96F6C0F3F70D9C02475DA3A56C481D",
+      "before_guest_login_only_alexa_session_seen": true
+    },
+    "mcp_get_config": {
+      "result": "SUCCESS",
+      "desktop_commander_version": "0.2.52",
+      "node_pid": 32496,
+      "node_path": "C:\\Tools\\desktop-commander-runtime\\node.exe"
+    },
+    "guest_read_only_shell_probe": {
+      "result": "SUCCESS",
+      "User": "FORTIS_M\\FortisHostG1",
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+      "Session": 2,
+      "AdminGroupPresent": false,
+      "AdminEffective": false,
+      "Pid": 31148
+    },
+    "scope": "G2 MCP response and non-admin guest shell identity/session confirmed. Full GUI/clipboard boundary and G3 acceptance not established.",
+    "security_tests": "Previously AV-blocked GUI/browser delivery/tests were not repeated.",
+    "canonical_documentation_delivery": "PENDING_REPO_CONNECTIVITY",
+    "ancestry_pin_probe": {
+      "result": "SUCCESS",
+      "order": "runtime -> Python -> Node",
+      "processes": [
+        {
+          "name": "tunnel-client-runtime.exe",
+          "pid": 23896,
+          "sid_suffix": 1009,
+          "session": 2,
+          "sha256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A"
+        },
+        {
+          "name": "python.exe",
+          "pid": 32480,
+          "parent_pid": 23896,
+          "sid_suffix": 1009,
+          "session": 2
+        },
+        {
+          "name": "node.exe",
+          "pid": 32496,
+          "parent_pid": 32480,
+          "sid_suffix": 1009,
+          "session": 2,
+          "sha256": "2FFE3ACC0458FDDE999F50D11809BBE7C9B7EF204DCF17094E325D26ACE101D8"
+        }
+      ],
+      "hashes_match_existing_pins": true,
+      "owner_process_content_read": false
+    }
+  },
+  "repo_recovery_continuation": {
+    "result": "SUCCESS",
+    "uid": 1000,
+    "target": "/workspace/repos/tunnel",
+    "real_mounts_verified": [
+      "/workspace/repos",
+      "/workspace/files",
+      "/workspace/repo"
+    ],
+    "existing_uncommitted_changes_preserved": true,
+    "prior_E20_absent_confirmed": true
+  },
+  "continuation_source_review": {
+    "exact_blocked_command_retained": false,
+    "reviewed_sources": [
+      "Test-G2GuestBrowserFunctional.ps1",
+      "guest-browser-functional.js"
+    ],
+    "source_findings": "Wrapper uses Add-Type and CreateProcessW(CREATE_SUSPENDED) plus Job assignment/resume for own Node cleanup. Worker uses own headless Edge, fresh profile, loopback CDP and synthetic page. These operations may be relevant to behavior detection, but no exact trigger has been established. No remote-thread injection, owner GUI reads or owner profile use appear in these reviewed sources.",
+    "windows_event_log_kaspersky_providers": [],
+    "test_reexecution": "NOT_PERFORMED",
+    "av_settings_changed_by_assistant": false,
+    "kaspersky_process_metadata_probe": {
+      "result": "INCONCLUSIVE",
+      "avpui_path": null,
+      "product_version": null,
+      "avp_com_path_verified": false,
+      "interpretation": "Selected process metadata query exposed no AV executable path/version; this is not evidence that CLI is absent. No protection change, tracing, AV restart or private report-store access performed."
+    },
+    "next_required_evidence": "Corrected browser repeat now passed after explicit user approval and fresh tool acceptance. Detailed AV export remains optional; proceed with missing clipboard/owner-boundary/stop gates under existing permissions."
+  },
+  "browser_delivery_retry_auto_review": {
+    "reported_local_date": "2026-10-16",
+    "source_pins": [
+      "9E3FA703897B97821ACDC16F8D435937A6D75D6C9BDA44C3502187021E542860",
+      "16BCAE4F18441156C329EB586123414EE618B039EA95605DCDB109158B81A118"
+    ],
+    "logical_source_bytes": 14239,
+    "tool": "G2 start_process",
+    "intended_action": "Verify exact ordinary SID1009 Session2, preflight both destinations; CreateNew-only own Workspace source delivery with payload and file SHA256 checks. No browser run yet.",
+    "result": "REJECTED_BY_AUTO_REVIEW_BEFORE_WINDOWS_EXECUTION",
+    "reason": "Команда записывает исправленные browser-скрипты в гостевую Windows-сессию после ранее заблокированной доставки; это фактически повтор через другой маршрут, что явно запрещено без разбора инцидента.",
+    "new_kaspersky_detection": false,
+    "windows_command_executed": false,
+    "workaround_attempted": false,
+    "next_required_decision": "Explicit approval of one concrete pinned source delivery and bounded browser smoke without weakening AV; subsequent tool review may still reject."
+  },
+  "browser_approved_repeat": {
+    "authorization": {
+      "user_text": "повтори",
+      "submitted_local": "2026-10-16T02:34:58+07:00",
+      "scope": "One verified two-file guest Workspace delivery and one bounded own browser smoke; no AV weakening."
+    },
+    "delivery": {
+      "tool": "G2 start_process",
+      "result": "SUCCESS",
+      "pid": 29792,
+      "logical_source_bytes": 14239,
+      "files": [
+        {
+          "name": "g2-browser-functional-9E3FA703.ps1",
+          "bytes": 8140,
+          "sha256": "9E3FA703897B97821ACDC16F8D435937A6D75D6C9BDA44C3502187021E542860"
+        },
+        {
+          "name": "g2-browser-worker-16BCAE4F.js",
+          "bytes": 6099,
+          "sha256": "16BCAE4F18441156C329EB586123414EE618B039EA95605DCDB109158B81A118"
+        }
+      ],
+      "destination_readback_hashes_matched": true
+    },
+    "test_shell_pid": 22616,
+    "result": {
+      "Check": "G2_GUEST_BROWSER_FUNCTIONAL",
+      "Utc": "2026-10-15T19:36:41.2453361Z",
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+      "Session": 2,
+      "WorkerSHA256": "16BCAE4F18441156C329EB586123414EE618B039EA95605DCDB109158B81A118",
+      "Native": {
+        "NodePid": 23908,
+        "Assigned": true,
+        "TimedOut": false,
+        "ExitCode": 0,
+        "ActiveBeforeStop": 0,
+        "TerminateRequested": false,
+        "ActiveAfterStop": 0,
+        "JobClosed": true,
+        "NodeStopped": true
+      },
+      "Worker": {
+        "check": "G2_OWN_BROWSER_CDP",
+        "utc": "2026-10-15T19:36:33.976Z",
+        "sandbox": "default",
+        "ownerProfileUsed": false,
+        "externalPageUsed": false,
+        "pass": true,
+        "httpPort": 59064,
+        "browserFlagsDisableSandbox": false,
+        "browserPid": 25816,
+        "cdpPort": 59065,
+        "documentReadyBeforeDom": true,
+        "domQuery": true,
+        "storageAndDomExact": true,
+        "newDocumentAfterReload": true,
+        "storageAfterReload": true,
+        "browserCloseRequested": true,
+        "browserExitedBeforeJobStop": true
+      },
+      "ProfileAndScratchRemoved": true,
+      "RetainedRoot": null,
+      "Passed": true,
+      "ErrorType": null,
+      "OwnerProfileRead": false,
+      "BrowserSandboxDisabled": false,
+      "G2Restarted": false,
+      "process_exit_code": 0,
+      "process_runtime_seconds": 12.93
+    },
+    "scope_limitations": [
+      "Proves own guest browser functionality and temporary test-job/profile cleanup only.",
+      "Does not close guest clipboard, owner GUI/clipboard protection, owner API gates or long-lived G2 stop/cleanup.",
+      "Successful retry does not establish the cause of earlier PDM detection or prove absence of AV events."
+    ],
+    "av_settings_changed": false,
+    "alternate_tool_after_rejection": false
+  }
+}

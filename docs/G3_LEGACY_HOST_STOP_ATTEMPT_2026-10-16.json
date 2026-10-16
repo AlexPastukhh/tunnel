@@ -1,0 +1,31 @@
+{
+    "Check":  "E43_SELECTED_LEGACY_HOST_STOP",
+    "Utc":  "2026-10-16T01:37:38.8049698Z",
+    "Mode":  "Stop",
+    "Rows":  [
+                 {
+                     "Pid":  13520,
+                     "Name":  "tunnel-client",
+                     "CreatedUtc":  "2026-10-15T18:57:19.7775467Z"
+                 },
+                 {
+                     "Pid":  16092,
+                     "Name":  "cmd",
+                     "CreatedUtc":  "2026-10-15T18:57:20.0262353Z"
+                 },
+                 {
+                     "Pid":  24724,
+                     "Name":  "node",
+                     "CreatedUtc":  "2026-10-15T18:57:20.0652942Z"
+                 }
+             ],
+    "HeldProcessHandles":  true,
+    "RawArgvPrinted":  false,
+    "Scope":  "ONLY_13520_16092_24724",
+    "KillAttempted":  [
+                          13520,
+                          16092,
+                          24724
+                      ],
+    "Completed":  true
+}

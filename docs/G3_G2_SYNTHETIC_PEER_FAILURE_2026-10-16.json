@@ -1,0 +1,153 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E29",
+  "Status": "PASS_SCOPE",
+  "Source": {
+    "PowerShell": "runtime/host-g2/runtime-api-migration/Test-G2SyntheticPeerFailure.ps1",
+    "PowerShellSHA256": "E2CF3D496489DA3D38A519DDCC85B0821BF3EC6F9D557D3D6B7E4988136F5DAE",
+    "PowerShellBytes": 9983,
+    "Worker": "runtime/host-g2/runtime-api-migration/guest-runtime-peer-failure.js",
+    "WorkerSHA256": "FB8FD7129213EDD9C3DB451E1A10E8291283738EFA457D4B9A0E20C82955E844",
+    "WorkerBytes": 8023,
+    "RepoChecks": [
+      "node --check",
+      "PowerShell AST",
+      "C# compile"
+    ],
+    "NativeJobOrigin": "Reviewed E20 browser Job helper reused with class rename; only new suspended synthetic fixture root assigned before resume.",
+    "Delivery": "CreateNew + exact SHA readback into own guest Workspace"
+  },
+  "Result": {
+    "Check": "G2_ISOLATED_MCP_PEER_FAILURE",
+    "Utc": "2026-10-15T21:30:39.6969795Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "WorkerSHA256": "FB8FD7129213EDD9C3DB451E1A10E8291283738EFA457D4B9A0E20C82955E844",
+    "Native": {
+      "NodePid": 19468,
+      "Assigned": true,
+      "TimedOut": false,
+      "ExitCode": 0,
+      "ActiveBeforeStop": 0,
+      "TerminateRequested": false,
+      "ActiveAfterStop": 0,
+      "JobClosed": true,
+      "NodeStopped": true
+    },
+    "Worker": {
+      "check": "G2_SYNTHETIC_MCP_PEER_FAILURE",
+      "startedUtc": "2026-10-15T21:30:33.430Z",
+      "fixturePid": 19468,
+      "synthetic": true,
+      "externalControlPlaneUsed": false,
+      "realProfilesRead": false,
+      "realKeysUsed": false,
+      "pass": true,
+      "controlPort": 64049,
+      "runtimePid": 23188,
+      "echoReady": true,
+      "crashIssuedUtc": "2026-10-15T21:30:34.236Z",
+      "crashIssued": true,
+      "runtimeExit": {
+        "code": 0,
+        "signal": null,
+        "utc": "2026-10-15T21:30:34.259Z"
+      },
+      "stderrBytes": 0,
+      "mcpChild": {
+        "pid": 19520,
+        "synthetic": true
+      },
+      "mcpChildExit": {
+        "pid": 19520,
+        "code": 37
+      },
+      "completedUtc": "2026-10-15T21:30:34.272Z"
+    },
+    "FixturePortRowsAfter": [],
+    "RealChainBefore": [
+      {
+        "Pid": 25920,
+        "Parent": 19900,
+        "Name": "tunnel-client-runtime.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:23.7848810Z"
+      },
+      {
+        "Pid": 18956,
+        "Parent": 25920,
+        "Name": "python.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:24.1300680Z"
+      },
+      {
+        "Pid": 32272,
+        "Parent": 18956,
+        "Name": "node.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:24.3527150Z"
+      }
+    ],
+    "RealChainAfter": [
+      {
+        "Pid": 25920,
+        "Parent": 19900,
+        "Name": "tunnel-client-runtime.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:23.7848810Z"
+      },
+      {
+        "Pid": 18956,
+        "Parent": 25920,
+        "Name": "python.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:24.1300680Z"
+      },
+      {
+        "Pid": 32272,
+        "Parent": 18956,
+        "Name": "node.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:24.3527150Z"
+      }
+    ],
+    "RealChainUnchanged": true,
+    "FixtureRemoved": true,
+    "RetainedRoot": null,
+    "Passed": true,
+    "Error": null,
+    "RealG2Stopped": false,
+    "RealProfilesRead": false,
+    "RealKeysUsed": false,
+    "OwnerContentReads": 0,
+    "RuntimeChanges": 0,
+    "AclChanges": 0
+  },
+  "Assessment": {
+    "Plan8_4": "PASS(scope): controlled abnormal MCP-peer exit on actual installed pinned runtime under guest SID/session; normal stop/manual recovery separately E28",
+    "Established": [
+      "Synthetic initialize/list/echo roundtrip completed before deliberate peer failure.",
+      "Synthetic MCP child exited37; runtime23188 exited0 without fixture TTL or Job termination.",
+      "Job ActiveBeforeStop=0, ActiveAfterStop=0, TerminateRequested=false; no test processes remained in job.",
+      "Recorded control port64049 no longer listening; fixture directory removed.",
+      "Current real G2 runtime25920/Python18956/Node32272 SID1009/Session2 creation fingerprints unchanged before/after."
+    ],
+    "Limitations": [
+      "Synthetic MCP Node peer, not actual Desktop Commander/Python crash.",
+      "Does not cover abrupt runtime/launcher termination, arbitrary persistent workloads, logoff or every failure mode.",
+      "Runtime health URL file was already absent at exit; health listener port was not individually recorded. Process/job exit established; only recorded control port was checked explicitly.",
+      "Recovery evidence reused from E28; no new live G2 restart performed.",
+      "Isolated fixture uses synthetic control-plane ID/key and local HTTP only; no real profile/key or external tunnel registration."
+    ],
+    "OperationalFinding": "Runtime exit0 observed despite MCP peer exit37. A zero runtime exit code is not sufficient evidence of MCP task success; record this in operation/recovery instructions. No installed runtime change or new watchdog required by this test.",
+    "G3": "BLOCKED",
+    "G4_G6": "NOT_ACCEPTED",
+    "Next": "Relevant remaining owner GUI/bridges, services/IPC/protected paths and final G2 takeover; do not repeat normal reboot/stop/ACL/browser tests or migrate retiring owner HOST."
+  }
+}

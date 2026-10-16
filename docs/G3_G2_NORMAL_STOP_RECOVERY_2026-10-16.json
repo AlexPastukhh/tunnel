@@ -1,0 +1,139 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E28",
+  "Status": "NORMAL_STOP_AND_MANUAL_RESTART_PASS_SCOPE",
+  "UserReport": {
+    "Utc": "2026-10-15T21:02:10Z",
+    "Report": "сделал",
+    "RequestedSequence": "Ctrl+C in existing ordinary guest G2 console; pinned existing LaunchTest; key entered locally; return to alexa",
+    "StopMethodDirectlyObserved": false
+  },
+  "Verify": {
+    "Check": "G2_LIFECYCLE_VERIFY",
+    "Utc": "2026-10-15T21:02:43.0341812Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "BaselinePath": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace\\g2-lifecycle-baseline-73ee40685ab7467ea98ecc60590c97e7.json",
+    "BaselineSHA256": "BBDC4780BA6CE3615955FC204F73522B2B1098E22F6F488A276D3047075EB96B",
+    "OldProcesses": [
+      {
+        "Pid": 23896,
+        "Name": "tunnel-client-runtime.exe",
+        "OriginalCreatedUtc": "2026-10-15T19:12:10.2338390Z",
+        "Status": "ORIGINAL_GONE"
+      },
+      {
+        "Pid": 32480,
+        "Name": "python.exe",
+        "OriginalCreatedUtc": "2026-10-15T19:12:10.6040720Z",
+        "Status": "ORIGINAL_GONE"
+      },
+      {
+        "Pid": 32496,
+        "Name": "node.exe",
+        "OriginalCreatedUtc": "2026-10-15T19:12:10.9683230Z",
+        "Status": "ORIGINAL_GONE"
+      }
+    ],
+    "CurrentChain": [
+      {
+        "Pid": 25920,
+        "Parent": 19900,
+        "Name": "tunnel-client-runtime.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:23.7848810Z"
+      },
+      {
+        "Pid": 18956,
+        "Parent": 25920,
+        "Name": "python.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:24.1300680Z"
+      },
+      {
+        "Pid": 32272,
+        "Parent": 18956,
+        "Name": "node.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:24.3527150Z"
+      }
+    ],
+    "NewRuntime": true,
+    "OldSnapshotProcessesGone": true,
+    "Passed": true,
+    "Scope": "BASELINE_PROCESSES_EXITED_NEW_PINNED_GUEST_CHAIN_ALIVE",
+    "FutureDescendantsCovered": false,
+    "ForcedFailureCaseTested": false,
+    "ProcessesStopped": 0,
+    "RuntimeRestartedByProbe": false,
+    "OwnerPrivateContentReads": 0
+  },
+  "Listeners": {
+    "Check": "G2_RECOVERED_LISTENERS",
+    "Utc": "2026-10-15T21:03:29.5747007Z",
+    "Rows": [
+      {
+        "OwningProcess": 25920,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 54647
+      }
+    ],
+    "OldListener59393": [],
+    "HttpRequests": 0,
+    "ProcessesStopped": 0
+  },
+  "OwnerNeighbors": {
+    "Check": "OWNER_NEIGHBORS_AFTER_G2_RESTART",
+    "Utc": "2026-10-15T21:19:39.8175928Z",
+    "ActiveConsoleSession": 1,
+    "Rows": [
+      {
+        "Pid": 13520,
+        "Name": "tunnel-client.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:19.7775460Z"
+      },
+      {
+        "Pid": 22488,
+        "Name": "tunnel-client.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:59:53.4046800Z"
+      }
+    ],
+    "RawArgvRead": false,
+    "ProfileContentsRead": false,
+    "ProcessesStopped": 0
+  },
+  "OwnerFingerprintsMatchE25": true,
+  "RepoReadOnlyCallSucceeded": true,
+  "Assessment": {
+    "Established": [
+      "Original runtime23896/Python32480/Node32496 absent by PID+creation check.",
+      "New runtime25920/Python18956/Node32272: SID1009, Session2, expected executable SHA256 pins verified by pinned E27 source.",
+      "New actual MCP CLI call read/verified baseline and executed normal lifecycle verification.",
+      "Old port59393 no longer listening; selected new chain only runtime loopback54647.",
+      "Owner HOST13520 and Repo22488 SID1001/Session1 creation fingerprints match E25; owner ActiveConsoleSession1 observed in separately timed after-check.",
+      "No new launcher/runtime/ACL/network/AV changes. User performed manual restart; probe itself stopped/restarted nothing."
+    ],
+    "Plan6_4": "PASS(scope): ordinary entry/normal manual stop and restart, baseline three processes",
+    "Plan8_1": "PASS(scope): same three guest processes and old listener gone; owner neighbors preserved",
+    "Plan8_3": "PASS(scope): user-reported manual cycle with working native guest MCP afterward; duration not measured and no numeric acceptance threshold invented",
+    "Plan8_4": "PARTIAL: normal cleanup covered; forced-failure case not tested",
+    "Plan8_5": "PASS(scope) reusing actual reboot/manual startup E20 plus recovery E28; full G6 remains separate",
+    "Limitations": [
+      "Point-in-time checks of baseline processes; arbitrary future descendants not covered.",
+      "User action itself was not observed by desktop automation.",
+      "Owner metadata has its own timestamp; no continuous uptime or fresh owner health-body/HTTP acceptance claimed.",
+      "No forced crash, logoff, controller loss or universal cleanup guarantee.",
+      "Owner boundary 2.5/2.6, relevant owner API/IPC/services/protected assets and final takeover remain open."
+    ],
+    "G3": "BLOCKED",
+    "G4_G6": "NOT_ACCEPTED",
+    "Next": "Do not repeat normal stop/restart, clipboard/browser, ACL scan or reboot without drift. Select the remaining relevant failure/owner-boundary check using existing evidence; prepare final G2 takeover only after applicable acceptance. No separate migration of retiring owner HOST."
+  }
+}

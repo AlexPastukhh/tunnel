@@ -1,0 +1,115 @@
+{
+  "Schema": 1,
+  "Status": "PRIVATE_COMPATIBILITY_STAGED_TESTED_ACTUAL_EDGE_PENDING",
+  "UserReport": {
+    "At": "2026-10-13T17:52:10.9063423Z",
+    "ChildExit": 3,
+    "ExpectedSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "ActualSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Admin": false,
+    "Visible": false,
+    "ExpectedStation": "FortisG2-ca5313fe3f1c46478954106dee054d13",
+    "ActualStation": "FortisG2-ca5313fe3f1c46478954106dee054d13",
+    "NodeExit": 3,
+    "Node": {
+      "nodeVersion": "v24.12.0",
+      "nonce": "winsta-e0e8f55a-6653-4fb3-a2e3-6a2ae0a30950",
+      "edgeSandbox": "default",
+      "ownerProfileUsed": false,
+      "clipboardRead": false,
+      "screenRead": false,
+      "workspaceRW": true,
+      "grandchildStation": "FortisG2-ca5313fe3f1c46478954106dee054d13",
+      "grandchildExit": 0,
+      "grandchildMatches": true,
+      "secretRelatedNamesPresent": 0,
+      "runtimeRead": true,
+      "runtimeMutationDenied": true,
+      "ownHTTPPort": 62990,
+      "edgeExit": 21,
+      "edgeSignal": null,
+      "pass": false,
+      "error": "Error",
+      "errorMessage": "Edge exited before own CDP: 21",
+      "edgeStderrBytes": 321,
+      "profileRemoved": true,
+      "scratchRemoved": true,
+      "stationLabel": "S:NO_ACCESS_CONTROL",
+      "desktopLabel": "",
+      "integritySid": "S-1-16-8192",
+      "profileLockWin32": 0,
+      "edgeStderr": "[4008:29912:1014/005210.640:ERROR:chrome\\app\\chrome_main_delegate.cc:735] Failed to create a ProcessSingleton for your profile directory. This means that running multiple instances would start multiple browser processes rather than opening a new window in the existing process. Aborting now to avoid profile corruption.\r\n",
+      "edgeStderrTruncated": false
+    }
+  },
+  "Pins": {
+    "Start-G2PrivateWindow.ps1": "05B63616B857699DF6E19D957DDDAB7BA1196E977A6CE3D4B21706F7C8F42434",
+    "G2WindowSupervisor.cs": "E63C215501DE2F5D5AA19FF569C107014E77E04BDAF287906B362B21A0CFEFE0",
+    "private-station-node-probe.js": "BE064FBE5F7FBF12CDEE4DF6E04FA766FDD2DE1DAD6D2F6FC42B03CEBB9E016E"
+  },
+  "Change": {
+    "PrivateStationGuest": "0x2037f -> 0xf037f",
+    "PrivateDesktopGuest": "0x201ff -> 0xf01ff",
+    "Scope": "Only new nonce-named noninteractive station and its default desktop; owner/SYSTEM full grants unchanged",
+    "SupervisorOtherBehavior": "UNCHANGED",
+    "NodeDiagnostics": [
+      "Open existing fixed Chrome startup mutex without acquire/create/ACL change",
+      "Create and close own random Local FortisG2Probe mutex",
+      "Create and destroy own hidden message-only STATIC window only if station name starts FortisG2-; main-station guard returns -1"
+    ]
+  },
+  "Basis": {
+    "ChromiumSandboxSource": "https://chromium.googlesource.com/chromium/src/+/refs/tags/128.0.6613.50/sandbox/win/src/window.cc",
+    "ChromiumSingletonSource": "https://chromium.googlesource.com/chromium/src/+/refs/heads/main/chrome/browser/process_singleton_win.cc",
+    "Interpretation": "Confirmed ACL compatibility omission; not proof that installed Edge ProcessSingleton failure is caused solely by that omission",
+    "PriorPrototype": "G3_WINDOW_ISOLATION_PROTOTYPE_2026-10-13.md describes actual G2-owned full-access private objects with headless Edge PASS",
+    "InstalledEdgeStaticString": "Local\\ChromeProcessSingletonStartup!",
+    "InstalledEdge": "155.0.4283.45"
+  },
+  "WindowsChecks": {
+    "Matrix": {
+      "At": "2026-10-13T18:11:28.0855814Z",
+      "OperatorSha256": "05B63616B857699DF6E19D957DDDAB7BA1196E977A6CE3D4B21706F7C8F42434",
+      "OwnerTokenSid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "OldDesktopChromiumRequest": "DENY",
+      "NewDesktopChromiumRequest": "ALLOW",
+      "OldStationFull": "DENY",
+      "NewStationFull": "ALLOW",
+      "MainStationDenyStillWins": "DENY",
+      "MainDesktopDenyStillWins": "DENY",
+      "AclWrites": 0
+    },
+    "NativeOwnerDiagnostics": {
+      "At": "2026-10-13T18:11:28.5998626Z",
+      "StartupMutexOpenWin32": 2,
+      "OwnMutexCreateWin32": 0,
+      "MainMessageWindowGuardWin32": -1
+    },
+    "NodeSyntax": "PASS",
+    "OperatorAst": "PASS",
+    "CombinedPinnedCompile": "PASS",
+    "ReadOnlyPreview": "PASS",
+    "MainDaclHashes": [
+      "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+      "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17"
+    ],
+    "OwnerWriteDacForecast": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "Scope": "Current owner standard token and in-memory isomorphic descriptors; not actual SID1009 acceptance",
+    "PreviewInventory": "5 protected-process UNKNOWN entries in non-elevated Preview; elevated local launch retains complete-inventory guard"
+  },
+  "Unchanged": [
+    "Owner main-window deny masks and approved original DACL pins",
+    "Default Edge sandbox, synthetic profile, runtime/file guard",
+    "SID/non-admin/session/suspended/job/PID-bound pipe checks",
+    "Backup/CAS/rollback/main Apply guards",
+    "No services/tasks/common runtime or owner HOST/Repo restart/publication/commit/push"
+  ],
+  "Pending": [
+    "Actual credentialed SID1009 preflight; installed Edge fix not accepted yet",
+    "Main owner window Apply and actual private runtime acceptance",
+    "G3 OPEN / G4 NOT_ACCEPTED and owner API/routes/services/SMB/session/interactive-entry gates"
+  ]
+}

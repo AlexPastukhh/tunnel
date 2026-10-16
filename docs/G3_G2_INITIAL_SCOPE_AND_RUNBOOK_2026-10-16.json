@@ -1,0 +1,205 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E42",
+  "Status": "ACCEPTED_SCOPE_HOST_RETIRED_E43",
+  "CreatedUtc": "2026-10-16T01:26:41.5104334Z",
+  "Scope": "Concrete initial G2 scope, operator entry/stop/recovery and separately approved legacy HOST retirement; documentation and read-only continuity only",
+  "G2Continuity": {
+    "Utc": "2026-10-16T01:19:06.4805392Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "AdminGroupPresent": false,
+    "Session": 2,
+    "Platform": "Win32NT",
+    "Chain": [
+      {
+        "Pid": 32272,
+        "ParentPid": 18956,
+        "Name": "node.exe",
+        "CreatedUtc": "2026-10-15T21:01:24.3527150Z",
+        "SHA256": "2FFE3ACC0458FDDE999F50D11809BBE7C9B7EF204DCF17094E325D26ACE101D8"
+      },
+      {
+        "Pid": 18956,
+        "ParentPid": 25920,
+        "Name": "python.exe",
+        "CreatedUtc": "2026-10-15T21:01:24.1300680Z",
+        "SHA256": "31FE10B4ED82A2F960AF0EF9931F46A4B84FF286F8B6FFD9DEE098CF4F10F17F"
+      },
+      {
+        "Pid": 25920,
+        "ParentPid": 19900,
+        "Name": "tunnel-client-runtime.exe",
+        "CreatedUtc": "2026-10-15T21:01:23.7848810Z",
+        "SHA256": "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A"
+      }
+    ],
+    "AllChainSid1009Session2": true,
+    "Artifacts": [
+      {
+        "Path": "C:\\Users\\Public\\Documents\\Fortis-G2-GuestEntry-0638D14A.ps1",
+        "SHA256": "0638D14A92F78006526281BEC98C391FAD96F6C0F3F70D9C02475DA3A56C481D",
+        "Bytes": 10355
+      },
+      {
+        "Path": "C:\\Users\\Public\\Documents\\FortisHostG1Probe\\RW\\g2-stdio-gate.py",
+        "SHA256": "146E60B028276F871353A113571306002942461F0446E519A63B28DCC068418D",
+        "Bytes": 2564
+      }
+    ],
+    "ProfileExists": true,
+    "WorkspaceExists": true,
+    "ProfileContentsRead": false,
+    "OwnerQueries": 0
+  },
+  "McpConfiguration": {
+    "allowedDirectories": [
+      "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace",
+      "C:\\Tools\\tunnel-client",
+      "C:\\Tools\\desktop-commander-runtime",
+      "C:\\Tools\\desktop-commander"
+    ],
+    "defaultShell": "powershell.exe",
+    "version": "0.2.52",
+    "blockedCommandsCount": 33
+  },
+  "LegacyHost": {
+    "Utc": "2026-10-16T01:25:05.8850049Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+    "Pid": 13520,
+    "ParentPid": 18904,
+    "Session": 1,
+    "CreatedUtc": "2026-10-15T18:57:19.7775460Z",
+    "Exe": "C:\\Tools\\tunnel-client\\tunnel-client.exe",
+    "SHA256": "1946DE55A038313A9B9B2458D05FE1719FA9CF1F20A94DD5F38FC26A98BFDD42",
+    "Listener": "127.0.0.1:8080",
+    "RecoveryLauncher": {
+      "Path": "C:\\Users\\alexa\\Documents\\prot\\Start-Desktop-Commander-Secure-Tunnel.ps1",
+      "SHA256": "0F644D4239E60886354EB83B6438CC888D8BDF3202B944B0304508E7C1336DFE",
+      "Bytes": 1114,
+      "WindowsParseErrorCount": 0,
+      "RequiredParametersObserved": 0,
+      "ParameterCollectionNote": "Raw scalar-null collection was [null]; no ParamBlock parameters observed."
+    },
+    "Stopped": false
+  },
+  "PostRetirementObservability": {
+    "Check": "E42_G2_POST_RETIREMENT_OBSERVABILITY",
+    "Utc": "2026-10-16T01:26:41.5104334Z",
+    "Rows": [
+      {
+        "Pid": 13520,
+        "ParentPid": 18904,
+        "Name": "tunnel-client.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:19.7775460Z"
+      },
+      {
+        "Pid": 16092,
+        "ParentPid": 13520,
+        "Name": "cmd.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:20.0262350Z"
+      },
+      {
+        "Pid": 24724,
+        "ParentPid": 16092,
+        "Name": "node.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-15T18:57:20.0652940Z"
+      },
+      {
+        "Pid": 25920,
+        "ParentPid": 19900,
+        "Name": "tunnel-client-runtime.exe",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T21:01:23.7848810Z"
+      },
+      {
+        "Pid": 31420,
+        "ParentPid": 4452,
+        "Name": "tunnel-client-runtime.exe",
+        "Session": 1,
+        "CreatedUtc": "2026-10-16T00:06:04.3124340Z"
+      }
+    ],
+    "Tcp": [
+      {
+        "OwningProcess": 25920,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 54647
+      },
+      {
+        "OwningProcess": 31420,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 50385
+      },
+      {
+        "OwningProcess": 13520,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 8080
+      }
+    ],
+    "OwnerContentRead": false,
+    "OwnerArgvRead": false,
+    "OwnerHandlesRequested": 0,
+    "Changes": 0
+  },
+  "Reuse": [
+    "E18/E19 scoped MCP/files/CLI/synthetic Git/source iteration",
+    "E20/E22 own GUI/browser/clipboard",
+    "E21/E22/E24 scoped owner station/selected handle/inheritance",
+    "E26/E31/E32 runtime and namespace capabilities",
+    "E28/E29 normal lifecycle/manual recovery and one synthetic failure",
+    "E38/E39 Repo runtime cutover/automatic monitor source",
+    "E40 selected owner assets/backups",
+    "E41 known Broker queue/control and residual disposition"
+  ],
+  "Candidate": {
+    "Id": "E42/P01",
+    "BasedOn": "E41/P01",
+    "Status": "ACCEPTED_SCOPE_E43",
+    "WritableInitialRoot": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace",
+    "OwnGuiClipboardBrowserPersistentStateAllowed": true,
+    "ScopedCredentialsInternetLocalServersAllowed": true,
+    "NoNewProjectGrantsRequired": true,
+    "SameSidMcpAllowlistIsNotOsSandbox": true,
+    "OwnerHostRetirementRequiresSeparateConsent": true,
+    "WholeChatGuaranteeAccepted": false,
+    "PreparedStatus": "CANDIDATE_NOT_ACCEPTED"
+  },
+  "Limitations": [
+    "184 PSS entries without type names/relative desktop names; no exhaustive handle inventory guarantee",
+    "No universal exclusion of all IPC/services/clipboard bridges; selected service source/binary binding incomplete",
+    "Selected owner assets tested, not all personal files/backups",
+    "Normal stop and one synthetic failure tested, not arbitrary descendants/crash/logoff",
+    "Independent Repo RW mounts and other chat routes retain their own authority",
+    "Monitor source tested; installed old dashboard/persistent log storage not delivered"
+  ],
+  "Changes": {
+    "DocsOnly": true,
+    "RuntimeWrites": 0,
+    "Restarts": 0,
+    "OwnerStops": 0,
+    "AclMountNetworkAvServiceTaskChanges": 0,
+    "GuiClipboardOperations": 0,
+    "SecretReads": 0,
+    "CommitPush": false,
+    "Published": false
+  },
+  "Assessment": {
+    "Plan7_5": "PARTIAL_CONCRETE_CANDIDATE_PREPARED",
+    "Plan8_7": "PARTIAL_FINAL_RUNBOOK_PREPARED_NOT_ACCEPTED",
+    "G3": "BLOCKED",
+    "G4_G6": "NOT_ACCEPTED",
+    "Next": "Explicit decision on E42/P01 scope and separately approved selected old HOST retirement; then actual after-checks and updated scoped acceptance"
+  },
+  "PreparedStatus": "PREPARED_CANDIDATE_NOT_ACCEPTED",
+  "SubsequentDecision": {
+    "Evidence": "E43",
+    "UserLocalTime": "2026-10-16T08:33:06+07:00",
+    "OldHostStopped": true,
+    "G2RepoAfterCheck": "PASS(scope)",
+    "HistoricalObservations": "LegacyHost.Stopped=false and original Assessment describe E42 preparation time, not current state",
+    "CurrentStatus": "G3 bounded baseline ACCEPTED(scope); G4 initial Workspace policy ACCEPTED(scope); G5 полная personal-security программа не принята; G6 manual daily/normal recovery ACCEPTED(scope). Whole-chat1.4 PENDING; universal PASS не заявляется."
+  }
+}

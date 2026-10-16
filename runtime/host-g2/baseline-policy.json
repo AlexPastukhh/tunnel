@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "scope": "G2 baseline",
+  "status": "FILE_GUARD_APPLIED_OS_BOUNDARY_OPEN",
+  "principal": "S-1-5-21-303538662-3368424508-2654684973-1009",
+  "workspace": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace",
+  "allowedDirectoriesBefore": [],
+  "allowedDirectoriesAfter": [
+    "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace",
+    "C:\\Tools\\tunnel-client",
+    "C:\\Tools\\desktop-commander-runtime",
+    "C:\\Tools\\desktop-commander"
+  ],
+  "projectScopes": [],
+  "browser": {
+    "mode": "headless-only",
+    "profile": "new temporary directory per test",
+    "ownerProfile": false
+  },
+  "clipboard": {
+    "requestedMode": "manual selected-fragment transfer",
+    "osEnforcement": "NOT_ACCEPTED"
+  },
+  "ownerHostRepo": "preserved",
+  "notes": [
+    "allowedDirectories is a guardrail; OS ACL enforce effective rights",
+    "personal folder ACL not modified",
+    "project access is added only for a concrete Windows case",
+    "runtime file-tool roots are effectively read-only through existing OS ACL",
+    "snapshot is documentation, not an ACL enforcement manager",
+    "shared owner window-station clipboard/screen/WRITE_DAC rights remain OPEN"
+  ]
+}

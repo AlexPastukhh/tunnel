@@ -1,0 +1,248 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E23",
+  "Check": "G2 selected existing GUI handle metadata",
+  "Source": {
+    "Path": "runtime/host-g2/window-isolation/Test-G2PssHandleInventory.ps1",
+    "SHA256": "EF6C1699BD7C3CDAC2C175ABA11772FD6CB4A05FF71D3537532FBB3F4CA84563",
+    "Bytes": 10986,
+    "Validation": "PowerShell AST and C# compile in Repo; executed via pinned bytes in actual guest Windows PowerShell"
+  },
+  "Result": {
+    "Check": "G2_PSS_GUI_HANDLE_METADATA",
+    "Utc": "2026-10-15T20:12:24.0432230Z",
+    "GuestSid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "GuestSession": 2,
+    "Pid": 8780,
+    "CaptureFlags": 12,
+    "Result": {
+      "EntrySize": 136,
+      "Entries": 675,
+      "Completed": true,
+      "EventSeen": true,
+      "StationSeen": true,
+      "DesktopSeen": true,
+      "CaptureSucceeded": true,
+      "StationType": "WindowStation",
+      "StationName": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+      "DesktopType": "Desktop",
+      "DesktopName": "\\Default",
+      "Error": null,
+      "CaptureStatus": 0,
+      "WalkStatus": 259,
+      "MarkerFreeStatus": 0,
+      "SnapshotFreeStatus": 0,
+      "GuiHandles": [
+        {
+          "Type": "WindowStation",
+          "Name": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+          "NameAvailable": true
+        },
+        {
+          "Type": "Desktop",
+          "Name": "\\Default",
+          "NameAvailable": true
+        },
+        {
+          "Type": "WindowStation",
+          "Name": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+          "NameAvailable": true
+        },
+        {
+          "Type": "WindowStation",
+          "Name": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+          "NameAvailable": true
+        },
+        {
+          "Type": "Desktop",
+          "Name": "\\Default",
+          "NameAvailable": true
+        }
+      ],
+      "EmptyTypeEntries": 138,
+      "TargetProcessClosed": false,
+      "ProcessCreated": null,
+      "EventClosed": true,
+      "StationClosed": true,
+      "DesktopClosed": true
+    },
+    "GuiInventoryMethodCalibrated": true,
+    "Scope": "CALIBRATED_SELECTED_GUEST_PROCESS_HANDLES",
+    "Targets": [
+      {
+        "Pid": 23896,
+        "Name": "tunnel-client-runtime.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedFileTime": "134365651302338390",
+        "FingerprintAfterMatches": true,
+        "Inventory": {
+          "EntrySize": 136,
+          "Entries": 415,
+          "Completed": true,
+          "EventSeen": false,
+          "StationSeen": false,
+          "DesktopSeen": false,
+          "CaptureSucceeded": true,
+          "StationType": null,
+          "StationName": null,
+          "DesktopType": null,
+          "DesktopName": null,
+          "Error": null,
+          "CaptureStatus": 0,
+          "WalkStatus": 259,
+          "MarkerFreeStatus": 0,
+          "SnapshotFreeStatus": 0,
+          "GuiHandles": [
+            {
+              "Type": "WindowStation",
+              "Name": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+              "NameAvailable": true
+            },
+            {
+              "Type": "Desktop",
+              "Name": "\\Default",
+              "NameAvailable": true
+            },
+            {
+              "Type": "WindowStation",
+              "Name": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+              "NameAvailable": true
+            }
+          ],
+          "EmptyTypeEntries": 65,
+          "TargetProcessClosed": true,
+          "ProcessCreated": "134365651302338399",
+          "EventClosed": false,
+          "StationClosed": false,
+          "DesktopClosed": false
+        }
+      },
+      {
+        "Pid": 32480,
+        "Name": "python.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedFileTime": "134365651306040720",
+        "FingerprintAfterMatches": true,
+        "Inventory": {
+          "EntrySize": 136,
+          "Entries": 76,
+          "Completed": true,
+          "EventSeen": false,
+          "StationSeen": false,
+          "DesktopSeen": false,
+          "CaptureSucceeded": true,
+          "StationType": null,
+          "StationName": null,
+          "DesktopType": null,
+          "DesktopName": null,
+          "Error": null,
+          "CaptureStatus": 0,
+          "WalkStatus": 259,
+          "MarkerFreeStatus": 0,
+          "SnapshotFreeStatus": 0,
+          "GuiHandles": [],
+          "EmptyTypeEntries": 29,
+          "TargetProcessClosed": true,
+          "ProcessCreated": "134365651306040722",
+          "EventClosed": false,
+          "StationClosed": false,
+          "DesktopClosed": false
+        }
+      },
+      {
+        "Pid": 32496,
+        "Name": "node.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedFileTime": "134365651309683230",
+        "FingerprintAfterMatches": true,
+        "Inventory": {
+          "EntrySize": 136,
+          "Entries": 245,
+          "Completed": true,
+          "EventSeen": false,
+          "StationSeen": false,
+          "DesktopSeen": false,
+          "CaptureSucceeded": true,
+          "StationType": null,
+          "StationName": null,
+          "DesktopType": null,
+          "DesktopName": null,
+          "Error": null,
+          "CaptureStatus": 0,
+          "WalkStatus": 259,
+          "MarkerFreeStatus": 0,
+          "SnapshotFreeStatus": 0,
+          "GuiHandles": [
+            {
+              "Type": "Desktop",
+              "Name": "\\Default",
+              "NameAvailable": true
+            },
+            {
+              "Type": "WindowStation",
+              "Name": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+              "NameAvailable": true
+            },
+            {
+              "Type": "WindowStation",
+              "Name": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+              "NameAvailable": true
+            }
+          ],
+          "EmptyTypeEntries": 90,
+          "TargetProcessClosed": true,
+          "ProcessCreated": "134365651309683235",
+          "EventClosed": false,
+          "StationClosed": false,
+          "DesktopClosed": false
+        }
+      }
+    ],
+    "OtherProcessesAttempted": 3,
+    "OtherProcessesCaptured": 3,
+    "MemoryContentsCaptured": false,
+    "OwnerContentReads": 0,
+    "ClipboardOperations": 0,
+    "InputInjection": 0,
+    "AclWrites": 0,
+    "StationDesktopSwitches": 0
+  },
+  "EarlierAttempts": [
+    {
+      "Utc": "2026-10-15T20:09:30.5729936Z",
+      "SourceSHA256": "F4D734A0AB787830A7B47D29507EE3A0FCC2B04AEDC1D2D7FB64FF3F69E9A45D",
+      "Scope": "Self fixture only",
+      "Observed": "674 entries; event, station and desktop seen; cleanup succeeded. PSS names contained trailing NUL, normalized in inventory source."
+    },
+    {
+      "Utc": "2026-10-15T20:11:15.9247633Z",
+      "SourceSHA256": "6464A75E88915572B6A6DCCF8B4D655F91A408093C6279BCCCF077E1B7CEE211",
+      "Observed": "Self calibration succeeded. All three target attempts stopped before snapshot at creation fingerprint guard: CIM truncates to microseconds while Win32 preserves 100 ns. No PID replacement established. Corrected comparison uses same microsecond precision; exact Win32 creation times retained in corrected output.",
+      "ActualOtherProcessesCaptured": 0,
+      "InvalidPriorField": "Earlier OtherProcessesCaptured=3 counted attempts and was incorrect; corrected source distinguishes attempted and captured."
+    }
+  ],
+  "Assessment": {
+    "PlanStep": "2.6",
+    "Status": "PARTIAL",
+    "Established": "Calibrated API walk completed for three identified guest processes; resolved WindowStation names all Session2. No resolved owner WindowStation path observed. All snapshot/marker/process handles released.",
+    "Limitations": [
+      "Point-in-time selected processes only; not all descendants or future handles.",
+      "65+29+90=184 target entries have empty type names and cannot be classified by this output.",
+      "Desktop object name \\\\Default is relative and does not identify the parent station or session; matching guest process SID/session is not proof of each desktop handle target.",
+      "No interpretation of access masks; no owner capabilities exercised; absence of owner capabilities is not established exhaustively.",
+      "Clipboard bridge coverage remains limited to E22; no new bridge exclusion."
+    ],
+    "Next": "Resolve relevant handle metadata gaps or bound them with source/launch inheritance evidence; continue owner API and lifecycle work without repeating sufficient clipboard/browser positives."
+  },
+  "References": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/processsnapshot/nf-processsnapshot-psscapturesnapshot",
+    "https://learn.microsoft.com/en-us/windows/win32/api/processsnapshot/ne-processsnapshot-pss_capture_flags",
+    "https://learn.microsoft.com/en-us/windows/win32/api/processsnapshot/nf-processsnapshot-psswalksnapshot",
+    "https://learn.microsoft.com/en-us/windows/win32/api/processsnapshot/ns-processsnapshot-pss_handle_entry",
+    "https://learn.microsoft.com/en-us/windows/win32/api/processsnapshot/ne-processsnapshot-pss_handle_flags"
+  ]
+}

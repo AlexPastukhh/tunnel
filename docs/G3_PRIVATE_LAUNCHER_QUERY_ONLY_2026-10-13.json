@@ -1,0 +1,86 @@
+{
+  "Schema": 1,
+  "At": "2026-10-13T16:19:40.8422267Z",
+  "Status": "QUERY_ONLY_VALIDATOR_TESTED_CREDENTIALED_RETRY_PENDING",
+  "UserRetry": {
+    "At": "2026-10-13T23:08:51+07:00",
+    "OperatorSha256": "3A30DF3BCBA12E6B08611A2316ACD13F8F2AC5986E3CB8B584F2F85F311FEC26",
+    "NativeStage": "Attach/OpenProcessToken",
+    "Code": 5,
+    "DebugEnableScopeReached": true,
+    "RequestedAccess": 10,
+    "MainWindowAclApplyReached": false,
+    "RuntimeKeyPromptReached": false
+  },
+  "Change": {
+    "RequestedTokenAccess": 8,
+    "TokenDuplicateRequested": false,
+    "NativeMetadata": [
+      "TokenUser",
+      "TokenGroups",
+      "TokenElevation",
+      "TokenType",
+      "TokenSessionId"
+    ],
+    "WindowsPrincipalOnTargetRemoved": true,
+    "AdminMembershipIncludingDenyOnlyRejected": true,
+    "CallerDebugScopeRetained": true,
+    "JobAndSuspendedIdentityChecksRetained": true
+  },
+  "Sources": {
+    "G2WindowSupervisor.cs": "F61983384AFF51CCC007586DA614C710306FDCC52981C5C0A3B77AD98202045D",
+    "Start-G2PrivateWindow.ps1": "6DD2A5DB2FE7EA9C79DEB6BB5CB68FC985CC9ADDA4A678B659394D7F4CB299FA"
+  },
+  "WindowsTest": {
+    "At": "2026-10-13T16:19:40.8422267Z",
+    "Syntax": "PASS",
+    "CompileAndPins": "PASS",
+    "QueryOnlySid": "PASS",
+    "QueryOnlyDuplicationDenied": 5,
+    "WrongSidRejected": true,
+    "FilteredAdminMembershipRejected": true,
+    "TokenPrimary": 1,
+    "TokenSession": 1,
+    "CallerAdmin": false,
+    "OwnerWindowHashes": [
+      "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+      "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17"
+    ],
+    "OwnerWriteDacAfter": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "OwnerProcesses": [
+      {
+        "Name": "HOST",
+        "Pid": 5580,
+        "Created": "2026-10-13T02:59:43.4833490Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "Repo",
+        "Pid": 23904,
+        "Created": "2026-10-13T03:00:34.2137140Z",
+        "Health": 200,
+        "Ready": 200
+      }
+    ],
+    "AclWrites": 0,
+    "CredentialsPrompted": false,
+    "Pass": true
+  },
+  "Live": {
+    "ActualG2QueryOnlyTokenOpenAccepted": false,
+    "CredentialedRetry": false,
+    "NewRuntimeAccepted": false,
+    "OwnerWindowAclApplied": false
+  },
+  "G3": "OPEN",
+  "G4": "NOT_ACCEPTED",
+  "PrimarySources": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/securitybaseapi/nf-securitybaseapi-gettokeninformation",
+    "https://learn.microsoft.com/en-us/windows/win32/secauthz/access-rights-for-access-token-objects",
+    "https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-token_groups"
+  ]
+}

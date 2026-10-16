@@ -1,0 +1,37 @@
+{
+  "Schema": 1,
+  "At": "2026-10-13T17:10:10.1393719Z",
+  "Status": "DETAILED_SYNTHETIC_REPORT_ADDED_FAILURE_NOT_IDENTIFIED",
+  "User": {
+    "LocalAt": "2026-10-14T00:02:27+07:00",
+    "Operator": "0CF2D6228A6D5DF52C26DBD73EB758C5958B039F9F6A48EE44B9A04525FA4D4F",
+    "Stages": [
+      "Connected",
+      "WindowMetadata",
+      "NodeCliEdge"
+    ],
+    "Verdict": "Private user Edge/CLI preflight failed; owner ACL unchanged",
+    "Result": "One or more final conditions failed; exact field was not printed by the old version.",
+    "MainWindowAclApplyReached": false,
+    "RuntimeKeyPromptReached": false
+  },
+  "Change": "Only print bounded synthetic preflight fields before existing final predicate; no guards skipped or permissions expanded.",
+  "Sources": {
+    "Start-G2PrivateWindow.ps1": "2CB5D5063DDD9F67743A5DAAF31F1A1A2A56A224619B8385FC69FC499B051ABC",
+    "G2WindowSupervisor.cs": "F61983384AFF51CCC007586DA614C710306FDCC52981C5C0A3B77AD98202045D"
+  },
+  "Preview": {
+    "At": "2026-10-13T17:10:10.1393719Z",
+    "OperatorSha256": "2CB5D5063DDD9F67743A5DAAF31F1A1A2A56A224619B8385FC69FC499B051ABC",
+    "Syntax": "PASS",
+    "CompilePinsPreview": "PASS",
+    "OwnerWindowHashes": [
+      "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+      "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17"
+    ],
+    "AclWrites": 0,
+    "CredentialsPrompted": false
+  },
+  "G3": "OPEN",
+  "G4": "NOT_ACCEPTED"
+}

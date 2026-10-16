@@ -1,0 +1,427 @@
+{
+  "date": "2026-10-13",
+  "status": "RUNTIME_ACL_PASS__G3_OPEN",
+  "approval": "User approved the exact four-root SID 1009 DACL change; owner manually executed script in administrator PowerShell.",
+  "backupPath": "C:\\Users\\alexa\\AppData\\Local\\FortisHostG2AclBackup\\runtime-dacl-20261013T071259525Z-d7c956e72739475a93ff507bf7048ee7.json",
+  "appliedAtUtc": "2026-10-13T07:12:59.5574260Z",
+  "postApplyPriorLiveChecks": {
+    "provenance": "Live G2/owner tool output already received before the message-stream interruption; not rerun or represented as a new scan.",
+    "sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "admin": false,
+    "uiDisabled": true,
+    "runtimeHandles": {
+      "read": 0,
+      "execute": 0,
+      "write_create": 5,
+      "append_mkdir": 5,
+      "delete_child": 5,
+      "delete": 5,
+      "write_dac": 5,
+      "write_owner": 5
+    },
+    "fullActualTokenAccessCheck": [
+      {
+        "root": "C:\\Tools\\tunnel-client",
+        "checked": 9,
+        "writable": 0,
+        "noReadExecute": 0,
+        "errors": 0
+      },
+      {
+        "root": "C:\\Tools\\desktop-commander-runtime",
+        "checked": 2,
+        "writable": 0,
+        "noReadExecute": 0,
+        "errors": 0
+      },
+      {
+        "root": "C:\\Tools\\desktop-commander",
+        "checked": 22747,
+        "writable": 0,
+        "noReadExecute": 0,
+        "errors": 0
+      }
+    ],
+    "mutationMask": "0xD0156",
+    "processPid": 3672,
+    "exitCode": 0,
+    "localApi": {
+      "provenance": "Prior live G2 GET/OPTIONS results, same tunnel PIDs; no PUT/POST sent.",
+      "sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+      "authenticated": false,
+      "ports": [
+        8080,
+        58122,
+        65069
+      ],
+      "getPath": "/api/log-level",
+      "getStatus": 200,
+      "getLevel": "info",
+      "optionsStatus": 405,
+      "allow": "GET, PUT"
+    }
+  },
+  "recoveryFixtureInspection": {
+    "originalRowCount": 3,
+    "originalRow": [
+      "ro",
+      "C:\\Users\\Public\\Documents\\FortisHostG1Probe",
+      "\\RO"
+    ],
+    "markers": [
+      {
+        "kind": "RW",
+        "name": "marker.txt",
+        "length": 23,
+        "lastWriteUtc": "2026-10-12T13:30:35.1744508Z"
+      },
+      {
+        "kind": "RO",
+        "name": "marker.txt",
+        "length": 23,
+        "lastWriteUtc": "2026-10-12T13:30:35.3931000Z"
+      },
+      {
+        "kind": "DENY",
+        "name": "marker.txt",
+        "length": 25,
+        "lastWriteUtc": "2026-10-12T13:30:35.4084159Z"
+      }
+    ],
+    "failedProbeAbsent": true
+  },
+  "firstJunctionAttempt": {
+    "nonce": "probe-g3-junction-1791876295101-zsn34j",
+    "status": "INVALID_TEST",
+    "cause": "PowerShell comma/addition precedence made the row three items, pointing the RO link to fixture parent.",
+    "cleanupVerified": true
+  },
+  "junction": {
+    "sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "nonce": "probe-g3-junction-1791876964475-nj60am",
+    "targetProbeName": "probe-g3-junction-1791876964475-nj60am.txt",
+    "results": [
+      {
+        "kind": "rw",
+        "operation": "target_verification",
+        "result": "PASS",
+        "target": "C:\\Users\\Public\\Documents\\FortisHostG1Probe\\RW\\probe-g3-junction-1791876964475-nj60am\\data"
+      },
+      {
+        "kind": "rw",
+        "operation": "write",
+        "result": "ALLOW",
+        "hresult": null
+      },
+      {
+        "kind": "rw",
+        "operation": "read",
+        "result": "ALLOW",
+        "hresult": null,
+        "rwReadback": true
+      },
+      {
+        "kind": "ro",
+        "operation": "target_verification",
+        "result": "PASS",
+        "target": "C:\\Users\\Public\\Documents\\FortisHostG1Probe\\RO"
+      },
+      {
+        "kind": "ro",
+        "operation": "write",
+        "result": "DENY",
+        "hresult": "0x80070005"
+      },
+      {
+        "kind": "ro",
+        "operation": "read",
+        "result": "ALLOW",
+        "hresult": null,
+        "rwReadback": null
+      },
+      {
+        "kind": "deny",
+        "operation": "target_verification",
+        "result": "PASS",
+        "target": "C:\\Users\\Public\\Documents\\FortisHostG1Probe\\DENY"
+      },
+      {
+        "kind": "deny",
+        "operation": "write",
+        "result": "DENY",
+        "hresult": "0x80070005"
+      },
+      {
+        "kind": "deny",
+        "operation": "read",
+        "result": "DENY",
+        "hresult": "0x80070005",
+        "rwReadback": null
+      }
+    ],
+    "fatal": null,
+    "cleanupErrors": [],
+    "baseAbsent": true
+  },
+  "namespaceRaw": {
+    "pid": 29232,
+    "sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "elevated": false,
+    "readOnly": true,
+    "results": [
+      {
+        "namespace": "extended",
+        "kind": "RW",
+        "read": "ALLOW",
+        "length": 23
+      },
+      {
+        "namespace": "extended",
+        "kind": "RO",
+        "read": "ALLOW",
+        "length": 23
+      },
+      {
+        "namespace": "extended",
+        "kind": "DENY",
+        "read": "BLOCKED",
+        "winerror": null,
+        "errno": 13,
+        "errorType": "PermissionError"
+      },
+      {
+        "namespace": "local_admin_share",
+        "kind": "RW",
+        "read": "ALLOW",
+        "length": 23
+      },
+      {
+        "namespace": "local_admin_share",
+        "kind": "RO",
+        "read": "ALLOW",
+        "length": 23
+      },
+      {
+        "namespace": "local_admin_share",
+        "kind": "DENY",
+        "read": "BLOCKED",
+        "winerror": null,
+        "errno": 13,
+        "errorType": "PermissionError"
+      }
+    ]
+  },
+  "namespaceNormalized": {
+    "pid": 29232,
+    "sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "elevated": false,
+    "readOnly": true,
+    "results": [
+      {
+        "namespace": "extended",
+        "kind": "RW",
+        "read": "ALLOW",
+        "length": 23,
+        "rawClassification": "ALLOW"
+      },
+      {
+        "namespace": "extended",
+        "kind": "RO",
+        "read": "ALLOW",
+        "length": 23,
+        "rawClassification": "ALLOW"
+      },
+      {
+        "namespace": "extended",
+        "kind": "DENY",
+        "read": "DENY",
+        "winerror": null,
+        "errno": 13,
+        "errorType": "PermissionError",
+        "rawClassification": "BLOCKED"
+      },
+      {
+        "namespace": "local_admin_share",
+        "kind": "RW",
+        "read": "ALLOW",
+        "length": 23,
+        "rawClassification": "ALLOW"
+      },
+      {
+        "namespace": "local_admin_share",
+        "kind": "RO",
+        "read": "ALLOW",
+        "length": 23,
+        "rawClassification": "ALLOW"
+      },
+      {
+        "namespace": "local_admin_share",
+        "kind": "DENY",
+        "read": "DENY",
+        "winerror": null,
+        "errno": 13,
+        "errorType": "PermissionError",
+        "rawClassification": "BLOCKED"
+      }
+    ]
+  },
+  "smbConnectionInspection": {
+    "sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "localSmbConnections": [
+      {
+        "errorType": "Microsoft.Management.Infrastructure.CimException",
+        "hresult": "0x80131500"
+      }
+    ]
+  },
+  "independentSyntheticCleanup": {
+    "adminShareAcl": [
+      {
+        "Name": "C$",
+        "AccountName": "BUILTIN\\Administrators",
+        "AccessControlType": 0,
+        "AccessRight": 0
+      },
+      {
+        "Name": "C$",
+        "AccountName": "BUILTIN\\Backup Operators",
+        "AccessControlType": 0,
+        "AccessRight": 0
+      },
+      {
+        "Name": "C$",
+        "AccountName": "NT AUTHORITY\\INTERACTIVE",
+        "AccessControlType": 0,
+        "AccessRight": 0
+      }
+    ],
+    "probeAbsence": [
+      {
+        "kind": "RW",
+        "probeAbsent": true
+      },
+      {
+        "kind": "RO",
+        "probeAbsent": true
+      },
+      {
+        "kind": "DENY",
+        "probeAbsent": true
+      }
+    ],
+    "probeBaseAbsent": true
+  },
+  "finalObserver": {
+    "checkedUtc": "2026-10-13T07:43:39.0790099Z",
+    "backupCreatedUtc": "2026-10-13T07:12:59.5574260Z",
+    "rootAcl": [
+      {
+        "path": "C:\\Tools",
+        "matchesAfter": true
+      },
+      {
+        "path": "C:\\Tools\\tunnel-client",
+        "matchesAfter": true
+      },
+      {
+        "path": "C:\\Tools\\desktop-commander-runtime",
+        "matchesAfter": true
+      },
+      {
+        "path": "C:\\Tools\\desktop-commander",
+        "matchesAfter": true
+      }
+    ],
+    "adminShareAcl": [
+      {
+        "name": "C$",
+        "account": "BUILTIN\\Administrators",
+        "type": "Allow",
+        "right": "Full"
+      },
+      {
+        "name": "C$",
+        "account": "BUILTIN\\Backup Operators",
+        "type": "Allow",
+        "right": "Full"
+      },
+      {
+        "name": "C$",
+        "account": "NT AUTHORITY\\INTERACTIVE",
+        "type": "Allow",
+        "right": "Full"
+      }
+    ],
+    "processes": [
+      {
+        "pid": 5580,
+        "created": "2026-10-13T02:59:43.4833490Z"
+      },
+      {
+        "pid": 23904,
+        "created": "2026-10-13T03:00:34.2137140Z"
+      },
+      {
+        "pid": 8452,
+        "created": "2026-10-13T06:43:30.0963580Z"
+      }
+    ],
+    "health": [
+      {
+        "port": 8080,
+        "path": "/healthz",
+        "status": 200
+      },
+      {
+        "port": 8080,
+        "path": "/readyz",
+        "status": 200
+      },
+      {
+        "port": 58122,
+        "path": "/healthz",
+        "status": 200
+      },
+      {
+        "port": 58122,
+        "path": "/readyz",
+        "status": 200
+      },
+      {
+        "port": 65069,
+        "path": "/healthz",
+        "status": 200
+      },
+      {
+        "port": 65069,
+        "path": "/readyz",
+        "status": 200
+      }
+    ],
+    "markers": [
+      {
+        "kind": "RW",
+        "length": 23,
+        "lastWriteUtc": "2026-10-12T13:30:35.1744508Z"
+      },
+      {
+        "kind": "RO",
+        "length": 23,
+        "lastWriteUtc": "2026-10-12T13:30:35.3931000Z"
+      },
+      {
+        "kind": "DENY",
+        "length": 25,
+        "lastWriteUtc": "2026-10-12T13:30:35.4084159Z"
+      }
+    ]
+  },
+  "limitations": [
+    "Runtime ACL rollback live application not tested.",
+    "Privileged service user-defined controls not sent/handlers not audited.",
+    "Local owner administrative API state-changing operations not invoked.",
+    "SMB network identity could not be independently enumerated from G2; only local synthetic paths tested.",
+    "Whole chat still has owner HOST and native Repo routes."
+  ],
+  "proposedNext": "Investigate supported protection for localhost administrative API and decide route isolation before G4."
+}

@@ -1,0 +1,143 @@
+{
+  "Schema": 1,
+  "EvidenceId": "E27",
+  "Status": "PREPARED_NOT_STOP_ACCEPTANCE",
+  "Source": {
+    "Path": "runtime/host-g2/runtime-api-migration/Test-G2Lifecycle.ps1",
+    "SHA256": "99482C33C22EEF99149472FB477943FCE568965E585732CC0CD8862B8483A981",
+    "Bytes": 6486,
+    "GuestPath": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace\\g2-lifecycle-99482C33.ps1",
+    "RepoAST": "PASS",
+    "WindowsCaptureAndNegativeControl": "PASS"
+  },
+  "Capture": {
+    "Utc": "2026-10-15T20:47:50.0855954Z",
+    "BaselinePath": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace\\g2-lifecycle-baseline-73ee40685ab7467ea98ecc60590c97e7.json",
+    "BaselineSHA256": "BBDC4780BA6CE3615955FC204F73522B2B1098E22F6F488A276D3047075EB96B",
+    "Processes": [
+      {
+        "Pid": 23896,
+        "Parent": 32088,
+        "Name": "tunnel-client-runtime.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.2338390Z"
+      },
+      {
+        "Pid": 32480,
+        "Parent": 23896,
+        "Name": "python.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.6040720Z"
+      },
+      {
+        "Pid": 32496,
+        "Parent": 32480,
+        "Name": "node.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.9683230Z"
+      }
+    ],
+    "Listeners": [
+      {
+        "OwningProcess": 23896,
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 59393
+      }
+    ],
+    "ObserverExcludedPid": 33632,
+    "StopExecuted": false
+  },
+  "BeforeStopNegativeControl": {
+    "Check": "G2_LIFECYCLE_VERIFY",
+    "Utc": "2026-10-15T20:48:39.7019750Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "BaselinePath": "C:\\Users\\FortisHostG1\\AppData\\Local\\FortisHostG2\\Workspace\\g2-lifecycle-baseline-73ee40685ab7467ea98ecc60590c97e7.json",
+    "BaselineSHA256": "BBDC4780BA6CE3615955FC204F73522B2B1098E22F6F488A276D3047075EB96B",
+    "OldProcesses": [
+      {
+        "Pid": 23896,
+        "Name": "tunnel-client-runtime.exe",
+        "OriginalCreatedUtc": "2026-10-15T19:12:10.2338390Z",
+        "Status": "ORIGINAL_STILL_ALIVE"
+      },
+      {
+        "Pid": 32480,
+        "Name": "python.exe",
+        "OriginalCreatedUtc": "2026-10-15T19:12:10.6040720Z",
+        "Status": "ORIGINAL_STILL_ALIVE"
+      },
+      {
+        "Pid": 32496,
+        "Name": "node.exe",
+        "OriginalCreatedUtc": "2026-10-15T19:12:10.9683230Z",
+        "Status": "ORIGINAL_STILL_ALIVE"
+      }
+    ],
+    "CurrentChain": [
+      {
+        "Pid": 23896,
+        "Parent": 32088,
+        "Name": "tunnel-client-runtime.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.2338390Z"
+      },
+      {
+        "Pid": 32480,
+        "Parent": 23896,
+        "Name": "python.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.6040720Z"
+      },
+      {
+        "Pid": 32496,
+        "Parent": 32480,
+        "Name": "node.exe",
+        "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+        "Session": 2,
+        "CreatedUtc": "2026-10-15T19:12:10.9683230Z"
+      }
+    ],
+    "NewRuntime": false,
+    "OldSnapshotProcessesGone": false,
+    "Passed": false,
+    "Scope": "BASELINE_PROCESSES_EXITED_NEW_PINNED_GUEST_CHAIN_ALIVE",
+    "FutureDescendantsCovered": false,
+    "ForcedFailureCaseTested": false,
+    "ProcessesStopped": 0,
+    "RuntimeRestartedByProbe": false,
+    "OwnerPrivateContentReads": 0
+  },
+  "SourceFinding": {
+    "Classification": "Risk / actual stop behavior unknown",
+    "Details": "Reviewed tunnel stop closes child stdin, sends os.Process.Signal(SIGTERM), ignores its error, then waits. Go1.27.0 Windows Process.signal handles Kill and returns EWINDOWS for other signals. Selected installed SDK stdio source listens for data/error; its explicit close emits onclose. This source review does not prove either successful or failed actual console stop; other imports/Windows console broadcast can affect exit.",
+    "GoFile": "https://github.com/golang/go/blob/go1.27.0/src/os/exec_windows.go",
+    "GoGitBlob": "68c7064d2dd0e5e4ee6e5f5ae0a418eeac36bc8b",
+    "InstalledSources": [
+      {
+        "Path": "dist/custom-stdio.js",
+        "SHA256": "1601E3FC9473504833AC56CCD6BBC8FE75FC8ABD19DC17B3DC99B7C0BB4A3808"
+      },
+      {
+        "Path": "dist/server.js",
+        "SHA256": "5B6892EA6FA3922B1FB8059D3317F78173E87B3778168287857B87C62A1D1D9B"
+      },
+      {
+        "Path": "@modelcontextprotocol/sdk/dist/esm/server/stdio.js",
+        "SHA256": "91CCF96EE65C36DBA922BBA429F127865A8E4AD03D252126ACA2E03C526C005A"
+      }
+    ]
+  },
+  "Next": "One manual Ctrl+C in existing guest G2 launcher console, then same pinned guest LaunchTest with local key; assistant verifies new route and old baseline processes. No logout/reboot/email transfer or owner HOST migration.",
+  "Limitations": [
+    "Only baseline processes are tracked; no claim about arbitrary future descendants.",
+    "No actual stop/restart executed by assistant.",
+    "Forced-failure case and overall 6.4/8.4 acceptance remain pending.",
+    "Owner HOST/Repo remain transition channels and are not stop targets."
+  ]
+}

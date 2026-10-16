@@ -1,0 +1,192 @@
+{
+  "Schema": 1,
+  "At": "2026-10-13T16:56:58.1552314Z",
+  "Status": "PROCESS_ONLY_POLICY_AND_EARLY_TRANSPORT_TESTED_GUEST_RETRY_PENDING",
+  "UserRetry": {
+    "At": "2026-10-13T23:26:55+07:00",
+    "OperatorSha256": "6DD2A5DB2FE7EA9C79DEB6BB5CB68FC985CC9ADDA4A678B659394D7F4CB299FA",
+    "Error": "Private preflight pipe timeout",
+    "StartUserAttachReturned": true,
+    "QueryOnlyActualIdentitySessionAndJobChecksReached": true,
+    "GuestStartupResult": "Unknown: old protocol connected only after all metadata/Node tests",
+    "RuntimeKeyPromptReached": false,
+    "MainWindowAclApplyReached": false
+  },
+  "PolicyRead": {
+    "At": "2026-10-13T16:34:25.0889836Z",
+    "OwnerPolicy": [
+      {
+        "Scope": "MachinePolicy",
+        "Policy": "Undefined"
+      },
+      {
+        "Scope": "UserPolicy",
+        "Policy": "Undefined"
+      },
+      {
+        "Scope": "Process",
+        "Policy": "Bypass"
+      },
+      {
+        "Scope": "CurrentUser",
+        "Policy": "RemoteSigned"
+      },
+      {
+        "Scope": "LocalMachine",
+        "Policy": "Undefined"
+      }
+    ],
+    "G2ExactPolicy": "NOT_LOADED_OR_UNDEFINED",
+    "MachineEffective": 5
+  },
+  "Change": {
+    "PowerShellProcessOnlyBypass": true,
+    "PersistentPolicyChanged": false,
+    "EarlyConnectionBeforeAddTypeNode": true,
+    "PidBindingRetained": true,
+    "ProgressAndErrorFrames": true,
+    "PollChildExitBefore90SecondTimeout": true,
+    "ReadDeadlineCoversWholeNodeTest": true,
+    "GuestWriteScopeExpanded": false,
+    "SupervisorUnchanged": true,
+    "GuestPipeAccess": "GRGW only on random synthetic preflight pipe; no filesystem/window expansion",
+    "GuestReadForPreflightPipeAdded": true
+  },
+  "Sources": {
+    "Start-G2PrivateWindow.ps1": "0CF2D6228A6D5DF52C26DBD73EB758C5958B039F9F6A48EE44B9A04525FA4D4F",
+    "G2WindowSupervisor.cs": "F61983384AFF51CCC007586DA614C710306FDCC52981C5C0A3B77AD98202045D"
+  },
+  "WindowsFixture": {
+    "OwnerProcesses": [
+      {
+        "Name": "HOST",
+        "Pid": 5580,
+        "Created": "2026-10-13T02:59:43.4833490Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "Repo",
+        "Pid": 23904,
+        "Created": "2026-10-13T03:00:34.2137140Z",
+        "Health": 200,
+        "Ready": 200
+      }
+    ],
+    "At": "2026-10-13T16:43:12.8129907Z",
+    "Syntax": "PASS",
+    "CompilePinsPreview": "PASS",
+    "TransportCases": [
+      {
+        "Case": "Restricted",
+        "Exit": 1,
+        "LoadBlocked": true,
+        "StderrContentReadOut": false
+      },
+      {
+        "Case": "Success",
+        "ResultFrame": "PASS",
+        "PidBound": true,
+        "Exit": 0,
+        "LastStage": "NodeCliEdge"
+      },
+      {
+        "Case": "Error",
+        "StructuredStageError": "PASS",
+        "Exit": 3,
+        "LastStage": "NodeCliEdge"
+      },
+      {
+        "Case": "EarlyExit",
+        "EarlyExitReported": "PASS",
+        "Exit": 93,
+        "WaitedFor90SecondTimeout": false
+      }
+    ],
+    "SameAccountFixture": true,
+    "GuestCredentialedRun": false,
+    "OwnerWindowHashes": [
+      "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+      "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17"
+    ],
+    "OwnerWriteDacAfter": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "AclWrites": 0,
+    "CredentialsPrompted": false
+  },
+  "Live": {
+    "ActualGuestEarlyTransportAccepted": false,
+    "MainWindowAclApplied": false,
+    "NewRuntimeAccepted": false
+  },
+  "G3": "OPEN",
+  "G4": "NOT_ACCEPTED",
+  "LimitedClientRightsTest": {
+    "OwnerProcesses": [
+      {
+        "Name": "HOST",
+        "Pid": 5580,
+        "Created": "2026-10-13T02:59:43.4833490Z",
+        "Health": 200,
+        "Ready": 200
+      },
+      {
+        "Name": "Repo",
+        "Pid": 23904,
+        "Created": "2026-10-13T03:00:34.2137140Z",
+        "Health": 200,
+        "Ready": 200
+      }
+    ],
+    "At": "2026-10-13T16:53:55.3834272Z",
+    "Syntax": "PASS",
+    "CompilePinsPreview": "PASS",
+    "TransportCases": [
+      {
+        "Case": "Success",
+        "ResultFrame": "PASS",
+        "PidBound": true,
+        "Exit": 0,
+        "LastStage": "NodeCliEdge"
+      }
+    ],
+    "SameAccountFixture": true,
+    "ClientAclGenericReadWriteOnly": true,
+    "SyntheticPipeAclChanged": true,
+    "GuestCredentialedRun": false,
+    "OwnerWindowHashes": [
+      "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+      "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17"
+    ],
+    "OwnerWriteDacAfter": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "AclWrites": 0,
+    "CredentialsPrompted": false
+  },
+  "LimitedClientWriteOnlyTest": {
+    "Result": "DENY",
+    "ChildExit": 94,
+    "SameAccount": true,
+    "OnlySyntheticPipeDaclChanged": true
+  },
+  "FinalPinnedPreview": {
+    "At": "2026-10-13T16:56:58.1552314Z",
+    "OperatorSha256": "0CF2D6228A6D5DF52C26DBD73EB758C5958B039F9F6A48EE44B9A04525FA4D4F",
+    "Syntax": "PASS",
+    "CompilePinsPreview": "PASS",
+    "OwnerWindowHashes": [
+      "65FE8DB21AB625C1A8877A090002D3B6AF6ABB9261F11EE50BE090F2C42F1DCA",
+      "A571929DFA64CA5FC1B593E125A9204D207757FBB50F7AA5221013BB43396F17"
+    ],
+    "OwnerWriteDacAfter": [
+      "ALLOW",
+      "ALLOW"
+    ],
+    "AclWrites": 0,
+    "CredentialsPrompted": false
+  }
+}

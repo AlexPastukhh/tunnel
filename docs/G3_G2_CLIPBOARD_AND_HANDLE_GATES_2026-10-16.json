@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "date_local": "2026-10-16",
+  "timezone": "Asia/Bangkok",
+  "authorization": {
+    "user_text": "разрешаю.продолжи",
+    "submitted_local": "2026-10-16T02:52:32+07:00",
+    "scope": "Replace only FortisHostG1 guest clipboard with synthetic marker, read own marker, clear own marker; prior guest clipboard contents may be lost, not read."
+  },
+  "clipboard": {
+    "Check": "G2_GUEST_CLIPBOARD_AUTHORIZED_ROUNDTRIP",
+    "Utc": "2026-10-15T19:52:57.9753564Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "HelperSHA256": "8F1BC80CA8A2C9625B32340203ABA5AEFEDFBB0BC244AA2C5E1FF7CDBC90B222",
+    "OwnObjects": {
+      "Station": "WinSta0",
+      "Desktop": "Default",
+      "StationPath": "\\Sessions\\2\\Windows\\WindowStations\\WinSta0",
+      "DesktopPath": "\\Default"
+    },
+    "Gui": {
+      "WindowCreated": true,
+      "WindowVisible": true,
+      "WindowDestroyed": true,
+      "Clipboard": "ROUNDTRIP_EXACT_MARKER",
+      "ClipboardCleanup": "EMPTIED_OWN_MARKER"
+    },
+    "Passed": true,
+    "GuestClipboardReplacementAuthorized": true,
+    "PriorClipboardContentRead": false,
+    "OwnerContentReads": 0,
+    "Captures": 0,
+    "InputInjection": 0,
+    "AclWrites": 0,
+    "StationDesktopSwitches": 0
+  },
+  "owner_process_targets_before": [
+    {
+      "Name": "tunnel-client.exe",
+      "Pid": 13520,
+      "Session": 1,
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "CreatedUtc": "2026-10-15T18:57:19.7775460Z"
+    },
+    {
+      "Name": "node.exe",
+      "Pid": 24724,
+      "Session": 1,
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "CreatedUtc": "2026-10-15T18:57:20.0652940Z"
+    },
+    {
+      "Name": "tunnel-client.exe",
+      "Pid": 22488,
+      "Session": 1,
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "CreatedUtc": "2026-10-15T18:59:53.4046800Z"
+    }
+  ],
+  "owner_process_dup_handle": {
+    "Check": "G2_CURRENT_OWNER_PROCESS_DUP_HANDLE",
+    "Utc": "2026-10-15T19:56:56.7068375Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "Self": {
+      "Opened": true,
+      "Win32": 0,
+      "Closed": true
+    },
+    "Rows": [
+      {
+        "OwnerPid": 13520,
+        "Right": "PROCESS_DUP_HANDLE",
+        "Mask": 64,
+        "Verdict": "DENY_ACCESS_5",
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true
+        }
+      },
+      {
+        "OwnerPid": 24724,
+        "Right": "PROCESS_DUP_HANDLE",
+        "Mask": 64,
+        "Verdict": "DENY_ACCESS_5",
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true
+        }
+      },
+      {
+        "OwnerPid": 22488,
+        "Right": "PROCESS_DUP_HANDLE",
+        "Mask": 64,
+        "Verdict": "DENY_ACCESS_5",
+        "Owner": {
+          "Opened": false,
+          "Win32": 5,
+          "Closed": true
+        }
+      }
+    ],
+    "Overall": "PROVISIONAL_UNTIL_OWNER_PID_FINGERPRINT_AFTER_CHECK",
+    "HandlesActuallyDuplicated": 0,
+    "OwnerContentReads": 0,
+    "AclWrites": 0,
+    "ExistingHandleInventoryPerformed": false
+  },
+  "owner_process_targets_after": [
+    {
+      "Name": "tunnel-client.exe",
+      "Pid": 13520,
+      "Session": 1,
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "CreatedUtc": "2026-10-15T18:57:19.7775460Z"
+    },
+    {
+      "Name": "node.exe",
+      "Pid": 24724,
+      "Session": 1,
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "CreatedUtc": "2026-10-15T18:57:20.0652940Z"
+    },
+    {
+      "Name": "tunnel-client.exe",
+      "Pid": 22488,
+      "Session": 1,
+      "Sid": "S-1-5-21-303538662-3368424508-2654684973-1001",
+      "CreatedUtc": "2026-10-15T18:59:53.4046800Z"
+    }
+  ],
+  "owner_process_fingerprints_match": true,
+  "bridge_metadata": {
+    "Check": "G2_GUEST_CLIPBOARD_BRIDGE_METADATA",
+    "Utc": "2026-10-15T19:56:14.2162390Z",
+    "Sid": "S-1-5-21-303538662-3368424508-2654684973-1009",
+    "Session": 2,
+    "SelectedBridgeProcesses": [],
+    "GuestClipboardFlags": {
+      "CloudClipboardAutomaticUpload": "NOT_CONFIGURED",
+      "EnableClipboardHistory": "NOT_CONFIGURED",
+      "EnableCloudClipboard": "NOT_CONFIGURED"
+    },
+    "ClipboardContentsRead": false,
+    "AllBridgesExcluded": false,
+    "Scope": "Selected current-session executable names and own-user flags only; not exhaustive IPC/network/source inventory"
+  },
+  "classification": {
+    "plan_2_8": "PASS(scope): own guest window and exact synthetic clipboard marker roundtrip plus cleanup.",
+    "plan_2_6": "PARTIAL: current three selected owner processes denied PROCESS_DUP_HANDLE; selected bridge process names absent and own-user flags not configured; existing handle inventory and all possible bridges not excluded."
+  },
+  "scope_limits": [
+    "No prior clipboard contents were read; explicit user-authorized replacement affected guest clipboard only.",
+    "Owner screen/clipboard/window contents not read; no capture/input/ACL/network/mount/AV setting changes.",
+    "Own PROCESS_DUP_HANDLE positive succeeded; all three selected owner opens denied Win32 5; no handles actually duplicated.",
+    "Owner PID/name/SID/session/creation fingerprints matched before/after.",
+    "Absence of selected processes does not exclude every clipboard bridge.",
+    "NOT_CONFIGURED registry values do not prove effective policy is disabled.",
+    "G3 BLOCKED; G4-G6 unaccepted; long-lived G2 stop/cleanup not tested."
+  ]
+}

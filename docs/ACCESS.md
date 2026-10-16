@@ -1,18 +1,20 @@
 # Доступ, ключи и интернет
 
+Маршруты и границы доверия — в [ARCHITECTURE](ARCHITECTURE.md); аудит вызовов и будущий Policy Gate — в [AUDIT](AUDIT.md). Настоящий документ отвечает за источники **действующих полномочий**, а не за систему логирования.
+
 ## Где задаётся доступ
 
-Native HOST и Repo имеют разные Tunnel ID и профили. Сначала выбирать нужный контур. HOST предоставляет Windows file/terminal доступ; значение «project root» в Site не превращает HOST в sandbox.
+G2 и Repo — разные native routes. Old owner HOST stopped E43, его key/connector сохранены для intentional recovery. Repo имеет Windows RW mounts, а Site project root не sandbox. [Итог](ISOLATION_GUIDE.md).
 
 Для Repo реальные границы файлового доступа определяют Docker mounts. /workspace/repos и /workspace/files — writable Windows-папки: изменения и удаления сразу видны на HOST. MCP allowedDirectories помогает файловым инструментам, но не является самостоятельной защитой от shell.
 
-Основной Windows GUI не разрешён. Docker не даёт Windows GUI автоматически.
+Основной Windows GUI/экран/clipboard сессии `alexa` защищается. Собственные guest GUI/экран/clipboard G2 разрешены в согласованном scope; начальный bounded scope принят E43 с явными ограничениями. Docker не даёт Windows GUI автоматически. Полные разрешения и критерии — [в актуальном плане G2](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md).
 
 Site-аудитория, доступ к native Tunnel и GitHub repository permissions — разные настройки. Наши Sites сейчас access_mode=custom; сохранять текущий allowlist, не расширять его при перепубликации. Private GitHub repo также не делает небезопасный endpoint защищённым.
 
 ## Сохранённый runtime key
 
-Оба native профиля используют один файл:
+По датированному owner baseline два профиля **owner HOST и Repo** используют один файл:
 C:\Users\alexa\AppData\Roaming\tunnel-client\runtime.key
 
 Ссылка в профиле:
@@ -20,9 +22,11 @@ C:\Users\alexa\AppData\Roaming\tunnel-client\runtime.key
 api_key: "file:C:/Users/alexa/AppData/Roaming/tunnel-client/runtime.key"
 ```
 
+G2 использует отдельную auth/profile и свой key workflow; owner key к нему не копируется.
+
 Это обычный файл с ACL, не DPAPI. На проверке 2026-10-10 владелец FORTIS_M\alexa, наследование выключено, доступ только этого пользователя. Содержимое ключа не читалось при подготовке этого репозитория. Key file вне Docker mounts и вне Git.
 
-При ротации обновить ключ локально через поддерживаемый интерфейс tunnel-client/выдавшего его сервиса, сохранить в тот же защищённый файл без вывода в чат/логи. Затем перезапустить **оба** профиля и проверить doctor + read-only MCP отдельно для HOST и Repo. Замена общего файла затрагивает оба. Не создавать новую регистрацию и новые Tunnel ID ради обычной ротации.
+При ротации обновить ключ локально через поддерживаемый интерфейс tunnel-client/выдавшего его сервиса, сохранить в тот же защищённый файл без вывода в чат/логи. После key rotation проверять действующий Repo doctor/read-only MCP и только затронутые активные профили. Retired owner HOST не запускать ради ротации. Не создавать новую регистрацию и новые Tunnel ID ради обычной ротации.
 
 В Git запрещены runtime.key, реальные профили с credentials, environment dumps, credential backups и приватные upstream адреса. Идентификаторы Tunnel/Site сами по себе не являются ключами.
 
@@ -39,3 +43,7 @@ workspace-config.json + probe.mjs описывают и проверяют **ф�
 6. Удалить marker, перезапустить Repo Tunnel и обновить текущие документы.
 
 Не отключать probe ради обхода несоответствия. StopAccess — отзыв доступа ChatGPT; StopContainer — также прекращение вычислений. Не публиковать native health UI наружу.
+
+## Предложение о рабочих и закрытых областях, 2026-10-13
+
+[Матрица G2/Repo, удобное управление и ограничения clipboard/browser](G4_ACCESS_POLICY_PROPOSAL_2026-10-13.md) — DRAFT, не применённая политика. Folder ACL, Docker mounts, сеть и window-station/clipboard capabilities требуют разных механизмов. Существующий guest Workspace уже проверен как baseline; дополнительные roots выдаются по задаче, G4/G5 acceptance не завершены. Исторический DRAFT не запрещает собственный guest GUI и не требует универсального ACL manager. Текущие условия — в плане G2.
