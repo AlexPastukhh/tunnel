@@ -150,3 +150,20 @@ and run the exact same preview command (P1_DATA_DIR unchanged).
 The prior rolling 60m JSONL is backfilled where available. The existing
 dashboard on port 8092 and native Repo/G2 tunnels are not modified.
 Linux source/unit/HTTP tests do not substitute Windows browser acceptance.
+
+## E45 security warning: do not run owner HTTP preview yet
+
+Read-only G2 guest request to owner Observatory 127.0.0.1:8093 returned
+HTTP 200. Windows localhost is shared among user sessions and SIDs.
+Old Python static translation accepted parent segments and unrestricted
+file names: serious potential owner-readable file exposure. New source
+whitelists public HTML/CSS/JS on GET and HEAD, tested with synthetic files.
+No real owner private files or credentials were opened or downloaded.
+
+However, API routes such as export-history, incident listing and incident
+POST still lack per-owner authentication. Even with source patch, preview
+must stay OFF until authorization/isolation is designed and separately
+approved. To stop preview use Ctrl+C only in its 8093 PowerShell window.
+Do not restart G2 or Repo. Live Windows 8093 process is NOT automatically
+updated by a Git source patch. Old G2 scoped TCP/GET and native admin GET
+acceptance did not test this new owner web server; API 5.8 was PARTIAL.

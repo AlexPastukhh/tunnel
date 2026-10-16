@@ -76,3 +76,28 @@ incident archives are intentionally excluded. New work does not adjust native
 tunnel configurations, ACLs, keys, Docker mounts or G2 launchers. Apply by
 restarting only the separate Windows Observatory preview after Git pull.
 See observatory/README_DUAL_TUNNEL.md for details.
+
+## E45 security finding: owner HTTP reachable from G2 (2026-10-16)
+
+A read-only Windows G2 SID1009 request to owner Observatory 127.0.0.1:8093
+returned HTTP 200. Loopback is shared by machine users, not SID-private.
+The owner service can therefore respond to G2 even without guest access to
+owner files. Host/Sec-Fetch-Site headers do not authenticate a Windows SID.
+
+Before correction, SimpleHTTPRequestHandler.translate_path accepted parent
+path segments and unrestricted static file names; synthetic path inspection
+proved filesystem targets could resolve outside the Observatory root. Since
+the server runs as owner alexa, this could expose owner-readable files to
+a guest HTTP client. No such private files or secrets were read in this
+investigation. Source-only correction now whitelists exactly index.html,
+styles.css, and app.js for GET/HEAD and adds synthetic HTTP regressions.
+
+IMPORTANT: static asset fix does NOT protect other unauthenticated HTTP API
+routes (including downloads and owner-writable incident marks), and does NOT
+update the running Windows server process. STOP the Windows 8093 Observatory
+preview with Ctrl+C until owner-authenticated APIs / per-user IPC are reviewed
+and approved. Do not change G2/Repo tunnels, ACL, keys or Docker.
+
+Earlier G2 E19 scoped TCP/GET and E35/E38 selected native admin endpoint
+checks never covered this later owner Observatory app; G3 owner IPC/API 5.8
+remained PARTIAL. They do not prove generic localhost user isolation.

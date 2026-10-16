@@ -884,9 +884,39 @@ def send_bytes(handler: SimpleHTTPRequestHandler, body: bytes, content_type: str
 
 
 class Handler(SimpleHTTPRequestHandler):
+    # Only explicit public assets. NEVER serve arbitrary files from ROOT:
+    # Observatory source sits in an AI-writable Windows checkout and the HTTP
+    # service may run as the owner; path traversal could otherwise cross ACLs.
+    PUBLIC_ASSETS = {
+        "/": "index.html",
+        "/index.html": "index.html",
+        "/styles.css": "styles.css",
+        "/app.js": "app.js",
+    }
+
     def translate_path(self, path: str) -> str:
-        clean = urlparse(path).path.lstrip("/")
-        return str(ROOT / clean)
+        # Additional fail-closed guard for inherited SimpleHTTPRequestHandler.
+        # The HTTP request handlers below refuse unknown paths as well.
+        name = self.PUBLIC_ASSETS.get(urlparse(path).path)
+        return str(ROOT / name) if name else str(ROOT / "DENIED_STATIC_PATH")
+
+    def _serve_public_asset(self, head: bool = False) -> None:
+        name = self.PUBLIC_ASSETS.get(urlparse(self.path).path)
+        if name is None:
+            self.send_error(404, "Unknown asset")
+            return
+        target = (ROOT / name).resolve()
+        if not target.is_file() or not target.is_relative_to(ROOT):
+            self.send_error(404, "Asset unavailable")
+            return
+        if head:
+            super().do_HEAD()
+        else:
+            super().do_GET()
+
+    def do_HEAD(self) -> None:
+        # HEAD must not bypass the GET static-asset whitelist.
+        self._serve_public_asset(head=True)
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
@@ -1014,7 +1044,7 @@ class Handler(SimpleHTTPRequestHandler):
                 return
             send_json(self, {"ok": False, "error": "not_found"}, 404)
             return
-        return super().do_GET()
+        return self._serve_public_asset()
 
     def do_POST(self) -> None:
         if urlparse(self.path).path != "/api/incidents":
