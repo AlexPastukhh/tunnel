@@ -833,6 +833,20 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path == "/**":
+            # Some in-app browsers rewrite local preview links to /**?utm_source=...
+            # Redirect only this exact malformed path; do not mask other 404s.
+            self.send_response(302)
+            self.send_header("Location", "/index.html")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
+        if parsed.path == "/favicon.ico":
+            self.send_response(204)
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         if parsed.path == "/api/activity":
             query = parse_qs(parsed.query)
             try:
@@ -938,8 +952,10 @@ def main() -> None:
     sampler = threading.Thread(target=sampler_loop, name="p1-sampler", daemon=True)
     sampler.start()
     server = ThreadingHTTPServer(LISTEN, Handler)
-    print(f"Tunnel Observatory P1: http://{LISTEN[0]}:{LISTEN[1]}/", flush=True)
-    print(f"Read-only source: {TUNNEL}", flush=True)
+    print(f"Fortis Observatory preview: http://{LISTEN[0]}:{LISTEN[1]}/index.html", flush=True)
+    print("Native sources: G2 and Repo /health + /metrics (read-only)", flush=True)
+    if LEGACY_HOST_ENABLED:
+        print(f"Legacy HOST source enabled explicitly: {TUNNEL}", flush=True)
     print(f"History: {HISTORY_FILE} | retention={HISTORY_RETENTION_SECONDS // 60}m", flush=True)
     try:
         server.serve_forever()

@@ -94,6 +94,32 @@ class MetricTests(unittest.TestCase):
         self.assertEqual(data["g2"]["state"], "UNKNOWN")
         self.assertEqual(data["legacy_host"], "RETIRED")
 
+    def test_malformed_browser_local_link_redirects_only_exact_path(self):
+        instance = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
+        thread = Thread(target=instance.serve_forever, daemon=True)
+        thread.start()
+        try:
+            client = http.client.HTTPConnection("127.0.0.1", instance.server_port, timeout=3)
+            client.request("GET", "/**?utm_source=chatgpt.com")
+            resp = client.getresponse()
+            resp.read()
+            self.assertEqual(resp.status, 302)
+            self.assertEqual(resp.getheader("Location"), "/index.html")
+            client.request("GET", "/index.html")
+            ok = client.getresponse()
+            doc = ok.read().decode("utf-8")
+            self.assertEqual(ok.status, 200)
+            self.assertIn("Fortis Observatory", doc)
+            client.request("GET", "/favicon.ico")
+            icon = client.getresponse()
+            icon.read()
+            self.assertEqual(icon.status, 204)
+            client.close()
+        finally:
+            instance.shutdown()
+            instance.server_close()
+            thread.join(timeout=3)
+
     def test_http_routes_live_metadata_only(self):
         with patch.object(server, "latest_repo", return_value={
                 "state": "UP", "verified": True,
