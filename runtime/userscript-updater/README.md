@@ -10,7 +10,8 @@ Scope: full Windows checker and controlled external promotion per CPW-PC-2026102
 - ESLint and Semgrep machine-readable report parsers. Missing files, findings, errors and skipped rules/files cannot become CLEAR. Even structurally clear report results in aggregate NOT_AUTHORIZED.
 - Demo-only CLI launcher: fixed argv, no shell, no project configs, no inline ESLint disable, no autofix, Semgrep nosem/git/metrics safeguards and bounded timeout.
 - Per-file coverage matrix: required scanners, actual scanned files, unsupported extensions and missing reports. Rule-to-language applicability still requires trusted-policy validation.
-- 40 Python tests including actual ESLint 10.13.0 and Semgrep CE 1.182.1 integration against isolated synthetic JS/Python. Clean inputs -> STRUCTURAL_CLEAR; eval examples -> FINDINGS. Aggregate clean status is always NOT_AUTHORIZED.
+- Read-only target preview builder (synthetic trees only): create/modify/delete/unchanged, UTF-8 text diffs, binary hashes/sizes, preserved unmanaged extras, target-inventory fingerprint, collision refusal. It never writes external destinations and cannot approve an update.
+- 49 Python tests including actual ESLint 10.13.0 and Semgrep CE 1.182.1 integration against isolated synthetic JS/Python. Clean inputs -> STRUCTURAL_CLEAR; eval examples -> FINDINGS. Aggregate clean status is always NOT_AUTHORIZED.
 
 To run tests inside Repo:
 
@@ -33,7 +34,7 @@ ESLint 10.13.0 was installed with npm --ignore-scripts. Semgrep CE 1.182.1 was i
 
 Copy the two development demo configs from policies/demo/ to $DEV/eslint.config.cjs and $DEV/semgrep-rules.yaml and verify hashes. Both copies are already present and checked in the active Docker volume.
 
-To run all 40 tests, configure the installed Docker CLI paths (unset env vars result in explicit integration-test skips):
+To run all 49 tests, configure the installed Docker CLI paths (unset env vars result in explicit integration-test skips):
 
     export UPDATER_DEV_ESLINT=/workspace/repo/project-checker-devtools/node_modules/eslint/bin/eslint.js
     export UPDATER_DEV_ESLINT_CONFIG=/workspace/repo/project-checker-devtools/eslint.config.cjs
@@ -43,6 +44,6 @@ To run all 40 tests, configure the installed Docker CLI paths (unset env vars re
 
 ## Critical remaining work
 
-There is NO approved PASS, NO external promotion and NO trusted Windows app. Both directories in Repo/Docker are agent-writable. Main CLI byte pins do not protect transitive dependencies. Linux path pre-checks + O_NOFOLLOW where available are not proven Windows secure-handle/TOCTOU protection. No independently validated language/rule coverage, pinned full analyzer dependency closure, production rules, installed pack edit locking, source tree relative-import semantics, empty directory copying, preview/create/modify/delete/approval, target checks, backup/journal/rollback, GUI, Windows ACL/install/consumer acceptance. Unknown files cannot silently be ignored or deemed safe. The full A4 final scope is unchanged.
+There is NO approved PASS, NO external promotion and NO trusted Windows app. Both directories in Repo/Docker are agent-writable. Main CLI byte pins do not protect transitive dependencies. Linux path pre-checks + O_NOFOLLOW where available are not proven Windows secure-handle/TOCTOU protection. No independently validated language/rule coverage, pinned full analyzer dependency closure, production rules, installed pack edit locking, source tree relative-import semantics, empty directory copying, trusted external target observation and owner approval, actual promotion (create/modify/delete), target-lock checks, backup/journal/rollback, GUI, Windows ACL/install/consumer acceptance. Unknown files cannot silently be ignored or deemed safe. The full A4 final scope is unchanged.
 
-Never run this source as a trusted approving/installing tool or point it at real protected targets.
+The target preview is for SYNTHETIC destination trees only. Its input paths and prior-managed list are not trusted here, and it cannot grant an approval. Never run this source as a trusted approving/installing tool or point it at real protected targets.

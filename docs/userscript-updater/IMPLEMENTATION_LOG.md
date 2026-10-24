@@ -1,5 +1,15 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026: read-only external effect preview (third slice)
+
+Added a pure READ-ONLY target preview module; it takes previously captured source snapshot, an explicit previously-managed path set, and a synthetic destination root. No promotion/approval API exists. Previews specify file creates/modifications/deletions/unchanged, text unified diffs when bounded UTF-8 is available, binary hashes/sizes when not, and unmodified target-only paths. Previously managed paths removed from candidate are proposed for deletion and shown; target-only files are preserved. A new mapping colliding with existing unmanaged data is refused pending explicit first-import/adoption decision. It rejects target symlinks/hardlinks and file/directory collisions in this Linux prototype; actual Windows handle-based verification remains future work.
+
+Preview output includes full target content inventory SHA-256 and plan fingerprint, both changing when actual target changes. Those tokens are for future approval binding and have **no authorization semantics** now. The source-snapshot/current-source comparison, installed policy/tool binding, owner-controlled approval, backup/journal/restore and actual file operations must be independently implemented and verified before any external update.
+
+Verification: 49/49 unit and synthetic/CLI integration tests PASS (no skips with ESLint and Semgrep environment variables). Nine added negative and positive cases include unmanaged data preservation, source-deleted previously-managed file, changed target fingerprint, path collision and read-only behaviour. Windows owner targets, Loader, installed app and ACLs not modified.
+
+---
+
 ## 25 October 2026: actual Semgrep and per-file coverage (second slice)
 
 **Live Docker tools:** ESLint 10.13.0 and Semgrep Community Edition 1.182.1. Existing ESLint is under /workspace/repo/project-checker-devtools/node_modules, while Semgrep is in the isolated Python 3.11 environment /workspace/repo/project-checker-devtools/semgrep-venv. Neither is a trusted Windows installation.
