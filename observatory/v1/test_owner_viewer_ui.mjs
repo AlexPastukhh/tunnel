@@ -12,6 +12,15 @@ for(const id of ["registerPanel","instructionPanel","pairPanel"]){
 }
 assert.ok(page.indexOf('<main id="workspaceGrid" class="grid">')>page.indexOf('class="action-area"'));
 assert.match(page,/class="sticky-top"/);
+assert.match(page,/<nav id="sessionTabBar" class="session-tab-bar"[^>]+ hidden>/);
+assert.match(page,/<div id="sessions" role="tablist" aria-label="Подключённые сессии">/);
+assert.ok(page.indexOf('id="sessionTabBar"')>page.indexOf('id="toolbar"'),
+  "session tabs are under actions in the header");
+assert.ok(page.indexOf('id="sessionTabBar"')<page.indexOf('<section id="app"'),
+  "session tabs are in the sticky header, not in the columns");
+assert.ok(page.indexOf('id="sessions"')<page.indexOf('class="workspace-viewport"'));
+assert.doesNotMatch(page,/class="sessions-column"[\s\S]*?<div id="sessions"/,
+  "side column must not keep a duplicate session list");
 assert.ok(page.indexOf('id="composeArea"')>page.indexOf('<section id="app"'),
   "full-width composer is outside sticky header");
 assert.ok(page.indexOf('id="composeArea"')<page.indexOf('class="workspace-viewport"'),
@@ -19,7 +28,7 @@ assert.ok(page.indexOf('id="composeArea"')<page.indexOf('class="workspace-viewpo
 assert.equal((page.match(/id="toggleCompose"/g)||[]).length,1);
 assert.match(page,/id="composeFile"[^>]*>Файл<\/button>/);
 assert.match(page,/id="composeInsert"[^>]*>Вставить<\/button>/);
-assert.match(page,/id="composeSend"[^>]*>Отправить<\/button>/);
+assert.match(page,/id="composeSend"[^>]*>Файл \+ Send<\/button>/);
 assert.match(page,/id="composeSendPrepared"[^>]*>Нажать Send<\/button>/);
 assert.match(page,/id="composeEvents" role="log"/);
 assert.ok(page.indexOf('id="composeEvents"')>page.indexOf('id="composeFile"'));
@@ -32,7 +41,7 @@ class Element {
  constructor(tag="div"){
   this.tagName=tag;this.children=[];this.textContent="";this.value="";
   this.hidden=false;this.listeners={};this.attributes={};this.className="";
-  this.clientWidth=1200;this.style={};
+  this.clientWidth=1200;this.style={};this.dataset={};
   this.classList={add(){},remove(){},contains(){return false}};
  }
  setPointerCapture(id){this.pointerId=id}
@@ -56,7 +65,10 @@ const document={
  createElement(tag){return new Element(tag)}
 };
 const intervals=[];
-const window={addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}};
+const savedStorage=new Map();
+const localStorage={getItem:key=>savedStorage.has(key)?savedStorage.get(key):null,
+ setItem:(key,value)=>savedStorage.set(key,String(value)),removeItem:key=>savedStorage.delete(key)};
+const window={localStorage,addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}};
 const session1="rs_"+"a".repeat(32), session2="rs_"+"b".repeat(32);
 const task1="task_"+"c".repeat(32), task2="task_"+"d".repeat(32);
 const requests=[],postRequests=[],approvalRequests=[];
@@ -166,6 +178,11 @@ elements.get("secret").value="synthetic_viewer_token";
 await fire("form","submit");
 assert.equal(elements.get("app").hidden,false);
 assert.equal(elements.get("sessions").children.length,2);
+assert.equal(elements.get("sessionTabBar").hidden,false);
+assert.equal(elements.get("sessions").children[0].attributes.role,"tab");
+assert.equal(elements.get("sessions").children[0].attributes["aria-selected"],"true");
+assert.equal(elements.get("sessions").children[1].attributes["aria-selected"],"false");
+assert.equal(elements.get("sessions").children[0].attributes["aria-controls"],"workspaceGrid");
 assert.equal(elements.get("tasks").children.length,1);
 assert.equal(elements.get("records").children.length,5);
 assert.equal(elements.get("recordCount").textContent,"5");
@@ -463,6 +480,10 @@ await fire("toggleInstructions");
 assert.equal(elements.get("instructions").value,"Инструкция два");
 await fire("refresh");
 assert.equal(elements.get("sessions").children.length,2);
+elements.get("sessions").scrollLeft=180;
+await fire("refresh");
+assert.equal(elements.get("sessions").scrollLeft,180,
+  "five-second state refresh must preserve horizontally scrolled tabs");
 assert.equal(elements.get("taskCount").textContent,"1");
 assert.equal(elements.get("registerPanel").hidden,true);
 // Slow state read cannot overlap another poll: one active request at a time.
@@ -628,3 +649,50 @@ assert.equal(elements.get("discoveredChats").children[0].children[0].textContent
 assert.equal(elements.get("sessions").children[0].textContent,"Обновлённый проект");
 assert.equal(vm.runInContext("chosenTask",sandbox),taskBeforeTitle);
 console.log("Owner Viewer private tab titles, live rename, safe DOM and stable task: PASS");
+
+const beforeKeyboard=vm.runInContext("chosenSession",sandbox);
+let tabSelectPrevented=false;
+const buttonsBefore=elements.get("sessions").children;
+const firstSelected=buttonsBefore.findIndex(b=>b.attributes["aria-selected"]==="true");
+const keyboardFrom=buttonsBefore[firstSelected];
+elements.get("sessions").listeners.keydown({
+ key:"ArrowRight",target:keyboardFrom,preventDefault(){tabSelectPrevented=true}
+});
+assert.equal(tabSelectPrevented,true);
+assert.notEqual(vm.runInContext("chosenSession",sandbox),beforeKeyboard,
+ "right arrow must switch the active session");
+await tick();
+assert.equal(elements.get("sessions").children.filter(
+ b=>b.attributes["aria-selected"]==="true").length,1);
+const otherActive=elements.get("sessions").children.find(
+ b=>b.attributes["aria-selected"]==="true");
+elements.get("sessions").listeners.keydown({
+ key:"ArrowLeft",target:otherActive,preventDefault(){}
+});
+assert.equal(vm.runInContext("chosenSession",sandbox),beforeKeyboard,
+ "left arrow returns to the previous session");
+await tick();
+console.log("Owner Viewer sticky session tabs, keyboard and horizontal scroll: PASS");
+
+assert.match(page,/id="composeSendDelay"/);
+assert.match(page,/id="composeRestoreDraft"/);
+assert.match(page,/Файл \+ Send/);
+const durableSample="Точный черновик 🌙\nвторая строка";
+assert.equal(vm.runInContext("safeDraftWrite("+JSON.stringify(session1)+","+JSON.stringify(durableSample)+")",sandbox),true);
+assert.equal(vm.runInContext("safeDraftRead("+JSON.stringify(session1)+")",sandbox),durableSample);
+assert.equal(vm.runInContext("markDraftSent("+JSON.stringify(session1)+","+JSON.stringify(durableSample)+")",sandbox),true);
+assert.equal(vm.runInContext("safeDraftRead("+JSON.stringify(session1)+")",sandbox),"",
+ "confirmed one-shot Send leaves the editor empty across page reload");
+assert.equal(vm.runInContext("safeDraftRecovery("+JSON.stringify(session1)+").text",sandbox),durableSample,
+ "sent original stays recoverable in the owner-only local browser profile");
+const savedBefore=JSON.parse(savedStorage.get("fortis-owner-draft-v1-"+session1));
+assert.equal(savedBefore.sent,true);
+const existingOrder=elements.get("sessions").children.map(b=>b.dataset.sessionId);
+assert.equal(existingOrder.length,2);
+vm.runInContext("moveSessionTab("+JSON.stringify(existingOrder[1])+","+JSON.stringify(existingOrder[0])+")",sandbox);
+assert.equal(elements.get("sessions").children[0].dataset.sessionId,existingOrder[1],
+ "manual tab order must affect only tabs, not archive order");
+assert.equal(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1"))[0],existingOrder[1],
+ "manual tab order must survive refresh");
+assert.deepEqual(elements.get("sessions").children.filter(b=>b.attributes["aria-selected"]==="true").length,1);
+console.log("Owner Viewer durable drafts, sent recovery, reorder: PASS");

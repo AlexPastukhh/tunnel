@@ -159,7 +159,8 @@ class DispatchBoard:
                         "command": {"dispatch_id": item["id"],
                                     "mode": item["mode"], "text": item["text"],
                                     "module_ids": item.get("module_ids"),
-                                    "profile_id": item.get("profile_id")}}
+                                    "profile_id": item.get("profile_id"),
+                                    **({"delay_ms":item["delay_ms"]} if "delay_ms" in item else {})}}
             return {"ok": True, "session": sid, "chat": chat, "command": None}
 
     def status(self, sid):
@@ -240,11 +241,14 @@ class DispatchBoard:
                 entry.pop("active_profile_id",None)
             return {"ok":True,"count":len(modules)}
 
-    def enqueue(self, sid, chat, mode, text, module_ids=None, profile_id=None):
+    def enqueue(self, sid, chat, mode, text, module_ids=None, profile_id=None,
+                delay_ms=None):
         if (not SID.fullmatch(sid or "") or not CID.fullmatch(chat or "") or
                 (profile_id is not None and
                  (not isinstance(profile_id,str) or not PROFILE_ID.fullmatch(profile_id))) or
                 mode not in ("insert", "send", "file", "send_prepared") or not isinstance(text, str) or
+                (delay_ms is not None and (mode != "send" or
+                 type(delay_ms) is not int or delay_ms not in (500,1000,2000,3000,5000,10000))) or
                 (mode != "send_prepared" and not text.strip()) or
                 (mode == "send_prepared" and (text or profile_id is not None or module_ids is not None)) or len(text.encode("utf-8")) > MAX_TEXT_BYTES or
                 (module_ids is not None and
@@ -273,6 +277,7 @@ class DispatchBoard:
                     "mode": mode, "text": text,
                     "module_ids":None if module_ids is None else list(module_ids),
                     "profile_id":profile_id,
+                    **({"delay_ms": delay_ms} if delay_ms is not None else {}),
                     "status": "pending", "created": now}
             entry["command"] = item
             self._log(entry,"queued",item)

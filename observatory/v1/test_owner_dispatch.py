@@ -51,6 +51,21 @@ class DispatchBoardTests(unittest.TestCase):
         self.assertIsNone(self.board.poll(SID, CHAT, self.key)["command"])
         self.assertTrue(self.board.status(SID)["available"])
 
+    def test_explicit_file_send_dwell_is_scoped_and_bounded(self):
+        self.board.poll(SID, CHAT, self.key)
+        with self.assertRaises(ValueError):
+            self.board.enqueue(SID, CHAT, "file", "X", delay_ms=1000)
+        for bad in (0, 200, 11000, True, "1000"):
+            with self.assertRaises(ValueError):
+                self.board.enqueue(SID, CHAT, "send", "X", delay_ms=bad)
+        item = self.board.enqueue(SID, CHAT, "send", "X", delay_ms=500)
+        polled = self.board.poll(SID, CHAT, self.key)
+        self.assertEqual(polled["command"]["delay_ms"], 500)
+        self.assertEqual(polled["command"]["dispatch_id"], item["dispatch_id"])
+        self.board.ack(SID, CHAT, self.key, item["dispatch_id"],
+                       "send_initiated", TASK)
+        self.assertNotIn("text", self.board._sessions[SID]["command"])
+
     def test_claim_only_once_even_with_two_tabs(self):
         self.board.poll(SID, CHAT, self.key)
         command = self.board.enqueue(SID, CHAT, "send", "Проверка 🪐")

@@ -70,6 +70,21 @@ button.active,.action-toggle[aria-expanded="true"]{border-color:#a3c4f7;backgrou
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;margin:0;border:1px solid #34465f;border-radius:10px;background:#192231}
 .toolbar button{padding:7px 11px}
 #status{margin-left:auto;color:#b5c8df;font-size:.84rem}
+.session-tab-bar{display:flex;align-items:stretch;gap:12px;padding:5px 12px 3px;
+  border:1px solid #34465f;border-top:0;border-radius:0 0 10px 10px;background:#192231;min-width:0}
+.session-tab-bar .tab-label{flex:0 0 auto;font-size:.78rem;color:#a9bed8;
+  align-self:center;white-space:nowrap}
+#sessions{display:flex;flex:1 1 auto;gap:6px;min-width:0;padding:4px 0 6px;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
+#sessions button.session{flex:0 0 auto;width:auto;max-width:220px;min-height:36px;
+  text-align:left;margin:0;padding:7px 12px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;border-bottom:3px solid transparent;border-radius:7px 7px 3px 3px}
+#sessions button.session.active{background:#385478;border-color:#a3c4f7}
+#sessions button.session[data-status]{border-left:1px solid #6981a6;
+  border-bottom-color:var(--status-color)}
+#sessions button.session .status-line,#sessions button.session .status-note{
+  position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
 .action-panel{margin:0 0 12px}
 .action-panel textarea{max-width:100%;margin:6px 0}
 .action-panel button{margin:6px 8px 0 0}
@@ -78,7 +93,7 @@ button.active,.action-toggle[aria-expanded="true"]{border-color:#a3c4f7;backgrou
 .grid>.panel{min-width:0;min-height:calc(100vh - 160px)}
 .grid h2{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .grid h2 small{font-size:.8rem;font-weight:400}
-#sessions,#tasks,#records{overflow-y:auto;max-height:calc(100vh - 235px)}
+#tasks,#records{overflow-y:auto;max-height:calc(100vh - 275px)}
 .column-resizer{align-self:stretch;min-height:220px;cursor:col-resize;touch-action:none;position:relative;outline-offset:-2px}
 .column-resizer::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:#425674;border-radius:3px}
 .column-resizer:hover::after,.column-resizer:focus-visible::after,.column-resizer.dragging::after{background:#96bfff;width:4px;left:3px}
@@ -130,7 +145,7 @@ button.active,.action-toggle[aria-expanded="true"]{border-color:#a3c4f7;backgrou
 #history pre{max-height:none;overflow:auto;font-size:.9rem;line-height:1.5}
 #history .message-body{font-family:inherit;font-size:.95rem;line-height:1.6;white-space:pre-wrap}
 [hidden]{display:none!important}
-button.session,button.task{display:block;width:100%;text-align:left;margin:8px 0;overflow-wrap:anywhere}
+button.task{display:block;width:100%;text-align:left;margin:8px 0;overflow-wrap:anywhere}
 button.session{font-size:.87rem;line-height:1.4}
 button.task{padding:10px 11px;line-height:1.45}
 .status-line{display:block;font-size:.8rem;line-height:1.45;margin-top:5px}
@@ -158,7 +173,7 @@ section.entry{margin-top:14px;padding-top:8px;border-top:1px solid #40516b}
 .discovered-chat small{display:block;margin-top:7px;font-size:.72rem}
 small{color:#9fb5ce}#unlock{max-width:720px}
 .grid>.panel{margin:0 1px}
-@media(max-width:700px){body{padding:8px}#status{margin-left:0;width:100%}.sticky-top{padding-top:7px}.masthead .dim{font-size:.77rem}}
+@media(max-width:700px){body{padding:8px}#status{margin-left:0;width:100%}.sticky-top{padding-top:7px}.masthead .dim{font-size:.77rem}.session-tab-bar{gap:7px;padding:5px 8px}.session-tab-bar .tab-label{display:none}#sessions button.session{max-width:165px}}
 </style></head><body>
 <div class="sticky-top">
 <header class="masthead"><h1>Fortis Observatory</h1>
@@ -171,6 +186,10 @@ small{color:#9fb5ce}#unlock{max-width:720px}
 <button id="toggleInstructions" class="secondary action-toggle" type="button" aria-controls="instructionPanel" aria-expanded="false">Инструкция</button>
 <button id="togglePair" class="secondary action-toggle" type="button" aria-controls="pairPanel" aria-expanded="false">Привязка Notifier</button>
 <span id="status" role="status" aria-live="polite">История ещё не загружена</span>
+</nav>
+<nav id="sessionTabBar" class="session-tab-bar" aria-label="Переключение сессий" hidden>
+<span class="tab-label" aria-hidden="true">Сессии</span>
+<div id="sessions" role="tablist" aria-label="Подключённые сессии"></div>
 </nav>
 </div>
 <section id="unlock" class="panel"><h2>Локальный просмотр</h2>
@@ -195,7 +214,13 @@ small{color:#9fb5ce}#unlock{max-width:720px}
 <div class="compose-actions">
 <button id="composeFile" type="button" class="secondary" title="Отдать Notifier текст как .txt; без Send">Файл</button>
 <button id="composeInsert" type="button" class="secondary" title="Вставить через Notifier без Send">Вставить</button>
-<button id="composeSend" type="button" title="Отправить через Notifier в ChatGPT">Отправить</button>
+<button id="composeSend" type="button" title="Прикрепить TXT и один раз нажать Send">Файл + Send</button>
+<label for="composeSendDelay">Задержка после файла:
+<select id="composeSendDelay" aria-label="Задержка перед Send после готового файла">
+<option value="500">0,5 сек</option><option value="1000" selected>1 сек</option>
+<option value="2000">2 сек</option><option value="3000">3 сек</option>
+<option value="5000">5 сек</option><option value="10000">10 сек</option>
+</select></label>
 <button id="toggleComposeModules" type="button" class="secondary" aria-expanded="false" aria-controls="composeModulesPanel">⚙ Модули</button>
 <button id="composeSendPrepared" type="button" class="secondary"
  title="Нажать Send для УЖЕ прикреплённого файла и сохранённого task_id; не прикреплять повторно">Нажать Send</button>
@@ -213,6 +238,10 @@ small{color:#9fb5ce}#unlock{max-width:720px}
 <div id="composeModulesList"><p class="dim">Ожидаю подключённый Notifier…</p></div>
 </details>
 <p id="composeStatus" role="status" aria-live="polite">Только открытые привязанные чаты. Нет очереди для закрытых вкладок.</p>
+<details id="composeLocalDraft"><summary>Локальный черновик · восстановление</summary>
+<p class="dim">Сохраняется только в этом профиле Edge. Не отправляется в Docker; при очистке данных Edge может пропасть.</p>
+<button id="composeRestoreDraft" type="button" class="secondary">Восстановить сохранённый текст</button>
+<span id="composeDraftStatus" role="status" class="dim"></span></details>
 </section></section>
 <div class="action-area">
 <section id="registerPanel" class="panel action-panel" hidden><h2>Подключить чат ChatGPT</h2>
@@ -244,7 +273,7 @@ placeholder="https://chatgpt.com/c/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label
 </div>
 <div class="workspace-viewport" aria-label="Четыре колонки Observatory — ширину можно менять за разделители">
 <main id="workspaceGrid" class="grid">
-<section class="panel sessions-column" aria-labelledby="sessionsHeading"><h2 id="sessionsHeading">Сессии <small id="sessionCount"></small></h2>
+<section class="panel sessions-column" aria-labelledby="sessionsHeading"><h2 id="sessionsHeading">Чаты и привязка <small id="sessionCount"></small></h2>
 <details id="discoveryPanel" aria-labelledby="discoveryHeading">
 <summary id="discoveryHeading">Чаты из браузера</summary>
 <p class="dim">Вкладки ChatGPT с работающим Notifier. «Подключить» связывает чат и Notifier; сообщения отправляются отдельной кнопкой.</p>
@@ -264,7 +293,7 @@ placeholder="https://chatgpt.com/c/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label
 <button id="enableTaskIntents" class="secondary" type="button" hidden>Разрешить метаданные сохранённых задач</button>
 <button id="revokeAutoNotifier" class="secondary" type="button" hidden>Отозвать постоянную привязку</button>
 <button id="checkNotifierConnection" class="secondary" type="button">Проверить связь Notifier</button>
-</div></details><div id="sessions"></div></section>
+</div></details></section>
 <div id="resize0" class="column-resizer" role="separator" tabindex="0" aria-label="Изменить ширину сессий и задач" aria-orientation="vertical"></div>
 <section class="panel tasks-column" aria-labelledby="tasksHeading"><h2 id="tasksHeading">Задачи <small id="taskCount"></small></h2><p id="taskStatusNotice" class="status-note" role="status" hidden></p><div id="tasks"></div></section>
 <div id="resize1" class="column-resizer" role="separator" tabindex="0" aria-label="Изменить ширину задач и записей" aria-orientation="vertical"></div>
@@ -297,6 +326,60 @@ let historyReadSerial=0, archiveRefreshBusy=false;
 const autoFollow=()=>Boolean($("autoFollow").checked);
 let composeSession="";
 const composeDrafts=new Map();
+const composePendingSends=new Map();
+const SESSION_RE=/^rs_[0-9a-f]{32}$/;
+const draftKey=sid=>"fortis-owner-draft-v1-"+sid;
+function safeDraftWrite(sid,text){
+ if(!SESSION_RE.test(sid)||typeof text!=="string"||text.length>400000)return false;
+ composeDrafts.set(sid,text);
+ try{
+  const storage=window.localStorage;
+  if(!storage)return false;
+  const payload=JSON.stringify({version:1,source:"owner-local-draft",text,at:Date.now()});
+  storage.setItem(draftKey(sid),payload);
+  return storage.getItem(draftKey(sid))===payload
+ }catch(_){return false}
+}
+function safeDraftRecovery(sid){
+ if(!SESSION_RE.test(sid))return null;
+ try{
+  const value=JSON.parse(window.localStorage?.getItem(draftKey(sid))||"null");
+  if(value?.version===1&&typeof value.text==="string"&&value.text.length<=400000)
+   return value
+ }catch(_){}
+ return null
+}
+function safeDraftRead(sid){
+ const value=safeDraftRecovery(sid);
+ if(value)return value.sent===true?"":value.text;
+ return composeDrafts.get(sid)||""
+}
+function markDraftSent(sid,text){
+ if(!SESSION_RE.test(sid)||typeof text!=="string")return false;
+ const old=safeDraftRecovery(sid);
+ if(!old||old.text!==text)return false;
+ try{
+  const payload=JSON.stringify({...old,sent:true,sent_at:Date.now()});
+  window.localStorage.setItem(draftKey(sid),payload);
+  return window.localStorage.getItem(draftKey(sid))===payload
+ }catch(_){return false}
+}
+let composeDraftTimer=null;
+function storeComposeDraft(){
+ if(!composeSession)return false;
+ // An empty editor following Send is not a new blank draft: keep the
+ // recovered original until the owner deliberately starts another message.
+ const recovered=safeDraftRecovery(composeSession);
+ if(!$("composeText").value&&recovered?.sent===true)return true;
+ const ok=safeDraftWrite(composeSession,$("composeText").value);
+ $("composeDraftStatus").textContent=ok?"Черновик сохранён локально":"Хранилище недоступно — текст не удаляйте";
+ return ok
+}
+function deferComposeSave(){
+ if(composeDraftTimer!==null)window.clearTimeout?.(composeDraftTimer);
+ composeDraftTimer=window.setTimeout?.(()=>{composeDraftTimer=null;storeComposeDraft()},500)??null;
+ if(composeDraftTimer===null)storeComposeDraft()
+}
 const composeModulesBySession=new Map();
 const composeProfilesBySession=new Map();
 const composeProfileManuallySelected=new Set();
@@ -653,12 +736,39 @@ function renderTaskStatus(button,record){
   const note=el("span",record.send_label);note.className="status-note";button.append(note);
  }
 }
+const TAB_ORDER_KEY="fortis-owner-session-tab-order-v1";
+let tabOrder=[];
+try{
+ const saved=JSON.parse(window.localStorage?.getItem(TAB_ORDER_KEY)||"[]");
+ if(Array.isArray(saved)&&saved.length<=1000&&saved.every(id=>SESSION_RE.test(id))&&
+    new Set(saved).size===saved.length)tabOrder=saved
+}catch(_){}
+function moveSessionTab(source,target){
+ if(!SESSION_RE.test(source)||!SESSION_RE.test(target)||source===target)return;
+ const list=Array.isArray(state?.sessions)?state.sessions:[];
+ const ids=list.map(s=>s.reporting_session_id).filter(id=>SESSION_RE.test(id));
+ if(!ids.includes(source)||!ids.includes(target))return;
+ const next=[...new Set([...tabOrder.filter(id=>ids.includes(id)),...ids])];
+ next.splice(next.indexOf(source),1);
+ next.splice(next.indexOf(target),0,source);
+ try{
+  const string=JSON.stringify(next);
+  window.localStorage?.setItem(TAB_ORDER_KEY,string);
+  if(window.localStorage?.getItem(TAB_ORDER_KEY)!==string)throw Error("readback");
+  tabOrder=next;renderSessions()
+ }catch(_){status("Порядок вкладок не сохранён; изменений нет")}
+}
 function renderSessions(){
  updateComposeTarget();
  const list=$("sessions"), tasks=$("tasks");
- const sessionScroll=list.scrollTop,taskScroll=tasks.scrollTop;
+ const sessionScrollLeft=list.scrollLeft,taskScroll=tasks.scrollTop;
  clear(list);clear(tasks);
- const sessions=Array.isArray(state?.sessions)?state.sessions:[];
+ const sessions=(Array.isArray(state?.sessions)?state.sessions:[]).slice();
+ sessions.sort((a,b)=>{
+  const aa=tabOrder.indexOf(a.reporting_session_id),bb=tabOrder.indexOf(b.reporting_session_id);
+  return (aa<0?Number.MAX_SAFE_INTEGER:aa)-(bb<0?Number.MAX_SAFE_INTEGER:bb)
+ });
+ $("sessionTabBar").hidden=!sessions.length;
  $("sessionCount").textContent=String(sessions.length);
  $("taskCount").textContent=chosenSession?String(taskCards.length):"—";
  if(!sessions.length){
@@ -667,8 +777,23 @@ function renderSessions(){
  }
  for(const s of sessions){
   const b=el("button",String(sessionDisplayTitle(s)));
-  b.title="Диагностика событий: "+String(s.state||"нет");
+  b.title="Диагностика событий: "+String(s.state||"нет")+
+   (s.task_overview?.primary_label?" · "+String(s.task_overview.primary_label):"");
   b.type="button";b.className="session"+(chosenSession===s.reporting_session_id?" active":"");
+  b.setAttribute("role","tab");b.setAttribute("aria-controls","workspaceGrid");
+  b.setAttribute("aria-selected",chosenSession===s.reporting_session_id?"true":"false");
+  b.tabIndex=chosenSession===s.reporting_session_id?0:-1;
+  b.draggable=true;b.dataset.sessionId=s.reporting_session_id;
+  b.addEventListener("dragstart",event=>{
+    event.dataTransfer?.setData("text/plain",s.reporting_session_id);
+    if(event.dataTransfer)event.dataTransfer.effectAllowed="move";
+  });
+  b.addEventListener("dragover",event=>event.preventDefault());
+  b.addEventListener("drop",event=>{
+    event.preventDefault();
+    const from=event.dataTransfer?.getData("text/plain");
+    if(SESSION_RE.test(from||""))moveSessionTab(from,s.reporting_session_id)
+  });
   renderSessionStatus(b,s.task_overview);
   b.onclick=()=>{
    if(chosenSession===s.reporting_session_id)return;
@@ -700,8 +825,30 @@ function renderSessions(){
   };
   tasks.append(b)
  }
- list.scrollTop=sessionScroll;tasks.scrollTop=taskScroll
+ list.scrollLeft=sessionScrollLeft;tasks.scrollTop=taskScroll
 }
+// Tabs remain keyboard operable when their horizontal row overflows.
+$("sessions").addEventListener("keydown",event=>{
+ if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
+ if(event.altKey&&(event.key==="ArrowLeft"||event.key==="ArrowRight")){
+   const buttons=Array.from($("sessions").children),index=buttons.indexOf(event.target);
+   if(index<0)return;const next=index+(event.key==="ArrowLeft"?-1:1);
+   if(next<0||next>=buttons.length)return;
+   event.preventDefault();
+   moveSessionTab(event.target.dataset.sessionId,buttons[next].dataset.sessionId);
+   Array.from($("sessions").children).find(b=>b.dataset.sessionId===event.target.dataset.sessionId)?.focus();
+   return
+ }
+ const buttons=Array.from($("sessions").children);
+ const index=buttons.indexOf(event.target);
+ if(index<0||!buttons.length)return;
+ event.preventDefault();
+ const next=event.key==="Home"?0:event.key==="End"?buttons.length-1:
+  (index+(event.key==="ArrowRight"?1:-1)+buttons.length)%buttons.length;
+ buttons[next].onclick();
+ // The selection rerenders the buttons; focus the replacement, not the old node.
+ Array.from($("sessions").children)[next]?.focus();
+});
 async function loadTasks(){
  const active=chosenSession;
  if(!active)return;
@@ -816,8 +963,8 @@ function renderComposeModules(data){
 function updateComposeTarget(){
  const next=chosenSession||"";
  if(composeSession!==next){
-  if(composeSession)composeDrafts.set(composeSession,$("composeText").value);
-  composeSession=next;$("composeText").value=composeDrafts.get(next)||"";
+  if(composeSession)storeComposeDraft();
+  composeSession=next;$("composeText").value=safeDraftRead(next);
   $("composeModuleSearch").value="";
   renderComposeModules(composeCatalogBySession.get(next)||null);
   $("composeStatus").textContent="Только открытая привязанная вкладка. Проверяю доступность…"
@@ -832,7 +979,7 @@ function updateComposeTarget(){
  $("composeSendPrepared").disabled=!record
 }
 const composerActionNames={file:"Файл",insert:"Вставить",
- send:"Отправить",send_prepared:"Нажать Send"};
+ send:"Файл + Send",send_prepared:"Нажать Send"};
 const composerEventNames={queued:"Команда поставлена в очередь Viewer",
  claimed:"Notifier принял команду",expired:"Команда истекла без получения",
  unconfirmed:"Notifier не подтвердил выполнение вовремя",
@@ -892,7 +1039,7 @@ async function checkComposeStatus(){
     file_attached:"файл и контекст подготовлены; Send не нажат",
     attachment_unconfirmed:"одна попытка прикрепления; результат не подтверждён. Файл мог прикрепиться, повторять нельзя",
     attachment_only:"карточка файла обнаружена, но task_id / Fortis-контекст не подтверждены. Не отправлять",
-    send_initiated:"оригинал сохранён в Notifier, отправка поставлена в очередь; приём ChatGPT не подтверждён",
+    send_initiated:"Notifier сообщил об одной попытке Send; приём ChatGPT не подтверждён",
     refused:"Notifier отказал; текст сохранён в поле Observatory",
     unconfirmed:"нет подтверждения после получения команды — возможна отправка, автоматического повтора нет",
     expired:"команда не была получена вовремя"};
@@ -902,6 +1049,21 @@ async function checkComposeStatus(){
    if(event.task_id)message+=" · task_id: "+event.task_id
   }
   $("composeStatus").textContent=message
+  // Only the exact dispatch ACK may clear the field; queue receipt is insufficient.
+  const pending=composePendingSends.get(sid);
+  if(pending && event?.dispatch_id===pending.dispatchId &&
+     event?.status==="send_initiated"&&/^task_[0-9a-f]{32}$/.test(event.task_id||"")){
+    composePendingSends.delete(sid);
+    if($("composeText").value===pending.original &&markDraftSent(sid,pending.original)){
+      $("composeText").value="";
+      // Keep the locally saved exact original available for restoration.
+      $("composeStatus").textContent+=" · Поле очищено; оригинал доступен в истории Notifier и локальном черновике";
+    }
+  }else if(pending&&event?.dispatch_id===pending.dispatchId&&
+           ["refused","expired","unconfirmed"].includes(event.status)){
+    composePendingSends.delete(sid)
+  }
+  return event
  }catch(error){
   if(sid===chosenSession)$("composeStatus").textContent="Связь с адресатом недоступна: "+error.message
  }
@@ -926,13 +1088,21 @@ async function dispatchCompose(mode){
   selected&&composeModuleEditedBySession.has(sid)?Array.from(selected):null;
  button.disabled=true;
  try{
+  // Read-back is compulsory before dispatch of a new original and clearing.
+  if(mode!=="send_prepared"&&!safeDraftWrite(sid,original)){
+   $("composeStatus").textContent="Черновик не сохранился локально. Команда отменена.";return
+  }
   const answer=await req("/api/dispatch",{
    method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify({session:sid,chat:session.conversation_id,
      mode:actualMode,text:original,module_ids:moduleIds,
-     profile_id:mode==="send_prepared"?null:profileId})});
+     profile_id:mode==="send_prepared"?null:profileId,
+     ...(mode==="send"?{delay_ms:Number($("composeSendDelay").value)}:{})})});
   if(sid!==chosenSession)return;
   $("composeStatus").textContent="Команда "+answer.dispatch_id+" принята локально. Это ещё не подтверждение действия."
+  if(mode==="send"||mode==="send_prepared")
+   composePendingSends.set(sid,{dispatchId:answer.dispatch_id,
+    original:mode==="send_prepared"?$("composeText").value:original});
   await checkComposeStatus()
  }catch(error){
   if(sid===chosenSession)$("composeStatus").textContent=
@@ -968,8 +1138,15 @@ $("composeProfileSelect").addEventListener("change",()=>{
  composeProfileAppliedBySession.delete(sid);
  renderComposeModules(data)
 });
-$("composeText").addEventListener("input",()=>{
- if(chosenSession)composeDrafts.set(chosenSession,$("composeText").value)
+$("composeText").addEventListener("input",deferComposeSave);
+$("composeRestoreDraft").addEventListener("click",()=>{
+ if(!chosenSession)return;
+ if($("composeText").value.trim()){
+  $("composeDraftStatus").textContent="Поле занято: ничего не заменено";return
+ }
+ const saved=safeDraftRecovery(chosenSession);
+ $("composeText").value=saved?.text||safeDraftRead(chosenSession);
+ $("composeDraftStatus").textContent="Сохранённый оригинал восстановлен без Send"
 });
 window.setInterval?.(()=>{if(!$("composePanel").hidden)checkComposeStatus()},5000);
 function previewText(value,maxLength=118){
@@ -1813,7 +1990,9 @@ def handler_for(token, read_data, nonce, register_data=None,
                         set(data) not in ({"session","chat","mode","text"},
                                           {"session","chat","mode","text","module_ids"},
                                           {"session","chat","mode","text","module_ids",
-                                           "profile_id"})):
+                                           "profile_id"},
+                                          {"session","chat","mode","text","module_ids",
+                                           "profile_id","delay_ms"})):
                         raise ValueError("bad_dispatch_body")
                     current=read_data("state",None,None)
                     matches = [item for item in current.get("sessions", []) if
@@ -1823,7 +2002,7 @@ def handler_for(token, read_data, nonce, register_data=None,
                         raise ValueError("unregistered_recipient")
                     result=dispatch_board.enqueue(data["session"],data["chat"],
                         data["mode"],data["text"],data.get("module_ids"),
-                        data.get("profile_id"))
+                        data.get("profile_id"),data.get("delay_ms"))
                     self.write_reply(202,result)
                 except (ValueError, TypeError, UnicodeError, json.JSONDecodeError):
                     self.write_reply(409, {"ok": False, "error": "dispatch_unavailable"})
