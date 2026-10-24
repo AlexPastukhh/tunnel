@@ -318,7 +318,7 @@ STATE/C-04/общий отчёт дополнены текущим выборо�
 
 Адресно прочитаны source-копии текущих controller/run/probe и установленный DC server.js. Controller с совпавшим live hash допускает dot-source с ранним return перед Menu; discovery привязан к точному Repo ID. Старый startup probe исполняет Bridge и меняет marker/DC/Git state, поэтому не выбран как read-only preflight. Installed DC связывает get_config с config-editor, read_file с file-preview: UI metadata скрывает Bridge, а Windows GUI/Observatory он не строит. Из этого не выведена actual-client совместимость.
 
-Подготовлены, но не завершены [C-05 draft](reviews/direct-mcp-client-test-20261025.draft.md) и [helper draft](tools/Switch-RepoMcpTest.draft.ps1): временные direct/Bridge CLI overrides прежнего narrow runtime/profile/container, read-only guards до Stop, owner/PID/creation/Repo identity и независимый ручной Restore. Helper намеренно блокирован throw. Inline Linux read-only JavaScript checks фактически прошли; Windows AST/исполнение/ручные команды не проверены. Не запускались старый probe, новый helper или Windows/G2-инструменты.
+Подготовлены, но не завершены первоначальные [C-05](reviews/direct-mcp-client-test-20261025.md) и [helper](tools/Switch-RepoMcpTest.ps1) (позднее доработаны в WF-023): временные direct/Bridge CLI overrides прежнего narrow runtime/profile/container, read-only guards до Stop, owner/PID/creation/Repo identity и независимый ручной Restore. Helper намеренно блокирован throw. Inline Linux read-only JavaScript checks фактически прошли; Windows AST/исполнение/ручные команды не проверены. Не запускались старый probe, новый helper или Windows/G2-инструменты.
 
 Отдельно собственная /proc ancestry реального tool-command в `2026-10-24T21:45:30.210585Z` показала Python258756 → bash258752 → installed DC149 → Bridge137, UID1000. Это подтверждает прежнюю serving chain независимо от cached get_config/systemInfo. Реальное direct переключение, Stop/Restore, пользовательская UI-проверка не выполнялись.
 
@@ -327,3 +327,16 @@ STATE/C-04/общий отчёт дополнены текущим выборо�
 ## Формат следующей записи
 
 Новая запись получает следующий WF-ID и содержит: дату; цель; источник разрешения/решения; фактически выполненное действие; проверку и её пределы; затронутые пути/версию; резервную копию/откат при необходимости; следующий шаг. Не записывать запланированное действие как выполненное.
+
+
+## WF-023 — 2026-10-25: завершена документальная подготовка ручного direct MCP и возврата
+
+**Источник разрешения:** пользователь попросил завершить подготовку после WF-022. Только Linux Fortis Repo, файлы инструкций и локальный Git. Windows/G2-инструменты, реальная остановка/перезапуск, ACL/mounts/network/launcher/profile не применялись.
+
+**Действия:** доработан и переименован `tools/Switch-RepoMcpTest.ps1`: added matching Repo tunnel/profile PID, one verified Repo process for TestDirect, fresh owner/executable/creation/PID checks непосредственно перед `Stop-RepoAccess`. Снят прежний draft `throw`; без требуемых предварительных проверок пользователь TestDirect не запускает. Добавлен независимый от MCP и основного helper локальный `tools/Restore-RepoMcpBridge.ps1` с Preview/Restore, проверками pinned host/controller/runtime, Docker ID/security/mounts, Bridge hash и Repo process identity; не вызывает startup probe или StopContainer.
+
+**Ручная инструкция:** [C-05](reviews/direct-mcp-client-test-20261025.md) содержит SHA-256 обоих scripts, PowerShell AST parser gate, оба Preview, точные TestDirect, основной Restore и независимый fallback Restore. Оба runtime-командных пути оставляют процесс в foreground и подавляют raw diagnostics; ключи и profiles не читают. Другая Repo-сессия может оборваться; пользователь готовит локальный возврат до переключения.
+
+**Verification scope:** source read-back/diff/hash локально в Repo; JS read-only preflight ранее PASS(scope) в WF-022. PowerShell/pwsh нет в Linux; Windows AST и Windows Preview ещё **не выполнены**. Поэтому Windows-ready означает только prepared-for-manual-gate, не проверенный Windows PASS. Actual-client serving chain/UI/tool operations/direct/Restore не проверены. PR-A-13 и PR-A-07 pending, полный security/network PASS не заявлен. Сетевой collector и junction отдельно.
+
+**Script fingerprints:** Switch `dfe6be1e1ec04924eb3650721b8361c47d80aef7a489280cf00cce366de9914f`; fallback Restore `042a98b589dd8cc098403bdd2ee57454d5881d09a8de1572005887a818647e6a`. При расхождении на Windows остановиться, без автоматического перепиннинга. Коммит локальный; push и применение runtime отдельно.

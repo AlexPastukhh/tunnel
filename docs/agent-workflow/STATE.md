@@ -2,7 +2,7 @@
 
 Срез: **25 октября 2026 года, Asia/Bangkok**. Последний registry-сбор через G2: 25 октября, 01:12:26 (+07:00); последний проектный файловый тест: 24 октября, 22:06:40 (+07:00). Это документированный срез; действующие права задаёт runtime.
 
-Актуальная точка продолжения: [хендофф WF-022](handoffs/handoff-20261025-network-direct-mcp.md). Временный direct MCP тест ещё не выполнен; поздние уточнения имеют приоритет над ранней Godot-вехой.
+Актуальная точка продолжения: [ручная инструкция C-05](reviews/direct-mcp-client-test-20261025.md), подготовленная после [хендоффа WF-022](handoffs/handoff-20261025-network-direct-mcp.md). Временный direct MCP тест ещё не выполнен; сначала ручные Windows AST/Preview, затем TestDirect и проверенный Restore. Поздние уточнения имеют приоритет над ранней Godot-вехой.
 
 ## Текущая веха
 
@@ -193,9 +193,15 @@ PR-A-13 assistant/pending — direct запуск защищённого install
 
 Пользователь поручил проверить прямое подключение, затем запросил краткий хендофф для чистого чата. [Точная точка продолжения и порядок чтения](handoffs/handoff-20261025-network-direct-mcp.md).
 
-Живой tool-command ancestry по /proc в 2026-10-24T21:45:30Z по-прежнему показывает installed DC PID149 под Bridge PID137, UID1000. Переключения/Stop/Restore не было. Подготовка временного actual-client теста сохранена как [черновик C-05](reviews/direct-mcp-client-test-20261025.draft.md) и [блокированный черновик helper](tools/Switch-RepoMcpTest.draft.ps1): Linux read-only preflight проверен; Windows AST/исполнение и точные ручные команды не завершены. Не выдавать draft как готовый скрипт.
+Живой tool-command ancestry по /proc в 2026-10-24T21:45:30Z по-прежнему показывает installed DC PID149 под Bridge PID137, UID1000. Переключения/Stop/Restore не было. На момент WF-022 подготовка временного actual-client теста была черновой и helper был блокирован: Linux read-only preflight проверен, Windows AST/исполнение и точные команды не завершены. После передачи оба файла заменены подготовленной [инструкцией C-05](reviews/direct-mcp-client-test-20261025.md) и [switch-helper](tools/Switch-RepoMcpTest.ps1); см. WF-023 ниже.
 
 Ближайшее действие — закончить review/preflight и независимый ручной возврат, затем провести уже запрошенный временный тест руками пользователя. Постоянное удаление Bridge, применение C-04/сетевых правил не приняты. Network collector ещё не запускался; junction/Godot отложены. Все Windows/G2-действия остаются вне автоматического Repo-маршрута.
+
+## После передачи: C-05 подготовлен для ручного gate — WF-023
+
+[Инструкция C-05](reviews/direct-mcp-client-test-20261025.md) и два локальных PowerShell script: [Switch-RepoMcpTest.ps1](tools/Switch-RepoMcpTest.ps1) и [Restore-RepoMcpBridge.ps1](tools/Restore-RepoMcpBridge.ps1). Основной helper сверяет pinned control/runtime/container/Bridge/DC/settings и process identity; отдельный fallback не зависит от switch helper и MCP, проверяет исходный Bridge и текущий Repo identity. Их SHA-256 зафиксированы в C-05; все ручные команды Preview/TestDirect/Restore и независимого recovery готовы.
+
+**Реальный тест НЕ выполнялся.** Windows AST/оба Preview — обязательный пользовательский gate; Linux не имеет PowerShell. Смена MCP, actual-client/UI acceptance, Restore, изменения Windows runtime/launcher/profile/ACL/mounts/network — не проводились. До Windows проверки нельзя считать подготовку проверенным Windows PASS. Сетевой collector и junction — отдельные задачи.
 
 ## Ближайший план
 
@@ -203,7 +209,7 @@ PR-A-13 assistant/pending — direct запуск защищённого install
 | --- | --- | --- | --- |
 | RP-04 | ACTIVE; manual data needed | Определить сетевую политику по ActiveStore/Hyper-V/backend metadata; collector подготовлен | Выбран применимый enforcement и необходимые исключения; настройки отдельно |
 | RP-01 | DONE(scope), host gaps | Доступные исследования защиты нынешнего Repo выполнены; результат в repo-protection-20261025.md | Есть карта доступа/механизмов/evidence/gaps и pending меры; полного host/security PASS нет |
-| RP-02 | PROPOSED; direct backend readiness PASS(scope) | Выбрать MCP entry: direct DC PR-A-13 либо защищённый адаптер PR-A-07 | Достаточная actual-client/UI совместимость, конкретные startup checks/rollback; live switch отдельно |
+| RP-02 | Manual C-05 ready; Windows gate pending; actual-client pending | Проверить Windows AST + оба Preview, затем вручную TestDirect/Restore; выбрать direct DC PR-A-13 либо защищённый адаптер PR-A-07 | Реальные process/tool/UI outcomes и восстановленная Bridge chain; постоянное применение отдельно |
 | RP-03 | DEFERRED(user) / PR-A-12 | Учесть возможные junction: адресная metadata-карта до изменения границ данных/переноса | Известны ссылки/записанные цели/Repo-представление; посторонние targets не читаются автоматически; миграция отдельно |
 | N-01 | DONE(scope) | Установить mounts и проверить узкий доступ G2 к проекту | Выполненные источники и проверки перечислены выше |
 | N-02 | DEFERRED / PER PROJECT | Когда выбран Godot-результат для ручной проверки, определить Windows exe/версию и аккаунт запуска | Известны конкретные вход, инструмент и ручной маршрут; это не prerequisite защиты Repo |

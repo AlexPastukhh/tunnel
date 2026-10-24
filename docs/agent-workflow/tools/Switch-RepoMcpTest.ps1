@@ -1,9 +1,8 @@
 param(
     [ValidateSet('Preview','TestDirect','Restore')][string]$Mode = 'Preview'
 )
-# DRAFT: not validated in Windows; do not execute. Review and finalize first.
-throw 'DRAFT: Windows validation and manual test commands are not complete.'
 # Manual, temporary Repo-only connection test. No saved profile/file edits.
+# Windows AST parsing and Preview are mandatory before TestDirect; no Windows run has been performed.
 $ErrorActionPreference = 'Stop'
 if ($env:OS -ne 'Windows_NT') { throw 'Windows PowerShell is required.' }
 $fortisIdentity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -41,7 +40,7 @@ if (@($fortisInfo.HostConfig.CapDrop) -notcontains 'ALL' -or @($fortisInfo.HostC
 if ($fortisInfo.HostConfig.Memory -ne 1073741824 -or $fortisInfo.HostConfig.NanoCpus -ne 2000000000 -or $fortisInfo.HostConfig.PidsLimit -ne 256) {
     throw 'Container resource constraints changed; nothing stopped.'
 }
-if (@($fortisInfo.HostConfig.PortBindings.PSObject.Properties).Count -ne 0) {
+if ($null -ne $fortisInfo.HostConfig.PortBindings -and @($fortisInfo.HostConfig.PortBindings.PSObject.Properties).Count -ne 0) {
     throw 'Published ports changed; nothing stopped.'
 }
 $fortisNetworks = @($fortisInfo.NetworkSettings.Networks.PSObject.Properties.Name)
@@ -106,6 +105,16 @@ if ($fortisTunnels.Count -gt 1 -or $fortisCandidates.Count -gt 1) {
 if ($fortisCandidates.Count -gt 0 -and $fortisTunnels.Count -eq 0) {
     throw 'A Repo-profile process lacks verified Repo identity; nothing stopped.'
 }
+if ($fortisTunnels.Count -eq 1 -and $fortisCandidates.Count -ne 1) {
+    throw 'A verified Repo tunnel lacks a visible matching profile process; nothing stopped.'
+}
+if ($fortisCandidates.Count -eq 1 -and $fortisTunnels.Count -eq 1 -and
+    $fortisCandidates[0].ProcessId -ne $fortisTunnels[0].pid) {
+    throw 'Repo profile PID differs from the tunnel-ID process; nothing stopped.'
+}
+if ($Mode -eq 'TestDirect' -and $fortisTunnels.Count -ne 1) {
+    throw 'TestDirect requires one verified running Repo tunnel; nothing stopped.'
+}
 foreach ($fortisTunnel in $fortisTunnels) {
     $fortisProcess = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $fortisTunnel.pid)
     if ($fortisProcess.ExecutablePath -ine $fortisRuntime) { throw 'Unexpected Repo executable; nothing stopped.' }
@@ -127,7 +136,20 @@ if ($Mode -eq 'Preview') {
 }
 Write-Host 'This switches only the shared Repo connection. The container is not stopped.'
 Write-Host 'Active Repo tool terminal sessions in other chats may be interrupted.'
-if ($fortisTunnels.Count -eq 1) { $null = Stop-RepoAccess }
+if ($fortisTunnels.Count -eq 1) {
+    $fresh = @(Get-RepoTunnel)
+    if ($fresh.Count -ne 1 -or $fresh[0].pid -ne $fortisTunnels[0].pid -or
+        $fresh[0].createdAt -ne $fortisTunnels[0].createdAt) {
+        throw 'Repo identity changed before stop; nothing stopped.'
+    }
+    $freshProcess = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $fresh[0].pid)
+    if ($freshProcess.ExecutablePath -ine $fortisRuntime -or
+        (Invoke-CimMethod -InputObject $freshProcess -MethodName GetOwnerSid).Sid -ne $fortisIdentity.User.Value -or
+        $freshProcess.CreationDate.ToUniversalTime().ToString('o') -ne $fresh[0].createdAt) {
+        throw 'Repo process fingerprint changed before stop; nothing stopped.'
+    }
+    $null = Stop-RepoAccess
+}
 $fortisDeadline = [DateTime]::UtcNow.AddSeconds(5)
 while (@(Get-ProfileCandidates).Count -ne 0 -and [DateTime]::UtcNow -lt $fortisDeadline) {
     Start-Sleep -Milliseconds 200
