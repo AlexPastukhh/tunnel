@@ -167,3 +167,92 @@ approved. To stop preview use Ctrl+C only in its 8093 PowerShell window.
 Do not restart G2 or Repo. Live Windows 8093 process is NOT automatically
 updated by a Git source patch. Old G2 scoped TCP/GET and native admin GET
 acceptance did not test this new owner web server; API 5.8 was PARTIAL.
+
+## Owner API authentication candidate - E46 (not deployed)
+
+After confirming guest G2 access to owner Observatory, source now
+requires a 256-bit random bearer token for every API GET/HEAD/POST.
+It is generated at startup only in the interactive owner PowerShell,
+entered manually into an HTML password field, kept only in process/
+browser JS memory, and sent in Authorization header on fetch including
+ZIP exports. It is NOT stored in Git, archives, URLs or localStorage.
+
+This is NOT direct Windows SID verification. Other users may request
+public HTML/CSS/JS but not private API without a token; token theft
+still bypasses authentication. Restrictive CSP/referrer/nosniff/frame
+headers additionally guard the browser. Source checkout is writable by
+Fortis Repo, so independently review/pin and copy to owner-protected
+location before any new owner Windows execution. Do NOT restart the
+existing vulnerable preview directly from the mutable checkout.
+
+Stop the old port8093 preview FIRST via Ctrl+C. Current changes are
+SOURCE-ONLY and do not update that process; live Windows owner and G2
+authorization acceptance is PENDING. Details:
+docs/G3_OWNER_HTTP_BOUNDARY_E46_2026-10-16.md
+
+## Chat task progress — source-only, opt-in (2026-10-17)
+
+The existing Observatory now has a voluntary task feed in the owner-authorized
+`GET /api/tasks` endpoint and a "Наблюдаемые задачи" dashboard section.
+No new HTTP ingress or privileged Windows owner endpoint is provided.
+
+- Sender stages a bounded JSON event in an **already authorized** shared
+  directory, using `task_progress.py`; the file is untrusted.
+- Owner preview may import files when `FORTIS_OBS_TASK_INBOX` is explicitly
+  configured. This configuration is **off by default**. The owner must review
+  shared-folder effective permissions, Windows reparse/hardlink behavior,
+  deployment source pin and existing E46 owner API protection before live use.
+- The collector never deletes, runs, follows named symlinks or executes file
+  contents. Events go into the existing owner SQLite archive; no new database,
+  ACL, mount, network listener, bridge or scheduled Windows task is created.
+- Each event has a UUID `event_id`, stable per-task `task_id`, monotonically
+  increasing `sequence`, `event`, `stage`, claimed `route`, brief `title`
+  and `summary`. Sequence handles late arrivals; duplicates are ignored.
+  Only fixed small labels, enumerations and limited descriptions are accepted.
+- Sender reports **STAGED_ONLY**, not "delivered": successful import can be
+  confirmed only by authorized dashboard/API read. If inbox or collector is
+  unavailable, proceed with regular work and report lack of telemetry.
+- The receiver stamps the trusted `received_at`. Route and title are
+  self-reported, not ChatGPT conversation identity or native MCP proof.
+  No text of prompts/chats, commands, paths, secrets or tool arguments.
+- Working tasks become SILENT after a provisional 15 minutes without accepted
+  events, UNKNOWN after 60 minutes; `waiting_tool` doubles these limits.
+
+  These are **heuristics**, not claims that ChatGPT is running or hung. The
+  feed distinguishes BLOCKED/COMPLETED/FAILED, but completed is a received
+  sender report, not proof of delivered user results. If events start without
+  `started`, state stays UNKNOWN until a terminal event.
+- Retention: 30 days, max 100 displayed tasks, 40 displayed recent events
+  per task; default inbox ceiling 512 files at 2 KiB each. Sender must
+  control bounded cleanup of its own files separately; owner collector does
+  not delete cross-boundary data. A full inbox stops staging safely.
+
+Example, ONLY in a previously approved inbox, from Fortis Repo:
+
+```bash
+python3 observatory/task_progress.py \
+  --inbox /path/to/approved/inbox --task-id observatory-demo-01 \
+  --sequence 0 --event started --stage planning --route repo \
+  --title "Observatory work" --summary "Source review"
+```
+
+Next transition uses sequence 1 and an `event` from
+`started/progress/checkpoint/blocked/completed/failed`. Do not create
+a new mounted directory or expose owner HTTP to make this work. Windows
+deployment, cross-SID inbox acceptance, HTML/browser testing and end-to-end
+ChatGPT task correlation are **NOT VERIFIED**. The existing E46 owner
+warning and approved source-pinning prerequisites remain in force.
+
+### Optional OBS Planning Helper module proposal
+
+
+Suggested module id: `observability.fortis-task-progress`. It is a
+**candidate**, not installed in the Helper library or automatically
+attached to any prompt. In tasks with long-running multi-step work, send
+`started` once, `progress` on meaningful stage transitions, occasional
+`checkpoint` when a tool call is available, and a terminal
+`completed`/`failed` (or `blocked`) when appropriate. Use a stable
+self-chosen task ID and unique event IDs. Never claim continuous heartbeat;
+if staging fails, continue allowed work and report telemetry unavailable.
+Avoid including any private or raw source content. The actual Modules
+library format and owner-side deployment remain to be verified.

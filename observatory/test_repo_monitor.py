@@ -54,14 +54,15 @@ class ApiTests(unittest.TestCase):
         from http.server import ThreadingHTTPServer
         import server
         with patch.object(server, "latest_repo", return_value={"state": "UNKNOWN", "verified": False}):
-            with patch.object(server, "repo_history", return_value={"ok": True, "samples": 0, "history": []}):
+            with patch.object(server, "repo_history", return_value={"ok": True, "samples": 0, "history": []}), \
+                 patch.object(server, "OWNER_AUTH_TOKEN", "SYNTHETIC_OWNER_TEST_TOKEN_ONLY_NOT_FOR_PRODUCTION"):
                 srv = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
                 thread = threading.Thread(target=srv.serve_forever, daemon=True)
                 thread.start()
                 try:
                     for route, key in (("/api/repo-status", "state"), ("/api/repo-history", "history")):
                         conn = http.client.HTTPConnection("127.0.0.1", srv.server_port, timeout=3)
-                        conn.request("GET", route)
+                        conn.request("GET", route, headers={"Authorization":"Bearer SYNTHETIC_OWNER_TEST_TOKEN_ONLY_NOT_FOR_PRODUCTION"})
                         response = conn.getresponse()
                         self.assertEqual(response.status, 200)
                         self.assertIn(key, json.loads(response.read()))

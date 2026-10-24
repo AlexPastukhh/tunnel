@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fortis Observatory V1 — события работы</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/client.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="brand"><small>FORTIS / OBSERVATORY / V1</small>
+    <h1>События работы чатов</h1>
+    <p>Только вручную подключённые сессии. Источник истории — файлы Markdown.</p>
+  </div>
+  <span class="chip">REPORTING / NOT TOOL AUDIT</span>
+</header>
+<main>
+  <section class="panel" id="unlock">
+    <h2>Локальный доступ владельца</h2>
+    <p>Введи токен из своей Windows-консоли запуска Observatory. Он остаётся только в памяти вкладки.</p>
+    <form id="unlockForm"><label>Токен <input id="token" type="password" autocomplete="off" required></label>
+      <button type="submit">Открыть панель</button></form>
+    <p role="status" id="unlockError"></p>
+  </section>
+  <div id="privateUI" hidden>
+    <section class="panel">
+      <h2>Подключить чат вручную</h2>
+      <p class="dim">Вставь URL обычной беседы ChatGPT из Edge. Эта форма ничего не читает из других вкладок.</p>
+      <form id="register">
+        <label>URL чата <input id="chatUrl" type="url" placeholder="https://chatgpt.com/c/..." required></label>
+        <label>Название задачи <input id="taskTitle" maxlength="80" placeholder="Проверка проекта" required></label>
+        <label>Маршрут событий <select id="route"></select></label>
+        <button type="submit">Подключить сессию</button>
+      </form>
+      <p role="status" id="formStatus"></p>
+      <div id="instructions" hidden>
+        <h3>Инструкция для подключённого чата</h3>
+        <p class="dim">Скопируй этот текст в нужную беседу. Не добавляй туда данные владельца или секреты.</p>
+        <textarea id="instructionText" readonly rows="12"></textarea>
+        <button id="copyInstructions" type="button">Скопировать инструкцию</button>
+      </div>
+      <div id="pairingPanel" hidden>
+        <h3>Привязка Tab Notifier</h3>
+        <p id="pairingDescription" class="dim">Код просмотра даёт только чтение состояния.
+          Код с правом записи дополнительно разрешает приватное архивирование исходного текста
+          при принятом сигнале. Вставляй код только в меню Tab Notifier нужного чата,
+          никогда в сообщение ChatGPT или GitHub.</p>
+        <textarea id="pairingText" readonly rows="7"></textarea>
+        <button id="copyPairing" type="button">Скопировать код привязки</button>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="row">
+        <div><h2>Подключённые сессии</h2><p class="dim">Последний сигнал не подтверждает, что ChatGPT продолжает работать.</p></div>
+        <button id="refresh" type="button">Обновить</button>
+      </div>
+      <p id="ingest" role="status">Источники ещё не проверены.</p>
+      <div id="sessions" class="session-list">Нет данных.</div>
+    </section>
+    <section class="panel">
+      <h2>Границы данных</h2>
+      <p>Здесь показаны добровольные <b>события работы</b>, а не реальные вызовы G2/Repo.
+        <code>REPORTED_COMPLETED</code> означает сообщение чата, но не сохранение полного ответа.
+        Старые файлы, удалённые из архива, не восстанавливаются из индекса; поступившие позже новые события могут быть отдельной записью.
+      </p>
+      <p class="dim">Полная переписка, автоматическое подключение вкладок, исходящие уведомления и
+        атрибуция вызовов инструментов по Chat ID не входят в V1.</p>
+    </section>
+  </div>
+</main>
+</body>
+</html>

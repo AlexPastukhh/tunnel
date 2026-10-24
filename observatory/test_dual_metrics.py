@@ -125,13 +125,15 @@ class MetricTests(unittest.TestCase):
                 "state": "UP", "verified": True,
                 "metrics": {"queue_length": 0, "polled_total": 10}}), \
              patch.object(server, "latest_g2", return_value={
-                "state": "UNKNOWN", "verified": False, "reason": "source_unavailable"}):
+                "state": "UNKNOWN", "verified": False, "reason": "source_unavailable"}), \
+             patch.object(server, "OWNER_AUTH_TOKEN", "SYNTHETIC_OWNER_TEST_TOKEN_ONLY_NOT_FOR_PRODUCTION"):
             instance = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
             thread = Thread(target=instance.serve_forever, daemon=True)
             thread.start()
             try:
                 connection = http.client.HTTPConnection("127.0.0.1", instance.server_port, timeout=3)
-                connection.request("GET", "/api/tunnels")
+                connection.request("GET", "/api/tunnels", headers={
+                    "Authorization":"Bearer SYNTHETIC_OWNER_TEST_TOKEN_ONLY_NOT_FOR_PRODUCTION"})
                 reply = connection.getresponse()
                 body = reply.read().decode()
                 self.assertEqual(reply.status, 200)

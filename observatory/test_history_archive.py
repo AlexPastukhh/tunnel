@@ -100,24 +100,26 @@ class ArchiveTests(unittest.TestCase):
     def test_http_export_and_rejections(self):
         a.insert_telemetry(self.db,"repo",self.row())
         with patch.object(server,"ARCHIVE_DB",self.db), \
-             patch.dict(server.AUDIT_SOURCES,{},clear=True):
+             patch.dict(server.AUDIT_SOURCES,{},clear=True), \
+             patch.object(server, "OWNER_AUTH_TOKEN", "SYNTHETIC_OWNER_TEST_TOKEN_ONLY_NOT_FOR_PRODUCTION"):
             instance=ThreadingHTTPServer(("127.0.0.1",0),server.Handler)
             thread=Thread(target=instance.serve_forever,daemon=True)
             thread.start()
             try:
                 client=http.client.HTTPConnection("127.0.0.1",instance.server_port,timeout=3)
-                client.request("GET","/api/archive-coverage")
+                auth={"Authorization":"Bearer SYNTHETIC_OWNER_TEST_TOKEN_ONLY_NOT_FOR_PRODUCTION"}
+                client.request("GET","/api/archive-coverage", headers=auth)
                 reply=client.getresponse()
                 info=json.loads(reply.read())
                 self.assertEqual(reply.status,200)
                 self.assertEqual(info["telemetry"]["count"],1)
                 self.assertEqual(info["activity_sources"]["g2"],"unconfigured")
                 client.request("GET","/api/export-history?mode=all&routes=repo&format=csv",
-                               headers={"Sec-Fetch-Site":"cross-site"})
+                               headers={**auth, "Sec-Fetch-Site":"cross-site"})
                 blocked=client.getresponse()
                 blocked.read()
-                self.assertEqual(blocked.status,403)
-                client.request("GET","/api/export-history?mode=all&routes=repo&format=csv")
+                self.assertEqual(blocked.status,401)
+                client.request("GET","/api/export-history?mode=all&routes=repo&format=csv",headers=auth)
                 result=client.getresponse()
                 blob=result.read()
                 self.assertEqual(result.status,200)
@@ -130,16 +132,16 @@ class ArchiveTests(unittest.TestCase):
                 from urllib.parse import urlencode
                 filters=urlencode({"mode":"range","routes":"repo","format":"json",
                     "from":a._iso(self.now-60),"to":a._iso(self.now+60)})
-                client.request("GET","/api/export-history?"+filters)
+                client.request("GET","/api/export-history?"+filters,headers=auth)
                 valid=client.getresponse()
                 self.assertEqual(valid.status,200)
                 with ZipFile(io.BytesIO(valid.read())) as archive:
                     self.assertEqual(len(json.loads(archive.read("metrics.json"))),1)
-                client.request("GET","/api/export-history?mode=range&routes=repo")
+                client.request("GET","/api/export-history?mode=range&routes=repo",headers=auth)
                 bad=client.getresponse()
                 self.assertEqual(bad.status,400)
                 self.assertEqual(json.loads(bad.read())["error"],"invalid_export_filters")
-                client.request("GET","/api/export-history?mode=all&routes=evil")
+                client.request("GET","/api/export-history?mode=all&routes=evil",headers=auth)
                 bad=client.getresponse()
                 self.assertEqual(bad.status,400)
                 bad.read()

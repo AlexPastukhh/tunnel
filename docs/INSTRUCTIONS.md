@@ -1,5 +1,1153 @@
 # Обновление инструкций после изменений
 
+## 22.10.2026 — Notifier 5.7.31: selected Prompt card (SOURCE TESTED)
+
+Owner screenshot confirms a Helper Prompt is now listed and attached; it had
+only a plain connected-name line, whereas attached Modules had bordered items.
+Selected Prompt now uses the same module-row card styling, with its title and
+an inline accessible × detach button. Full stable ID is in the title tooltip.
+The separate detach button next to the selector is removed. A missing selected
+Prompt remains visible with an unavailable label; switching profiles updates
+card visibility and text. Empty profiles show the normal no-prompt message.
+Explicit module-row[hidden] CSS prevents the flex rule exposing an empty card.
+
+Presentation-only change in textbox-settings-ui.js, plus version metadata.
+Manager, profile storage, Prompt/module resolution and the 5.7.30 mixed-catalog
+fix remain byte-identical. Helper 0.40.10, Viewer/backend, Send, queue, original
+archive, pairing and running processes are unchanged. No new permission, no
+automatic insertion or Send. No installed browser script was modified.
+Full Node suite 285/285, no skips; build:check PASS. Existing event-driven DOM
+fixture covers attach, prompt card/title/ID, profile restore, unavailable card
+and detach without Send. No new tests were added for this reversible UI edit.
+Real Edge appearance of 5.7.31 remains NOT_RUN; owner's screenshot is pre-fix.
+Main and immutable chatgpt-tab-notifier-5.7.31.user.js SHA-256:
+482056d051bb5555cb2eeab47d32c8e08f0ce91974b455b79ce8e03d8d23bbf8
+Checkpoint: /workspace/repo/fortis-prompt-card-20261022
+Manual: update only EXISTING Notifier Loader @version/@require to 5.7.31;
+preserve name/namespace/grants/GM data, save draft then reload ChatGPT. Existing
+selected Prompt should immediately appear as a card without re-attaching it.
+Helper and Observatory do not need an update or restart for this UI change.
+
+
+## 22.10.2026 — Notifier 5.7.30: mixed Helper catalog replies + truthful version badge (SOURCE TESTED)
+
+Owner screenshots show Helper UI 0.40.10 and Notifier badge 5.7.28. The 5.7.29
+bundle incorrectly retained SCRIPT_VERSION=5.7.28 despite its 5.7.29 header;
+the badge therefore did not prove that an old bundle was loaded. Corrected in
+5.7.30; build and build:check now reject a package/runtime version mismatch.
+
+A real-publisher regression reproduced another failure: a valid Prompt+Module
+catalog could be overwritten by a later module-only reply from a still-open
+old Helper tab. After the first validated full catalog, Notifier now ignores
+legacy replies for the lifetime of that manager, retaining modules and prompts
+as one atomic snapshot. Legacy-only startup remains compatible for modules.
+Modern updates and empty/deleted catalogs remain authoritative. Invalid modern
+catalogs clear cached bodies and block preparation; a legacy reply cannot
+restore them. A valid modern packet recovers normally. No GM profile mutation
+occurs on receiving or ignoring catalogs.
+
+This is a reproduced code defect and a plausible explanation of the owner's
+missing list; the actual set of running Helper publishers in Edge was not read.
+The old diagnostic that always said to update Helper was too specific. It now
+says the prompt catalog has not been received and suggests refreshing ChatGPT
+tabs. Helper source 0.40.10 is unchanged; no repeated Helper update is required.
+
+Regression tests were RED before the fix (four failures); after the fix the
+full Notifier suite passes 285/285 with no skips and build:check PASS, including
+real Helper projection, both arrival orders, deletion, malformed catalog,
+read-only GM behavior, UI events and build-version mismatch rejection.
+No live Edge acceptance or automated browser install was performed. Existing
+Windows Viewer, pairing/GM originals, backend services and Send were untouched.
+Source main and immutable chatgpt-tab-notifier-5.7.30.user.js SHA-256:
+e90df0cbd24dcf76db7eeb916f007ca0eb0db33ecc0627156c3298715f7d4eb1
+Old immutable 5.7.28 and 5.7.29 files remain exact for code rollback.
+Checkpoint: /workspace/repo/fortis-helper-catalog-race-20261022
+Manual: update ONLY the existing Notifier Loader @version/@require to 5.7.30,
+keep name/namespace/grants, save valued drafts and refresh ChatGPT tabs. Verify
+the badge is 5.7.30 and the prompt count/list appears; select/detach without Send.
+If still absent, report the current catalog status line; do not infer success.
+
+
+## 22.10.2026 — Helper Prompts in Notifier Textbox (SOURCE TESTED, MANUAL INSTALL PENDING)
+
+Notifier 5.7.29 adds an optional per-profile Helper prompt selector with search,
+attach/detach and preview. Order: exact user original, selected resolved prompt,
+then ordered extra modules. Original archive bytes stay unchanged; selecting a
+prompt only saves its ID and never inserts, attaches a file or presses Send.
+The existing preparation/File/Send safety path is unchanged.
+
+Helper 0.40.10 adds a separate optional prompts[] field to the existing local
+read-only BroadcastChannel catalog. Prompt/module texts stay in Helper's local
+snapshot and transient consumer RAM; Notifier GM profiles store references only.
+Commands, GitHub credentials and repository metadata are not projected. No
+implicit GitHub reads or writes. Current source Helper was 0.40.9, newer than
+the supplied 0.39.10 snapshot; it was extended in place, never replaced by ZIP.
+
+Legacy profiles/catalogs remain compatible for modules. A selected prompt with
+an old Helper, missing body/dependency, cycle or malformed catalog blocks
+preparation rather than silently omitting instructions. Prompt module expansion
+uses existing literal [[module:id]] references, depth/length limits, no eval.
+Module overrides from Observatory retain the saved selected-profile prompt;
+there is no new remote prompt-selection payload or Viewer/backend update.
+
+Checks: Notifier full suite 280/280 (including event-driven DOM fixture),
+Helper 230 tests, both build:check. Final logs are in checkpoint below.
+No installed Chromium here; real Edge visual/GM/BroadcastChannel QA NOT_RUN.
+No running service, Windows installed Viewer, browser Loader, GM originals,
+pairing approvals, live Docker state, tasks or Send were changed by this work.
+
+Notifier main + immutable chatgpt-tab-notifier-5.7.29.user.js SHA-256:
+291790febbee4de03d5a2915494686080a0a3b9c01550889f1a02940b358c7b7
+Helper main + immutable chat-command-palette-0.40.10.user.js SHA-256:
+97f9ba6bf7a1bf249f05016fa5c1db5235ff805478db9591abbbb687b13e44cc
+Checkpoint: /workspace/repo/fortis-helper-prompts-20261022
+Manual: update the EXISTING Notifier Loader version/require to 5.7.29 without
+changing name/namespace/grants; update the EXISTING Helper code/require to
+0.40.10 without deleting its GM snapshot or GitHub token. Reload ChatGPT only
+after saving a valuable draft. Use gear -> Prompt -> Attach; inspect preview,
+then detach as smoke test, without File/Send. No Observatory reinstall/restart.
+
+
+## 22.10.2026 — «Чаты из браузера» свёрнуты при загрузке (SOURCE READY)
+
+В owner_viewer.py блок discoveryPanel переведён на native details/summary
+без open. Нажатие на заголовок или клавиатура раскрывает/сворачивает его;
+обычный polling обновляет только внутренний список и сохраняет положение.
+Подключённые сессии остаются вне раскрываемого блока. Протокол discovery,
+названия/ID, pairing, Send и архив не изменены. Runtime diff: HTML/CSS only.
+Существующий Viewer synthetic UI (5 сценариев) PASS; installer source/pins
+2/2 PASS. Дополнительно проверены отсутствие open и отсутствие скриптов,
+меняющих open при polling. Notifier 5.7.28 и его bundle не менялись.
+Viewer SHA-256: aae05194e48001aefcffb850061ba7266e956f821efbf398834c35e6820efbc2
+Enrollment остаётся 51ce3eb96fd3da285c591c063cb71642863b825d5fef63bc6c5060a814ca03e3.
+Checkpoint /workspace/repo/fortis-collapse-discovery-20261022.
+Исходник готов к ручному обновлению одного owner_viewer.py после backup
+в текущем owner-protected Windows каталоге. Установленный Viewer и
+Docker backend не перезапускались/не изменялись этим шагом.
+
+## 22.10.2026 — Названия вкладок в найденных и подключённых сессиях (SOURCE READY)
+
+Notifier source 5.7.28 передаёт ограниченное очищенное natural title
+только после supports_tab_titles=true от Windows Viewer. Старый Viewer
+получает прежний chat/proof запрос; при downgrade и отказе optional поля
+Notifier возвращается к прежнему payload на очередном heartbeat.
+Служебные favicon/title значки и Observatory connection prefixes удаляются
+существующим cleanTitle. Контрольные/bidi символы и unpaired surrogates
+исключаются, предел 128 Unicode codepoints / 512 UTF-8 bytes.
+Ни body сообщений, ни DOM беседы, ни task/original тексты не читаются.
+
+Windows enrollment принимает необязательный title в том же localhost
+endpoint (body <=1024), legacy payload поддержан. Названия живут только
+в owner RAM с TTL 180 сек, не записываются в approved-notifiers.json,
+Docker archive, event summaries или shared файлы. В discovered список
+название передаётся owner bearer API; connected session_titles доступны
+только для точно одобренного chat+proof. Чужой proof не переименовывает
+подключённую сессию. При неоднозначных claimant с разными названиями
+название не выбирается случайно. Права и identity всегда определяются ID.
+
+В карточках найденных чатов название — основная ссылка, Chat ID — мелкая
+подпись. В списке подключённых сессий и адресате текстбокса используется
+свежее название из этой же одобренной вкладки; fallback — архивное
+название/ID. Rename приходит с очередным heartbeat/poll. Старые архивные
+названия не переписываются. Выбранные task/session и ручной Send сохранены.
+
+Изолированная копия: /workspace/repo/fortis-tab-titles-20261022/work.
+Viewer SHA-256: 34558e098d27139dcec95333bb4f8b51907e03820a902207e47b07d2e87aead6
+Enrollment SHA-256: 51ce3eb96fd3da285c591c063cb71642863b825d5fef63bc6c5060a814ca03e3
+Notifier 5.7.28 SHA-256: d506f6d7824ac1fcf868290da44f9f2e991acd42514fac31bdb6060fbedc99c5
+Требуется ручное обновление Viewer и одной существующей копии Notifier.
+Рекомендуемый порядок: Viewer, затем Notifier и reload вкладок.
+Старые команды с SHA предыдущего Viewer/Enrollment к новой source не подходят.
+Windows установленную копию, pairing/GM originals и live backend PID 15984
+не изменяли/не перезапускали. Новый Edge live QA ещё не выполнен.
+
+Финальная проверка: Python 195/195 PASS без skips; Notifier 270/270 PASS,
+build:check PASS. Synthetic Viewer UI прошёл прежние сценарии и новые
+названия/rename/safe-DOM/stable-task проверки. По скриншоту владельца
+предыдущий раздел «Чаты из браузера» уже виден с ID. Наличие нового
+title-варианта в установленной Windows копии пока не подтверждено.
+
+## 22.10.2026 — Чаты из браузера и подключение одной кнопкой (SOURCE TESTED, INSTALL PENDING)
+
+Notifier уже отправляет chat + proof из конкретных /c/<id> вкладок каждые
+несколько секунд. Новая Windows Viewer source показывает их в колонке
+«Сессии» → «Чаты из браузера», включая ещё не зарегистрированные беседы.
+Идентификация в первом варианте — Chat ID и ссылка «открыть чат».
+«Подключить» под owner bearer + same-origin регистрирует точный URL,
+подтверждает выбранный свежий Notifier и сохраняет обычное разрешение
+на переподключение. Отдельный task_intents grant сам не включается;
+Send остаётся отдельным ручным действием. Ручной ввод URL сохранён как запасной.
+
+Обнаружение не создаёт сессии и не выдаёт ключи. Его сообщения не содержат
+текстов чата или оригиналов; в памяти только ID, digest proof и last_seen.
+Список доступен только владельцу, limit 200 claimant entries, TTL 180 сек,
+heartbeat продлевает TTL. Исчезновение кандидата не меняет статус
+зарегистрированной сессии и не создаёт failed. Закрытая/приостановленная
+вкладка может оставаться в найденных до истечения TTL. Это не чтение всей
+истории ChatGPT. Нужен работающий Notifier в открытой вкладке.
+
+Подключение не выбирает случайно между разными claimant, не перезаписывает
+чужую существующую привязку, повтор успешно завершённого запроса идемпотентен.
+Отказ регистрации/сохранения разрешения сохраняет кандидат для повтора;
+частично созданная сессия используется повторно через прежний repo_register.
+При недоступном Repo обнаружение всё равно сохраняется локально.
+Права, исходные originals, schema approved-notifiers.json и адресный
+ручной Send сохранены. Клик не вызывает dispatch и не меняет выбор задачи.
+
+Изменились только runtime source owner_viewer.py и owner_enrollment.py:
+Viewer SHA-256: 6b1574ea1ccb09056fbbe1a703c6ad6820dbec3fe8fa52d8c3d1118fe02d0130
+Enrollment SHA-256: 2bc00765a657493eb4dffee900408e29b7f24ab9a639348f61e1d389727f9d55
+Installer/bridge/dispatch/launchers/Notifier не менялись.
+Windows текущую защищённую установку не трогали. Live Docker backend
+PID 15984 из offline-outbox candidate не перезапускался.
+Новая функция появится после ручного обновления Windows Viewer.
+Checkpoint: /workspace/repo/fortis-discovered-chats-20261022.
+
+Проверено до публикации source: Python discovery 187 tests — OK
+(186 executed, 1 palette test skipped из-за отсутствовавшего sibling fixture).
+Прежний Notifier palette fixture скопирован без изменений, пропущенный
+contract test выполнен отдельно: 1/1 PASS. Все проверки покрыты.
+Synthetic Viewer UI: прежние layout/lifecycle/stale checks и новый
+discovery/one-click/ambiguity/safe-DOM сценарий PASS. Windows installation,
+native ACL smoke и реальный Edge для новой функции ещё не выполнены.
+
+## 21.10.2026 — Offline outbox backend активен, браузерное обновление ожидается
+
+Проверенный source перенесён в /workspace/repos (15 файлов с SHA read-back).
+Обновлён только процесс backend Observatory: PID 15984,
+/workspace/repo/fortis-offline-outbox-20261021/candidate/repo_service.py.
+Тот же state dir и loopback 18754; прежние 3 сессии/события сохранены,
+ключи совпали до/после, observer API двух привязанных сессий и ограничения
+owner API проверены. Live bootstrap содержит offline/current-chat правила
+без session ID; реальная pending-context очередь пуста, synthetic событий
+в рабочий архив не добавляли. Резервная версия/manifest сохранены рядом.
+Manifest SHA 17164ec9b544194fd1bc674c6d0cec5333bec26438f972668fc0795543057f21.
+
+Python 172/172 (включая автоматический collector после регистрации),
+Node 264/264 без skips, build:check и synthetic Viewer UI PASS.
+Notifier source 5.7.27 SHA:
+c3023e49f30fc349d46b99779f7f5f718dd610707875168380db7472a569e17d.
+Backend умеет новую очередь, но браузерная установка 5.7.27 НЕ подтверждена.
+Следующий ручной шаг — обновление одной существующей копии Notifier/Loader
+с сохранением @name, @namespace и GM storage; новую параллельную копию
+не создавать. Windows Viewer, Docker/container, сеть и автозапуск не
+перезапускались/не переустанавливались. Ручной Send и оригиналы сохранены.
+
+## 21.10.2026 — Offline current-chat outbox, source 5.7.27
+
+Prepared in /workspace/repo/fortis-offline-outbox-20261021/work.
+Notifier always supplies current conversation_id + new task_id on prepared
+insert/file/Send routes, even without browser pairing. With pairing the exact
+registered session check remains mandatory; an explicitly wrong session does
+not downgrade to the unbound queue. No IDs from earlier requests are reused.
+
+repo_task.py without --session durably stages events and full assistant
+interim/final separately under the private Repo volume inbox/pending-context.
+HTTP Observatory, Windows Viewer, observer/writer keys and browser pairing
+are not prerequisites for staging. Normal bound offline sender is retained.
+STAGED_ONLY proves queue staging, never acceptance, DOM display or delivery.
+
+The new collector forwards after exactly one locally registered Repo session
+matches the supplied current conversation_id; no registration is created.
+Ambiguous/absent registrations wait with payload preserved, no automatic
+failed. Binding is pinned before forwarding and never changes on retries.
+Stable event/message IDs use the existing archive duplicate checks.
+Corrupt/oversized/linked entries are retained/refused without body logs.
+Bounds: 512 records per action, 350 KiB serialized envelope; original body
+limit 256 KiB, event detail 8 KiB; safe metadata checks remain in force.
+
+No user originals are reconstructed or migrated. Browser originals, archive
+activity gate, approval scopes, owner/observer access and manual Send are
+unchanged. Existing unpaired browser records stay unpaired. Without a valid
+current chat/task or accessible Repo, instructions require continuing the
+user task without inventing IDs or claiming data was saved.
+
+Deployment and browser installation are recorded separately in CURRENT_STATE.
+
+## 21.10.2026 — latest-task v2 активен в Docker/export; Notifier source 5.7.26
+
+Владелец подтвердил все четыре TRUE installer для Viewer SHA
+4df003701e5cc993a9914687c9211eba890d56eea6c71dfa030a6238f3744509.
+Переключён только процесс Observatory на immutable candidate:
+/workspace/repo/fortis-latest-task-20261021/candidate/repo_service.py.
+State dir прежний, loopback 18754, PID 12953. Fallback v1 сохранён рядом.
+Manifest SHA 74b1b062da2396ceb306f6a5a7bee895921292901b3e79554c729dd2b1c38f4f.
+Проверка после запуска: API task_overview v2/basis latest_task, observer
+чтение двух уже привязанных сессий OK, owner intents недоступны анонимно
+и по observer key (401). Прежние пары/число событий сохранены, ключи
+совпали до/после. Текущее число сессий 3. Откат не потребовался.
+
+Проверенные source файлы модели/export/Notifier перенесены из isolated work
+в /workspace/repos. Сессия теперь отражает последний пользовательский таск;
+исторические счётчики в UI скрыты, карточки старых задач сохраняют статусы.
+DOM использует одноцветные часы/галочку; только свежая scoped Observatory
+сводка даёт пять статусных цветов. Local upload — одноцветная стрелка.
+Node 261/261, Python 162/162, build:check, synthetic Viewer UI PASS в candidate.
+Notifier source 5.7.26 SHA:
+a11e40c372e46c3bcc33e278dce36595d79a1eb34788eb5bd5779bc38ae8e6b2.
+
+Docker/container/Tunnel не перезапускались. Новых прав, intents, тестовых
+событий/оригиналов и Send не создавалось. Windows Viewer установлен по
+подтверждению владельца, но запуск и browser live QA v2 ещё не подтверждены.
+Notifier Loader/GM storage в Edge не редактировались; версия в браузере
+остаётся непроверенной (последняя подтверждённая 5.7.23). Следующий шаг:
+запуск установленного Viewer, проверка текущих статусов, затем обновление
+одной существующей копии Loader с сохранением name/namespace/GM originals.
+
+## 21.10.2026 — latest-task + отдельные символы DOM, подготовка rollout
+
+Исправление проверено в /workspace/repo/fortis-latest-task-20261021/work.
+Python 162/162 PASS, Node 261/261 PASS, build:check и synthetic Viewer UI PASS.
+Состояние сессии = состояние последнего пользовательского таска, по времени
+подготовки оригинала; legacy fallback = первое событие. Поздний progress
+старой задачи не поднимает её в текущие. Исторические счётчики сессии убраны,
+карточки старых задач и их статусы сохранены без автоматического failed.
+Применение к реальному архиву read-only: для сессии с 7 задачами новая
+сводка completed вместо unknown; вторая сессия остаётся completed.
+
+Контракт task_overview v2, basis latest_task; v1 aggregate не выдаётся за
+текущее состояние. Цвета favicon только из свежей scoped сводки Observatory.
+DOM отдельно: одноцветные часы/галочка, local upload — одноцветная стрелка.
+При двух источниках DOM-символ виден рядом с Observatory-цветом в title.
+DOM completion не превращает текущую задачу Observatory в completed.
+
+Подготовлен только новый owner_viewer.py в Windows Repo source, для ручной
+установки владельцем. SHA256: 4df003701e5cc993a9914687c9211eba890d56eea6c71dfa030a6238f3744509
+Остальные Python/Notifier изменения остаются в изолированной копии,
+чтобы установленный пока Viewer v1 не потерял совместимость с export.
+Активный Docker backend 5.7.25/candidate и live repo export не переключались.
+Для следующего шага владелец устанавливает Viewer v2 и сообщает результат;
+затем AI согласованно переключает export/backend на v2 и готовит Notifier.
+Notifier candidate 5.7.26 SHA256: a11e40c372e46c3bcc33e278dce36595d79a1eb34788eb5bd5779bc38ae8e6b2
+Windows installation/fresh browser checks нового исправления НЕ подтверждены.
+
+## 21.10.2026 — Windows Viewer установлен, подтверждение владельца
+
+Владелец сообщил «все тру» для INSTALL_SOURCE_VERIFIED,
+INSTALL_OWNER_ACL_CHECKED, INSTALL_DOCKER_VOLUME_FOUND и MANUAL_START_READY
+после команды pinned installer. Команда также проверяла полный SHA
+backup owner_viewer.py = 2455109587431bf12705803200a953774c2e7f81e222aef74ecb5665f35daa54.
+Windows source/installed Viewer соответствует проверке installer:
+81bfb0980bba0daea94db7aec477da009c863c3ebf59dbfcc28fd75b69299ea3.
+Это подтверждение пользователя; прямого доступа Repo к AppData нет.
+Следующее действие — запуск установленного Start-FortisObservatory.cmd
+и приёмка UI. Запуск/браузерная приёмка пока не подтверждены.
+Docker backend candidate отвечает, две сессии. Обновление Notifier до
+5.7.25, отдельный metadata grant и browser live QA остаются впереди.
+
+## 21.10.2026 — Windows backup подтверждён владельцем
+
+Владелец выполнил inline PowerShell backup установленного Viewer:
+BACKUP_OK=True, путь
+C:/Users/alexa/AppData/Local/FortisObservatoryV1/Viewer/backup-15a23bcc9d0b452b95a4ac9cb26448e3.
+Команда копировала installed code/launchers и available approvals/config,
+со сверкой SHA каждой копии. В ответе SHA owner_viewer.py обрезан до
+24551095; полная идентичность legacy Viewer ещё должна провериться
+локально перед установкой. В Repo не получены JSON/секреты Windows.
+Новые 8 source файлов Viewer/installer повторно сверены с candidate manifest.
+Следующий шаг — ручная установка Windows Viewer с pinned SHA через
+существующий installer; выполнение/успех пока НЕ подтверждены.
+Docker backend candidate уже активен. Notifier остаётся последней
+подтверждённой версии 5.7.23; metadata grant и browser live QA ещё впереди.
+
+## 21.10.2026 — этап E: Docker backend обновлён и проверен live
+
+По указанию владельца «выполнять» выполнен отдельный доступный этап:
+перезапущен только процесс Observatory, с legacy baseline на проверенный
+candidate /workspace/repo/fortis-rollout-5.7.25-20261021/candidate/repo_service.py.
+PID 3424, loopback 18754, прежний state dir и архив. Docker/container/Tunnel
+не перезапускались. Перед активацией SHA всех baseline/candidate файлов
+сверены с manifest 885bb8ee... . Скрипт переключения и состояние находятся
+в том же private пакете: activate_backend.py, backend-activation-state.json.
+Предусмотрен возврат к baseline при отказе проверок; он не потребовался.
+
+Live HTTP: /api/state OK, обе существующие пары сохранены, events_count
+не уменьшился, инвентарь существующих ключей совпал до/после. Для обеих
+сессий owner GET task-intents и observer GET observer-status/task_overview
+успешны; available=true. Анонимное и observer-only чтение owner intents
+получили 401. Повторная health-проверка после завершения переключения PASS.
+Никакие intents, metadata grants, тестовые события/оригиналы или Send
+для live-проверки не создавались. Новые API теперь активны в Docker.
+
+Windows Viewer/Notifier не установлены/не обновлены; последняя подтверждённая
+версия Notifier 5.7.23. G2 вновь недоступен (429), поэтому Windows installed
+backup и последующее обновление остаются незавершёнными. Старое подключение
+«Туннель» не использовать. Копия кода в Workfiles ранее проверена (41 файл).
+
+## 21.10.2026 — Observatory запущен по запросу владельца
+
+По явному запросу владельца через Fortis Repo запущена отсутствовавшая
+служба Docker Observatory: legacy код до task-status update из
+/workspace/repo/fortis-rollout-5.7.25-20261021/baseline/repo_service.py.
+Используется прежний state dir /workspace/repo/fortis-observatory-repo-v1,
+loopback 18754, PID 1996. HTTP health повторно подтверждён, две сессии.
+Ключи/пары/архив не сбрасывались, Docker/Tunnel не перезапускались;
+кандидат 5.7.25 не установлен. Windows Viewer и открытие owner Edge
+не подтверждены: G2 дважды вернул ошибку подключения 429.
+По уточнению пользователя старое подключение «Туннель» больше не использовать.
+Адрес установленного Windows Viewer: http://127.0.0.1:18755/.
+
+## 21.10.2026 — этап E: backup через Fortis Repo
+
+Пакет /workspace/repo/fortis-rollout-5.7.25-20261021 проверен по manifest:
+baseline 20 файлов (Notifier 5.7.23, прежний Viewer/сервер из checkpoint),
+candidate 21 файл (Notifier 5.7.25). Копия в Windows:
+C:/Users/alexa/Workfiles/FortisBackups/Observatory-before-5.7.25-20261021
+(Repo: /workspace/files/FortisBackups/Observatory-before-5.7.25-20261021).
+После копирования SHA всех 41 файлов проверены повторно.
+
+Это backup кода; установленный Viewer в AppData не подключён к Repo
+и не скопирован. Архив, оригиналы, ключи, approvals и browser storage
+не экспортировались. Установленная Windows-копия остаётся непроверенной.
+Старый enrollment не принимает task_intents в grants; при будущем rollback
+нельзя слепо заменять approvals старым файлом. Выданный PS скрипт не выполнен
+из-за подписи; для созданной копии кода в Workfiles он не нужен.
+
+Read-only live-проверка: .service.pid содержит 194, процесс /proc/194
+отсутствует, порт 18754 не отвечает (URLError). Причина не установлена.
+Создание backup не запускало/останавливало/перезапускало службы, Docker
+или Tunnel, не устанавливало обновление, не меняло pairing и не делало Send.
+
+## 21.10.2026 — этап D: favicon Notifier 5.7.25 (source-only)
+
+Существующий GET /api/observer-status дополнен task_overview для той же
+сессии и того же observer key. Сводку строит общий session_overview;
+только счётчики/статусы, без task_id, текста или ключей. Новых маршрутов,
+writer прав и расширения Windows allowlists в D нет.
+Notifier использует пять цветов Viewer: жёлтый ожидание, синий работа,
+фиолетовый длительная тишина/неизвестность, зелёный reported completed,
+красный только reported failed. Черновик/blocked — без цветного favicon,
+без серого. Ожидание другой задачи — отдельная жёлтая отметка;
+непрочитанный ответ — независимая белая точка. Upload имеет приоритет,
+реальная DOM-генерация — синий значок; простой armed Send не означает работу.
+DOM unread без сводки имеет зелёный колокольчик, просмотренный — native icon.
+
+Сводка привязана к chat/session/generation, не восстанавливается из storage.
+Смена чата/привязки, отключение, ошибка доступа/связи или давность >20 секунд
+снимают цвет AI-статуса с явной подписью в title; failed не создаётся.
+Устаревший callback не освобождает новый polling request. Старый API
+сохраняет прежние уведомления и показывает «старый API» вместо AI-цвета.
+Исторический completed не воспроизводит уведомление о новом ответе.
+
+Node 256/256 и build:check PASS; новые HTTP проверки 4/4 PASS.
+Полный Python прогон Observatory: 158/158 PASS; synthetic Viewer UI PASS.
+Checkpoint: /workspace/repo/fortis-intents-step-d-20261021.
+Подготовлены только исходники. Windows/Edge live НЕ проверялись;
+установленная рабочая версия 5.7.23 и службы не менялись. Не устанавливать
+и не перезапускать по историческим командам без отдельного rollout.
+Notifier 5.7.25 source SHA256: 4af2e2021c69a5200bfcaf10b53bae030524bdcfce05506395bd5f086ff037c9
+Viewer source SHA256 остаётся 81bfb0980bba0daea94db7aec477da009c863c3ebf59dbfcc28fd75b69299ea3.
+См. [контракт A/B/C/D](../observatory/v1/TASK_INTENTS_V1.md).
+
+## 21.10.2026 — этап C: основной список intents и цветные статусы (source-only)
+
+Read-only Repo export объединяет сохранённые intents и архивные задачи;
+owner /api/state получает additive task_overview, owner /api/tasks —
+персональное состояние, подпись и разрешённый цвет. Старое session.state
+сохранено для диагностики, архив оригиналов/истории не меняется.
+Классификатор task_display/session_overview общий в task_intents.py:
+жёлтый ожидание, синий работа, фиолетовый silence/unknown, зелёный completed,
+красный только failed. Черновик и blocked — текст без цветной маркировки.
+Каждый счётчик отдельный; завершение другой задачи не скрывает ожидание.
+При ошибке/устаревании данных строки сохраняются и явно помечаются,
+актуальная цветная маркировка снимается, failed не создаётся.
+
+Новые unit/export и synthetic Viewer UI проверки PASS; полный Python
+прогон: 154/154 PASS. Synthetic UI также проверяет зависшее чтение:
+маркировка устаревает без нового запроса/Send и без потери выбора. Текущий этап не меняет Notifier, Windows bridges,
+разрешения, service процессы, действующие ключи или оригиналы.
+Windows/Edge live проверка НЕ выполнялась; никакой установки/restart.
+Favicon следующий этап. См. [контракт A/B/C](../observatory/v1/TASK_INTENTS_V1.md).
+
+## 21.10.2026 — этап B task metadata, исходники без установки
+
+Notifier source 5.7.24 синхронизирует новые проверенно сохранённые intents,
+восстанавливает metadata retry после offline/reload и передаёт отдельно
+send_requested / send_unconfirmed / send_observed / send_not_attempted.
+DOM observation не считается ChatGPT receipt. Только явный дополнительный
+owner grant для одобренного Notifier даёт task_intent_key; старые привязки
+автоматически не расширяются. Узкие Windows/Repo transport allowlists
+поддерживают два metadata POST; user-original archive gate не менялся.
+См. [контракт A/B](../observatory/v1/TASK_INTENTS_V1.md).
+Node 241/241 + build:check PASS; synthetic Viewer UI PASS.
+Python: 146 проверок пройдены; 145 в общем прогоне, контроль SHA документа
+успешно повторён после актуализации PIN (test_owner_installer_syntax: 2/2 PASS).
+Live службы, архив, ключи и Edge 5.7.23 не менялись. Новая сборка source-only,
+не применять старые SHA к новым Owner файлам. Цвета/основной task export
+и favicon идут следующими шагами. Commit/push/restart/install не выполнялись.
+
+## 21.10.2026 — Task intents: этап A, source-only
+
+Добавлена неизменяемая metadata-only регистрация сохранённого task_id до AI
+и отдельное owner-чтение, объединяющее intents с принятыми V2 events.
+Новый сессионный task_intent_key выдаётся только явным owner POST;
+observer/writer права не расширены. Контракт и пределы доказательств:
+[Task intents V1](../observatory/v1/TASK_INTENTS_V1.md).
+25 новых тестов PASS; полный observatory/v1 Python suite 136/136 PASS.
+Рабочая служба НЕ перезапускалась, действующий архив/ключи НЕ трогались;
+Notifier 5.7.23 и Windows Viewer/Dispatch не менялись. /api/state и текущие
+archive/activity endpoints сохранили контракт. Send, Notifier sync, Viewer
+export и цвета в этот этап не входят. Не устанавливать/перезапускать ради
+этой source-only подготовки; следующих действий на Windows сейчас нет.
+
+## 20.10.2026 — Repo Observatory restarted; next Windows/Edge rollout
+
+Repo-only service на 127.0.0.1:18754 был штатно остановлен с
+проверкой identity PID и запущен из новых источников в том же
+Docker-контейнере и persistent volume. Зафиксирован реальный
+read-back до/после: 2 одинаковых session IDs / 42 события,
+ingest=available, без bearer HTTP 401. Docker container НЕ
+рестартовали, archive НЕ удаляли, пользовательские сообщения/
+ключи и коннекторы Windows не экспортировали.
+
+Следующая операция — только владелец Windows alexa вручную закрывает
+старый owner Viewer, применяет ПИН-установку трёх файлов по
+observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md, запускает Viewer,
+обновляет существующий Tampermonkey до Notifier 5.7.10,
+перепривязывает только нужные chats, проверяет Edge UI на безопасных
+тестовых данных по observatory/v1/EDGE_SMOKE_2026-10-20.md.
+НЕТ автоматической установки через Repo: владелец Windows SID/ACL
+и GUI не принадлежат Repo-контейнеру. Реальный native Send не
+инициировать без наглядной проверки target chat/вкладки и согласия.
+Для результатов Edge требуются позитивный и негативный тесты,
+доказанный receipt исходника и подтверждённое вложение (не только
+наличие input.files). Не сообщать pairing code в чат.
+
+
+## 20.10.2026 — post-review source fixes, без установки
+
+По независимому Final Review R-FNO-20261020/v1 исправлены
+F-P-03/F-P-04/F-P-05/F-P-06 на уровне исходников.
+Notifier 5.7.10: insert-only выполняет посимвольную сверку
+исходника и штатного поля; отличающиеся пробелы/пустые строки/
+Unicode дают явный отказ без Send, исходник остаётся в Textbox.
+File mode распознаёт только dedicated attachment card, а не имя
+в любом тексте composer, и не считает busy состояние подтверждением
+готовности upload. Настоящая карточка и finished upload в Edge
+НЕ проверены. Manual Send после редактирования не автоматически
+архивируется с task_id.
+
+Repo Store: staged JSON из .event_bundle не получает receipt
+без event_id sidecar из .event_details. При временном отсутствии
+sidecar => retryable, архив не пополняется; legacy root events
+не требуют detail. Windows owner_dispatch: poll/status/enqueue/ack
+сбрасывают истёкший body, late ACK разрешён только для текущего
+не заменённого dispatch_id. Две другие развилки Final Review —
+отдельное согласие на remote Send и offline queue — НЕ приняты и
+не изменялись. Исходники не означают Docker/Windows/Edge rollout.
+Нужен controlled deployment и live end-to-end receipt.
+
+
+## 20.10.2026 — Owner Viewer session composer / Notifier 5.7.9
+
+Для отзыва нажми «Отозвать право адресной отправки» в панели
+привязки Viewer; следующая привязка создаст новый ключ.
+Это не гарантированная отмена уже выданной вкладке команды.
+
+В sources создан scoped owner-local channel dispatch в
+observatory/v1/owner_dispatch.py + owner_viewer.py, и
+Notifier 5.7.9 polling / ack через новый отдельный dispatch_key.
+Это дополнительное право, которое выдаётся только повторной
+явной привязкой конкретного Chat ID к установленному Viewer;
+старый observer/writer pairing без ключа не умеет remote Send.
+В режиме «Отправить» новый task_id генерирует сам Notifier,
+через обычную запись точного исходника. В режиме «Вставить»
+Send/task_id не происходит. Вкладка без активного подключения
+не получает команды; duplicate dispatch не повторяется и receipt
+не выдумывается. Вручную закрыть прежний owner Viewer, проверить
+три SHA и исполнить ТОЛЬКО updated Install-FortisObservatoryViewer.ps1
+по observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md, а затем обновить
+ОДИН existing userscript Notifier 5.7.9. Запущенные Docker/Windows
+службы и Tampermonkey при source-изменениях не обновляются сами.
+Нужен end-to-end smoke на реальных двух чатах прежде чем считать
+remote send готовым. Следующие optional этапы: manual-send capture,
+file-aware dispatch, offline queue (после отдельных решений).
+
+
+## 20.10.2026 — применение подробных событий и Notifier insert-only
+
+Исходники готовятся отдельными source-only релизами: Repo Docker
+Observatory event-detail (UTF-8 stdin sidecar и on-demand history),
+Windows Owner Viewer (см. PIN SHA в
+observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md) и Notifier 5.7.8
+с кнопкой «Вставить» над ➤. При event --detail-stdin на старом Repo service новый формат
+останется в отдельной staging-очереди, не будет принят до обновления
+Store. STAGED_ONLY не является receipt. Сначала обновить/проверить службу в
+контролируемом порядке, не сбрасывая archive. AI interim/final
+оставить через Repo message STDIN. Сквозная отправка из Observatory,
+автоархивация manual Send и очередь закрытых вкладок
+остаются отдельными нерешёнными задачами. Не создавать
+второй userscript и не перезапускать Windows без владельца.
+
+
+## 20.10.2026 — крупные вставки Notifier 5.7.5
+
+В новых исходниках Notifier и Observatory оригиналы размером
+больше 64 КиБ (до 512 КиБ UTF-8) идут по тому же точному
+per-task пути; пересмотрены ограничения Store, HTTP, Windows
+Viewer/Relay и Docker relay. Быстрый текстбокс использует короткий
+preview для вставок от 12k символов, но ↗ раскрывает полный
+редактируемый текст, ⧉ копирует полный текст, ➤ переносит весь
+текст порциями и только затем допускает Send. Вторая кнопка
+«только вставить» и удалённый текстбокс Observatory из отдельного
+плана ещё не реализованы. Для запуска нового пути нужно обновить
+существующие Windows/Docker службы штатным способом и заменить
+ровно один Tampermonkey Notifier. Ключи не выводить, архив не
+удалять. Актуальные installer SHA в
+observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md.
+
+
+## 20.10.2026 — Notifier quick Textbox: 5.7.4 large paste safeguard
+
+При закрытой панели + тяжёлые списки GM истории больше не перечитываются
+на каждом UI render. От 12k символов большой текст сохраняется целиком
+только в RAM текущей вкладки и показывается краткий preview; ⧉ копирует
+полный текст, × очищает его. После клика ➤ сохраняется exact оригинал
+через прежнюю pipeline, без нового route и фоновой автопубликации.
+Quick send свыше 64 KiB UTF-8 теперь отказывается до записи, т.к.
+у Viewer writer оригинала текущий cap 65536 bytes. Обновить
+существующий Tampermonkey userscript из Repo вручную; Edge smoke и
+прямое профилирование заморозки ещё не проводились.
+
+
+## 20.10.2026 — закреплённый header и четырёхколоночный Owner Viewer (source)
+
+Изменён исходный UI observatory/v1/owner_viewer.py: sticky topbar,
+сессии, задачи, разноцветные записи (оригинал/события/полные AI),
+панель подробностей; границы колонок можно перетаскивать или менять
+клавиатурой. События отображают шаги, сообщения показывают сохранённый
+полный текст. При отсутствии оригинала Viewer сообщает об отсутствии.
+API, экспорт архива, scopes и архив не менялись. Новые версии исходника
+применяются владельцем только через существующую защищённую установку
+с SHA из observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md и ручной
+перезапуск Viewer. Без автоматического обновления Windows и Docker.
+
+
+## 19.10.2026 — компактный главный экран Owner Viewer (source ready)
+
+В observatory/v1/owner_viewer.py форма подключения сессии, инструкция
+и привязка Notifier теперь открываются только кнопками верхнего toolbar.
+По умолчанию остаются сессии, задачи и история; первый доступный task
+открывается автоматически. Данные и серверные маршруты не изменены.
+Новый Viewer source не равен установленной защищённой Windows-копии.
+Для применения нужен штатный ручной цикл закрыть Viewer → сверить SHA
+→ переустановить защищённую копию → запустить; инструкция с новым SHA:
+observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md. Repo Docker не
+перезапускался; реальный Owner Edge smoke ещё не выполнен.
+
+
+## 19.10.2026 — Stateless Observatory bootstrap (source ready)
+
+Old generated Repo instructions mixed permanent rules and session,
+chat, enrollment, sequence IDs. New repo_service.py bootstrap
+prints short ID-free instructions. Live API instructions remain
+old until owner-controlled Docker service restart. New
+repo_task.py event/message reads enrollment from registered
+Docker archive using current-message session/chat/task IDs and
+never relies on past prompt memory. Notifier v5.7.2 supplies
+fresh fully instantiated sender commands per request and
+does not print private writer/observer keys. Planning Helper
+ordinary Observatory TextModule updated. Old sender commands
+remain supported. No owner environment or live service restarted.
+
+
+## 19.10.2026 — Observatory TextModule and AI-assisted Notifier references
+
+Generated Observatory instructions were checked and contain Chat ID,
+reporting session ID, session enrollment ID, route, Repo event and
+full-message senders, and receipt caveats. The new source-library
+TextModule fortis.observatory-telemetry adds only a concise reminder
+(no secrets or fixed IDs). Until imported into existing Planning Helper
+GM through its Import UI or published through Helper Save GitHub and
+retrieved by Sync missing, the source file is not active locally.
+Notifier v5.7.1 supports explicit user-confirmed bulk paste of existing
+module IDs; validates every reference and nested dependency against
+the current Helper catalog atomically. AI can propose IDs read-only
+from Fortis Repo via notifier_module_refs.py; it cannot silently
+modify owner browser GM. No Notifier TextModule editor added.
+
+
+## 19.10.2026 — Notifier Profiles and shared Helper modules (source)
+
+Notifier 5.7.0: fourth ⚙ button, profiles, attach-only local Helper
+TextModules, module ordering, code-registered behavior toggles.
+Planning Helper 0.40.9 remains sole editor/GitHub client. Source
+GM local snapshot stays inside Helper; read-only same-origin
+BroadcastChannel broadcasts on every verified snapshot write.
+Notifier holds only profile module IDs; no duplicate persistent
+module text library or new module editor in Notifier. Missing
+references/cycles/Helper catalog block module-based sends; exact
+user original unchanged. Existing queue/upload/Observatory flows
+preserved. Manual owner Edge userscript updates and real cross-
+Tampermonkey browser acceptance are pending. No owner Windows
+configuration, Docker archive, or GitHub live state changed.
+
+
+## 19.10.2026 — chronological task cards and original uploads (source ready)
+
+The approved owner Viewer source now lists tasks by earliest archive-accepted timestamp with an order number, local browser timestamp, and exact-original excerpt or explicit placeholder. A session-scoped owner-only pairing action lets Tampermonkey v5.6.6 read activity and conditionally upload original text to the one Repo Docker Observatory through a restricted localhost 18755 transport using docker exec stdin. Full AI messages still travel directly via Fortis Repo. No legacy/unpaired task migration. Real owner Windows re-install and Edge smoke are pending. See observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md. PowerShell installer parsed with 0 errors.
+
+
+## 19.10.2026 — Fortis Textbox v5.6.5: Enter sends after 1s native composer dwell
+
+Right-hand Notifier textbox now treats Enter as submit, with Shift/Alt+Enter
+as newline and IME/repeated-key safeguards. The persistent original
+and task_id must be verified in Tampermonkey BEFORE native composer
+insertion. The old queue controller receives an opt-in
+minComposerDwellMs=1000 only for the new textbox. It inserts
+into ChatGPT native composer promptly, re-checks ownership and
+waits at least 1000ms before clicking the real Send. If the text
+was edited during delay, click is aborted; old queue, checkpoint,
+upload-after-file and plus-panel paths are unchanged. Version 5.6.5;
+129 JS tests expected. Updating owner Edge/Tampermonkey remains
+a separate manual action, not a Repo connector operation.
+
+
+## 19.10.2026 — Notifier v5.6.4: LIST_FAILED fixed with per-chat GM index (source)
+
+Real owner Edge v5.6.3 reported LIST_FAILED. Native GM key
+enumeration cannot be relied upon; v5.6.4 writes verified
+per-chat index of task storage keys via GM_getValue/GM_setValue.
+Existing exact-original record and index are BOTH read back
+before sending. Normal enumeration still merges legacy entries;
+old unknown unindexed records are retained even if unavailable
+for discovery while GM_listValues is broken. Index failure stops
+Send; queue/delay/upload original buttons and Repo→Docker
+assistant telemetry unchanged. **122 JS tests PASS**;
+Tampermonkey v5.6.4 installation under alexa and live send
+need manual owner retest. No browser storage reset performed.
+
+
+## 19.10.2026 — Fortis Textbox v5.6.3 source storage fix
+
+Screenshot from owner Edge v5.6.2: save-before-Send failed with
+generic toast; original stayed in textbox and did not send.
+No evidence of which GM step failed. Notifier v5.6.3 implements
+JSON-string GM record roundtrip (object-format backward compatible),
+exact readback plus key-list verification, safe UI rerender, and
+stage-specific nonsecret failure codes. No deletion/retry.
+116 JS tests PASS. Requires owner Tampermonkey update to verify
+real Edge behavior. Existing 3 floating buttons, Repo sender,
+Docker Observatory and persistent archive remain unchanged.
+
+
+## 19.10.2026 — Notifier v5.6.2: текстбокс справа от трёх кнопок (source-only)
+
+Пользователь потребовал НЕ менять три существующих плавающих
+кнопки Notifier (◷ checkpoint по таймеру, + очередь/delayed,
+⇧ автоотправка после загрузки файла), а добавить текстбокс
+справа и оставить общую возможность перетаскивания.
+
+**Выполнено в source** /workspace/repos/tabnotifier-fileautosend-autochat:
+в src/upload-button-ui.js справа прикреплены поле и отправка ➤;
+двигается вся группа за старые кнопки или ⠿. Сам ввод текста
+не запускает перетаскивание. Новая отправка использует уже
+проверенный persistentMessageController.saveAndSend:
+сначала GM оригинал/task_id, потом штатный native ChatGPT
+Send, без изменения очередей и delayed/file handlers.
+Сгенерирован userscript v5.6.2, JavaScript tests 112/112 PASS.
+Настоящая установка в Edge/Tampermonkey ещё **не выполнялась**;
+нужно ручное обновление и browser smoke, не автоматическое
+редактирование owner GUI из Fortis Repo/G2. Старые сохранённые
+сообщения и единый Docker archive не затрагивались.
+Точный исходник пользователя в Docker пока не переносится;
+этот UI этап не решает браузерный транспорт.
+
+
+## 19.10.2026 — Edge Observatory: самостоятельная регистрация сессий
+
+Обновлён Windows-alexa Viewer из одного Docker Observatory:
+теперь локальный интерфейс по адресу http://127.0.0.1:18755
+позволяет самому зарегистрировать выбранную ChatGPT беседу,
+указав URL и название; получить и скопировать инструкцию для этой
+же сессии. Регистрация идёт через точный
+docker exec fortis-repo-test python3 .../repo_service.py register,
+а для инструкции — узкий Repo-local CLI instructions. У существующего
+Chat ID при повторном подключении переиспользуется текущая
+Repo-сессия вместо обычного дубля.
+
+Это **не** подключение G2 и **не** отдельный Windows archive.
+AI продолжает отправлять события и полные ответы через Fortis Repo,
+а exact оригинал от браузерного Notifier по-прежнему требует
+отдельной проверенной доставки. Windows viewer имеет только одну
+дополнительную мутацию: регистрацию по валидному
+chatgpt.com/c/<id> и безопасному названию, с обязательным
+временным viewer Bearer, exact Origin и ограниченным JSON размером.
+Никаких owner-credential, pairing writer keys или сообщений через
+этот POST. История остаётся в едином Docker volume.
+
+**Важное применение:** исходник owner_viewer.py обновлён только в
+совместно доступном source checkout. Установка под alexa —
+**отдельное пользовательское действие**: сначала закрыть текущий
+Viewer, затем повторить approved manual installer с новым SHA,
+после чего запустить защищённую локальную копию. Установка в
+Windows не выполнялась инструментами этого чата; реального
+UI Edge обновлённой копии ещё не проверяли.
+Инструкция: observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md.
+
+## 19.10.2026 — ручной Observatory в Edge из alexa (готовые исходники; owner install pending)
+
+AI/телеметрия остаются `ChatGPT → Fortis Repo tool → Repo Docker spools →
+один persistent Docker volume`, без G2 и Windows owner HOST.
+Добавлен ручной **read-only** просмотр из `alexa`:
+`observatory/v1/repo_viewer_export.py` (внутри существующего контейнера
+через docker exec) и `observatory/v1/owner_viewer.py` (owner Windows
+`127.0.0.1:18755`, временный Bearer только из owner-консоли, Edge UI).
+`Start-FortisObservatory.cmd` запускает просмотрщик вручную; если
+Observatory остановлен, Python-скрипт умеет повторно запустить
+**существующий** сервис в том же контейнере, не создавая второго архива.
+`Install-FortisObservatoryViewer.ps1` создаёт PIN-версию в
+`%LOCALAPPDATA%\FortisObservatoryV1\Viewer` после явной проверки
+`alexa` SID, контейнера, Docker volume, NTFS ACL и ожидаемого SHA-256.
+Исходные Windows файлы **не установлены**; реальный Edge owner
+и guest-negative доступ **не проверены**. Полное описание:
+`observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md`. Код просмотра нельзя
+отправлять в чат. Реальный original из Notifier пока не приходит автоматически.
+
+Тесты: 56/56 Python ранее + новый Edge-launch test; PowerShell AST
+`Install-FortisObservatoryViewer.ps1`: 0 parse errors. Live Repo
+Observatory продолжает работать в контейнере. Это SOURCE-READY,
+а НЕ installed/production-owner-pass.
+
+## 19.10.2026 — ТЕКУЩЕЕ РЕШЕНИЕ пользователя: AI → Fortis Repo → единый Docker архив
+
+**Fortis Repo — основной инструмент AI.** Для отправки событий и
+полного текста **собственных** interim/final ответов ChatGPT вызывает
+именно Fortis Repo tool, который в Linux-контейнере исполняет
+`observatory/v1/emit.py` и `observatory/v1/repo_message_sender.py`.
+Не нужны G2, owner Windows Host, Windows relay, открытие Docker TCP-порта
+или отдельный Windows Observatory. Путь в Git-исходниках
+`/workspace/repos/tunnel/observatory/v1` — **историческое имя каталога
+проекта**, не сетевой туннель и не новый transport.
+
+**Working route:** `ChatGPT (реальный вызов Fortis Repo tool) →
+/workspace/repo/fortis-observatory-repo-v1/inbox/repo` (короткие
+events) + `.../inbox/messages` (full assistant body из UTF-8 stdin) →
+один Python Repo Observatory → единый `archive/sessions` в том же
+Docker volume. Если сервер выключен, файловый stage не зависит от
+HTTP, а importer обработает запись позже. `STAGED_ONLY` означает
+только успешный файловый stage, не accepted archive; при недоступном
+tool нельзя заявлять о сохранении. Реальный вызов модели автоматически
+из prompt не гарантирован, проверять отдельно на целевой сессии.
+
+**Важный отдельный участок:** точный оригинал пользователя до
+дополнения prompt сохраняет Tab Notifier в браузере. Модель не должна
+восстанавливать exact original по своему ответу. Его последующая
+запись в тот же Docker archive после accepted event — отдельно
+решаемая browser/Notifier интеграция; **она не нужна для AI→Repo
+доставки** и не является поводом запускать G2/owner relay.
+Готовые `owner_browser_relay.py` и Windows helper остаются
+**неразвёрнутыми факультативными source-экспериментами**, а не
+утверждённой/необходимой архитектурой.
+
+Для явно зарегистрированной `reporting_session_id` и текущего
+`task_id` используй инструкции Repo-сервиса:
+`python3 /workspace/repos/tunnel/observatory/v1/repo_service.py
+instructions --session rs_32hex`. Он показывает enrollment ID и
+конкретные команды Repo sender. Не передавай сессию/привязку из
+другого чата и не создавай реальную сессию молча. Не раскрывай bearer,
+observer/writer keys или полный текст через metadata event summary.
+Данные Repo volume доступны обладателям полномочий Fortis Repo.
+
+## 19.10.2026 — Browser↔Docker narrow relay (SOURCE-ONLY; NO WINDOWS LISTENER)
+
+Добавлена source-only пара helper-компонентов в `observatory/v1`:
+`owner_browser_relay.py` (Windows owner-local 127.0.0.1:18754,
+только 3 browser маршрута, cap keys, no CORS, GET/POST guards,
+docker exec fixed argv with stdin-only request) и
+`browser_relay_dispatch.py` (Docker-side проверенный forwarding
+только к существующему Observatory 127.0.0.1:18754).
+`repo_browser_pair.py` выдаёт scoped pairing JSON **только в защищённую
+консоль owner** при явном вызове, не через HTTP/ChatGPT logs.
+Это НЕ второй Observatory, архив остаётся единым в Docker.
+
+Python source tests `test_browser_relay.py` 6/6 PASS с синтетическим
+локальным запросом → мост → event/original writer → read-back.
+Windows relay фактически НЕ установлен/НЕ запущен. Из restricted
+Windows проверка port 18754 не дала соединения; это не тест owner
+или ACL. Реальный мост требует отдельно одобренной protected
+owner-install копии, pinned hashes, проверенного Docker container,
+guest-negative/owner-positive и настоящего Edge/Tampermonkey smoke.
+Инструкция: `observatory/v1/BROWSER_RELAY_OWNER_INSTALL.md`.
+Ни Windows network/ACL, ни Docker port binding, ни работающий
+Observatory в этой операции не изменялись. В частности, никакой
+pairing-code не выводился в чат.
+
+## 19.10.2026 — CURRENT: единый архив в Fortis Repo Docker (Candidate v8)
+
+По решению пользователя Observatory запускается и хранит всю историю **в том
+же Docker volume**, который доступен Fortis Repo. Windows Observatory больше
+не является обязательным компонентом. Сохраняются **раздельные очереди
+внутри одного хранилища**: `inbox/repo` для V2 metadata событий,
+`inbox/messages` для **полных AI interim/final messages**, затем
+`archive/sessions/.../events`, `user_messages`, `assistant_messages`.
+Общий корень: `/workspace/repo/fortis-observatory-repo-v1`.
+
+Доступ Fortis Repo к этому volume означает, что полные тексты доступны
+субъектам с правами Repo. Это **не** Windows owner-private storage. Не
+класть сообщения в старый общий event inbox, логи, Git, URLs или argv;
+не открывать контейнерный loopback на Windows/network без отдельного review.
+Repo HTTP: `127.0.0.1:18754` только внутри контейнера; 0700 каталоги,
+0600 token и файлы, owner bearer для истории, отдельный writer capability
+для точного original пользователя.
+
+**Текущие исходники:** `repo_messages.py` реализует ограниченный
+(256 KiB/body, 512 pending files) offline-first spool full AI bodies:
+`message_id` + `task_id` + session/enrollment ID + interim/final,
+JSON escaped Markdown с SHA256/read-back, idempotent duplicates и
+private quarantine для invalid/conflicting payload. Временное отсутствие
+сессии приводит к deferred, неверный enrollment — отказ.
+`repo_message_sender.py` принимает UTF-8 body только из STDIN, никогда
+из CLI аргумента, выводит `STAGED_ONLY`, а не ложный acceptance.
+`repo_service.py` в одном процессе опрашивает обе очереди и имеет CLI
+`status`, `sessions`, `register`, `instructions`, `history`,
+`archive-original` (original via STDIN и только после accepted signal)
+и `stop`. Полная история выдаётся по явному запросу
+`GET /api/repo-history?session=...&task=...` с bearer либо
+`python3 repo_service.py history --session rs_... --task task_...`.
+Оригинал пользователя через writer-API сохраняется в **том же Repo archive**.
+
+**Важно:** оригинал от Tab Notifier автоматически в Docker ПОКА НЕ
+передаётся: браузерная связка ранее целилась в Windows 127.0.0.1:18753,
+а новый сервис слушает Docker loopback 18754; требуются отдельные
+bridge + browser security/permissions. Реальная модель должна иметь
+Fortis Repo tool, чтобы вызывать sender, а не только текстовую подсказку.
+Приватная история Docker доступна Repo, не owner Windows.
+Это не доказывает DOM-equivalent запись AI ответа. Отсутствует
+автозапуск после перезапуска Docker и backup на случай удаления volume.
+
+**Source tests:** `test_v1.py` 34 + `test_repo_service.py` 4 =
+**38/38 PASS**. Test lifecycle: сервер STOP -> V2 metadata и три
+полных AI messages STAGED -> сервер START -> exact body read-back;
+user original archived после первого accepted event, повтор idempotent,
+подменённый message_id карантинируется, неизвестная сессия ждёт.
+Windows owner не изменён; новые HTTP credentials не публиковались.
+
+**Примеры (через Fortis Repo, вместо плейсхолдеров настоящие ID):**
+`cd /workspace/repos/tunnel/observatory/v1`
+`python3 repo_service.py status`
+`python3 repo_service.py sessions`
+`python3 repo_service.py register --chat-id CHOSEN_CHAT_ID --title "Repo Session"`
+`python3 repo_service.py instructions --session rs_32hex`
+`python3 repo_service.py history --session rs_32hex --task task_32hex`
+`python3 repo_service.py archive-original --session rs_32hex --task task_32hex`
+читает **пользовательский exact original** из UTF-8 STDIN только после
+accepted event; не вставлять body в командную строку.
+`python3 repo_message_sender.py --session rs_32hex --session-task task_ENROLLMENT
+--task task_CURRENT --kind interim` читает **AI body** из UTF-8 STDIN;
+для последнего сообщения `--kind final`, при retry прежний `--message-id`.
+Никакой реальной пользовательской сессии в Repo не регистрировать
+молча. Полные тексты выводятся CLI `history` только по явному запросу.
+
+**Status:** исправленная single-Docker цель кодирована и покрыта source
+тестами; live Repo process требует restart на новой версии. Никаких
+Git source commit/push, owner Windows deploy или браузерного bridge
+данное изменение инструкций не выполняет.
+
+
+## 19.10.2026 — Repo-first Observatory внутри Fortis Repo Docker (SOURCE + RUNNING METADATA MODE)
+
+**Рабочий экземпляр** отдельного `repo_service.py` использует
+`127.0.0.1:18754` **внутри Linux Docker**; не занимает owner Windows
+`127.0.0.1:18753` и не перезапускает туннели. Состояние находится
+в постоянном **внутреннем volume** `/workspace/repo/fortis-observatory-repo-v1`:
+`archive/` (только metadata Markdown), `inbox/repo/` (короткие JSON V1/V2),
+`.repo-http-token` (только внутренний HTTP-access ключ), `.service.lock`,
+`.service.pid`, `service.log`. Каталоги требуют mode 0700, token mode 0600;
+никакие реальные owner ключи не передаются.
+
+**Критическое разграничение:** Repo контролирует этот volume, так что он
+**не owner-private** по модели Windows. В режиме Repo у `Application`
+явно отключены `GET /api/message-writer-pair` и
+`POST /api/user-messages` (403 даже с ключом). Нельзя помещать в
+Repo inbox или metadata archive полные тексты пользовательских или AI
+сообщений, owner credentials и реальные секреты. Source owner Windows
+по-прежнему сохраняет штатные функции writer — flag по умолчанию не менялся.
+Контур Repo предназначен для **событий, разработческих испытаний и
+управления через Fortis Repo**.
+
+**Команды через Fortis Repo:**
+- `cd /workspace/repos/tunnel/observatory/v1 && python3 repo_service.py status`
+- `python3 repo_service.py sessions` — только session ID/state/count, без body.
+- `python3 repo_service.py register --chat-id <id> --title "Repo Session"` —
+  явная регистрация metadata-only беседы, не создавать её молча.
+- `python3 repo_service.py instructions --session rs_<32hex>` —
+  инструкция для разрешённого emitter; sender пишет в
+  `/workspace/repo/fortis-observatory-repo-v1/inbox/repo` через `emit.py`
+  (только безопасные metadata summary).
+- `python3 repo_service.py stop` — остановка **только Repo-сервиса** после
+  проверки идентичности PID; никакого owner Windows restart.
+- Для ручного запуска, когда сервис остановлен (из **Repo Docker shell**),
+  сначала создать приватную папку volume, затем:
+  `setsid nohup python3 -u /workspace/repos/tunnel/observatory/v1/repo_service.py run --state-dir /workspace/repo/fortis-observatory-repo-v1 --port 18754 >/workspace/repo/fortis-observatory-repo-v1/service.log 2>&1 </dev/null &`
+  Сервис не включён в startup-policy контейнера и **не перезапускается сам**
+  после Docker recreation/reboot; данные остаются в именованном volume
+  пока volume сохранён. Для автозапуска потребуется отдельное разрешение.
+
+**Проверки в этой разработке:** Python `test_v1.py` (34 теста),
+`test_repo_service.py` (1 интеграционный тест процесса) —
+**35/35 PASS**. Отдельно живой Repo `status`: `running`,
+локальная страница HTTP 200, API без авторизации 401, private user writer 403.
+Тест процесса: registration → STOP → stage трёх различных V2 `event_id`
+с одинаковым sequence при выключенном сервере → RESTART → три accepted
+Markdown с `sender_sequence` и ноль оставшихся JSON; token защищён 0600.
+Реальная целевая ChatGPT вкладка и Windows owner browser **не проверены**.
+`Tab Notifier` сейчас рассчитан на Windows origin `127.0.0.1:18753`:
+Repo `18754` напрямую не является совместимой заменой для browser pairing
+и не обеспечивает автоматическое сохранение user originals. Доступ UI
+из Edge потребует отдельно одобренный безопасный HTTP bridge/port mapping
+и review авторизации; в этой работе его не открывали.
+
+**Repo V1 не является вторым доверенным архивом переписки.**
+Новая кандидатная архитектура (Plan v7) ставит metadata Observatory
+Repo как основной доступный для tool workspace; Windows-private archive
+и Stage2 защищённые AI-тексты остаются отдельной задачей. Никакого
+source Git commit/push или owner deployment эта служба не означает.
+
+
+## 19.10.2026 — Observatory offline file spool corrections (SOURCE TESTED ONLY)
+
+Текущий контракт: разрешённый локальный `emit.py` пишет **только короткие
+JSON события** в устойчивый sender inbox даже когда owner Observatory выключен.
+`STAGED_ONLY` означает лишь файловую запись. `store.poll()` после запуска
+принимает валидные пакеты в защищённый Markdown; первый accepted V2
+сигнал по `task_id` разрешает Notifier архивировать оригинал через отдельный
+owner writer. Полные ответы AI в этот JSON inbox **не** писать.
+
+**V2 изменение последовательности:** в sender JSON `sequence` остаётся
+необязательным с точки зрения доверия **hint** (CLI по-прежнему требует
+передать число, совместимость сохранена). При совпавшем `sequence`
+двух разных событий V2 приёмник назначает следующую свободную
+`sequence` в owner архиве; оригинальное число записывает как
+`sender_sequence`. При отсутствии конфликта номер сохраняется. V1
+**не изменён** и продолжает отклонять коллизии. Сортировка новых файлов
+в очереди приближённо соответствует времени их локальной записи:
+`<20 digit time_ns>-<32hex>.json`; старые `<32hex>.json`
+поддерживаются. Временная метка отправителя и порядок файлов
+**не являются достоверным порядком действий ChatGPT** при параллельности.
+
+**Неизвестная сессия:** если session.md отсутствует временно, V2/V1
+входящий валидный JSON не удаляется, `poll` отражает
+`deferred_session` и `state=pending_sessions`; при следующем
+опросе после восстановления session.md пакет может быть импортирован.
+Если session существует, но route или enrollment ID не совпали —
+`unknown_session` остаётся *постоянным отказом* с удалением пакета.
+Нарушенная схема также отклоняется. Старый файл не становится
+accepted только от того, что остался в папке.
+
+**Лимиты / privacy:** входящая очередь ограничена **512 JSON файлов**,
+полным накопителем она не является. При переполнении `stage`
+возвращает ошибку и эмиттер сообщает `NOT_STAGED`, не обещая доставку.
+Неизвестные сессии сохраняют место в этой очереди; требуется контроль
+дефекта/ёмкости, стратегия ручной диагностики без чтения приватных
+текстов. Папка Repo/G2 **не** owner-private, поэтому принимает
+только безопасные события и маркеры, **не полные тексты AI или пользователя**.
+
+**Не подтверждено:** фактическая доступность sender из целевого чата
+ChatGPT, совпадение sender inbox c owner Windows receive inbox,
+owner/guest ACL и writer API установленной копии, end-to-end browser.
+Old source hashes в `OWNER_INSTALL.md` больше не следует считать pin
+этого source; runbook intentionally fail-closed. Требуются review,
+новый pin и отдельное одобрение owner install. Нет Git commit/push,
+не менялись owner Windows/runtime/source permissions в этой работе.
+
+**Следующий этап:** отдельно подтвердить путь отправитель→файлы→owner
+импорт offline/reconnect и security; затем Stage 2 — **защищённая**
+локальная очередь полных AI-сообщений с отдельным `message_id`,
+`task_id` и sender_claim, без расширения Repo/G2 event inbox.
+Серверная предрегистрация каждого `task_id` не является обязательным
+условием offline файлового импорта; это отдельная необязательная мера
+повышения гарантии происхождения сообщения.
+
+
+## Observatory V1 / Notifier Stage 1C — 19.10.2026 (SOURCE TESTED ONLY)
+
+Добавлена **запись полного оригинального сообщения пользователя в защищённый
+owner archive после первого принятого V2 сигнала того же task_id**.
+Новый `POST /api/user-messages` принимает только JSON
+`reporting_session_id/conversation_id/task_id/original_text` через
+дополнительную **сессионную write-capability** `X-Fortis-Message-Writer-Key`.
+Ключ просмотра Observatory для записи НЕ подходит; owner bearer панели
+сам по себе не подходит. Никакого текста через Repo/G2 inbox и в URL.
+
+Код привязки с правом записи выдаётся только при **явном действии владельца**
+«Код с правом записи сообщений» в owner-панели, через owner-authenticated
+`GET /api/message-writer-pair`. Обычный «Код для Tab Notifier» остаётся
+**только для чтения**. Новый код содержит и observer key, и отдельно
+message_writer_key. Вставлять только через меню Notifier «Привязать текущий
+чат», НЕ в сообщение ChatGPT. Старые read-only пары продолжают работать
+без возможности архивирования исходника; нужна ручная повторная привязка
+с новым кодом, а не расширение прав старого ключа.
+
+Owner writer перед записью перечитывает принятый Markdown V2 event/marker
+по ID и сессии; STAGED_ONLY не годится. Запись кладётся в
+`sessions/rs_.../user_messages/task_....md` (JSON-escaped UTF-8 Markdown
+с exact оригиналом при read-back). Метаданные и индекс уникальности содержат
+только ID/хэш/времена, не сам текст. Повтор того же payload идемпотентен,
+другая версия текста под тем же task_id — конфликт. Архивный ACK не
+содержит тело чата. При ручном удалении сохранённого файла индекс предотвращает
+его молчаливое воссоздание. Лимит оригинала 64 КиБ UTF-8, превышение —
+явный отказ; локальная копия остаётся у пользователя.
+
+В Notifier добавлен write monitor: отправляет original_text после
+`activity_status=accepted`, только с дополнительной writer-capability,
+повторяет после временной сетевой ошибки, сверяет SHA-256 receipt с локальным
+текстом, и лишь затем устанавливает `archive_status=archived`. При ошибке,
+отсутствии writer key, чужом ID или рассинхронизации статус остаётся pending.
+
+**Не выполнено:** owner Windows deployment/pin/ACL verification, live browser
+smoke, guest-negative на реальном Windows SID, защита/ротация capability в
+реальной установленной среде, уведомление через 10–15 секунд, полный AI
+message archive и task profiles. Repo tests не являются разрешением запускать
+RW-source под владельцем. Git commit/push исходников не выполнялись.
+
+
+## Observatory V1 / Tab Notifier — Stage 1B, 19.10.2026 (SOURCE ONLY)
+
+Добавлен **read-only**, session-scoped `GET /api/task-activity?session=rs_...&task=task_...`
+с `X-Fortis-Observer-Key` (отдельный observer capability, не owner bearer).
+Ответ содержит только идентификаторы сессии и задачи, `found`, вид/sequence и
+`accepted_unix` первого **принятого** V2 события или метаданного маркера,
+`provenance=sender_claim`. Полные тексты, summaries, ключи и owner-токен не возвращаются.
+`STAGED_ONLY` не считается принятием. API читает только существующие Markdown
+записи в защищённом owner archive. Если файл вручную удалён, он больше не
+участвует в ответе. Старый `/api/observer-status` и V1 events не изменены.
+
+Notifier хранит `reporting_session_id` вместе с локальной записью **при отправке**,
+если чат уже привязан к Observatory. Он опрашивает accepted activity именно
+по ID такой записи (в том числе после reconnect/reload). После подтверждения
+сохраняет локально `activity_status=accepted`, `first_activity_at` и тип события;
+**`archive_status` остаётся `pending_activity`**. Перенос user original в owner
+архив, write API, 15-секундное UI-уведомление и полный AI text — НЕ реализованы.
+Сообщение, созданное без привязки, остаётся локально без автоматической
+привязки к новой сессии. Сама V2 телеметрия добровольна и может отсутствовать.
+
+В файлах `observatory/v1/{server.py,store.py,test_v1.py}` и в исходниках
+Notifier выполнены source changes и тесты. Windows owner V1 и Tampermonkey
+**не установлены/не обновлены/не проверены** в этой работе; в прежнем Git
+index и live процессах изменений нет. Правила E46, owner-positive/guest-negative,
+source pin и ACL перед возможным отдельным deployment сохраняются.
+
+
+## Исправления V1 после review (18.10.2026) — только исходники
+
+В `observatory/v1` исправлены пять воспроизведённых дефектов обработки
+JSON, Markdown, конфликтующих событий, переполнения очереди и времени
+последнего сигнала. В Repo прошли 19 тестов V1 и 47 смежных тестов.
+Установленный Windows Observatory и G2/Repo не изменялись; перед запуском
+сохраняется gate E46, проверка ACL и защищённого расположения исходников.
+
+
+## Новый Observatory V1 (18.10.2026) — SOURCE ONLY
+
+Добавлена независимая версия [observatory/v1](../observatory/v1/README.md):
+ручная регистрация Chat ID, события работы и файловый Markdown-архив.
+Существующий owner Observatory, G2/Repo и Docker не менялись; Git
+commit/push не выполнялись. Для Windows установки обязателен
+review/pin шести файлов в owner-protected директории, ACL/HTTP gate E46
+и отдельная actual Windows acceptance. Из Repo RW checkout не запускать
+owner-приложение. Подробные пути и ограничения — в runbook V1.
+
 ## Актуальный выбор source/deployed и owner действий
 
 G2 entry: [source](../runtime/host-g2/runtime-api-migration/start-g2-guest-session.ps1);
@@ -137,3 +1285,37 @@ Repo Site версия 7 содержит прежние claims о /workspace/re
 
 Прежние датированные updates сохранены [в архиве](G2_G3_SUPERSEDED_GUIDANCE_2026-10-15.md#instructions).
 Актуальные указания и неисполненные шаги находятся в [плане](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md); не брать старый next-command из журнала.
+
+
+### Observatory V2 message-ID source candidate (19.10.2026; не deployed)
+
+Изменения только в `observatory/v1/` в Repo: приём записей `version=2`,
+где `task_id` — один UUID4 на пользовательское сообщение, а `session_task_id`
+сохраняет старую проверку принадлежности подключению. Добавлены
+`user_message`/`assistant_message` **метаданные**, без текста переписки;
+общий `sequence` сохраняется. Старый формат V1 принимается без изменений.
+Состояние/архив маркеров видны owner-панели, read-only статус Notifier
+пропускает маркеры, чтобы не менять семантику completed. Изменены
+`store.py`, `emit.py`, `server.py`, `client.js`, регрессионные тесты и README.
+Это source-only подготовка, **не** разрешение обновлять owner Windows copy.
+Проверка реального Windows runtime, защищённых путей и публикации отсутствует.
+Подробности и границы приватности — `observatory/v1/README.md`.
+
+**Further fail-closed guard:** the owner-private Windows relay install
+must include `approved-owner.json` pinning exact Windows owner SID and
+approved Repo container. Wrong identity/container or absent config
+prevents starting. This file is not present yet, and validation of
+real owner ACL/guest-negative remains pending.
+
+
+## 22.10.2026 — versioned Local Loader target 5.7.28
+
+Prepared byte-identical chatgpt-tab-notifier-5.7.28.user.js alongside the
+current generated bundle. SHA-256:
+d506f6d7824ac1fcf868290da44f9f2e991acd42514fac31bdb6060fbedc99c5
+Use the EXISTING Local Loader, preserve @name/@namespace/GM storage,
+change its @version to 5.7.28 and @require to:
+file:///C:/Users/alexa/Repos/tabnotifier-fileautosend-autochat/chatgpt-tab-notifier-5.7.28.user.js
+Keep GM_listValues grant. A fresh require URL selects the exact reviewed
+bundle. No second enabled Notifier, no GM cleanup, no runtime restart by
+this preparation. Actual browser installation/version remains unverified.

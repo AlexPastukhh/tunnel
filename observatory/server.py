@@ -4,6 +4,9 @@ import io
 import json
 import os
 import re
+import secrets
+import hmac
+import sys
 import threading
 import time
 import zipfile
@@ -18,12 +21,17 @@ from urllib.parse import parse_qs, urlparse
 from repo_monitor import collect_repo
 from dual_metrics import collect_g2
 import history_archive as archive
+import task_progress
 import sqlite3
 
 ROOT = Path(__file__).resolve().parent
 TUNNEL = "http://127.0.0.1:8080"
 LEGACY_HOST_ENABLED = os.getenv("OBS_LEGACY_HOST_ENABLED", "0") == "1"
 LISTEN = ("127.0.0.1", int(os.getenv("P1_PORT", "8092")))
+# No shared Windows localhost SID boundary. Token is generated fresh at owner
+# startup, kept only in Python/browser process memory, never committed or saved.
+# Do not use an env/file override or print from noninteractive sessions.
+OWNER_AUTH_TOKEN: str | None = None
 FETCH_TIMEOUT = 2.0
 SAMPLE_INTERVAL_SECONDS = 5.0
 HISTORY_RETENTION_SECONDS = 3600
@@ -47,6 +55,9 @@ G2_HISTORY = deque(maxlen=HISTORY_MAX_SAMPLES)
 G2_SAMPLES = 0
 G2_HISTORY_FILE = DATA_DIR / "g2-history.jsonl"
 ARCHIVE_DB = DATA_DIR / "native-archive.sqlite3"
+# Disabled until an owner-approved, separately reviewed directory is configured.
+TASK_INBOX = Path(os.environ["FORTIS_OBS_TASK_INBOX"]) if os.getenv("FORTIS_OBS_TASK_INBOX") else None
+TASK_INGEST_STATE = {"state": "unconfigured", "checked_at": None, "added": 0}
 ACTIVITY_ARCHIVE_POLL_SECONDS = 30.0
 LAST_ACTIVITY_ARCHIVE_AT = 0.0
 REPO_LOCK = threading.Lock()
@@ -694,9 +705,16 @@ def sampler_loop() -> None:
         if now - LAST_ACTIVITY_ARCHIVE_AT > ACTIVITY_ARCHIVE_POLL_SECONDS:
             LAST_ACTIVITY_ARCHIVE_AT = now
             archive_activity()
+        if TASK_INBOX is not None:
+            try:
+                batch = task_progress.ingest(ARCHIVE_DB, TASK_INBOX)
+                TASK_INGEST_STATE.update(state="available", checked_at=time.time(), added=batch["added"], rejected=batch["rejected"])
+            except (OSError, ValueError, sqlite3.Error):
+                TASK_INGEST_STATE.update(state="unavailable", checked_at=time.time())
         if int(now // 3600) != int((now - SAMPLE_INTERVAL_SECONDS) // 3600):
             try:
                 archive.prune(ARCHIVE_DB)
+                task_progress.prune(ARCHIVE_DB)
             except (OSError, sqlite3.Error):
                 pass
 
@@ -862,6 +880,37 @@ def export_incident(incident: dict) -> bytes:
     return buf.getvalue()
 
 
+def owner_api_authorized(handler: SimpleHTTPRequestHandler) -> bool:
+    # All /api/* methods require a bearer token. Host or Sec-Fetch-Site alone
+    # cannot discriminate G2 from alexa. Even HEAD /api has no public fallback.
+    # Explicitly prohibit remote Host and cross-site browser navigation.
+    host = (handler.headers.get("Host") or "").lower()
+    local_port = handler.server.server_port
+    allowed_host = (f"127.0.0.1:{local_port}", f"localhost:{local_port}")
+    if host not in allowed_host:
+        return False
+    if (handler.headers.get("Sec-Fetch-Site") or "").lower() == "cross-site":
+        return False
+    token = OWNER_AUTH_TOKEN
+    candidate = handler.headers.get("Authorization") or ""
+    if token is None or not candidate.startswith("Bearer ") or len(candidate) > 150:
+        return False
+    return hmac.compare_digest(candidate[7:], token)
+
+
+def require_owner_api(handler: SimpleHTTPRequestHandler) -> bool:
+    if owner_api_authorized(handler):
+        return True
+    if handler.command == "HEAD":
+        handler.send_response(401)
+        handler.send_header("Cache-Control", "no-store")
+        handler.send_header("Content-Length", "0")
+        handler.end_headers()
+    else:
+        send_json(handler, {"ok": False, "error": "owner_auth_required"}, 401)
+    return False
+
+
 def send_json(handler: SimpleHTTPRequestHandler, payload: dict, status: int = 200) -> None:
     body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     handler.send_response(status)
@@ -894,6 +943,17 @@ class Handler(SimpleHTTPRequestHandler):
         "/app.js": "app.js",
     }
 
+    def end_headers(self) -> None:
+        # Prevent browser injection, caching and accidental referrer leakage.
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
+        self.send_header("Content-Security-Policy", "default-src 'none'; script-src 'self'; "
+                         "style-src 'self'; connect-src 'self'; img-src 'self' data:; "
+                         "base-uri 'none'; form-action 'self'; frame-ancestors 'none'")
+        super().end_headers()
+
     def translate_path(self, path: str) -> str:
         # Additional fail-closed guard for inherited SimpleHTTPRequestHandler.
         # The HTTP request handlers below refuse unknown paths as well.
@@ -915,11 +975,24 @@ class Handler(SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_HEAD(self) -> None:
-        # HEAD must not bypass the GET static-asset whitelist.
+        # HEAD of API is protected too; no API metadata without auth.
+        if urlparse(self.path).path.startswith("/api/"):
+            if not require_owner_api(self):
+                return
+            self.send_response(405)
+            self.send_header("Allow", "GET, POST")
+            self.send_header("Content-Length", "0")
+            self.end_headers()
+            return
         self._serve_public_asset(head=True)
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path.startswith("/api/") and not require_owner_api(self):
+            return
+        if parsed.path == "/api/session":
+            send_json(self, {"ok": True, "role": "owner-authorized"})
+            return
         if parsed.path == "/**":
             # Some in-app browsers rewrite local preview links to /**?utm_source=...
             # Redirect only this exact malformed path; do not mask other 404s.
@@ -933,6 +1006,14 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_response(204)
             self.send_header("Content-Length", "0")
             self.end_headers()
+            return
+        if parsed.path == "/api/tasks":
+            try:
+                response = task_progress.tasks(ARCHIVE_DB)
+                response.update(ok=True, reporting=dict(TASK_INGEST_STATE))
+                send_json(self, response)
+            except (OSError, sqlite3.Error):
+                send_json(self, {"ok": False, "error": "task_archive_unavailable"}, 503)
             return
         if parsed.path == "/api/activity":
             query = parse_qs(parsed.query)
@@ -1047,6 +1128,8 @@ class Handler(SimpleHTTPRequestHandler):
         return self._serve_public_asset()
 
     def do_POST(self) -> None:
+        if urlparse(self.path).path.startswith("/api/") and not require_owner_api(self):
+            return
         if urlparse(self.path).path != "/api/incidents":
             send_json(self, {"ok": False, "error": "not_found"}, 404)
             return
@@ -1070,6 +1153,25 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 def main() -> None:
+    global OWNER_AUTH_TOKEN
+    # Refuse redirected/MCP-managed stdout: a generated owner secret must
+    # appear ONLY in the interactive user's Windows console. On Windows,
+    # os.isatty detects PowerShell conhost/Windows Terminal consoles.
+    if not sys.stdin.isatty() or not sys.stdout.isatty():
+        raise SystemExit("Refusing to start: Observatory requires an interactive owner console")
+    if sys.platform == "win32":
+        import ctypes
+        # Actual Win32 logon name, not spoofable environment USERNAME.
+        buf = ctypes.create_unicode_buffer(257)
+        size = ctypes.c_uint32(len(buf))
+        if not ctypes.windll.advapi32.GetUserNameW(buf, ctypes.byref(size)):
+            raise SystemExit("Refusing to start: cannot confirm Windows owner")
+        if buf.value.casefold() != "alexa":
+            raise SystemExit("Refusing to start: expected Windows owner alexa")
+    OWNER_AUTH_TOKEN = secrets.token_urlsafe(32)
+    print("\nFORTIS OWNER TOKEN — private console only, never paste into ChatGPT:", flush=True)
+    print(OWNER_AUTH_TOKEN, flush=True)
+    print("Paste it into the Observatory unlock field in your owner browser.\n", flush=True)
     STOP_EVENT.clear()
     load_history()
     load_repo_history()

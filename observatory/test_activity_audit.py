@@ -102,13 +102,15 @@ class ActivityApiTests(unittest.TestCase):
 
     def test_http_metadata_only(self):
         import server
-        with patch.dict(server.AUDIT_SOURCES, {"repo": self.history}, clear=True):
+        with patch.dict(server.AUDIT_SOURCES, {"repo": self.history}, clear=True), \
+             patch.object(server, "OWNER_AUTH_TOKEN", "SYNTHETIC_OWNER_TEST_TOKEN_ONLY_NOT_FOR_PRODUCTION"):
             instance = ThreadingHTTPServer(("127.0.0.1", 0), server.Handler)
             thread = Thread(target=instance.serve_forever, daemon=True)
             thread.start()
             try:
                 connection = http.client.HTTPConnection("127.0.0.1", instance.server_port, timeout=3)
-                connection.request("GET", "/api/activity?limit=1")
+                connection.request("GET", "/api/activity?limit=1", headers={
+                    "Authorization":"Bearer SYNTHETIC_OWNER_TEST_TOKEN_ONLY_NOT_FOR_PRODUCTION"})
                 result = connection.getresponse()
                 body = result.read().decode()
                 self.assertEqual(result.status, 200)

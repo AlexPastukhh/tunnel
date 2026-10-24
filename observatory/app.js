@@ -1,3 +1,43 @@
+// Owner-only API credentials: volatile memory, never URL/cookie/storage.
+let ownerAccessToken = "";
+const ownerNativeFetch = window.fetch.bind(window);
+window.fetch = function(input, options={}) {
+  const raw = typeof input === "string" ? input : input.url;
+  const url = new URL(raw, window.location.href);
+  if (url.origin !== window.location.origin || !url.pathname.startsWith("/api/")) {
+    return ownerNativeFetch(input, options);
+  }
+  if (!ownerAccessToken) return Promise.reject(new Error("Owner authorization required"));
+  const headers = new Headers(options.headers || (typeof input === "string" ? undefined : input.headers));
+  if (ownerAccessToken) headers.set("Authorization", "Bearer " + ownerAccessToken);
+  return ownerNativeFetch(input, {...options, headers, credentials:"omit"});
+};
+async function unlockOwner(event) {
+  event.preventDefault();
+  const field = document.getElementById("ownerTokenInput");
+  const error = document.getElementById("ownerUnlockError");
+  const button = document.getElementById("ownerUnlockButton");
+  const proposed = field.value.trim();
+  field.value = "";
+  if (!proposed) {error.textContent="Введи токен из консоли владельца.";return;}
+  ownerAccessToken = proposed;
+  button.disabled=true;error.textContent="Проверяю локальный доступ…";
+  try {
+    const r=await fetch("/api/session",{cache:"no-store"});
+    if (!r.ok) throw new Error("HTTP "+r.status);
+    const data=await r.json();
+    if (!data.ok || data.role!=="owner-authorized") throw new Error("not authorized");
+    document.getElementById("ownerUnlock").hidden=true;
+    document.getElementById("ownerProtectedUI").hidden=false;
+    error.textContent="";
+    refresh();refreshNative();refreshNativeHistory();refreshArchiveCoverage();
+    refreshActivity();loadIncidents();
+  } catch (e) {
+    ownerAccessToken="";
+    error.textContent="Доступ не разрешён. Проверь токен в консоли alexa.";
+  } finally { button.disabled=false; }
+}
+document.getElementById("ownerUnlockForm").addEventListener("submit",unlockOwner);
 const $=s=>document.querySelector(s), history=[], events=[]; let current=null,previous=null,lastDiagnosisKey="",lastEventSeq=0;
 const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
 function sec(v){if(v==null||!Number.isFinite(+v))return "-";let s=Math.max(0,+v);return s<60?s.toFixed(s<10?1:0)+"s":s<3600?Math.floor(s/60)+"m "+Math.floor(s%60)+"s":Math.floor(s/3600)+"h "+Math.floor((s%3600)/60)+"m"}
@@ -34,7 +74,7 @@ let selectedIncidentId=null;
 function when(ts){return ts?new Date(ts*1000).toLocaleString("ru-RU",{hour12:false}):"-"}
 function incidentRows(items){if(!items.length)return '<div class="muted">No persisted incidents yet.</div>';return items.map(i=>{let wait=i.status==="collecting"&&i.post_capture_due_at?Math.max(0,Math.ceil(i.post_capture_due_at-Date.now()/1000)):null,meta=when(i.marked_at)+(wait!=null?" · post +"+wait+"s":" · post "+(i.history_after_samples||0));return '<button class="incident-row" data-incident-id="'+esc(i.incident_id)+'"><span class="status '+esc(i.status||"complete")+'">'+esc(i.status||"complete")+'</span><span><strong>'+esc(i.incident_id)+'</strong><small>'+esc(meta)+'</small></span><small>pre '+esc(i.history_before_samples||0)+'</small></button>'}).join("")}
 async function loadIncidents(selectId=null){try{let r=await fetch("/api/incidents?limit=100",{cache:"no-store"}),p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||("HTTP "+r.status));$("#incidentList").innerHTML=incidentRows(p.incidents||[]);if(selectId)selectedIncidentId=selectId;if(selectedIncidentId&&((p.incidents||[]).some(i=>i.incident_id===selectedIncidentId)))await openIncident(selectedIncidentId)}catch(e){$("#incidentList").innerHTML='<div class="muted">Incident list unavailable: '+esc(e)+'</div>'}}
-async function openIncident(id){selectedIncidentId=id;try{let r=await fetch("/api/incidents/"+encodeURIComponent(id),{cache:"no-store"}),p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||("HTTP "+r.status));let i=p.incident||{},s=i.snapshot||{},h=s.health||{},mcp=comp(h,"mcp").details||{},status=i.status||"complete",due=status==="collecting"?" · collecting until "+when(i.post_capture_due_at):"",pre=(i.history_before||[]).length,post=(i.history_after||[]).length,diag=s.diagnosis||{};$("#incidentDetail").innerHTML='<div><b>'+esc(i.incident_id)+'</b> <span class="muted">'+esc(status)+due+'</span></div><div class="incident-detail-grid"><div><span>Marked</span><b>'+esc(when(i.marked_at))+'</b></div><div><span>Tunnel</span><b>'+esc(String(h.live))+" / "+esc(String(h.ready))+'</b></div><div><span>MCP init</span><b>'+esc(String((mcp.initialize||{}).ok))+'</b></div><div><span>Pre samples</span><b>'+pre+'</b></div><div><span>Post samples</span><b>'+post+'</b></div><div><span>Diagnosis</span><b>'+esc(diag.title||"-")+'</b></div></div><p class="incident-note">'+esc(i.note||i.limitation||"")+'</p><div class="incident-actions"><a href="/api/incidents/'+encodeURIComponent(id)+'/export">Export redacted ZIP</a></div>'}catch(e){$("#incidentDetail").innerHTML='<div class="muted">Incident detail unavailable: '+esc(e)+'</div>'}}
+async function openIncident(id){selectedIncidentId=id;try{let r=await fetch("/api/incidents/"+encodeURIComponent(id),{cache:"no-store"}),p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||("HTTP "+r.status));let i=p.incident||{},s=i.snapshot||{},h=s.health||{},mcp=comp(h,"mcp").details||{},status=i.status||"complete",due=status==="collecting"?" · collecting until "+when(i.post_capture_due_at):"",pre=(i.history_before||[]).length,post=(i.history_after||[]).length,diag=s.diagnosis||{};$("#incidentDetail").innerHTML='<div><b>'+esc(i.incident_id)+'</b> <span class="muted">'+esc(status)+due+'</span></div><div class="incident-detail-grid"><div><span>Marked</span><b>'+esc(when(i.marked_at))+'</b></div><div><span>Tunnel</span><b>'+esc(String(h.live))+" / "+esc(String(h.ready))+'</b></div><div><span>MCP init</span><b>'+esc(String((mcp.initialize||{}).ok))+'</b></div><div><span>Pre samples</span><b>'+pre+'</b></div><div><span>Post samples</span><b>'+post+'</b></div><div><span>Diagnosis</span><b>'+esc(diag.title||"-")+'</b></div></div><p class="incident-note">'+esc(i.note||i.limitation||"")+'</p><div class="incident-actions"><button type="button" data-incident-export="'+esc(id)+'">Export redacted ZIP</button></div>'}catch(e){$("#incidentDetail").innerHTML='<div class="muted">Incident detail unavailable: '+esc(e)+'</div>'}}
 async function mark(){let btn=$("#markTimeout");btn.disabled=true;try{let r=await fetch("/api/incidents",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({note:"Manual 25s timeout mark from GUI"})}),p=await r.json();if(!r.ok||!p.ok)throw new Error(p.error||("HTTP "+r.status));add("warn","25s timeout persisted",p.incident_id+" | pre samples "+p.history_samples+" | post window collecting");await refresh();await loadIncidents(p.incident_id)}catch(e){add("error","Incident save failed",String(e))}finally{btn.disabled=false}}
 $("#refreshNow").addEventListener("click",refresh);$("#markTimeout").addEventListener("click",mark);$("#refreshIncidents").addEventListener("click",()=>loadIncidents());$("#incidentList").addEventListener("click",e=>{let b=e.target.closest("[data-incident-id]");if(b)openIncident(b.dataset.incidentId)});window.addEventListener("resize",chart);setInterval(()=>$("#clock").textContent=new Date().toLocaleTimeString("ru-RU",{hour12:false}),1000);$("#clock").textContent=new Date().toLocaleTimeString("ru-RU",{hour12:false});renderEvents();loadHistory().finally(refresh);loadIncidents();setInterval(refresh,5000);setInterval(()=>loadIncidents(),10000);
 
@@ -278,3 +318,57 @@ document.getElementById("historyExportForm").addEventListener("submit",submitHis
 document.getElementById("exportTo").value=localDateForInput(new Date());
 document.getElementById("exportFrom").value=localDateForInput(new Date(Date.now()-24*3600000));
 exportMode();refreshArchiveCoverage();setInterval(refreshArchiveCoverage,60000);
+
+
+async function refreshTasks() {
+  const host = document.getElementById("taskRows");
+  const status = document.getElementById("taskReporting");
+  if (!ownerAccessToken) return;
+  try {
+    const response = await fetch("/api/tasks", {cache:"no-store"});
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    const body = await response.json();
+    if (!body.ok) throw new Error("Unavailable");
+    const reporting = body.reporting || {};
+    status.textContent = "Приём: " + (reporting.state || "unknown") +
+      (reporting.checked_at ? " · " + new Date(reporting.checked_at*1000).toLocaleString("ru-RU") : "");
+    const rows = body.tasks || [];
+    host.innerHTML = rows.length ? rows.map(item => {
+      const history = (item.history||[]).map(e =>
+        '<li>' + esc(new Date(e.received_at*1000).toLocaleString("ru-RU")) +
+        " · " + esc(e.event) + " / " + esc(e.stage) + " — " + esc(e.summary) + "</li>").join("");
+      return '<details class="task-card"><summary><strong>' + esc(item.title) +
+        "</strong> · " + esc(item.state) + " · " + esc(item.stage) +
+        " · " + esc(item.route_claim) + " (заявлен) · " +
+        Math.floor(item.silence_seconds / 60) + " мин без сигнала</summary>" +
+        "<small>ID: " + esc(item.task_id) + " · " + esc(item.events_count) +
+        " событий · " + esc(item.observation) + "</small><ol>" + history +
+        "</ol></details>";
+    }).join("") : '<p class="muted">Нет принятых событий; это не значит, что чаты не работают.</p>';
+  } catch (error) {
+    status.textContent = "Приём или просмотр недоступен";
+    host.textContent = "Нет подтверждённого свежего состояния задач.";
+  }
+}
+setInterval(refreshTasks, 15000);
+document.getElementById("ownerUnlockForm").addEventListener("submit", () => setTimeout(refreshTasks, 300));
+
+// Protected incident ZIP: anchors cannot send Authorization headers.
+// A click triggers a single authenticated fetch; never put token in URL.
+document.getElementById("incidentDetail").addEventListener("click",async event=>{
+  const button=event.target.closest("[data-incident-export]");
+  if(!button)return;
+  const incidentId=button.dataset.incidentExport;
+  if(!/^timeout-[0-9TZ.]+$/.test(incidentId))return;
+  button.disabled=true;
+  try {
+    const response=await fetch("/api/incidents/"+encodeURIComponent(incidentId)+"/export",{cache:"no-store"});
+    if(!response.ok)throw new Error("HTTP "+response.status);
+    const url=URL.createObjectURL(await response.blob());
+    const a=document.createElement("a");
+    a.href=url;a.download=incidentId+".zip";
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),10000);
+  }catch(error){add("warn","Incident export unavailable",String(error));}
+  finally{button.disabled=false;}
+});

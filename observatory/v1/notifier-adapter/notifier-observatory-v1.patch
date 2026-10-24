@@ -1,0 +1,302 @@
+--- a/build-userscript.mjs
++++ b/build-userscript.mjs
+@@ -17,10 +17,11 @@
+   'src/delayed-send.js',
+   'src/upload-button-ui.js',
+   'src/response-monitor.js',
++  'src/observatory-completion.js',
+   'src/runtime.js'
+ ];
+ 
+-const header = `// ==UserScript==\n// @name         ChatGPT — значки вкладок, загрузка файлов и уведомления\n// @namespace    local.chatgpt.tab-notifier\n// @version      ${pkg.version}\n// @description  Статусы вкладки + автоотправка файлов + очередь сообщений + отложенная отправка + перетаскиваемые кнопки\n// @match        https://chatgpt.com/*\n// @match        https://chat.openai.com/*\n// @run-at       document-idle\n// @grant        GM_notification\n// @grant        GM_registerMenuCommand\n// ==/UserScript==\n\n// GENERATED FILE — DO NOT EDIT MANUALLY.\n// Source: src/**\n// Build: npm run build\n\n`;
++const header = `// ==UserScript==\n// @name         ChatGPT — значки вкладок, загрузка файлов и уведомления\n// @namespace    local.chatgpt.tab-notifier\n// @version      ${pkg.version}\n// @description  Статусы вкладки + автоотправка файлов + очередь сообщений + отложенная отправка + перетаскиваемые кнопки\n// @match        https://chatgpt.com/*\n// @match        https://chat.openai.com/*\n// @run-at       document-idle\n// @grant        GM_notification\n// @grant        GM_registerMenuCommand\n// @grant        GM_getValue\n// @grant        GM_setValue\n// @grant        GM_deleteValue\n// @grant        GM_xmlhttpRequest\n// @connect      127.0.0.1\n// ==/UserScript==\n\n// GENERATED FILE — DO NOT EDIT MANUALLY.\n// Source: src/**\n// Build: npm run build\n\n`;
+ 
+ const modules = sourceFiles
+   .map(relative => fs.readFileSync(path.join(root, relative), 'utf8').trimEnd())
+--- a/src/response-monitor.js
++++ b/src/response-monitor.js
+@@ -34,7 +34,8 @@
+     return Boolean(document.querySelector(selectors.join(',')));
+   }
+ 
+-  function createResponseMonitor({ tabState, notifications, beforeArm = () => {}, onFinished = () => {} }) {
++  function createResponseMonitor({ tabState, notifications, beforeArm = () => {}, onFinished = () => {}, onArmed = () => {} }) {
++    let externallyFinished = false;
+     let armed = false;
+     let sawGenerating = false;
+     let runId = 0;
+@@ -73,6 +74,7 @@
+     function armAnswer(source = 'unknown') {
+       if (armed && Date.now() - lastArmAt < 1200) return;
+       beforeArm();
++      externallyFinished = false;
+       lastArmAt = Date.now();
+       runId += 1;
+       armed = true;
+@@ -87,6 +89,7 @@
+       currentFingerprint = snapshot.fingerprint;
+       lastAssistantChangeAt = Date.now();
+       tabState.setState('working');
++      try { onArmed(); } catch (_) { /* optional */ }
+ 
+       const thisRun = runId;
+       armTimer = setTimeout(() => {
+@@ -110,6 +113,19 @@
+       try { onFinished(); } catch (error) { console.warn('[ChatGPT notifier] Ошибка действия после завершения ответа:', error); }
+     }
+ 
++    function finishFromExternal() {
++      if (!armed || finishedRunId === runId) return false;
++      externallyFinished = true;
++      finishedRunId = runId;
++      armed = false;
++      sawGenerating = false;
++      clearTimers();
++      const unread = document.hidden || !document.hasFocus();
++      tabState.setState(unread ? 'fresh' : 'viewed');
++      notifications.notifyFinished();
++      return true;
++    }
++
+     function scheduleFinish() {
+       if (finishTimer) return;
+       const scheduledRun = runId;
+@@ -122,6 +138,11 @@
+ 
+     function check() {
+       const generating = isGenerating();
++      // Ignore stuck generating DOM until a real new send or generator clears.
++      if (externallyFinished) {
++        if (generating) return;
++        externallyFinished = false;
++      }
+       if (generating) {
+         if (!armed) armAnswer('generation-detected');
+         else updateAssistantSnapshot();
+@@ -137,6 +158,7 @@
+     }
+ 
+     function resetForNavigation() {
++      externallyFinished = false;
+       armed = false;
+       sawGenerating = false;
+       finishedRunId = -1;
+@@ -149,7 +171,7 @@
+       lastAssistantChangeAt = Date.now();
+     }
+ 
+-    return { armAnswer, check, resetForNavigation, isArmed: () => armed };
++    return { armAnswer, check, resetForNavigation, finishFromExternal, isArmed: () => armed };
+   }
+ 
+   return { assistantSnapshot, isGenerating, createResponseMonitor };
+--- a/src/runtime.js
++++ b/src/runtime.js
+@@ -10,6 +10,7 @@
+     let uploadController = null;
+     let queuedPromptController = null;
+     let delayedSendController = null;
++    let observerBridge = null;
+ 
+     function scheduleUi() {
+       uploadUi?.schedule();
+@@ -30,6 +31,7 @@
+           uploadController?.reset({ clearMark: true, render: false, clearFileHistory: true });
+         }
+       },
++      onArmed: () => observerBridge?.noteArmed(),
+       onFinished: () => {
+         delayedSendController?.check();
+         if (!delayedSendController?.isSending?.() && !delayedSendController?.hasDueWork?.()) {
+@@ -37,6 +39,8 @@
+         }
+       }
+     });
++
++    observerBridge = deps.createObservatoryCompletionBridge?.({ tabState, responseMonitor }) || null;
+ 
+     uploadController = deps.createUploadAutoSendController({ tabState, isGenerationActive: deps.isGenerating });
+     queuedPromptController = deps.createQueuedPromptController({ onChange: scheduleUi });
+@@ -125,6 +129,7 @@
+     function resetForNavigation() {
+       lastUrl = location.href;
+       responseMonitor.resetForNavigation();
++      observerBridge?.resetForNavigation();
+       uploadController.reset({ clearMark: true, render: false });
+       uploadController.resetFileHistory();
+       queuedPromptController.resetForNavigation();
+@@ -162,6 +167,7 @@
+       delayedSendController?.check();
+       queuedPromptController.attemptSend();
+       tickCount += 1;
++      if (tickCount % 8 === 0) observerBridge?.check();
+       if (!document.hidden && tickCount % 6 === 0) scheduleUi();
+     }, deps.SETTINGS.checkIntervalMs);
+ 
+@@ -170,10 +176,15 @@
+       GM_registerMenuCommand('◷ Чекпоинт по таймеру', delayedSendController.toggleCheckpoint);
+       GM_registerMenuCommand('⇧ Автоотправка после загрузки файлов', uploadController.toggle);
+       GM_registerMenuCommand('● Проверить уведомление', notifications.showDesktopNotification);
++      if (observerBridge) {
++        GM_registerMenuCommand('Fortis: привязать текущий чат', observerBridge.pairCurrent);
++        GM_registerMenuCommand('Fortis: отключить текущий чат', observerBridge.unpairCurrent);
++      }
+     }
+ 
+     tabState.render();
+     responseMonitor.check();
++    observerBridge?.check();
+     scheduleUi();
+     console.info(`[ChatGPT notifier] v${deps.SCRIPT_VERSION} запущен. Перетаскиваемые кнопки: ◷ — чекпоинт по таймеру, + — очередь/отложенные, ⇧ — автоотправка файлов.`);
+ 
+--- /dev/null
++++ b/src/observatory-completion.js
+@@ -0,0 +1,148 @@
++(function (root, factory) {
++  const api = factory();
++  if (typeof module === 'object' && module.exports) module.exports = api;
++  root.ChatGPTTabNotifier = Object.assign(root.ChatGPTTabNotifier || {}, api);
++})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
++  'use strict';
++
++  const PREFIX = 'fortis-observatory-v1-pair-';
++  const ORIGIN = 'http://127.0.0.1:18753';
++
++  function currentChatId(url = location.href) {
++    try {
++      const parsed = new URL(url);
++      if (parsed.origin !== 'https://chatgpt.com' && parsed.origin !== 'https://chat.openai.com') return '';
++      const match = parsed.pathname.match(/^\/c\/([A-Za-z0-9-]{8,100})\/?$/);
++      return match ? match[1] : '';
++    } catch (_) { return ''; }
++  }
++
++  function validatePairing(value, chatId) {
++    if (!value || typeof value !== 'object' || value.version !== 1 ||
++        value.origin !== ORIGIN || value.conversation_id !== chatId ||
++        !/^rs_[0-9a-f]{32}$/.test(value.reporting_session_id || '') ||
++        !/^[A-Za-z0-9_-]{40,70}$/.test(value.observer_key || '')) return null;
++    return {
++      version: 1, origin: ORIGIN, conversation_id: chatId,
++      reporting_session_id: value.reporting_session_id, observer_key: value.observer_key
++    };
++  }
++
++  function createObservatoryCompletionBridge({ tabState, responseMonitor, notify = () => {} } = {}) {
++    let chatId = '';
++    let latestSequence = -1;
++    let workStartedAt = 0;
++    let requestPending = false;
++    let lastCheckAt = 0;
++    let pairing = null;
++    let generation = 0;
++    let lastTriggeredSequence = -1;
++
++    function refreshChat() {
++      const next = currentChatId();
++      if (next === chatId) return;
++      generation += 1;
++      chatId = next;
++      latestSequence = -1;
++      lastTriggeredSequence = -1;
++      workStartedAt = 0;
++      requestPending = false;
++      try {
++        pairing = next && typeof GM_getValue === 'function'
++          ? validatePairing(GM_getValue(PREFIX + next, null), next) : null;
++      } catch (_) { pairing = null; }
++    }
++
++    function noteArmed() {
++      refreshChat();
++      workStartedAt = Date.now();
++    }
++
++    function receive(data, snapshot) {
++      if (!pairing || snapshot !== generation || currentChatId() !== chatId) return false;
++      if (!data || data.ok !== true || data.version !== 1 ||
++          data.conversation_id !== chatId ||
++          data.reporting_session_id !== pairing.reporting_session_id ||
++          !Number.isInteger(data.sequence) || data.sequence < -1 ||
++          !['none', 'started', 'progress', 'checkpoint', 'blocked', 'completed', 'failed'].includes(data.event)) return false;
++      const freshCompletion = data.event === 'completed' &&
++        data.sequence > lastTriggeredSequence &&
++        typeof data.accepted_unix === 'number' &&
++        Number.isFinite(data.accepted_unix) &&
++        data.accepted_unix * 1000 >= workStartedAt &&
++        workStartedAt > 0 &&
++        tabState?.getState?.() === 'working';
++      latestSequence = Math.max(latestSequence, data.sequence);
++      if (freshCompletion && responseMonitor?.finishFromExternal?.()) {
++        lastTriggeredSequence = data.sequence;
++        notify('Работа завершена по событию Fortis Observatory');
++        return true;
++      }
++      return false;
++    }
++
++    function check() {
++      refreshChat();
++      if (!pairing || requestPending || typeof GM_xmlhttpRequest !== 'function') return;
++      if (Date.now() - lastCheckAt < 3000) return;
++      lastCheckAt = Date.now();
++      requestPending = true;
++      const snapshot = generation;
++      try {
++        GM_xmlhttpRequest({
++          method: 'GET',
++          url: ORIGIN + '/api/observer-status?session=' + encodeURIComponent(pairing.reporting_session_id),
++          headers: { 'X-Fortis-Observer-Key': pairing.observer_key },
++          timeout: 3000,
++          onload(response) {
++            requestPending = false;
++            if (response.status !== 200) return;
++            try { receive(JSON.parse(response.responseText), snapshot); } catch (_) { /* fail closed */ }
++          },
++          onerror() { requestPending = false; },
++          ontimeout() { requestPending = false; }
++        });
++      } catch (_) { requestPending = false; }
++    }
++
++    function pairCurrent() {
++      refreshChat();
++      if (!chatId || typeof GM_setValue !== 'function') {
++        alert('Открой обычную беседу /c/... для привязки.');
++        return;
++      }
++      const raw = prompt('Вставь код привязки из Observatory (НЕ отправляй его в чат):');
++      if (!raw) return;
++      let candidate;
++      try { candidate = validatePairing(JSON.parse(raw), chatId); } catch (_) { candidate = null; }
++      if (!candidate) { alert('Код не подходит для этого Chat ID или сервера.'); return; }
++      GM_setValue(PREFIX + chatId, candidate);
++      generation += 1;
++      pairing = candidate;
++      latestSequence = -1;
++      lastTriggeredSequence = -1;
++      lastCheckAt = 0;
++      check();
++      alert('Привязка сохранена только для текущего Chat ID.');
++    }
++
++    function unpairCurrent() {
++      refreshChat();
++      if (chatId && typeof GM_deleteValue === 'function') GM_deleteValue(PREFIX + chatId);
++      generation += 1;
++      pairing = null;
++      requestPending = false;
++      workStartedAt = 0;
++      alert('Привязка Observatory удалена для текущего чата.');
++    }
++
++    refreshChat();
++    return {
++      noteArmed, check, resetForNavigation: refreshChat, pairCurrent, unpairCurrent,
++      isPaired: () => Boolean(pairing),
++      getLatestSequence: () => latestSequence
++    };
++  }
++
++  return { createObservatoryCompletionBridge, currentChatId, validatePairing };
++});

@@ -7,7 +7,18 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="shell">
+  <section id="ownerUnlock" class="owner-unlock" aria-label="Доступ владельца">
+    <form id="ownerUnlockForm" class="owner-unlock-box">
+      <h2>Fortis Observatory · доступ владельца</h2>
+      <p>Панель защищена одноразовым токеном запуска. Скопируй токен из <b>своего PowerShell под alexa</b> и введи здесь. Не отправляй его в чат, скриншоты или G2.</p>
+      <label for="ownerTokenInput">Токен владельца</label>
+      <input id="ownerTokenInput" type="password" autocomplete="off" spellcheck="false" required minlength="30" placeholder="Токен из локальной консоли">
+      <button type="submit" id="ownerUnlockButton">Открыть панель</button>
+      <p id="ownerUnlockError" role="alert" class="muted"></p>
+      <small>Токен не сохраняется на диск, в cookie, URL или localStorage. После обновления страницы его нужно ввести снова.</small>
+    </form>
+  </section>
+  <div class="shell" id="ownerProtectedUI" hidden>
     <header class="topbar">
       <div>
         <div class="eyebrow">FORTIS_M / OBSERVABILITY / NATIVE</div>
@@ -64,6 +75,14 @@
           <span><i class="legend-line secondary"></i> G2</span></div>
         <p class="footnote">Счётчики полных команд из control-plane, не сообщения ChatGPT. Средняя задержка — накопительная, не p95. История хранится локально, до 60 минут.</p>
       </div>
+    </section>
+    <section class="export-panel" aria-label="Задачи наблюдаемых чатов">
+      <div class="native-head"><div><span class="panel-kicker">VOLUNTARY / CHAT TASKS</span>
+        <h2>Наблюдаемые задачи</h2>
+        <p>Только добровольно присланные события. Тишина не доказывает зависание чата.</p></div>
+        <span id="taskReporting" class="muted">Источник не проверен</span></div>
+      <div id="taskRows" aria-live="polite">Нет данных о задачах.</div>
+      <p class="footnote">Маршрут указывает отправитель; он не подтверждён по MCP. Время сигнала фиксирует приёмник, история может быть неполной.</p>
     </section>
     <section class="export-panel" aria-label="Скачивание истории метрик">
       <div class="native-head">

@@ -1,0 +1,189 @@
+--- a/src/config.js
++++ b/src/config.js
+@@ -26,4 +26,4 @@
+   const SYMBOLS = Object.freeze({ working: '⏳', fresh: '●', viewed: '✓', uploading: '⇧', idle: '',
+-    'observatory-fresh': '🔷', 'observatory-viewed': '🔹' });
+-  const ALL_PREFIX_SYMBOLS = Object.freeze(['⏳', '🔔', '✓', '📤', '●', '⇧', '🔷', '🔹']);
++    'observatory-working': '🔵', 'observatory-fresh': '🔷', 'observatory-viewed': '🔹' });
++  const ALL_PREFIX_SYMBOLS = Object.freeze(['⏳', '🔔', '✓', '📤', '●', '⇧', '🔵', '🔷', '🔹']);
+   const BROKEN_OLD_PREFIX_UNITS = new Set([0xDD14, 0xDCE4]);
+--- a/src/title-utils.js
++++ b/src/title-utils.js
+@@ -53,2 +53,3 @@
+     const svgs = {
++      'observatory-working': '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#2563eb"/><path d="M23 14h18v6l-8 12 8 12v6H23v-6l8-12-8-12z" fill="white"/></svg>',
+       'observatory-fresh': '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#2563eb"/><path d="M32 12L52 32 32 52 12 32Z" fill="white"/><circle cx="32" cy="32" r="7" fill="#2563eb"/></svg>',
+--- a/src/tab-state.js
++++ b/src/tab-state.js
+@@ -66,3 +66,3 @@
+       renderTitle();
+-      renderFavicon(['working', 'fresh', 'viewed', 'uploading', 'observatory-fresh', 'observatory-viewed'].includes(displayState) ? displayState : null);
++      renderFavicon(['working', 'fresh', 'viewed', 'uploading', 'observatory-working', 'observatory-fresh', 'observatory-viewed'].includes(displayState) ? displayState : null);
+       scheduleUiUpdate();
+--- a/src/response-monitor.js
++++ b/src/response-monitor.js
+@@ -36,3 +36,3 @@
+ 
+-  function createResponseMonitor({ tabState, notifications, beforeArm = () => {}, onFinished = () => {}, onArmed = () => {}, isDomFinishEnabled = () => true }) {
++  function createResponseMonitor({ tabState, notifications, beforeArm = () => {}, onFinished = () => {}, onArmed = () => {}, isDomEnabled = () => true }) {
+     let externallyFinished = false;
+@@ -74,2 +74,3 @@
+     function armAnswer(source = 'unknown') {
++      if (!isDomEnabled()) return false;
+       if (armed && Date.now() - lastArmAt < 1200) return;
+@@ -95,3 +96,3 @@
+         // Do not discard an armed response in Observatory-only test mode.
+-        if (isDomFinishEnabled() && armed && runId === thisRun && !sawGenerating && !responseChanged()) {
++        if (isDomEnabled() && armed && runId === thisRun && !sawGenerating && !responseChanged()) {
+           armed = false;
+@@ -104,3 +106,3 @@
+     function finishAnswer() {
+-      if (!isDomFinishEnabled() || !armed || finishedRunId === runId) return;
++      if (!isDomEnabled() || !armed || finishedRunId === runId) return;
+       finishedRunId = runId;
+@@ -113,2 +115,24 @@
+       try { onFinished(); } catch (error) { console.warn('[ChatGPT notifier] Ошибка действия после завершения ответа:', error); }
++    }
++
++    function startFromExternal() {
++      // The browser never treats an Observatory report as a synthetic user click.
++      if (armed && tabState.getState() === 'observatory-working') return true;
++      clearTimers();
++      externallyFinished = false;
++      if (!armed) {
++        runId += 1;
++        armed = true;
++        sawGenerating = false;
++        finishedRunId = -1;
++        const snapshot = assistantSnapshot();
++        baselineAssistantCount = snapshot.count;
++        baselineFingerprint = snapshot.fingerprint;
++        currentAssistantCount = snapshot.count;
++        currentFingerprint = snapshot.fingerprint;
++        lastAssistantChangeAt = Date.now();
++      }
++      lastArmAt = Date.now();
++      tabState.setState('observatory-working');
++      return true;
+     }
+@@ -139,2 +163,7 @@
+     function check() {
++      // In Observatory-only mode DOM neither begins nor ends the response.
++      if (!isDomEnabled()) {
++        if (finishTimer) { clearTimeout(finishTimer); finishTimer = null; }
++        return;
++      }
+       const generating = isGenerating();
+@@ -150,3 +179,3 @@
+         if (finishTimer) { clearTimeout(finishTimer); finishTimer = null; }
+-        tabState.setState('working');
++        if (tabState.getState() !== 'observatory-working') tabState.setState('working');
+         return;
+@@ -155,3 +184,3 @@
+       // DOM still detects the start but cannot conclude a response in test mode.
+-      if (!isDomFinishEnabled()) {
++      if (!isDomEnabled()) {
+         if (finishTimer) { clearTimeout(finishTimer); finishTimer = null; }
+@@ -178,3 +207,3 @@
+ 
+-    return { armAnswer, check, resetForNavigation, finishFromExternal, isArmed: () => armed };
++    return { armAnswer, startFromExternal, check, resetForNavigation, finishFromExternal, isArmed: () => armed };
+   }
+--- a/src/runtime.js
++++ b/src/runtime.js
+@@ -23,3 +23,3 @@
+     const responseMonitor = deps.createResponseMonitor({
+-      isDomFinishEnabled: () => completionModes?.domEnabled() ?? true,
++      isDomEnabled: () => completionModes?.domEnabled() ?? true,
+       tabState,
+@@ -188,5 +188,5 @@
+       if (completionModes) {
+-        GM_registerMenuCommand('Fortis: переключить завершение DOM', completionModes.toggleDom);
+-        GM_registerMenuCommand('Fortis: переключить завершение Observatory', completionModes.toggleObservatory);
+-        GM_registerMenuCommand('Fortis: показать режим завершения', completionModes.showStatus);
++        GM_registerMenuCommand('Fortis: переключить DOM (начало и конец)', completionModes.toggleDom);
++        GM_registerMenuCommand('Fortis: переключить Observatory (начало и конец)', completionModes.toggleObservatory);
++        GM_registerMenuCommand('Fortis: показать источники состояния', completionModes.showStatus);
+       }
+--- a/src/observatory-completion.js
++++ b/src/observatory-completion.js
+@@ -41,2 +41,6 @@
+     let lastTriggeredSequence = -1;
++    let initialStatusRead = false;
++    let startSequence = -1;
++    // Old archives must not cause stale working indicators after a page reload.
++    const MAX_EVENT_AGE_MS = 120000;
+ 
+@@ -49,2 +53,4 @@
+       lastTriggeredSequence = -1;
++      initialStatusRead = false;
++      startSequence = -1;
+       workStartedAt = 0;
+@@ -60,2 +66,3 @@
+       workStartedAt = Date.now();
++      startSequence = Math.max(startSequence, latestSequence);
+     }
+@@ -69,12 +76,34 @@
+           !['none', 'started', 'progress', 'checkpoint', 'blocked', 'completed', 'failed'].includes(data.event)) return false;
+-      const freshCompletion = data.event === 'completed' &&
+-        data.sequence > lastTriggeredSequence &&
+-        typeof data.accepted_unix === 'number' &&
+-        Number.isFinite(data.accepted_unix) &&
+-        data.accepted_unix * 1000 >= workStartedAt &&
+-        workStartedAt > 0 &&
+-        tabState?.getState?.() === 'working';
+-      latestSequence = Math.max(latestSequence, data.sequence);
+-      if (freshCompletion && responseMonitor?.finishFromExternal?.()) {
++
++      const acceptedMs = typeof data.accepted_unix === 'number' ? data.accepted_unix * 1000 : 0;
++      const fresh = acceptedMs > 0 && Number.isFinite(acceptedMs) &&
++        acceptedMs <= Date.now() + 30000 && Date.now() - acceptedMs <= MAX_EVENT_AGE_MS;
++      const initialRead = !initialStatusRead;
++      initialStatusRead = true;
++      if (data.sequence <= latestSequence) return false;
++      latestSequence = data.sequence;
++      if (!fresh) return false;
++
++      if (['started', 'progress', 'checkpoint'].includes(data.event)) {
++        // Progress is active work when a rapid started event fell between polls.
++        if (startSequence < 0 || data.event === 'started' ||
++            !['working', 'observatory-working'].includes(tabState?.getState?.())) {
++          startSequence = data.sequence;
++          workStartedAt = acceptedMs;
++        }
++        if (responseMonitor?.startFromExternal?.()) {
++          notify('Работа начата по событию Fortis Observatory');
++          return true;
++        }
++        return false;
++      }
++
++      if (data.event === 'completed' && !initialRead && workStartedAt > 0 &&
++          acceptedMs >= workStartedAt &&
++          data.sequence > Math.max(startSequence, lastTriggeredSequence) &&
++          ['working', 'observatory-working'].includes(tabState?.getState?.()) &&
++          responseMonitor?.finishFromExternal?.()) {
+         lastTriggeredSequence = data.sequence;
++        workStartedAt = 0;
++        startSequence = -1;
+         notify('Работа завершена по событию Fortis Observatory');
+@@ -125,2 +154,5 @@
+       lastTriggeredSequence = -1;
++      initialStatusRead = false;
++      startSequence = -1;
++      workStartedAt = 0;
+       lastCheckAt = 0;
+@@ -137,2 +169,4 @@
+       workStartedAt = 0;
++      startSequence = -1;
++      initialStatusRead = false;
+       alert('Привязка Observatory удалена для текущего чата.');
+@@ -180,6 +214,6 @@
+       syncChat();
+-      return 'Режим завершения текущего чата:\n' +
++      return 'Источники начала и завершения текущего чата:\n' +
+         'DOM Tab Notifier: ' + (domEnabled() ? 'ВКЛ' : 'ВЫКЛ') + '\n' +
+         'Fortis Observatory: ' + (observatoryEnabled() ? 'ВКЛ' : 'ВЫКЛ') + '\n\n' +
+-        'Отключается только определение КОНЦА ответа; начало работы и автоотправка не меняются.\n' +
++        'Отключаются НАЧАЛО и КОНЕЦ по выбранному источнику; автоотправка не меняется.\n' +
+         'Для сравнения запусти новую генерацию после переключения.';

@@ -109,3 +109,16 @@ canvas{display:block;width:100%;height:190px;border-radius:10px;background:linea
 .history-export-form #downloadHistory:disabled { opacity:.55; cursor:wait; }
 .export-panel .footnote { margin-top:10px; }
 @media(max-width:700px) {.export-panel {padding:15px;} .history-export-form {flex-direction:column;align-items:stretch} .export-panel .native-head {flex-direction:column}}
+
+/* Windows localhost is NOT a SID boundary. Unauthenticated users see only
+   this static unlock page; private data requires a process-local bearer. */
+.owner-unlock { position:fixed;inset:0;z-index:20;display:grid;place-items:center;
+  min-height:100vh;padding:16px;background:#0b111b; }
+.owner-unlock[hidden], #ownerProtectedUI[hidden] { display:none!important; }
+.owner-unlock-box {display:grid;gap:12px;width:min(100%,470px);
+  padding:30px;border:1px solid #34475e;border-radius:17px;background:#142236; }
+.owner-unlock-box h2{font-size:22px;}
+.owner-unlock-box p {color:#c2d0e0;margin:4px 0 10px;}
+.owner-unlock-box input{width:100%;padding:12px;background:#0d1725;border:1px solid #56718b;border-radius:8px;color:#fff;}
+.owner-unlock-box button {padding:11px;border-color:#3c85bf;background:#1e5d93;color:#fff;}
+.owner-unlock-box small{color:#a5b8cb;}

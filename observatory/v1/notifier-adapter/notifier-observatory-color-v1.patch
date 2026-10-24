@@ -1,0 +1,95 @@
+--- a/src/config.js
++++ b/src/config.js
+@@ -23,8 +23,9 @@
+     uploadActivityFallbackWindowMs: 90 * 1000
+   });
+ 
+-  const SYMBOLS = Object.freeze({ working: '⏳', fresh: '●', viewed: '✓', uploading: '⇧', idle: '' });
+-  const ALL_PREFIX_SYMBOLS = Object.freeze(['⏳', '🔔', '✓', '📤', '●', '⇧']);
++  const SYMBOLS = Object.freeze({ working: '⏳', fresh: '●', viewed: '✓', uploading: '⇧', idle: '',
++    'observatory-fresh': '🔷', 'observatory-viewed': '🔹' });
++  const ALL_PREFIX_SYMBOLS = Object.freeze(['⏳', '🔔', '✓', '📤', '●', '⇧', '🔷', '🔹']);
+   const BROKEN_OLD_PREFIX_UNITS = new Set([0xDD14, 0xDCE4]);
+ 
+   const STORAGE_KEY = 'chatgpt-tab-notifier-v5';
+--- a/src/title-utils.js
++++ b/src/title-utils.js
+@@ -51,6 +51,8 @@
+ 
+   function faviconSvg(type) {
+     const svgs = {
++      'observatory-fresh': '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#2563eb"/><path d="M32 12L52 32 32 52 12 32Z" fill="white"/><circle cx="32" cy="32" r="7" fill="#2563eb"/></svg>',
++      'observatory-viewed': '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#1d4ed8"/><path d="M17 32l10 10 21-22" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+       working: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#f59e0b"/><circle cx="18" cy="32" r="5" fill="white"/><circle cx="32" cy="32" r="5" fill="white"/><circle cx="46" cy="32" r="5" fill="white"/></svg>',
+       fresh: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#dc2626"/><path d="M20 43h24l-4-6V28c0-6-3-11-8-11s-8 5-8 11v9z" fill="white"/><circle cx="32" cy="48" r="4" fill="white"/></svg>',
+       viewed: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#64748b"/><path d="M16 33 L27 44 L49 20" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+--- a/src/tab-state.js
++++ b/src/tab-state.js
+@@ -25,7 +25,7 @@
+ 
+     function initializeFromStorage() {
+       const saved = loadSaved();
+-      if (saved.url === location.href && ['fresh', 'viewed'].includes(saved.state)) state = saved.state;
++      if (saved.url === location.href && ['fresh', 'viewed', 'observatory-fresh', 'observatory-viewed'].includes(saved.state)) state = saved.state;
+       // Автоотправка после reload не восстанавливается. Поэтому и синюю метку
+       // не восстанавливаем: новый upload-arm всегда требует ручного нажатия.
+       uploadMarked = false;
+@@ -64,7 +64,7 @@
+     function render() {
+       const displayState = uploadMarked ? 'uploading' : state;
+       renderTitle();
+-      renderFavicon(['working', 'fresh', 'viewed', 'uploading'].includes(displayState) ? displayState : null);
++      renderFavicon(['working', 'fresh', 'viewed', 'uploading', 'observatory-fresh', 'observatory-viewed'].includes(displayState) ? displayState : null);
+       scheduleUiUpdate();
+     }
+ 
+@@ -100,6 +100,7 @@
+ 
+     function markViewed() {
+       if (state === 'fresh') setState('viewed');
++      if (state === 'observatory-fresh') setState('observatory-viewed');
+     }
+ 
+     initializeFromStorage();
+--- a/src/notifications.js
++++ b/src/notifications.js
+@@ -9,11 +9,11 @@
+   'use strict';
+ 
+   function createNotificationService(tabState) {
+-    function showDesktopNotification() {
++    function showDesktopNotification(source = 'dom') {
+       if (!deps.SETTINGS.desktopNotificationEnabled || typeof GM_notification !== 'function') return;
+       try {
+         GM_notification({
+-          title: 'ChatGPT — ответ готов',
++          title: source === 'observatory' ? 'Fortis Observatory — завершено по событию чата' : 'ChatGPT — ответ готов',
+           text: tabState.getNaturalTitle(),
+           timeout: 6500,
+           silent: false,
+@@ -24,10 +24,10 @@
+       }
+     }
+ 
+-    function notifyFinished() {
++    function notifyFinished(source = 'dom') {
+       const background = document.hidden || !document.hasFocus();
+       if (deps.SETTINGS.notifyOnlyInBackground && !background) return;
+-      showDesktopNotification();
++      showDesktopNotification(source);
+     }
+ 
+     return { showDesktopNotification, notifyFinished };
+--- a/src/response-monitor.js
++++ b/src/response-monitor.js
+@@ -121,8 +121,8 @@
+       sawGenerating = false;
+       clearTimers();
+       const unread = document.hidden || !document.hasFocus();
+-      tabState.setState(unread ? 'fresh' : 'viewed');
+-      notifications.notifyFinished();
++      tabState.setState(unread ? 'observatory-fresh' : 'observatory-viewed');
++      notifications.notifyFinished('observatory');
+       return true;
+     }
+ 

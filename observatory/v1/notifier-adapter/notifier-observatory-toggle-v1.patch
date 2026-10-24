@@ -1,0 +1,384 @@
+--- a/src/config.js
++++ b/src/config.js
+@@ -24,8 +24,8 @@
+   });
+ 
+   const SYMBOLS = Object.freeze({ working: '⏳', fresh: '●', viewed: '✓', uploading: '⇧', idle: '',
+-    'observatory-fresh': '🔷', 'observatory-viewed': '🔹' });
+-  const ALL_PREFIX_SYMBOLS = Object.freeze(['⏳', '🔔', '✓', '📤', '●', '⇧', '🔷', '🔹']);
++    'observatory-working': '🔵', 'observatory-fresh': '🔷', 'observatory-viewed': '🔹' });
++  const ALL_PREFIX_SYMBOLS = Object.freeze(['⏳', '🔔', '✓', '📤', '●', '⇧', '🔵', '🔷', '🔹']);
+   const BROKEN_OLD_PREFIX_UNITS = new Set([0xDD14, 0xDCE4]);
+ 
+   const STORAGE_KEY = 'chatgpt-tab-notifier-v5';
+--- a/src/title-utils.js
++++ b/src/title-utils.js
+@@ -51,6 +51,7 @@
+ 
+   function faviconSvg(type) {
+     const svgs = {
++      'observatory-working': '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#2563eb"/><path d="M23 14h18v6l-8 12 8 12v6H23v-6l8-12-8-12z" fill="white"/></svg>',
+       'observatory-fresh': '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#2563eb"/><path d="M32 12L52 32 32 52 12 32Z" fill="white"/><circle cx="32" cy="32" r="7" fill="#2563eb"/></svg>',
+       'observatory-viewed': '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#1d4ed8"/><path d="M17 32l10 10 21-22" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+       working: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="15" fill="#f59e0b"/><circle cx="18" cy="32" r="5" fill="white"/><circle cx="32" cy="32" r="5" fill="white"/><circle cx="46" cy="32" r="5" fill="white"/></svg>',
+--- a/src/tab-state.js
++++ b/src/tab-state.js
+@@ -64,7 +64,7 @@
+     function render() {
+       const displayState = uploadMarked ? 'uploading' : state;
+       renderTitle();
+-      renderFavicon(['working', 'fresh', 'viewed', 'uploading', 'observatory-fresh', 'observatory-viewed'].includes(displayState) ? displayState : null);
++      renderFavicon(['working', 'fresh', 'viewed', 'uploading', 'observatory-working', 'observatory-fresh', 'observatory-viewed'].includes(displayState) ? displayState : null);
+       scheduleUiUpdate();
+     }
+ 
+--- a/src/response-monitor.js
++++ b/src/response-monitor.js
+@@ -34,7 +34,7 @@
+     return Boolean(document.querySelector(selectors.join(',')));
+   }
+ 
+-  function createResponseMonitor({ tabState, notifications, beforeArm = () => {}, onFinished = () => {}, onArmed = () => {} }) {
++  function createResponseMonitor({ tabState, notifications, beforeArm = () => {}, onFinished = () => {}, onArmed = () => {}, isDomEnabled = () => true }) {
+     let externallyFinished = false;
+     let armed = false;
+     let sawGenerating = false;
+@@ -72,6 +72,7 @@
+     }
+ 
+     function armAnswer(source = 'unknown') {
++      if (!isDomEnabled()) return false;
+       if (armed && Date.now() - lastArmAt < 1200) return;
+       beforeArm();
+       externallyFinished = false;
+@@ -93,16 +94,18 @@
+ 
+       const thisRun = runId;
+       armTimer = setTimeout(() => {
+-        if (armed && runId === thisRun && !sawGenerating && !responseChanged()) {
++        // Do not discard an armed response in Observatory-only test mode.
++        if (isDomEnabled() && armed && runId === thisRun && !sawGenerating && !responseChanged()) {
+           armed = false;
+           tabState.setState('idle');
+         }
+       }, deps.SETTINGS.armTimeoutMs);
+       console.debug(`[ChatGPT notifier] Ожидается ответ: ${source}`);
++      return true;
+     }
+ 
+     function finishAnswer() {
+-      if (!armed || finishedRunId === runId) return;
++      if (!isDomEnabled() || !armed || finishedRunId === runId) return;
+       finishedRunId = runId;
+       armed = false;
+       sawGenerating = false;
+@@ -111,6 +114,28 @@
+       tabState.setState(unread ? 'fresh' : 'viewed');
+       notifications.notifyFinished();
+       try { onFinished(); } catch (error) { console.warn('[ChatGPT notifier] Ошибка действия после завершения ответа:', error); }
++    }
++
++    function startFromExternal() {
++      // The browser never treats an Observatory report as a synthetic user click.
++      if (armed && tabState.getState() === 'observatory-working') return true;
++      clearTimers();
++      externallyFinished = false;
++      if (!armed) {
++        runId += 1;
++        armed = true;
++        sawGenerating = false;
++        finishedRunId = -1;
++        const snapshot = assistantSnapshot();
++        baselineAssistantCount = snapshot.count;
++        baselineFingerprint = snapshot.fingerprint;
++        currentAssistantCount = snapshot.count;
++        currentFingerprint = snapshot.fingerprint;
++        lastAssistantChangeAt = Date.now();
++      }
++      lastArmAt = Date.now();
++      tabState.setState('observatory-working');
++      return true;
+     }
+ 
+     function finishFromExternal() {
+@@ -137,6 +162,11 @@
+     }
+ 
+     function check() {
++      // In Observatory-only mode DOM neither begins nor ends the response.
++      if (!isDomEnabled()) {
++        if (finishTimer) { clearTimeout(finishTimer); finishTimer = null; }
++        return;
++      }
+       const generating = isGenerating();
+       // Ignore stuck generating DOM until a real new send or generator clears.
+       if (externallyFinished) {
+@@ -148,11 +178,16 @@
+         else updateAssistantSnapshot();
+         sawGenerating = true;
+         if (finishTimer) { clearTimeout(finishTimer); finishTimer = null; }
+-        tabState.setState('working');
++        if (tabState.getState() !== 'observatory-working') tabState.setState('working');
+         return;
+       }
+       if (!armed) return;
+       updateAssistantSnapshot();
++      // DOM still detects the start but cannot conclude a response in test mode.
++      if (!isDomEnabled()) {
++        if (finishTimer) { clearTimeout(finishTimer); finishTimer = null; }
++        return;
++      }
+       if (sawGenerating) { scheduleFinish(); return; }
+       if (responseChanged() && Date.now() - lastAssistantChangeAt >= deps.SETTINGS.fallbackQuietDelayMs) finishAnswer();
+     }
+@@ -171,7 +206,7 @@
+       lastAssistantChangeAt = Date.now();
+     }
+ 
+-    return { armAnswer, check, resetForNavigation, finishFromExternal, isArmed: () => armed };
++    return { armAnswer, startFromExternal, check, resetForNavigation, finishFromExternal, isArmed: () => armed };
+   }
+ 
+   return { assistantSnapshot, isGenerating, createResponseMonitor };
+--- a/src/runtime.js
++++ b/src/runtime.js
+@@ -18,8 +18,10 @@
+ 
+     const tabState = deps.createTabStateController({ scheduleUiUpdate: scheduleUi });
+     const notifications = deps.createNotificationService(tabState);
++    const completionModes = deps.createCompletionModeSettings?.() || null;
+ 
+     const responseMonitor = deps.createResponseMonitor({
++      isDomEnabled: () => completionModes?.domEnabled() ?? true,
+       tabState,
+       notifications,
+       beforeArm: () => {
+@@ -40,7 +42,10 @@
+       }
+     });
+ 
+-    observerBridge = deps.createObservatoryCompletionBridge?.({ tabState, responseMonitor }) || null;
++    observerBridge = deps.createObservatoryCompletionBridge?.({
++      tabState, responseMonitor,
++      isEnabled: () => completionModes?.observatoryEnabled() ?? true
++    }) || null;
+ 
+     uploadController = deps.createUploadAutoSendController({ tabState, isGenerationActive: deps.isGenerating });
+     queuedPromptController = deps.createQueuedPromptController({ onChange: scheduleUi });
+@@ -179,6 +184,11 @@
+       if (observerBridge) {
+         GM_registerMenuCommand('Fortis: привязать текущий чат', observerBridge.pairCurrent);
+         GM_registerMenuCommand('Fortis: отключить текущий чат', observerBridge.unpairCurrent);
++      }
++      if (completionModes) {
++        GM_registerMenuCommand('Fortis: переключить DOM (начало и конец)', completionModes.toggleDom);
++        GM_registerMenuCommand('Fortis: переключить Observatory (начало и конец)', completionModes.toggleObservatory);
++        GM_registerMenuCommand('Fortis: показать источники состояния', completionModes.showStatus);
+       }
+     }
+ 
+--- a/src/observatory-completion.js
++++ b/src/observatory-completion.js
+@@ -28,7 +28,9 @@
+     };
+   }
+ 
+-  function createObservatoryCompletionBridge({ tabState, responseMonitor, notify = () => {} } = {}) {
++  function createObservatoryCompletionBridge({
++    tabState, responseMonitor, notify = () => {}, isEnabled = () => true
++  } = {}) {
+     let chatId = '';
+     let latestSequence = -1;
+     let workStartedAt = 0;
+@@ -37,6 +39,10 @@
+     let pairing = null;
+     let generation = 0;
+     let lastTriggeredSequence = -1;
++    let initialStatusRead = false;
++    let startSequence = -1;
++    // Old archives must not cause stale working indicators after a page reload.
++    const MAX_EVENT_AGE_MS = 120000;
+ 
+     function refreshChat() {
+       const next = currentChatId();
+@@ -45,6 +51,8 @@
+       chatId = next;
+       latestSequence = -1;
+       lastTriggeredSequence = -1;
++      initialStatusRead = false;
++      startSequence = -1;
+       workStartedAt = 0;
+       requestPending = false;
+       try {
+@@ -56,25 +64,48 @@
+     function noteArmed() {
+       refreshChat();
+       workStartedAt = Date.now();
++      startSequence = Math.max(startSequence, latestSequence);
+     }
+ 
+     function receive(data, snapshot) {
+-      if (!pairing || snapshot !== generation || currentChatId() !== chatId) return false;
++      if (!isEnabled() || !pairing || snapshot !== generation || currentChatId() !== chatId) return false;
+       if (!data || data.ok !== true || data.version !== 1 ||
+           data.conversation_id !== chatId ||
+           data.reporting_session_id !== pairing.reporting_session_id ||
+           !Number.isInteger(data.sequence) || data.sequence < -1 ||
+           !['none', 'started', 'progress', 'checkpoint', 'blocked', 'completed', 'failed'].includes(data.event)) return false;
+-      const freshCompletion = data.event === 'completed' &&
+-        data.sequence > lastTriggeredSequence &&
+-        typeof data.accepted_unix === 'number' &&
+-        Number.isFinite(data.accepted_unix) &&
+-        data.accepted_unix * 1000 >= workStartedAt &&
+-        workStartedAt > 0 &&
+-        tabState?.getState?.() === 'working';
+-      latestSequence = Math.max(latestSequence, data.sequence);
+-      if (freshCompletion && responseMonitor?.finishFromExternal?.()) {
++
++      const acceptedMs = typeof data.accepted_unix === 'number' ? data.accepted_unix * 1000 : 0;
++      const fresh = acceptedMs > 0 && Number.isFinite(acceptedMs) &&
++        acceptedMs <= Date.now() + 30000 && Date.now() - acceptedMs <= MAX_EVENT_AGE_MS;
++      const initialRead = !initialStatusRead;
++      initialStatusRead = true;
++      if (data.sequence <= latestSequence) return false;
++      latestSequence = data.sequence;
++      if (!fresh) return false;
++
++      if (['started', 'progress', 'checkpoint'].includes(data.event)) {
++        // Progress is active work when a rapid started event fell between polls.
++        if (startSequence < 0 || data.event === 'started' ||
++            !['working', 'observatory-working'].includes(tabState?.getState?.())) {
++          startSequence = data.sequence;
++          workStartedAt = acceptedMs;
++        }
++        if (responseMonitor?.startFromExternal?.()) {
++          notify('Работа начата по событию Fortis Observatory');
++          return true;
++        }
++        return false;
++      }
++
++      if (data.event === 'completed' && !initialRead && workStartedAt > 0 &&
++          acceptedMs >= workStartedAt &&
++          data.sequence > Math.max(startSequence, lastTriggeredSequence) &&
++          ['working', 'observatory-working'].includes(tabState?.getState?.()) &&
++          responseMonitor?.finishFromExternal?.()) {
+         lastTriggeredSequence = data.sequence;
++        workStartedAt = 0;
++        startSequence = -1;
+         notify('Работа завершена по событию Fortis Observatory');
+         return true;
+       }
+@@ -83,7 +114,7 @@
+ 
+     function check() {
+       refreshChat();
+-      if (!pairing || requestPending || typeof GM_xmlhttpRequest !== 'function') return;
++      if (!isEnabled() || !pairing || requestPending || typeof GM_xmlhttpRequest !== 'function') return;
+       if (Date.now() - lastCheckAt < 3000) return;
+       lastCheckAt = Date.now();
+       requestPending = true;
+@@ -121,6 +152,9 @@
+       pairing = candidate;
+       latestSequence = -1;
+       lastTriggeredSequence = -1;
++      initialStatusRead = false;
++      startSequence = -1;
++      workStartedAt = 0;
+       lastCheckAt = 0;
+       check();
+       alert('Привязка сохранена только для текущего Chat ID.');
+@@ -133,6 +167,8 @@
+       pairing = null;
+       requestPending = false;
+       workStartedAt = 0;
++      startSequence = -1;
++      initialStatusRead = false;
+       alert('Привязка Observatory удалена для текущего чата.');
+     }
+ 
+@@ -144,5 +180,83 @@
+     };
+   }
+ 
+-  return { createObservatoryCompletionBridge, currentChatId, validatePairing };
++  // Each chat has a separate mode per browser tab, persisted for reloads.
++  const MODE_PREFIX = 'fortis-observatory-v1-completion-mode-';
++  const MODES = Object.freeze(['both', 'dom', 'observatory', 'off']);
++
++  function createCompletionModeSettings({ show = message => alert(message) } = {}) {
++    let chatId = null;
++    let mode = 'both';
++
++    function syncChat() {
++      const next = currentChatId();
++      if (next === chatId) return;
++      chatId = next;
++      mode = 'both';
++      if (!chatId) return;
++      try {
++        const stored = sessionStorage.getItem(MODE_PREFIX + chatId);
++        if (MODES.includes(stored)) mode = stored;
++      } catch (_) { /* fail back to original native behavior */ }
++    }
++
++    function domEnabled() {
++      syncChat();
++      return mode === 'both' || mode === 'dom';
++    }
++
++    function observatoryEnabled() {
++      syncChat();
++      return mode === 'both' || mode === 'observatory';
++    }
++
++    function describe() {
++      syncChat();
++      return 'Источники начала и завершения текущего чата:\n' +
++        'DOM Tab Notifier: ' + (domEnabled() ? 'ВКЛ' : 'ВЫКЛ') + '\n' +
++        'Fortis Observatory: ' + (observatoryEnabled() ? 'ВКЛ' : 'ВЫКЛ') + '\n\n' +
++        'Отключаются НАЧАЛО и КОНЕЦ по выбранному источнику; автоотправка не меняется.\n' +
++        'Для сравнения запусти новую генерацию после переключения.';
++    }
++
++    function setMode(nextMode) {
++      syncChat();
++      if (!chatId || !MODES.includes(nextMode)) return false;
++      try {
++        sessionStorage.setItem(MODE_PREFIX + chatId, nextMode);
++      } catch (_) {
++        show('Не удалось сохранить режим для этой вкладки.');
++        return false;
++      }
++      mode = nextMode;
++      return true;
++    }
++
++    function toggleDom() {
++      const next = domEnabled()
++        ? (observatoryEnabled() ? 'observatory' : 'off')
++        : (observatoryEnabled() ? 'both' : 'dom');
++      if (!setMode(next)) return show('Открой обычный чат /c/... для настройки.');
++      show(describe());
++    }
++
++    function toggleObservatory() {
++      const next = observatoryEnabled()
++        ? (domEnabled() ? 'dom' : 'off')
++        : (domEnabled() ? 'both' : 'observatory');
++      if (!setMode(next)) return show('Открой обычный чат /c/... для настройки.');
++      show(describe());
++    }
++
++    function showStatus() { show(describe()); }
++
++    syncChat();
++    return {
++      domEnabled, observatoryEnabled, toggleDom, toggleObservatory,
++      showStatus, getMode: () => { syncChat(); return mode; }
++    };
++  }
++
++  return { createObservatoryCompletionBridge, createCompletionModeSettings,
++           currentChatId, validatePairing };
+ });
