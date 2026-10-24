@@ -17,6 +17,7 @@
 | Как запустить, остановить или восстановить туннель? | [OPERATIONS](OPERATIONS.md) | [ACCESS](ACCESS.md) |
 | Какие файлы, процессы и сети доступны чату? | [ACCESS](ACCESS.md) | [ARCHITECTURE](ARCHITECTURE.md) |
 | Где история вызовов, как блокировать нежелательные операции? | [AUDIT](AUDIT.md) | [ACCESS](ACCESS.md) |
+| Как вручную допускать обновления Tampermonkey из Repo и проверять их? | [Userscript updater](userscript-updater/README.md) | [Требования](userscript-updater/REQUIREMENTS.md), [план](userscript-updater/PLAN.md), [хендофф](userscript-updater/HANDOFF.md) |
 | Как подключать/архивировать сессии и отправлять команды без Observatory UI? | [Observatory V1](../observatory/v1/README.md) | [Windows setup](../observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md) |
 | Есть ли монитор и GUI? | [OBSERVABILITY](OBSERVABILITY.md) | [AUDIT](AUDIT.md) |
 | Как создать новый hosted MCP-плагин? | [WORKFLOW](WORKFLOW.md) | [SITES](SITES.md) |
