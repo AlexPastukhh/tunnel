@@ -10,7 +10,7 @@
 
 Стандартные Docker TCP API на двух выбранных портах отклоняют соединения. Это полезное отрицательное evidence, но изоляция от остальных host/LAN-сервисов не доказана. Полного security PASS и доказательства безопасного исполнения любой неизвестной сборки нет.
 
-Ближайшая обоснованная мера — вывести доверенный Bridge из области, которую рабочий UID может подменять, сохранив автономную работу с проектами. Основные Windows fingerprints/ACL/listener metadata теперь получены; достаточная граница данных/сети остаётся отдельным решением. Дополнительный Windows-профиль для Repo из этих наблюдений не следует.
+Ближайшее решение о MCP entry — прямой установленный DC (PR-A-13) либо защищённый Bridge (PR-A-07). Изолированное сравнение дало одинаковые 26 tools/input schemas, поэтому необходимость дополнительного адаптера нужно оценивать по actual-client/UI совместимости. Достаточная граница данных/сети остаётся отдельным решением. Дополнительный Windows-профиль Repo не требуется этим выбором.
 
 ## Дополнение: ручной Windows-сбор и адресная сетевая проверка
 
@@ -63,6 +63,12 @@ Microsoft [AccessCheck](https://learn.microsoft.com/en-us/windows/win32/secauthz
 PR-A-12 — prerequisite проверки фактических данных для соответствующего PR-A-08/миграции. Он совместим с PR-A-07: защиту Linux Bridge в отдельном ext4 volume можно готовить без переноса Windows-репозиториев. Перед итоговой гарантией, что Windows launcher/pin недоступны рабочему коду, учесть возможные aliases к ним через выданные roots. Возможность исправления остаётся будущим вариантом; сейчас выполняется только фиксация контекста, без обхода targets/нового файлового аудита/изменения настроек.
 
 Первичные источники: Microsoft [junctions](https://learn.microsoft.com/en-us/windows/win32/fileio/hard-links-and-junctions) и [reparse points](https://learn.microsoft.com/en-us/windows/win32/fileio/reparse-points). Они подтверждают Windows-механизм, а не конкретную доступность целей из этого контейнера.
+
+## Текущий фокус: сеть и необходимость Bridge — WF-021
+
+Пользователь отложил junction и выбрал сетевую политику/функцию Bridge. [Фокусное исследование](repo-network-and-mcp-bridge-20261025.md) показывает, что Bridge — presentation/stdio adapter, не обязательный MCP security слой. Direct/backend isolated comparison PASS(scope): одинаковые26 tools/schemas; различаются UI/resources/serverInfo. PR-A-13 assistant/pending — ALTERNATIVE_TO PR-A-07, actual Windows/client compatibility ещё не проверена. F-R-05 не устранён реальным переключением; риск не означает новых Windows/root прав.
+
+Для сети подготовлен [read-only ActiveStore/Hyper-V/backend collector](../tools/Read-RepoNetworkPolicy.ps1). Текущих inspect/probes недостаточно для вывода о конкретных firewall rules. Никакие правила/runtime entry/профили/mounts не менялись; PR-A-09 и прочие меры pending. Подробные функции, ограничения, методы, вариант прямого запуска и команда ручного сбора — в одном фокусном результате.
 
 ## Источники, target и метод
 

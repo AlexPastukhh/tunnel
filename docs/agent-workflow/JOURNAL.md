@@ -298,6 +298,20 @@ PR-A-12 assistant/pending: адресная карта links/targets/Repo-пре
 
 Изменены только отчёт, STATE, C-04 и эта запись. Junction/репозитории/данные/mounts/права/runtime не менялись; автоматической миграции/удаления/копирования/новых FR и принятия Proposal нет. Относительные ссылки/read-back/diff/cached bytes проверяются перед локальным коммитом только своих документов; push не выполняется.
 
+## WF-021 — 2026-10-25: сеть и проверка необходимости MCP Bridge
+
+**Источник:** пользователь отложил junction, выбрал исследование сетевой политики/проблемы Bridge и спросил, какую функцию он выполняет и нужен ли. Сохранена исследовательская граница без автоматического применения мер/переноса профиля. Исходный HEAD `757cb1f80ad4c45d91dc75c3707e380dd9e2439f`, дерево/index чистые, применимый контекст не изменился.
+
+Адресно прочитаны live Bridge/startup source и Dockerfile; совпали прежние hashes. Установлены функции адаптера: upstream DC spawn, MCP stdio relay, initialize/tool presentation, подавление legacy UI/resources. Не установлен отдельный per-call security gate. Уточнён смысл F-R-05: риск integrity/persistence MCP startup/channel, без автоматического повышения Linux/Windows полномочий.
+
+Выполнен безопасный isolated Linux comparison: два dedicated process groups, temporary HOME/config/cwd, telemetry=false, без credentials и tools/call. Проверены initialize/tools/list/resources/list. Direct desktop-commander0.2.52 и Bridge fortis-repo0.2.52: MCP2025-03-26, по26 tools, схемы всех26 совпали; resources2/0, UI metadata tools5/0. Exit0, временные server groups/HOME очищены; реальные PID137/149 остались. Это readiness прямого backend, не реальное переключение Windows tunnel/ChatGPT UI. Появился PR-A-13 assistant/pending, ALTERNATIVE_TO PR-A-07; ни один вариант не внедрён.
+
+Переиспользованы network probes и manual inspect; повторного port scan/health/internet теста не делали. Новый адресный /proc read не нашёл IPv6 non-loopback default. Прочитан текущий Observatory README только для необходимого network/data-flow контекста, без API/данных/изменений этой подсистемы. Первичные Docker/Microsoft docs разграничивают Desktop backend, bridge, ActiveStore/filter associations, Hyper-V loopback/profile и iptables/nftables hooks.
+
+Подготовлены [единый фокусный результат](reviews/repo-network-and-mcp-bridge-20261025.md) и [read-only network collector](tools/Read-RepoNetworkPolicy.ps1). Последний выбирает firewall profiles/rules/constraints для Docker/WSL/Tunnel и scoped generic blocks/allows, Hyper-V/selected Desktop policy flags и Docker Engine/network metadata. Proxy/PAC URLs, raw connection profiles/env/log/command lines и другие-container names не выводятся; ошибки остаются unknown. Проверены код/границы/документированные interfaces; Windows AST/actual execution не проверены.
+
+STATE/C-04/общий отчёт дополнены текущим выбором и связями альтернатив. Новые blanket FR/приёмка C-04 не объявлены. Junction metadata/targets отложены; Windows/G2, настройки/ACL/mounts/network/runtime deployment/реальный restart/Observatory/CI/push не выполнялись. Проверки — relative links, read-back, diff/cached exact bytes, source fingerprints и native MCP comparison; локально фиксируются только относящиеся файлы. Для завершения выбора сетевых мер нужен ручной network JSON, для удаления Bridge — отдельная actual-client compatibility unit перед применением.
+
 ## Формат следующей записи
 
 Новая запись получает следующий WF-ID и содержит: дату; цель; источник разрешения/решения; фактически выполненное действие; проверку и её пределы; затронутые пути/версию; резервную копию/откат при необходимости; следующий шаг. Не записывать запланированное действие как выполненное.

@@ -175,13 +175,26 @@ PR-A-12 — pending: адресная карта `Repos-путь → link/repars
 
 Сейчас ссылки/цели не обходились, репозитории не переносились/не копировались, junction не удалялись, mounts/ACL не менялись. После карты можно выбрать сохранение junction, явные physical mounts или отдельный план реального переноса с проверкой потребителей/Git/backup. Это не принятие будущей миграции.
 
+## Текущий фокус: сеть и нужность Bridge — WF-021
+
+Пользователь отложил junction и поручил разобраться с сетевой политикой и проблемой MCP Bridge; затем спросил о функции/необходимости Bridge. Исследование и адресная readiness-проверка разрешены этим запросом; настройки/живое подключение не меняются.
+
+[Фокусный результат](reviews/repo-network-and-mcp-bridge-20261025.md): Bridge — stdio/presentation adapter, не обязательный протокольный или OS-защитный слой. Прочитан тот же live hash. Выполнено изолированное сравнение прямого DC и Bridge с временными HOME/config/cwd: initialize/tools/list/resources/list, без tools/call; оба вернули26 tools с одинаковыми input schemas. Direct: desktop-commander,2 resources,5 UI tools; Bridge: fortis-repo,0 resources/0 UI tools. Временные процессы/каталоги очищены; действующие PID137/149 сохранились. Это MCP backend PASS(scope), не приёмка Windows tunnel/ChatGPT UI и всех tools в прямом режиме.
+
+PR-A-13 assistant/pending — direct запуск защищённого installed DC; ALTERNATIVE_TO PR-A-07 для MCP entry. Перед укреплением дополнительного Bridge разумно проверить эту более простую альтернативу с actual client; если UI/presentation нужны, защищать адаптер. F-R-05 остаётся unresolved до реализации/проверки; подмена Bridge не даёт автоматически Windows/root-права, её дополнительный риск — integrity/persistence MCP channel.
+
+По сети переиспользованы существующие probes, Docker/manual JSON. Уточнены различия bridge/egress/firewall layers; новый /proc read не нашёл non-loopback IPv6 default. Выбор конкретных правил требует Windows ActiveStore/Hyper-V/backend metadata. Подготовлен [Read-RepoNetworkPolicy.ps1](tools/Read-RepoNetworkPolicy.ps1): selected read-only fields, без raw credentials/proxy URLs/command lines; Windows parser/исполнение нового collector не проверены. Нет причины выдавать NET_ADMIN/socket в Repo для сбора.
+
+Кандидат политики сохраняет нужные internet/DNS/API/data flows, ограничивает ненужный host/LAN/control доступ, учитывает raw protocols и исключения по задачам. Это не новый принятый FR и не готовые firewall commands. Junction PR-A-12 отложен пользователем; отдельный Windows-профиль Repo не предлагается. Сетевые правила, запуск нового MCP entry, Windows/G2, runtime/ACL/mounts/Observatory/публикация не выполнялись.
+
 ## Ближайший план
 
 | ID | Статус | Действие | Критерий завершения |
 | --- | --- | --- | --- |
+| RP-04 | ACTIVE; manual data needed | Определить сетевую политику по ActiveStore/Hyper-V/backend metadata; collector подготовлен | Выбран применимый enforcement и необходимые исключения; настройки отдельно |
 | RP-01 | DONE(scope), host gaps | Доступные исследования защиты нынешнего Repo выполнены; результат в repo-protection-20261025.md | Есть карта доступа/механизмов/evidence/gaps и pending меры; полного host/security PASS нет |
-| RP-02 | PROPOSED; metadata получены | Подготовить адресную защиту trusted Bridge path по PR-A-07; базовые Windows hashes/ACL/listener сверены | Конкретные путь/pin/доставка/проверка/recovery с сохранением автономных задач; применение отдельно |
-| RP-03 | DEFERRED / PROPOSED PR-A-12 | Учесть возможные junction: адресная metadata-карта до изменения границ данных/переноса | Известны ссылки/записанные цели/Repo-представление; посторонние targets не читаются автоматически; миграция отдельно |
+| RP-02 | PROPOSED; direct backend readiness PASS(scope) | Выбрать MCP entry: direct DC PR-A-13 либо защищённый адаптер PR-A-07 | Достаточная actual-client/UI совместимость, конкретные startup checks/rollback; live switch отдельно |
+| RP-03 | DEFERRED(user) / PR-A-12 | Учесть возможные junction: адресная metadata-карта до изменения границ данных/переноса | Известны ссылки/записанные цели/Repo-представление; посторонние targets не читаются автоматически; миграция отдельно |
 | N-01 | DONE(scope) | Установить mounts и проверить узкий доступ G2 к проекту | Выполненные источники и проверки перечислены выше |
 | N-02 | DEFERRED / PER PROJECT | Когда выбран Godot-результат для ручной проверки, определить Windows exe/версию и аккаунт запуска | Известны конкретные вход, инструмент и ручной маршрут; это не prerequisite защиты Repo |
 | N-03 | DEFERRED / PER PROJECT | Подготовить ручной import/запуск выбранного результата в выбранном пользователем основном или тестовом аккаунте | Пользователь проверил нужные функции конкретной версии; результат и ограничения записаны |
