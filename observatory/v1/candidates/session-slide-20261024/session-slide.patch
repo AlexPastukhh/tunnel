@@ -1,0 +1,371 @@
+diff --git a/observatory/v1/owner_viewer.py b/observatory/v1/owner_viewer.py
+index 5c58758..5e3867e 100644
+--- a/observatory/v1/owner_viewer.py
++++ b/observatory/v1/owner_viewer.py
+@@ -80,6 +80,13 @@ button.active,.action-toggle[aria-expanded="true"]{border-color:#a3c4f7;backgrou
+   text-align:left;margin:0;padding:7px 12px;overflow:hidden;text-overflow:ellipsis;
+   white-space:nowrap;border-bottom:3px solid transparent;border-radius:7px 7px 3px 3px}
+ #sessions button.session.active{background:#385478;border-color:#a3c4f7}
++#sessions button.session{cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
++#sessions button.session.sliding{cursor:grabbing;position:relative;z-index:3;
++  box-shadow:0 7px 18px #0009;filter:brightness(1.14);will-change:transform}
++#sessions.sliding-tabs{cursor:grabbing}
++@media(prefers-reduced-motion:reduce){
++  #sessions button.session.sliding{filter:none}
++}
+ #sessions button.session[data-status]{border-left:1px solid #6981a6;
+   border-bottom-color:var(--status-color)}
+ #sessions button.session .status-line,#sessions button.session .status-note{
+@@ -743,6 +750,16 @@ try{
+  if(Array.isArray(saved)&&saved.length<=1000&&saved.every(id=>SESSION_RE.test(id))&&
+     new Set(saved).size===saved.length)tabOrder=saved
+ }catch(_){}
++function persistSessionOrder(next){
++ if(!Array.isArray(next)||next.length>1000||new Set(next).size!==next.length||
++    next.some(id=>!SESSION_RE.test(id)))return false;
++ try{
++  const string=JSON.stringify(next);
++  window.localStorage?.setItem(TAB_ORDER_KEY,string);
++  if(window.localStorage?.getItem(TAB_ORDER_KEY)!==string)throw Error("readback");
++  tabOrder=next;return true
++ }catch(_){status("Порядок вкладок не сохранён; изменений нет");return false}
++}
+ function moveSessionTab(source,target){
+  if(!SESSION_RE.test(source)||!SESSION_RE.test(target)||source===target)return;
+  const list=Array.isArray(state?.sessions)?state.sessions:[];
+@@ -751,14 +768,133 @@ function moveSessionTab(source,target){
+  const next=[...new Set([...tabOrder.filter(id=>ids.includes(id)),...ids])];
+  next.splice(next.indexOf(source),1);
+  next.splice(next.indexOf(target),0,source);
+- try{
+-  const string=JSON.stringify(next);
+-  window.localStorage?.setItem(TAB_ORDER_KEY,string);
+-  if(window.localStorage?.getItem(TAB_ORDER_KEY)!==string)throw Error("readback");
+-  tabOrder=next;renderSessions()
+- }catch(_){status("Порядок вкладок не сохранён; изменений нет")}
++ if(persistSessionOrder(next))renderSessions()
++}
++// Native browser-style tab sliding: move the *real* button under the pointer,
++// shift neighbours during the gesture, and persist exactly once on release.
++// Do not rebuild the header or change the selected session during a gesture.
++let tabSlide=null;
++let tabSlideNeedsRender=false;
++let tabSlideClickGuard={id:"",at:0};
++const slideButtons=()=>Array.from($("sessions").children)
++ .filter(node=>SESSION_RE.test(node.dataset?.sessionId||""));
++function animateShiftedTabs(before,dragged){
++ for(const tab of slideButtons()){
++  if(tab===dragged||!before.has(tab))continue;
++  const oldLeft=before.get(tab),newLeft=tab.getBoundingClientRect().left;
++  const delta=oldLeft-newLeft;
++  if(Math.abs(delta)>0.5&&typeof tab.animate==="function"&&
++     !window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
++   tab.animate([{transform:"translateX("+delta+"px)"},
++     {transform:"translateX(0)"}],{duration:165,easing:"ease-out"})
++  }
++ }
++}
++function updateSlidePosition(gesture){
++ const box=gesture.button.getBoundingClientRect();
++ const baseLeft=box.left-gesture.translate;
++ gesture.translate=gesture.initialLeft+gesture.pointerX-gesture.startX-baseLeft;
++ gesture.button.style.transform="translate3d("+gesture.translate+"px,0,0)"
++}
++function slidePreviewAt(gesture){
++ const list=$("sessions"),dragged=gesture.button;
++ const others=slideButtons().filter(tab=>tab!==dragged);
++ const beforeTab=others.find(tab=>{
++  const box=tab.getBoundingClientRect();
++  return gesture.pointerX<box.left+box.width/2
++ })||null;
++ const oldIndex=slideButtons().indexOf(dragged);
++ const newIndex=beforeTab?others.indexOf(beforeTab):others.length;
++ if(newIndex!==oldIndex){
++  const oldPositions=new Map(others.map(tab=>[tab,tab.getBoundingClientRect().left]));
++  list.insertBefore(dragged,beforeTab);
++  animateShiftedTabs(oldPositions,dragged)
++ }
++ updateSlidePosition(gesture)
++}
++function slideEdgeScroll(){
++ const g=tabSlide;
++ if(!g||!g.active)return;
++ const list=$("sessions"),box=list.getBoundingClientRect();
++ const edge=28;
++ const direction=g.pointerX<box.left+edge?-1:
++  g.pointerX>box.right-edge?1:0;
++ const previous=list.scrollLeft;
++ if(direction&&list.scrollWidth>list.clientWidth){
++  list.scrollLeft+=direction*16;
++  if(list.scrollLeft!==previous)slidePreviewAt(g)
++ }
++ g.raf=null;
++ if(direction&&list.scrollLeft!==previous&&window.requestAnimationFrame)
++  g.raf=window.requestAnimationFrame(slideEdgeScroll)
++}
++function startTabSlide(event,button){
++ if(tabSlide||event.button!==0||event.isPrimary===false||
++    !SESSION_RE.test(button.dataset?.sessionId||""))return;
++ const box=button.getBoundingClientRect();
++ tabSlide={button,pointerId:event.pointerId,startX:event.clientX,
++  startY:event.clientY,pointerX:event.clientX,initialLeft:box.left,
++  translate:0,active:false,raf:null,
++  initialOrder:slideButtons()};
++ // Do not capture on pointerdown: capturing the tablist would swallow an
++ // ordinary button click. Capture only once an actual horizontal drag starts.
++}
++function continueTabSlide(event){
++ const g=tabSlide;
++ if(!g||event.pointerId!==g.pointerId)return;
++ if(!g.active){
++  const dx=event.clientX-g.startX,dy=event.clientY-g.startY;
++  if(Math.abs(dx)<7||Math.abs(dx)<Math.abs(dy))return;
++  g.active=true;g.button.classList.add("sliding");
++  $("sessions").classList.add("sliding-tabs");
++  $("sessions").setPointerCapture?.(g.pointerId)
++ }
++ event.preventDefault();
++ g.pointerX=event.clientX;
++ slidePreviewAt(g);
++ if(g.raf===null&&window.requestAnimationFrame)
++  g.raf=window.requestAnimationFrame(slideEdgeScroll)
++}
++function finishTabSlide(event,cancel=false){
++ const g=tabSlide;
++ if(!g||event.pointerId!==g.pointerId)return;
++ tabSlide=null;
++ if(g.raf!==null)window.cancelAnimationFrame?.(g.raf);
++ const list=$("sessions");
++ if(g.active){
++  event.preventDefault?.();
++  tabSlideClickGuard={id:g.button.dataset.sessionId,at:Date.now()};
++  if(cancel){
++   const positions=new Map(slideButtons().map(tab=>[tab,tab.getBoundingClientRect().left]));
++   for(const tab of g.initialOrder)list.append(tab);
++   animateShiftedTabs(positions,g.button)
++  }else{
++   const next=slideButtons().map(tab=>tab.dataset.sessionId);
++   if(!persistSessionOrder(next)){
++    for(const tab of g.initialOrder)list.append(tab)
++   }
++  }
++  const translate=g.translate;
++  g.button.style.transform="";
++  if(!cancel&&Math.abs(translate)>0.5&&
++     typeof g.button.animate==="function"&&
++     !window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
++   g.button.animate([{transform:"translateX("+translate+"px)"},
++     {transform:"translateX(0)"}],{duration:150,easing:"ease-out"})
++  }
++  g.button.classList.remove("sliding");
++  list.classList.remove("sliding-tabs")
++ }
++ if(list.hasPointerCapture?.(g.pointerId))
++  list.releasePointerCapture(g.pointerId);
++ if(tabSlideNeedsRender){
++  tabSlideNeedsRender=false;
++  // Let the sliding animation complete before polling rebuilds the header.
++  window.setTimeout?.(()=>{if(!tabSlide)renderSessions()},190)
++ }
+ }
+ function renderSessions(){
++ if(tabSlide?.active){tabSlideNeedsRender=true;return}
+  updateComposeTarget();
+  const list=$("sessions"), tasks=$("tasks");
+  const sessionScrollLeft=list.scrollLeft,taskScroll=tasks.scrollTop;
+@@ -783,19 +919,14 @@ function renderSessions(){
+   b.setAttribute("role","tab");b.setAttribute("aria-controls","workspaceGrid");
+   b.setAttribute("aria-selected",chosenSession===s.reporting_session_id?"true":"false");
+   b.tabIndex=chosenSession===s.reporting_session_id?0:-1;
+-  b.draggable=true;b.dataset.sessionId=s.reporting_session_id;
+-  b.addEventListener("dragstart",event=>{
+-    event.dataTransfer?.setData("text/plain",s.reporting_session_id);
+-    if(event.dataTransfer)event.dataTransfer.effectAllowed="move";
+-  });
+-  b.addEventListener("dragover",event=>event.preventDefault());
+-  b.addEventListener("drop",event=>{
+-    event.preventDefault();
+-    const from=event.dataTransfer?.getData("text/plain");
+-    if(SESSION_RE.test(from||""))moveSessionTab(from,s.reporting_session_id)
+-  });
++  b.dataset.sessionId=s.reporting_session_id;
++  b.addEventListener("pointerdown",event=>startTabSlide(event,b));
+   renderSessionStatus(b,s.task_overview);
+-  b.onclick=()=>{
++  b.onclick=event=>{
++   if(event?.detail>0&&tabSlideClickGuard.id===s.reporting_session_id&&
++      Date.now()-tabSlideClickGuard.at<450){
++     event.preventDefault?.();return
++   }
+    if(chosenSession===s.reporting_session_id)return;
+    // A fresh session selection always opens the newest task, regardless
+    // of whether automatic follow is currently enabled.
+@@ -827,8 +958,21 @@ function renderSessions(){
+  }
+  list.scrollLeft=sessionScrollLeft;tasks.scrollTop=taskScroll
+ }
++// Capture the pointer on the stable tablist, not on a button moved inside it.
++$("sessions").addEventListener("pointermove",continueTabSlide);
++$("sessions").addEventListener("pointerup",event=>finishTabSlide(event));
++$("sessions").addEventListener("pointercancel",event=>finishTabSlide(event,true));
++$("sessions").addEventListener("pointerleave",event=>{
++ if(tabSlide&&!tabSlide.active)finishTabSlide(event,true)
++});
++$("sessions").addEventListener("lostpointercapture",event=>finishTabSlide(event,true));
+ // Tabs remain keyboard operable when their horizontal row overflows.
+ $("sessions").addEventListener("keydown",event=>{
++ if(event.key==="Escape"&&tabSlide?.active){
++  event.preventDefault();
++  finishTabSlide({pointerId:tabSlide.pointerId,preventDefault(){}},true);
++  return
++ }
+  if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
+  if(event.altKey&&(event.key==="ArrowLeft"||event.key==="ArrowRight")){
+    const buttons=Array.from($("sessions").children),index=buttons.indexOf(event.target);
+diff --git a/observatory/v1/test_owner_viewer_ui.mjs b/observatory/v1/test_owner_viewer_ui.mjs
+index 8d8d013..d2996a9 100644
+--- a/observatory/v1/test_owner_viewer_ui.mjs
++++ b/observatory/v1/test_owner_viewer_ui.mjs
+@@ -41,14 +41,38 @@ class Element {
+  constructor(tag="div"){
+   this.tagName=tag;this.children=[];this.textContent="";this.value="";
+   this.hidden=false;this.listeners={};this.attributes={};this.className="";
+-  this.clientWidth=1200;this.style={};this.dataset={};
++  this.clientWidth=1200;this.style={};this.dataset={};this.parent=null;
+   this.classList={add(){},remove(){},contains(){return false}};
+  }
+  setPointerCapture(id){this.pointerId=id}
+  hasPointerCapture(id){return this.pointerId===id}
+  releasePointerCapture(){this.pointerId=null}
+- replaceChildren(...children){this.children=children}
+- append(...children){this.children.push(...children)}
++ replaceChildren(...children){
++  for(const child of this.children)if(child.parent===this)child.parent=null;
++  this.children=[];
++  this.append(...children)
++ }
++ append(...children){
++  for(const child of children)this.insertBefore(child,null)
++ }
++ insertBefore(child,before){
++  if(child.parent){
++   const ix=child.parent.children.indexOf(child);
++   if(ix>=0)child.parent.children.splice(ix,1)
++  }
++  const ix=before===null?-1:this.children.indexOf(before);
++  if(ix<0)this.children.push(child);else this.children.splice(ix,0,child);
++  child.parent=this;return child
++ }
++ getBoundingClientRect(){
++  const tabs=this.parent?.tagName==="tablist"||this.parent===elements.get("sessions");
++  const left=tabs?this.parent.children.indexOf(this)*130-(this.parent.scrollLeft||0):0;
++  const width=tabs?120:310;
++  const offset=this.style.transform?.match(/translate3d\((-?[\d.]+)px/);
++  const shifted=left+(offset?Number(offset[1]):0);
++  return {left:shifted,right:shifted+width,width,height:40,top:0,bottom:40}
++ }
++ animate(frames,config){animations.push({element:this,frames,config});return {cancel(){}}}
+  addEventListener(name,fn){this.listeners[name]=fn}
+  setAttribute(name,value){this.attributes[name]=value}
+  removeAttribute(name){delete this.attributes[name]}
+@@ -57,6 +81,7 @@ class Element {
+ }
+ 
+ const elements=new Map(ids.map(id=>[id,new Element()]));
++const animations=[];
+ for(const id of ["registerPanel","instructionPanel","pairPanel","composePanel","app"]){
+  elements.get(id).hidden=true
+ }
+@@ -696,3 +721,92 @@ assert.equal(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1"))[0
+  "manual tab order must survive refresh");
+ assert.deepEqual(elements.get("sessions").children.filter(b=>b.attributes["aria-selected"]==="true").length,1);
+ console.log("Owner Viewer durable drafts, sent recovery, reorder: PASS");
++
++// Simulate moving a real tab while the mouse button is still held.
++const bar=elements.get("sessions");
++const getIds=()=>bar.children.map(child=>child.dataset.sessionId);
++const beforeSlide=getIds();
++assert.equal(beforeSlide.length,2);
++const beforeSave=savedStorage.get("fortis-owner-session-tab-order-v1");
++const beforeActive=vm.runInContext("chosenSession",sandbox);
++const moving=bar.children[0];
++const pointer=(x,kind="pointermove",pointerId=42)=>({
++ currentTarget:bar,pointerId,button:0,isPrimary:true,clientX:x,clientY:18,
++ preventDefault(){this.prevented=true}
++});
++moving.listeners.pointerdown({...pointer(12,"pointerdown"),currentTarget:moving});
++assert.equal(bar.pointerId,undefined,"ordinary pointerdown must not swallow a tab click");
++bar.listeners.pointermove(pointer(15)); // below threshold
++assert.deepEqual(getIds(),beforeSlide,"no move for ordinary short click");
++assert.equal(moving.style.transform,undefined);
++bar.listeners.pointermove(pointer(207));
++assert.equal(bar.pointerId,42,"capture the stable tab bar only when sliding starts");
++assert.deepEqual(getIds(),[beforeSlide[1],beforeSlide[0]],
++ "neighbouring tabs reorder during the pointer gesture, not only on release");
++assert.match(moving.style.transform,/translate3d\(/,"dragged button must visually follow pointer");
++assert.ok(animations.some(a=>a.element!==moving),"neighbour gets slide animation");
++assert.equal(savedStorage.get("fortis-owner-session-tab-order-v1"),beforeSave,
++ "preview must not persist before mouse release");
++assert.equal(vm.runInContext("chosenSession",sandbox),beforeActive,
++ "reordering must not select another session or task");
++vm.runInContext("renderSessions()",sandbox);
++assert.deepEqual(getIds(),[beforeSlide[1],beforeSlide[0]],
++ "auto-refresh must not rebuild the list during an active slide");
++bar.listeners.pointerup(pointer(207,"pointerup"));
++assert.equal(bar.pointerId,null,"release stable pointer capture");
++assert.deepEqual(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1")),
++ [beforeSlide[1],beforeSlide[0]],"persist the final order only on pointerup");
++assert.equal(moving.style.transform,"","drag transform must be cleared");
++moving.onclick({detail:1,preventDefault(){}});
++assert.equal(vm.runInContext("chosenSession",sandbox),beforeActive,
++ "release-click after drag must not activate a different session");
++assert.ok(animations.some(a=>a.element===moving),
++ "dragged tab must settle into final position with animation");
++
++// Cancel reverts live preview without touching committed order.
++const cancelBefore=getIds();
++const toCancel=bar.children[0];
++toCancel.listeners.pointerdown({...pointer(12,"pointerdown",43),currentTarget:toCancel});
++bar.listeners.pointermove(pointer(207,"pointermove",43));
++assert.deepEqual(getIds(),[cancelBefore[1],cancelBefore[0]],
++ "cancelled gesture must also show live preview");
++bar.listeners.pointercancel(pointer(207,"pointercancel",43));
++assert.deepEqual(getIds(),cancelBefore,"pointercancel restores original order");
++assert.deepEqual(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1")),
++ cancelBefore,"cancellation never persists preview");
++// A short pointer press still behaves like an ordinary clickable browser tab.
++const normalClick=bar.children[0];
++normalClick.listeners.pointerdown({...pointer(10,"pointerdown",45),currentTarget:normalClick});
++assert.equal(bar.pointerId,null);
++bar.listeners.pointerup(pointer(10,"pointerup",45));
++assert.equal(bar.pointerId,null);
++normalClick.onclick({detail:1,preventDefault(){}});
++assert.equal(vm.runInContext("chosenSession",sandbox),normalClick.dataset.sessionId,
++ "a normal click must still switch sessions");
++const escapeBefore=getIds();
++const escapeTab=bar.children[0];
++escapeTab.listeners.pointerdown({...pointer(12,"pointerdown",48),currentTarget:escapeTab});
++bar.listeners.pointermove(pointer(207,"pointermove",48));
++assert.notDeepEqual(getIds(),escapeBefore);
++bar.listeners.keydown({key:"Escape",preventDefault(){}});
++assert.deepEqual(getIds(),escapeBefore,"Escape cancels live tab sliding");
++assert.deepEqual(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1")),
++ escapeBefore,"Escape must not persist the preview");
++const vertical=bar.children[0];
++vertical.listeners.pointerdown({...pointer(12,"pointerdown",44),currentTarget:vertical});
++bar.listeners.pointermove({...pointer(15,"pointermove",44),clientY:60});
++assert.deepEqual(getIds(),cancelBefore,"vertical motion must not rearrange tabs");
++bar.listeners.pointerup(pointer(15,"pointerup",44));
++assert.deepEqual(getIds(),cancelBefore);
++// When the row overflows, dragging at its right edge scrolls horizontally.
++bar.clientWidth=310;bar.scrollWidth=950;bar.scrollLeft=0;
++const scrolling=bar.children[0];
++scrolling.listeners.pointerdown({...pointer(18,"pointerdown",46),currentTarget:scrolling});
++bar.listeners.pointermove(pointer(305,"pointermove",46));
++const beforeEdge=bar.scrollLeft;
++vm.runInContext("slideEdgeScroll()",sandbox);
++assert.ok(bar.scrollLeft>beforeEdge,
++ "dragging at the edge of an overflowing tab bar must auto-scroll");
++bar.listeners.pointerup(pointer(305,"pointerup",46));
++bar.scrollWidth=undefined;
++console.log("Owner Viewer real-time slide, release, cancel, vertical gesture, autoscroll: PASS");

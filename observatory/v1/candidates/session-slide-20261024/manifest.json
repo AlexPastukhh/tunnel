@@ -1,0 +1,11 @@
+{
+  "candidate": "slide-tabs-in-place",
+  "status": "source_only_not_installed",
+  "files_sha256": {
+    "owner_viewer.py": "d5a752267ed78bcadf4da4e27b71452f3fb2d2c69fb4d138bda3af13bbf49878",
+    "test_owner_viewer_ui.mjs": "658d213183b0f4648a6d084cab20e31f4f9ff01b9489adbc4238025c1b4fa9fa",
+    "session-slide.patch": "5003f99e2b27b9dc90832e8d010994135fcbdb42ff9455b5f58a4ef8f081819f",
+    "Apply-ObservatorySlidingTabs.ps1": "4a77ebdc9eceb73bd5d927960ac32a15e129b2c0842a56d92733e003ad4cced0",
+    "README.md": "0869431b771f316bf931c01b93421cecfe8ad15b88a91adbdc9d6a8ca458a3ac"
+  }
+}

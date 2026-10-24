@@ -80,6 +80,13 @@ button.active,.action-toggle[aria-expanded="true"]{border-color:#a3c4f7;backgrou
   text-align:left;margin:0;padding:7px 12px;overflow:hidden;text-overflow:ellipsis;
   white-space:nowrap;border-bottom:3px solid transparent;border-radius:7px 7px 3px 3px}
 #sessions button.session.active{background:#385478;border-color:#a3c4f7}
+#sessions button.session{cursor:grab;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+#sessions button.session.sliding{cursor:grabbing;position:relative;z-index:3;
+  box-shadow:0 7px 18px #0009;filter:brightness(1.14);will-change:transform}
+#sessions.sliding-tabs{cursor:grabbing}
+@media(prefers-reduced-motion:reduce){
+  #sessions button.session.sliding{filter:none}
+}
 #sessions button.session[data-status]{border-left:1px solid #6981a6;
   border-bottom-color:var(--status-color)}
 #sessions button.session .status-line,#sessions button.session .status-note{
@@ -743,6 +750,16 @@ try{
  if(Array.isArray(saved)&&saved.length<=1000&&saved.every(id=>SESSION_RE.test(id))&&
     new Set(saved).size===saved.length)tabOrder=saved
 }catch(_){}
+function persistSessionOrder(next){
+ if(!Array.isArray(next)||next.length>1000||new Set(next).size!==next.length||
+    next.some(id=>!SESSION_RE.test(id)))return false;
+ try{
+  const string=JSON.stringify(next);
+  window.localStorage?.setItem(TAB_ORDER_KEY,string);
+  if(window.localStorage?.getItem(TAB_ORDER_KEY)!==string)throw Error("readback");
+  tabOrder=next;return true
+ }catch(_){status("Порядок вкладок не сохранён; изменений нет");return false}
+}
 function moveSessionTab(source,target){
  if(!SESSION_RE.test(source)||!SESSION_RE.test(target)||source===target)return;
  const list=Array.isArray(state?.sessions)?state.sessions:[];
@@ -751,14 +768,133 @@ function moveSessionTab(source,target){
  const next=[...new Set([...tabOrder.filter(id=>ids.includes(id)),...ids])];
  next.splice(next.indexOf(source),1);
  next.splice(next.indexOf(target),0,source);
- try{
-  const string=JSON.stringify(next);
-  window.localStorage?.setItem(TAB_ORDER_KEY,string);
-  if(window.localStorage?.getItem(TAB_ORDER_KEY)!==string)throw Error("readback");
-  tabOrder=next;renderSessions()
- }catch(_){status("Порядок вкладок не сохранён; изменений нет")}
+ if(persistSessionOrder(next))renderSessions()
+}
+// Native browser-style tab sliding: move the *real* button under the pointer,
+// shift neighbours during the gesture, and persist exactly once on release.
+// Do not rebuild the header or change the selected session during a gesture.
+let tabSlide=null;
+let tabSlideNeedsRender=false;
+let tabSlideClickGuard={id:"",at:0};
+const slideButtons=()=>Array.from($("sessions").children)
+ .filter(node=>SESSION_RE.test(node.dataset?.sessionId||""));
+function animateShiftedTabs(before,dragged){
+ for(const tab of slideButtons()){
+  if(tab===dragged||!before.has(tab))continue;
+  const oldLeft=before.get(tab),newLeft=tab.getBoundingClientRect().left;
+  const delta=oldLeft-newLeft;
+  if(Math.abs(delta)>0.5&&typeof tab.animate==="function"&&
+     !window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
+   tab.animate([{transform:"translateX("+delta+"px)"},
+     {transform:"translateX(0)"}],{duration:165,easing:"ease-out"})
+  }
+ }
+}
+function updateSlidePosition(gesture){
+ const box=gesture.button.getBoundingClientRect();
+ const baseLeft=box.left-gesture.translate;
+ gesture.translate=gesture.initialLeft+gesture.pointerX-gesture.startX-baseLeft;
+ gesture.button.style.transform="translate3d("+gesture.translate+"px,0,0)"
+}
+function slidePreviewAt(gesture){
+ const list=$("sessions"),dragged=gesture.button;
+ const others=slideButtons().filter(tab=>tab!==dragged);
+ const beforeTab=others.find(tab=>{
+  const box=tab.getBoundingClientRect();
+  return gesture.pointerX<box.left+box.width/2
+ })||null;
+ const oldIndex=slideButtons().indexOf(dragged);
+ const newIndex=beforeTab?others.indexOf(beforeTab):others.length;
+ if(newIndex!==oldIndex){
+  const oldPositions=new Map(others.map(tab=>[tab,tab.getBoundingClientRect().left]));
+  list.insertBefore(dragged,beforeTab);
+  animateShiftedTabs(oldPositions,dragged)
+ }
+ updateSlidePosition(gesture)
+}
+function slideEdgeScroll(){
+ const g=tabSlide;
+ if(!g||!g.active)return;
+ const list=$("sessions"),box=list.getBoundingClientRect();
+ const edge=28;
+ const direction=g.pointerX<box.left+edge?-1:
+  g.pointerX>box.right-edge?1:0;
+ const previous=list.scrollLeft;
+ if(direction&&list.scrollWidth>list.clientWidth){
+  list.scrollLeft+=direction*16;
+  if(list.scrollLeft!==previous)slidePreviewAt(g)
+ }
+ g.raf=null;
+ if(direction&&list.scrollLeft!==previous&&window.requestAnimationFrame)
+  g.raf=window.requestAnimationFrame(slideEdgeScroll)
+}
+function startTabSlide(event,button){
+ if(tabSlide||event.button!==0||event.isPrimary===false||
+    !SESSION_RE.test(button.dataset?.sessionId||""))return;
+ const box=button.getBoundingClientRect();
+ tabSlide={button,pointerId:event.pointerId,startX:event.clientX,
+  startY:event.clientY,pointerX:event.clientX,initialLeft:box.left,
+  translate:0,active:false,raf:null,
+  initialOrder:slideButtons()};
+ // Do not capture on pointerdown: capturing the tablist would swallow an
+ // ordinary button click. Capture only once an actual horizontal drag starts.
+}
+function continueTabSlide(event){
+ const g=tabSlide;
+ if(!g||event.pointerId!==g.pointerId)return;
+ if(!g.active){
+  const dx=event.clientX-g.startX,dy=event.clientY-g.startY;
+  if(Math.abs(dx)<7||Math.abs(dx)<Math.abs(dy))return;
+  g.active=true;g.button.classList.add("sliding");
+  $("sessions").classList.add("sliding-tabs");
+  $("sessions").setPointerCapture?.(g.pointerId)
+ }
+ event.preventDefault();
+ g.pointerX=event.clientX;
+ slidePreviewAt(g);
+ if(g.raf===null&&window.requestAnimationFrame)
+  g.raf=window.requestAnimationFrame(slideEdgeScroll)
+}
+function finishTabSlide(event,cancel=false){
+ const g=tabSlide;
+ if(!g||event.pointerId!==g.pointerId)return;
+ tabSlide=null;
+ if(g.raf!==null)window.cancelAnimationFrame?.(g.raf);
+ const list=$("sessions");
+ if(g.active){
+  event.preventDefault?.();
+  tabSlideClickGuard={id:g.button.dataset.sessionId,at:Date.now()};
+  if(cancel){
+   const positions=new Map(slideButtons().map(tab=>[tab,tab.getBoundingClientRect().left]));
+   for(const tab of g.initialOrder)list.append(tab);
+   animateShiftedTabs(positions,g.button)
+  }else{
+   const next=slideButtons().map(tab=>tab.dataset.sessionId);
+   if(!persistSessionOrder(next)){
+    for(const tab of g.initialOrder)list.append(tab)
+   }
+  }
+  const translate=g.translate;
+  g.button.style.transform="";
+  if(!cancel&&Math.abs(translate)>0.5&&
+     typeof g.button.animate==="function"&&
+     !window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches){
+   g.button.animate([{transform:"translateX("+translate+"px)"},
+     {transform:"translateX(0)"}],{duration:150,easing:"ease-out"})
+  }
+  g.button.classList.remove("sliding");
+  list.classList.remove("sliding-tabs")
+ }
+ if(list.hasPointerCapture?.(g.pointerId))
+  list.releasePointerCapture(g.pointerId);
+ if(tabSlideNeedsRender){
+  tabSlideNeedsRender=false;
+  // Let the sliding animation complete before polling rebuilds the header.
+  window.setTimeout?.(()=>{if(!tabSlide)renderSessions()},190)
+ }
 }
 function renderSessions(){
+ if(tabSlide?.active){tabSlideNeedsRender=true;return}
  updateComposeTarget();
  const list=$("sessions"), tasks=$("tasks");
  const sessionScrollLeft=list.scrollLeft,taskScroll=tasks.scrollTop;
@@ -783,19 +919,14 @@ function renderSessions(){
   b.setAttribute("role","tab");b.setAttribute("aria-controls","workspaceGrid");
   b.setAttribute("aria-selected",chosenSession===s.reporting_session_id?"true":"false");
   b.tabIndex=chosenSession===s.reporting_session_id?0:-1;
-  b.draggable=true;b.dataset.sessionId=s.reporting_session_id;
-  b.addEventListener("dragstart",event=>{
-    event.dataTransfer?.setData("text/plain",s.reporting_session_id);
-    if(event.dataTransfer)event.dataTransfer.effectAllowed="move";
-  });
-  b.addEventListener("dragover",event=>event.preventDefault());
-  b.addEventListener("drop",event=>{
-    event.preventDefault();
-    const from=event.dataTransfer?.getData("text/plain");
-    if(SESSION_RE.test(from||""))moveSessionTab(from,s.reporting_session_id)
-  });
+  b.dataset.sessionId=s.reporting_session_id;
+  b.addEventListener("pointerdown",event=>startTabSlide(event,b));
   renderSessionStatus(b,s.task_overview);
-  b.onclick=()=>{
+  b.onclick=event=>{
+   if(event?.detail>0&&tabSlideClickGuard.id===s.reporting_session_id&&
+      Date.now()-tabSlideClickGuard.at<450){
+     event.preventDefault?.();return
+   }
    if(chosenSession===s.reporting_session_id)return;
    // A fresh session selection always opens the newest task, regardless
    // of whether automatic follow is currently enabled.
@@ -827,8 +958,21 @@ function renderSessions(){
  }
  list.scrollLeft=sessionScrollLeft;tasks.scrollTop=taskScroll
 }
+// Capture the pointer on the stable tablist, not on a button moved inside it.
+$("sessions").addEventListener("pointermove",continueTabSlide);
+$("sessions").addEventListener("pointerup",event=>finishTabSlide(event));
+$("sessions").addEventListener("pointercancel",event=>finishTabSlide(event,true));
+$("sessions").addEventListener("pointerleave",event=>{
+ if(tabSlide&&!tabSlide.active)finishTabSlide(event,true)
+});
+$("sessions").addEventListener("lostpointercapture",event=>finishTabSlide(event,true));
 // Tabs remain keyboard operable when their horizontal row overflows.
 $("sessions").addEventListener("keydown",event=>{
+ if(event.key==="Escape"&&tabSlide?.active){
+  event.preventDefault();
+  finishTabSlide({pointerId:tabSlide.pointerId,preventDefault(){}},true);
+  return
+ }
  if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
  if(event.altKey&&(event.key==="ArrowLeft"||event.key==="ArrowRight")){
    const buttons=Array.from($("sessions").children),index=buttons.indexOf(event.target);

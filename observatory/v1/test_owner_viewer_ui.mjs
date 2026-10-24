@@ -41,14 +41,38 @@ class Element {
  constructor(tag="div"){
   this.tagName=tag;this.children=[];this.textContent="";this.value="";
   this.hidden=false;this.listeners={};this.attributes={};this.className="";
-  this.clientWidth=1200;this.style={};this.dataset={};
+  this.clientWidth=1200;this.style={};this.dataset={};this.parent=null;
   this.classList={add(){},remove(){},contains(){return false}};
  }
  setPointerCapture(id){this.pointerId=id}
  hasPointerCapture(id){return this.pointerId===id}
  releasePointerCapture(){this.pointerId=null}
- replaceChildren(...children){this.children=children}
- append(...children){this.children.push(...children)}
+ replaceChildren(...children){
+  for(const child of this.children)if(child.parent===this)child.parent=null;
+  this.children=[];
+  this.append(...children)
+ }
+ append(...children){
+  for(const child of children)this.insertBefore(child,null)
+ }
+ insertBefore(child,before){
+  if(child.parent){
+   const ix=child.parent.children.indexOf(child);
+   if(ix>=0)child.parent.children.splice(ix,1)
+  }
+  const ix=before===null?-1:this.children.indexOf(before);
+  if(ix<0)this.children.push(child);else this.children.splice(ix,0,child);
+  child.parent=this;return child
+ }
+ getBoundingClientRect(){
+  const tabs=this.parent?.tagName==="tablist"||this.parent===elements.get("sessions");
+  const left=tabs?this.parent.children.indexOf(this)*130-(this.parent.scrollLeft||0):0;
+  const width=tabs?120:310;
+  const offset=this.style.transform?.match(/translate3d\((-?[\d.]+)px/);
+  const shifted=left+(offset?Number(offset[1]):0);
+  return {left:shifted,right:shifted+width,width,height:40,top:0,bottom:40}
+ }
+ animate(frames,config){animations.push({element:this,frames,config});return {cancel(){}}}
  addEventListener(name,fn){this.listeners[name]=fn}
  setAttribute(name,value){this.attributes[name]=value}
  removeAttribute(name){delete this.attributes[name]}
@@ -57,6 +81,7 @@ class Element {
 }
 
 const elements=new Map(ids.map(id=>[id,new Element()]));
+const animations=[];
 for(const id of ["registerPanel","instructionPanel","pairPanel","composePanel","app"]){
  elements.get(id).hidden=true
 }
@@ -696,3 +721,92 @@ assert.equal(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1"))[0
  "manual tab order must survive refresh");
 assert.deepEqual(elements.get("sessions").children.filter(b=>b.attributes["aria-selected"]==="true").length,1);
 console.log("Owner Viewer durable drafts, sent recovery, reorder: PASS");
+
+// Simulate moving a real tab while the mouse button is still held.
+const bar=elements.get("sessions");
+const getIds=()=>bar.children.map(child=>child.dataset.sessionId);
+const beforeSlide=getIds();
+assert.equal(beforeSlide.length,2);
+const beforeSave=savedStorage.get("fortis-owner-session-tab-order-v1");
+const beforeActive=vm.runInContext("chosenSession",sandbox);
+const moving=bar.children[0];
+const pointer=(x,kind="pointermove",pointerId=42)=>({
+ currentTarget:bar,pointerId,button:0,isPrimary:true,clientX:x,clientY:18,
+ preventDefault(){this.prevented=true}
+});
+moving.listeners.pointerdown({...pointer(12,"pointerdown"),currentTarget:moving});
+assert.equal(bar.pointerId,undefined,"ordinary pointerdown must not swallow a tab click");
+bar.listeners.pointermove(pointer(15)); // below threshold
+assert.deepEqual(getIds(),beforeSlide,"no move for ordinary short click");
+assert.equal(moving.style.transform,undefined);
+bar.listeners.pointermove(pointer(207));
+assert.equal(bar.pointerId,42,"capture the stable tab bar only when sliding starts");
+assert.deepEqual(getIds(),[beforeSlide[1],beforeSlide[0]],
+ "neighbouring tabs reorder during the pointer gesture, not only on release");
+assert.match(moving.style.transform,/translate3d\(/,"dragged button must visually follow pointer");
+assert.ok(animations.some(a=>a.element!==moving),"neighbour gets slide animation");
+assert.equal(savedStorage.get("fortis-owner-session-tab-order-v1"),beforeSave,
+ "preview must not persist before mouse release");
+assert.equal(vm.runInContext("chosenSession",sandbox),beforeActive,
+ "reordering must not select another session or task");
+vm.runInContext("renderSessions()",sandbox);
+assert.deepEqual(getIds(),[beforeSlide[1],beforeSlide[0]],
+ "auto-refresh must not rebuild the list during an active slide");
+bar.listeners.pointerup(pointer(207,"pointerup"));
+assert.equal(bar.pointerId,null,"release stable pointer capture");
+assert.deepEqual(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1")),
+ [beforeSlide[1],beforeSlide[0]],"persist the final order only on pointerup");
+assert.equal(moving.style.transform,"","drag transform must be cleared");
+moving.onclick({detail:1,preventDefault(){}});
+assert.equal(vm.runInContext("chosenSession",sandbox),beforeActive,
+ "release-click after drag must not activate a different session");
+assert.ok(animations.some(a=>a.element===moving),
+ "dragged tab must settle into final position with animation");
+
+// Cancel reverts live preview without touching committed order.
+const cancelBefore=getIds();
+const toCancel=bar.children[0];
+toCancel.listeners.pointerdown({...pointer(12,"pointerdown",43),currentTarget:toCancel});
+bar.listeners.pointermove(pointer(207,"pointermove",43));
+assert.deepEqual(getIds(),[cancelBefore[1],cancelBefore[0]],
+ "cancelled gesture must also show live preview");
+bar.listeners.pointercancel(pointer(207,"pointercancel",43));
+assert.deepEqual(getIds(),cancelBefore,"pointercancel restores original order");
+assert.deepEqual(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1")),
+ cancelBefore,"cancellation never persists preview");
+// A short pointer press still behaves like an ordinary clickable browser tab.
+const normalClick=bar.children[0];
+normalClick.listeners.pointerdown({...pointer(10,"pointerdown",45),currentTarget:normalClick});
+assert.equal(bar.pointerId,null);
+bar.listeners.pointerup(pointer(10,"pointerup",45));
+assert.equal(bar.pointerId,null);
+normalClick.onclick({detail:1,preventDefault(){}});
+assert.equal(vm.runInContext("chosenSession",sandbox),normalClick.dataset.sessionId,
+ "a normal click must still switch sessions");
+const escapeBefore=getIds();
+const escapeTab=bar.children[0];
+escapeTab.listeners.pointerdown({...pointer(12,"pointerdown",48),currentTarget:escapeTab});
+bar.listeners.pointermove(pointer(207,"pointermove",48));
+assert.notDeepEqual(getIds(),escapeBefore);
+bar.listeners.keydown({key:"Escape",preventDefault(){}});
+assert.deepEqual(getIds(),escapeBefore,"Escape cancels live tab sliding");
+assert.deepEqual(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1")),
+ escapeBefore,"Escape must not persist the preview");
+const vertical=bar.children[0];
+vertical.listeners.pointerdown({...pointer(12,"pointerdown",44),currentTarget:vertical});
+bar.listeners.pointermove({...pointer(15,"pointermove",44),clientY:60});
+assert.deepEqual(getIds(),cancelBefore,"vertical motion must not rearrange tabs");
+bar.listeners.pointerup(pointer(15,"pointerup",44));
+assert.deepEqual(getIds(),cancelBefore);
+// When the row overflows, dragging at its right edge scrolls horizontally.
+bar.clientWidth=310;bar.scrollWidth=950;bar.scrollLeft=0;
+const scrolling=bar.children[0];
+scrolling.listeners.pointerdown({...pointer(18,"pointerdown",46),currentTarget:scrolling});
+bar.listeners.pointermove(pointer(305,"pointermove",46));
+const beforeEdge=bar.scrollLeft;
+vm.runInContext("slideEdgeScroll()",sandbox);
+assert.ok(bar.scrollLeft>beforeEdge,
+ "dragging at the edge of an overflowing tab bar must auto-scroll");
+bar.listeners.pointerup(pointer(305,"pointerup",46));
+bar.scrollWidth=undefined;
+console.log("Owner Viewer real-time slide, release, cancel, vertical gesture, autoscroll: PASS");
