@@ -6,11 +6,41 @@
 
 У Repo есть действующие системные ограничения: UID1000, нулевые capabilities, NoNewPrivs, seccomp, read-only корень и лимиты ресурсов. Они не защищают от чтения/изменения уже выданных Repos/Workfiles и внутреннего RW volume.
 
-**Наиболее конкретный новый риск — целостность действующего MCP Bridge.** Файл root-owned и не writable напрямую, но его каталог и родитель принадлежат рабочему UID1000 и writable; immutable/append-only отсутствуют. По проверенным правам рабочий код может заменить путь к Bridge. Подмену не выполняли. Проверенный исходник Windows launcher запускает этот путь, а hash-проверки Bridge в нём и исходнике probe нет. Совпадение именно этих Windows-файлов с нынешней установкой пока не установлено.
+**Наиболее конкретный новый риск — целостность действующего MCP Bridge.** Файл root-owned и не writable напрямую, но его каталог и родитель принадлежат рабочему UID1000 и writable; immutable/append-only отсутствуют. По проверенным правам рабочий код может заменить путь к Bridge. Подмену не выполняли. Проверенный исходник Windows launcher запускает этот путь, а hash-проверки Bridge в нём и исходнике probe нет. После ручного сбора пользователя hashes launcher/control/probe совпали с проверенными source bytes; этот конкретный source/live gap закрыт.
 
 Стандартные Docker TCP API на двух выбранных портах отклоняют соединения. Это полезное отрицательное evidence, но изоляция от остальных host/LAN-сервисов не доказана. Полного security PASS и доказательства безопасного исполнения любой неизвестной сборки нет.
 
-Ближайшая обоснованная мера — вывести доверенный Bridge из области, которую рабочий UID может подменять, сохранив автономную работу с проектами. Параллельно нужно закрыть узкий Windows evidence gap и выбрать достаточную границу данных/сети. Дополнительный Windows-профиль для Repo из этих наблюдений не следует.
+Ближайшая обоснованная мера — вывести доверенный Bridge из области, которую рабочий UID может подменять, сохранив автономную работу с проектами. Основные Windows fingerprints/ACL/listener metadata теперь получены; достаточная граница данных/сети остаётся отдельным решением. Дополнительный Windows-профиль для Repo из этих наблюдений не следует.
+
+## Дополнение: ручной Windows-сбор и адресная сетевая проверка
+
+Пользователь сообщил об исполнении подготовленного скрипта. Через Repo прочитан единственный созданный `/workspace/files/fortis-repo-boundary-5112ca5ae5994d7eac6a7d4d264ff712.json`: 54 554 bytes, SHA-256 `8c034c269efc83a5cbb69eca49aca72ac220be7dace8f5675f1ccf04d4e3ebbe`. Внутренние metadata: `FORTIS_M\alexa`, `2026-10-24T20:11:53.2152007Z` = 25 октября, 03:11:53 Asia/Bangkok. Это результат ручного сбора пользователя, не выполнение Windows-команд агентом. Полный JSON/ACL payload в Git не копировался.
+
+| Что проверено | Результат | Предел вывода |
+| --- | --- | --- |
+| Действующие run-tunnel.ps1 / control.ps1 / probe.mjs | Все три hashes совпали с соответствующими source bytes в Git | Закрыт конкретный gap source/live для этих файлов на момент сбора; будущая неизменность не гарантирована |
+| Windows runtime EXE | SHA совпал с pinned E38 artifact `A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A` | Не полный audit бинарника/уязвимостей; fingerprints Node/client также получены, но их отдельная эталонная аттестация не заявляется |
+| Windows process | Repo runtime PID19868, parent12488, owner SID1001, ожидаемый executable path; listener 127.0.0.1:61118 | Это динамический срез, не постоянный порт для конфигурации |
+| Docker inspect | Тот же полный container ID; User1000:1000, Privileged=false, rootfs RO, CapDrop ALL, NNP; 1ГиБ/2CPU/256pids; ровно прежние три RW mounts, без опубликованных ports | Подтверждены выбранные поля; не полный Docker host audit |
+| Namespace/network fields | PidMode="", IpcMode=private, CgroupnsMode=private, UsernsMode=""; network fortis-repo-egress, driver bridge, Internal=false, EnableIPv6=false | Пустые mode поля не выданы за полный audit daemon defaults; null ICC/masquerade options не означают их принудительное отключение |
+| runtime.key ACL | InheritanceProtected=true, один ACE: Allow alexa FullControl | Подтверждён DACL этого файла; key contents/hash не собирались. Не обещание защиты от owner/admin privileges или любых иных копий credentials |
+| Launcher/probe/config ACL | Owner alexa; SYSTEM/Administrators/alexa FullControl; CodexSandboxUsers ReadAndExecute | Не найден отдельный write Allow для G1 в этих выбранных ACL; effective tokens/все предки/другие профили не проверены |
+| C:\Tools и выбранные executable/parent paths | Authenticated Users имеет Modify; для FortisHostG1 есть отдельные Deny на write/delete/permissions/ownership; Users — RX, Administrators/SYSTEM — FC | Общий Modify нельзя считать успешным доступом именно G1; для иной учётки без соответствующего Deny остаётся условный риск |
+| Доступ Repo к действующему Windows runtime | 25 октября, 03:15:11: GET /healthz → 200; /ui, /api/log-level, /api/logs → 404 через host.docker.internal:61118 | Без credentials, чтения тел и mutating requests; четыре пути/один endpoint, не проверка всех APIs/методов/host-сервисов |
+
+Сверенные source/live hashes: launcher `52848cda49fecb4d78589e9979781a28d114a92f694cf75bc66ea6d4412eb93b`; control `605f9d54a0a35ff3011dc44356a733f975a8993f1225ff53378a6b7880a193c5`; probe `f300ef82966ac0b12a981143d3f8ae4062f129699ab6c6e3234a790c2b747105`.
+
+Теперь вывод о startup Bridge основан на source bytes, совпавших с действующими Windows-файлами. В этих launcher/probe нет hash-проверки Linux Bridge перед его исполнением. F-R-05 остаётся unresolved: evidence gap уменьшился, защита пути не внедрена.
+
+Положительный /healthz показывает конкретную доступность host loopback-сервиса из Repo через Docker host alias. Это предусмотренная узкая диагностика, не установленный обход прав. Выбранные admin GET404 и совпавший narrow artifact подтверждают лишь соответствующую поверхность. F-R-06 сохраняется: изоляцию от всей host/LAN сети заявлять нельзя.
+
+**F-R-07 — Risk, conditional/unresolved:** широкое Modify для Authenticated Users на выбранных доверенных Windows tool paths может позволить подмену runtime коду иной Windows-учётки, на которую не распространяется соответствующий Deny. Это наблюдаемые ACE и условный механизм, не выполненный access/подмена-тест. Нет доказательства записи G1, доступа Linux UID1000 к C:\Tools или существования конкретного другого атакующего token. Review HIGH; Intervention NEXT перед заявлением защиты runtime от произвольной другой локальной учётки; не blocker подготовки Linux Bridge protection. Gate — определить защищаемые principals и нужные updater/maintenance права, затем проверить относящийся effective access без реальной подмены.
+
+**PR-A-11 — assistant/pending, условный:** при необходимости защиты от иных локальных Windows principals сузить write/modify на выбранных trusted tool/install paths до известных maintainers с сохранением нужного RX и обновлений. Это независимый ACL Proposal, не обязательный перенос Repo в другой профиль и не автоматическое удаление нынешних Deny. Цена — настройка update/maintenance permissions и проверка/recovery; применять только отдельной конкретной единицей.
+
+Microsoft [AccessCheck](https://learn.microsoft.com/en-us/windows/win32/secauthz/how-dacls-control-access-to-an-object) и [well-known SIDs](https://learn.microsoft.com/en-us/windows/win32/secauthz/well-known-sids) использованы для интерпретации token/group/Allow/Deny semantics. Полный effective access не выведен из одного группового Allow.
+
+Повторный ручной запуск текущего collector сейчас не нужен. Для подготовки PR-A-07 достаточно новых hashes/config/process metadata; effective firewall policy, иные host endpoints и полный audit Windows permissions остаются отдельными пределами исследования.
 
 ## Источники, target и метод
 
@@ -35,7 +65,7 @@
 | Host/LAN и интернет | Есть сетевой маршрут; публичный HTTPS работает; host aliases разрешаются | Наблюдаемые правила сети/host, полностью не установлены | Default route; DNS aliases; GitHub/npm HEAD200 | Запрет иных host/LAN endpoints не доказан. Нужна адресная egress-политика с сохранением нужных downloads/API, без общего отключения сети |
 | Соседние процессы/локальные сервисы | Общие UID и network namespace не создают независимой границы задач | Имеющиеся OS controls; отдельной task-изоляции не установлено | MCP и наблюдённые Python listeners UID1000; среди них контейнерный Observatory 127.0.0.1 | API/данные сервисов не трогались. Loopback контейнера сам по себе не защищает от кода того же контейнера; это не приёмка Observatory |
 | Ресурсы | Работа ограничена общей ёмкостью контейнера | Cgroups | memory.max=1073741824; cpu.max=200000/100000; pids.max=256 | Disk/traffic/API-cost quotas и независимость задач не подтверждены; рост файлов и платные API требуют отдельных лимитов по задаче |
-| Windows launcher/runtime/key | Прямое чтение действующих файлов вне выданных roots не выполнялось | Windows permissions, narrow runtime и отсутствие автоматического Windows token в Linux | Live Linux chain установлен; E38 даёт датированные Windows hashes/source и narrow API evidence | Нужны актуальные hashes/ACL/listener/config metadata; подготовлен узкий ручной сбор. Отдельная Windows-учётка Repo не предлагается |
+| Windows launcher/runtime/key | Selected metadata получены ручным сбором пользователя; Windows token автоматически в Linux не передаётся | Windows permissions и narrow runtime | Live hashes run/control/probe совпали с source; runtime artifact совпал с E38; key DACL protected; host health200/admin GET404 | Полные effective ACL, patch level и host/firewall policy не проверены. Отдельная Windows-учётка Repo не предлагается |
 | Windows-запуск результата | Опционально основной или тестовый аккаунт по выбору пользователя | Права выбранного Windows token/ACL | Пользовательское решение | Не устраняет уже совершённую запись из Repo в RW mounts; функциональный PASS не доказывает безвредность всего кода |
 
 ## Новое evidence с точными пределами
@@ -57,7 +87,7 @@ Hash live Bridge совпадает с записанным в E38. Его 62 с
 
 **Вывод по правам:** в Linux удаление имени файла определяется в том числе правами каталога, а не только owner/mode файла. С учётом W+X на `.fortis`, RW mount и отсутствия sticky/immutable/append-only барьеров замена имени Bridge доступна по проверенным метаданным. Это вывод из прав и семантики ОС, не выполненный destructive test. Уже загруженный процесс не объявляется автоматически переписанным; риск существенен для следующего запуска/переподключения.
 
-Прочитаны E38 AFTER [source launcher](../../../runtime/host-g2/runtime-api-migration/repo-run-tunnel.ps1) и [source probe](../../../runtime/repo-mode/probe.mjs). Launcher pin-проверяет Windows runtime EXE, запускает probe, затем выполняет Bridge из RW volume. В этих source bytes нет проверки hash Bridge; probe сам исполняет Bridge для проверки MCP. Код probe также выполняет временные записи и настройки — **он не запускался** при этом обзоре. Нынешние Windows bytes этих файлов остаются отдельным gap.
+Прочитаны E38 AFTER [source launcher](../../../runtime/host-g2/runtime-api-migration/repo-run-tunnel.ps1) и [source probe](../../../runtime/repo-mode/probe.mjs). Launcher pin-проверяет Windows runtime EXE, запускает probe, затем выполняет Bridge из RW volume. В этих source bytes нет проверки hash Bridge; probe сам исполняет Bridge для проверки MCP. Код probe также выполняет временные записи и настройки — **он не запускался** при этом обзоре. После ручного fingerprint run/control/probe совпали с этими source bytes; этот gap для трёх файлов закрыт на момент сбора.
 
 Readonly Bridge уменьшит риск персистентной подмены, но не изолирует произвольный код от MCP-процессов/данных с тем же UID. Более сильная task-изоляция — отдельный Linux UID/worker-container с ограниченными входами — возможная отдельная мера для действительно враждебных входов; она не требует отдельного Windows-профиля и сейчас не внедряется.
 
@@ -75,8 +105,9 @@ Readonly Bridge уменьшит риск персистентной подме�
 | ID / тип / disposition | Что решает | Review / Intervention / следующий gate |
 | --- | --- | --- |
 | F-R-02 / Risk / unresolved, прежний | Широкие RW roots дают доступ ко всему доступному внутри них, не только текущему заданию; актуальное содержимое не инвентаризировалось | HIGH / NEXT перед обещанием «только выбранные данные». Выбрать намеренно общие области и независимый backup; без сканирования личного содержимого |
-| F-R-05 / Risk / unresolved, новый | Путь live Bridge может быть заменён рабочим UID; источник launcher/probe не подтверждает независимую hash-проверку Bridge | HIGH / NEXT перед опорой на неизменяемость MCP runtime. Закрыть gap Windows bytes и подготовить PR-A-07 |
-| F-R-06 / Risk / unresolved, новый | Не установлено принудительное ограничение Repo→host/LAN; два отказавших Docker ports не покрывают другие сервисы | HIGH / NEXT перед заявлением изоляции host-интерфейсов. Установить применимую host/network policy и исключения, не сканируя все сервисы |
+| F-R-05 / Risk / unresolved | Путь live Bridge может быть заменён рабочим UID; matched live launcher/probe не проверяют hash Bridge | HIGH / NEXT перед опорой на неизменяемость MCP runtime. Source/live gap закрыт; подготовить PR-A-07 |
+| F-R-06 / Risk / unresolved | Actual host runtime health доступен из Repo; выбранные admin GET404 не покрывают другие сервисы/API | HIGH / NEXT перед заявлением изоляции host-интерфейсов. Определить нужные маршруты/политику, не сканируя все сервисы |
+| F-R-07 / Risk / conditional, unresolved | Authenticated Users Modify на selected trusted Windows paths; G1-specific Deny ограничивает вывод для G1 | HIGH / NEXT перед общей гарантией против иных локальных Windows principals; effective access не проверялся, PR-A-11 условен |
 
 Компрометация, фактическая подмена Bridge, захват Docker или чтение всего личного профиля не установлены. Неподтверждённые Windows ACL/patch level — evidence gaps, не самостоятельный пятый Finding Type.
 
@@ -91,11 +122,11 @@ PR-A-07 совместим с PR-A-08/09 и не требует их атома�
 
 Сохраняются все S-01–S-07: write/build/test, игры, media/3D/audio/local AI, CI и обмен с Observatory. Усиление не должно превращать каждую обратимую команду в ручное разрешение. Нужные зависимости устанавливаются в выданной рабочей области; системный read-only образ меняется отдельной доставкой.
 
-## Оставшаяся проверка, которую Repo выполнить не может в текущем scope
+## Ручной Windows-сбор и оставшиеся ограничения
 
-Через разрешённый Repo не установлены текущие Windows ACL и bytes launcher/probe/config/key-parent, реальный Windows listener и полная Docker/host policy. Обход через G2, новые mounts или другой API ради получения этих сведений не выполнялся.
+Первоначальные gaps выбранных Windows hashes/ACL/listener/Docker metadata теперь закрыты ручным результатом пользователя (дополнение выше). Полная host/firewall policy, effective access всех principals и все endpoints остаются за пределами результата. Обход через G2 или новые mounts не выполнялся.
 
-Подготовлен [Read-RepoHostBoundary.ps1](../tools/Read-RepoHostBoundary.ps1) для **ручного** запуска пользователем из обычного, не elevated `FORTIS_M\alexa` PowerShell:
+Пользователь уже выполнил [Read-RepoHostBoundary.ps1](../tools/Read-RepoHostBoundary.ps1) из обычного `FORTIS_M\alexa` PowerShell. Команда сохранена для воспроизводимости; повтор сейчас не нужен:
 
 ```powershell
 & 'C:\Users\alexa\Repos\tunnel\docs\agent-workflow\tools\Read-RepoHostBoundary.ps1'
@@ -103,13 +134,13 @@ PR-A-07 совместим с PR-A-08/09 и не требует их атома�
 
 Скрипт печатает только выбранные file hashes/ACL, Repo runtime process/listener metadata, выбранные Docker inspect/network fields. Он не выводит process command lines, полный profile/env, key contents или key hash; не запускает launcher/probe и не меняет настройки. Нет доступа к Docker/ACL — в результате будет отдельная ошибка без повышения прав. Для нулевого числа processes есть limitation о доступности profile matching.
 
-Это адресный набор недостающих metadata, не software inventory и не полный host-аудит. Скрипт проверен чтением кода и границ; Windows PowerShell parser/исполнение в этой работе не проверялись. После получения вывода можно сверить live hashes с E38/source и конкретно оценить ACL/listeners. Effective firewall policy и неизвестные endpoints этим скриптом полностью не доказываются.
+Это адресный набор недостающих metadata, не software inventory и не полный host-аудит. Первоначально код проверялся чтением; затем пользователь выполнил ручной запуск, сформировавший прочитанный корректный JSON без ErrorType в выбранных полях. Отдельная AST-проверка агентом не выполнялась; сверка source/live hashes и анализ selected ACL/listeners завершены. Effective firewall policy и неизвестные endpoints этим скриптом полностью не доказываются.
 
 ## Достаточность и дальнейшая работа
 
-Исследования доступной Repo-части завершены в этом scope: получено новое необходимое evidence, ограничения сформулированы, меры и их цена выделены. Оставшиеся host gaps обозначены и подготовлены к ручной проверке. Не требуется повторять registry/marker, собирать весь Windows inventory или переносить Repo в другую Windows-учётку для продолжения.
+Исследования доступной Repo-части завершены в этом scope: получено новое необходимое evidence, ограничения сформулированы, меры и их цена выделены. Ручной сбор завершён; оставшиеся policy/effective-access/endpoint ограничения перечислены. Не требуется повторять registry/marker, собирать весь Windows inventory или переносить Repo в другую Windows-учётку для продолжения.
 
-Ближайшая техническая единица после выбора меры — подготовить конкретную реализацию PR-A-07 с проверкой неизменяемости trusted path и сохранением рабочего сценария; перед Windows-доставкой нужны относящиеся live metadata. Применение, restart, изменение mounts/ACL/network, новая сильная изоляция, Windows-запуск результатов и публикация остаются отдельными действиями.
+Ближайшая техническая единица после выбора меры — подготовить конкретную реализацию PR-A-07 с проверкой неизменяемости trusted path и сохранением рабочего сценария. Основные live metadata для подготовки получены; перед применением актуализировать только действительно изменившиеся prerequisites. Применение, restart, изменение mounts/ACL/network, новая сильная изоляция, Windows-запуск результатов и публикация остаются отдельными действиями.
 
 ## Первичные внешние источники интерпретации
 

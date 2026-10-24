@@ -272,6 +272,20 @@ Cgroup memory.max=1073741824, cpu.max=200000/100000, pids.max=256. Границ�
 
 Изменены отчёт, helper, C-04, STATE и эта запись. Runtime/конфигурация/права/ACL/mounts/network не применялись, процессы/туннели/Observatory не перезапускались, inventory/marker/CI не повторялись. Сохранено направление без отдельного Windows-профиля Repo и выбор пользователя для запуска результата. Проверки — read-back, относительные ссылки, diff/cached bytes и только свои пути; локальная Git-фиксация без push. Доступная Repo-часть исследования завершена; следующий proposed шаг — конкретизация/подготовка PR-A-07 с оставшимися относящимися host metadata.
 
+## WF-019 — 2026-10-25: ручной host-сбор и actual host endpoint из Repo
+
+**Источник:** пользователь сообщил «прогнал» после выданной ручной команды collector. Через Repo адресно найден единственный `/workspace/files/fortis-repo-boundary-5112ca5ae5994d7eac6a7d4d264ff712.json`, прочитан с UTF-8 BOM handling и явным выбором ожидаемых fields. 54 554 bytes; SHA JSON `8c034c269efc83a5cbb69eca49aca72ac220be7dace8f5675f1ccf04d4e3ebbe`; identity alexa, CollectedAt `2026-10-24T20:11:53.2152007Z` = 03:11:53 Asia/Bangkok. Исходный HEAD `3b543e810a3c5b5337a45f1097fc875c952c0935`, дерево/index чистые, AGENTS/протокол не изменены.
+
+Сверены полученные Windows hashes run/control/probe с соответствующими Repo source files — совпали; runtime EXE совпал с pinned E38 artifact. Это закрывает source/live fingerprint gap этих selected startup files на момент ручного сбора. Теперь отсутствие Bridge hash-check в этих startup bytes связано с текущей установкой. F-R-05 остаётся unresolved до внедрения мер; фактической подмены/записи не выполняли.
+
+Получены selected process/listener metadata: Repo runtime PID19868, owner SID1001, loopback 61118. Docker inspect подтвердил прежний immutable ID/User/nonprivileged/rootfsRO/CapDropALL/NNP/cgroup limits/три RW mounts/нулевые port bindings; network bridge/Internal=false/IPv6=false. Пустые/нулевые optional fields не выданы за самостоятельные гарантии.
+
+По конкретному новому вопросу о доступности actual Windows endpoint выполнены из Repo GET к host.docker.internal:61118: /healthz → 200, /ui → 404, /api/log-level → 404, /api/logs → 404, `2026-10-24T20:15:11Z`. Без auth/body reads/mutating requests; Windows shell/G2 не использовались. Это новый необходимый маршрутный evidence после получения динамического порта, не повтор registry/marker и не port scan. F-R-06 сохраняется: доступность health не является admin compromise, выбранные404 не исключают все APIs/маршруты.
+
+Key ACL: inheritance protected, один Allow alexa FC; key contents/hash не получены. Launcher/probe/config ACL не содержат отдельного write Allow G1. На выбранных C:\Tools paths есть Authenticated Users Modify и G1-specific Deny. Microsoft AccessCheck/well-known SID docs использованы для интерпретации: group Allow не выдан за effective G1 access. **F-R-07 — conditional Risk/unresolved:** потенциальный write другой локальной Windows identity вне G1 Deny; конкретный effective token/атака не установлены. PR-A-11 assistant/pending условен модели угроз, без автоматической смены ACL/профиля.
+
+Обновлены существующий material report, STATE и статус C-04. Raw JSON/ACL payload не скопирован в Git, новые FR не введены. Повтор ручного collector сейчас не нужен; достаточна подготовка PR-A-07, remaining policy/endpoint/ACL limits перечислены. Настройки/права/runtime/mounts/сервисы не менялись, новые Windows/G2 commands/CI/inventory/marker/push не выполнялись. Проверки — source/hash comparison, ссылки, diff/read-back/cached bytes и только относящиеся пути; локальная Git-фиксация.
+
 ## Формат следующей записи
 
 Новая запись получает следующий WF-ID и содержит: дату; цель; источник разрешения/решения; фактически выполненное действие; проверку и её пределы; затронутые пути/версию; резервную копию/откат при необходимости; следующий шаг. Не записывать запланированное действие как выполненное.

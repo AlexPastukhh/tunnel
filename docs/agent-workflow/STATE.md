@@ -153,12 +153,24 @@ PR-A-07 — pending защита trusted Bridge path/pins; PR-A-08 — pending �
 
 Настройки/ACL/mounts/runtime/подключения не менялись; Windows/G2, inventory, marker, новые CI и публикация не выполнялись. Изменены только отчёт/подготовка/STATE/JOURNAL и исходник ручного helper; меры не внедрены.
 
+## Ручной Windows-результат — 25 октября, WF-019
+
+После сообщения пользователя «прогнал» найден и прочитан единственный подготовленный `fortis-repo-boundary-*.json` в Workfiles: сбор `FORTIS_M\alexa`, 03:11:53 Asia/Bangkok; SHA JSON `8c034c269efc83a5cbb69eca49aca72ac220be7dace8f5675f1ccf04d4e3ebbe`. Полный payload не добавляется в Git; ключи/полные profiles/command lines не получены.
+
+Закрыта конкретная часть Windows gap: run/control/probe hashes совпали с проверенными Git sources; runtime EXE hash совпал с pinned E38. Поэтому отсутствие hash-проверки Bridge в этих startup bytes теперь подтверждается ручным live fingerprint. F-R-05 не закрыт — мер не внедряли.
+
+Windows PID19868/SID1001 слушал 127.0.0.1:61118. Адресная проверка из Repo через host.docker.internal в 03:15:11: /healthz → 200, /ui → 404, /api/log-level → 404, /api/logs → 404; только GET, без credentials/чтения тел. Подтверждён конкретный host-маршрут, а не полная изоляция; F-R-06 сохраняется.
+
+Docker inspect подтвердил прежний container ID, ограничения, три mounts и отсутствие published ports; bridge network Internal=false/IPv6=false. У key-файла protected DACL с одним Allow alexa FC. Отдельные ACL trusted C:\Tools содержат Authenticated Users Modify и G1-specific Deny; **F-R-07 — conditional Risk, unresolved**, не утверждение об успешной записи G1 или Linux UID. PR-A-11 — pending, условное сужение trusted Windows write principals при соответствующей модели угроз; отдельный Windows-профиль Repo не prerequisite.
+
+[Полный отчёт](reviews/repo-protection-20261025.md) дополнен происхождением/таблицей/пределами. Исследовательский результат достаточен для подготовки PR-A-07; повтор collector сейчас не нужен. Остались effective firewall/прочие endpoints/полный effective ACL audit. Настройки/ACL/mounts/runtime/подключения не менялись; Windows/G2-команд агент не выполнял, inventory/marker не повторял. Направление и pending статус мер сохраняются.
+
 ## Ближайший план
 
 | ID | Статус | Действие | Критерий завершения |
 | --- | --- | --- | --- |
 | RP-01 | DONE(scope), host gaps | Доступные исследования защиты нынешнего Repo выполнены; результат в repo-protection-20261025.md | Есть карта доступа/механизмов/evidence/gaps и pending меры; полного host/security PASS нет |
-| RP-02 | PROPOSED | Подготовить адресную защиту trusted Bridge path по PR-A-07; сверить относящиеся live Windows metadata | Конкретные путь/pin/доставка/проверка/recovery с сохранением автономных задач; применение отдельно |
+| RP-02 | PROPOSED; metadata получены | Подготовить адресную защиту trusted Bridge path по PR-A-07; базовые Windows hashes/ACL/listener сверены | Конкретные путь/pin/доставка/проверка/recovery с сохранением автономных задач; применение отдельно |
 | N-01 | DONE(scope) | Установить mounts и проверить узкий доступ G2 к проекту | Выполненные источники и проверки перечислены выше |
 | N-02 | DEFERRED / PER PROJECT | Когда выбран Godot-результат для ручной проверки, определить Windows exe/версию и аккаунт запуска | Известны конкретные вход, инструмент и ручной маршрут; это не prerequisite защиты Repo |
 | N-03 | DEFERRED / PER PROJECT | Подготовить ручной import/запуск выбранного результата в выбранном пользователем основном или тестовом аккаунте | Пользователь проверил нужные функции конкретной версии; результат и ограничения записаны |
