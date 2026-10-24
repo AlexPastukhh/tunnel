@@ -1,5 +1,11 @@
 # Текущее состояние — датированный срез
 
+## 24.10.2026 — общий workflow: узкий Godot scope и постоянный план
+
+Пользовательские сценарии, инварианты и Git-порядок ведутся в [agent-workflow](agent-workflow/README.md). Актуальный срез этой инициативы и ближайший шаг — [STATE](agent-workflow/STATE.md); источники и хеши файловой проверки — [JOURNAL](agent-workflow/JOURNAL.md).
+
+После ручного grant владельца G2 подтвердил чтение проекта и создание/чтение/удаление собственного marker, видимого также Docker с тем же SHA-256. Корни Repos/Workfiles по проверке метаданных остаются недоступны G2. Это PASS только файлового scope: запуск Godot/игры, GPU/GUI и общий personal-security PASS не заявляются. Никакой новый runtime в этой фиксации не развёрнут.
+
 ## 22.10.2026 — Notifier 5.7.31: selected Prompt card (SOURCE TESTED)
 
 Owner screenshot confirms a Helper Prompt is now listed and attached; it had

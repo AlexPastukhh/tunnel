@@ -2,6 +2,10 @@
 
 Маршруты и границы доверия — в [ARCHITECTURE](ARCHITECTURE.md); аудит вызовов и будущий Policy Gate — в [AUDIT](AUDIT.md). Настоящий документ отвечает за источники **действующих полномочий**, а не за систему логирования.
 
+## Дополнительный проектный scope — 24.10.2026
+
+Отдельное вручную применённое разрешение G2 на один Godot-проект, реальные Repos/Workfiles mounts и пределы последующей проверки поддерживаются в [agent-workflow/STATE](agent-workflow/STATE.md); источник решения, backup reference и откат — в [JOURNAL](agent-workflow/JOURNAL.md). Этот scoped результат не расширяет начальный scope на весь Repos/owner-профиль и не является новым полным security PASS.
+
 ## Где задаётся доступ
 
 G2 и Repo — разные native routes. Old owner HOST stopped E43, его key/connector сохранены для intentional recovery. Repo имеет Windows RW mounts, а Site project root не sandbox. [Итог](ISOLATION_GUIDE.md).

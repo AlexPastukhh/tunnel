@@ -1,5 +1,11 @@
 # Обновление инструкций после изменений
 
+## 24.10.2026 — общий workflow и Git-фиксация документации
+
+Постоянная точка входа: [docs/agent-workflow](agent-workflow/README.md). Требования принадлежат REQUIREMENTS, оперативный план — STATE, выполненные действия и проверки — JOURNAL. После значимого этапа обновлять эти владельцы фактов и делать осмысленный локальный коммит только относящихся к работе файлов; порядок проверки diff и публикации указан в точке входа.
+
+Владелец вручную выдал Modify одному Godot-проекту для G2; агент проверил файловый обмен G2/Repo и cleanup. Границы доказательства — в [срезе](agent-workflow/STATE.md), процедура и backup reference — в [журнале](agent-workflow/JOURNAL.md). Эта Git-фиксация добавляет документы/навигацию; новый runtime, Site и Windows GUI ею не запускаются, контейнер/туннели не перезапускаются.
+
 ## 22.10.2026 — Notifier 5.7.31: selected Prompt card (SOURCE TESTED)
 
 Owner screenshot confirms a Helper Prompt is now listed and attached; it had

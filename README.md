@@ -8,6 +8,7 @@
 
 | Нужно | Документ |
 |---|---|
+| Общий workflow агентов: требования, текущее состояние, план и журнал | [Точка входа](docs/agent-workflow/README.md), [текущий шаг](docs/agent-workflow/STATE.md) |
 | Проверенное, принятое, ограничения, повторная настройка | [ISOLATION_GUIDE](docs/ISOLATION_GUIDE.md) |
 | Понять native Tunnel, MCP Bridge и роль Sites | [Архитектура](docs/ARCHITECTURE.md), [Sites](docs/SITES.md) |
 | Проверить текущее состояние, не принять старый срез за live | [Текущее состояние](docs/CURRENT_STATE.md) |

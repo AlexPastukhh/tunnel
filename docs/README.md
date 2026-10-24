@@ -6,6 +6,7 @@
 
 | Вопрос или задача | Читать сначала | Затем, если нужно |
 |---|---|---|
+| Как вести общую работу агентов, планы и осмысленные Git-коммиты? | [Agent workflow](agent-workflow/README.md) | [Требования](agent-workflow/REQUIREMENTS.md), [состояние](agent-workflow/STATE.md), [журнал](agent-workflow/JOURNAL.md) |
 | Итог G2/Repo и воспроизведение | [ISOLATION_GUIDE](ISOLATION_GUIDE.md) | [E44 metadata/docs](G3_DOCS_CONSOLIDATION_AND_REPO_BOUNDARY_2026-10-16.md) |
 | Как ChatGPT связан с Windows и Docker? | [ARCHITECTURE](ARCHITECTURE.md) | [CURRENT_STATE](CURRENT_STATE.md) |
 | Site обязателен? Чем Site отличается от native? | [ARCHITECTURE](ARCHITECTURE.md) | [SITES](SITES.md) |

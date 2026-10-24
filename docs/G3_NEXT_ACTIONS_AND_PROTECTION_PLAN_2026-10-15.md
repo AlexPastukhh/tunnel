@@ -2,6 +2,10 @@
 Создан 2026-10-15; обновлён 2026-10-16 после E44 (docs/Repo metadata; не новый security PASS). Candidate Execution / Verification Plan, уточнён по доказательствам и границам разрешений.
 Текущий итог E43: G3 bounded baseline ACCEPTED(scope); G4 initial Workspace policy ACCEPTED(scope); G5 полная personal-security программа не принята; G6 manual daily/normal recovery ACCEPTED(scope). Whole-chat1.4 PENDING; universal PASS не заявляется. Прежний owner HOST остановлен, G2/Repo работают.
 
+## Дополнение 24.10.2026: выбранный проект и общий workflow
+
+Позднее владелец вручную разрешил G2 один Godot-проект; его файловый scope независимо проверен. Актуальное описание этой добавки и следующего шага — [agent-workflow/STATE](agent-workflow/STATE.md), источники и откат — [JOURNAL](agent-workflow/JOURNAL.md). Старые E01–E44 и scoped решения ниже сохраняют свои даты и пределы; это дополнение не объявляет G5 или whole-chat isolation принятыми.
+
 ## Канонический статус документа
 
 Эта страница — актуальный источник условий G2, разрешений и Candidate Execution / Verification Plan.
