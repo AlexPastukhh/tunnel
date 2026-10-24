@@ -3,6 +3,7 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 import json
 import subprocess
+import tempfile
 import threading
 import unittest
 from urllib.request import Request, urlopen
@@ -13,6 +14,7 @@ from owner_viewer import (
     handler_for, repo_read, repo_register, valid_registration,
     ensure_repo_running, docker_command, read_owner_config,
     PAGE, WIN_PORT, DOCKER_READER, DOCKER_SERVICE, open_owner_edge,
+    OwnerSessionArchive,
 )
 
 
@@ -663,6 +665,96 @@ class OwnerViewerTest(unittest.TestCase):
     def test_no_owner_windows_install_from_repo_linux(self):
         with self.assertRaises(ValueError):
             read_owner_config(platform="linux")
+
+class SessionArchiveTest(unittest.TestCase):
+    SID="rs_"+"a"*32
+    CHAT="abcdefgh-01234567"
+
+    def test_persistent_archiving_readback_and_corruption(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry=OwnerSessionArchive(tmp)
+            self.assertEqual(registry.snapshot(), {})
+            self.assertEqual(registry.archive(self.SID,self.CHAT)["archived"],True)
+            self.assertTrue(registry.has(self.SID,self.CHAT))
+            self.assertEqual(OwnerSessionArchive(tmp).snapshot(),{self.SID:self.CHAT})
+            with self.assertRaises(ValueError):
+                registry.archive(self.SID, "wrongchat-123456")
+            with self.assertRaises(ValueError):
+                registry.restore(self.SID,"anotherchat-123")
+            self.assertEqual(registry.restore(self.SID,self.CHAT)["archived"],False)
+            self.assertFalse(registry.has(self.SID))
+            self.assertEqual(OwnerSessionArchive(tmp).snapshot(),{})
+            registry.path.write_text('{"version":1,"sessions":{"../x":"chat"}}',encoding="ascii")
+            with self.assertRaises(ValueError):
+                OwnerSessionArchive(tmp)
+
+    def test_owner_visibility_endpoints_revoke_and_restore(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            registry=OwnerSessionArchive(tmp)
+            class EnrollmentStub:
+                def __init__(self):self.revoked=[]
+                def discovered_for_owner(self):
+                    return {"ok":True,"chats":[{"chat":SessionArchiveTest.CHAT,
+                       "title":"Chat","fingerprints":["a"*12],
+                       "last_seen_seconds_ago":1,"blocked":False}],
+                      "available_sessions":[SessionArchiveTest.SID],
+                      "connected_sessions":[SessionArchiveTest.SID],"session_titles":{}}
+                def revoke(self,sid):
+                    self.revoked.append(sid)
+                    return {"ok":True,"revoked":True}
+            enrollment=EnrollmentStub()
+            def data(action,sid,task):
+                return {"ok":True,"sessions":[{"reporting_session_id":self.SID,
+                    "conversation_id":self.CHAT,"route":"repo","title":"Original"}]}
+            board=DispatchBoard()
+            token="owner_only_token_"+"a"*32
+            server=ThreadingHTTPServer(("127.0.0.1",0),
+                  handler_for(token,data,"testnonce",dispatch_board=board,
+                              enrollment=enrollment,session_archive=registry))
+            thread=threading.Thread(target=server.serve_forever,daemon=True)
+            thread.start()
+            self.addCleanup(server.server_close)
+            self.addCleanup(server.shutdown)
+            self.addCleanup(lambda:thread.join(timeout=3))
+            def read(path, method="GET",data=None,origin="http://127.0.0.1:18755",
+                     auth=True):
+                headers={"Host":"127.0.0.1:18755","Origin":origin}
+                if auth:headers["Authorization"]="Bearer "+token
+                if data is not None:
+                    headers["Content-Type"]="application/json"
+                    data=json.dumps(data).encode()
+                req=Request(f"http://127.0.0.1:{server.server_port}"+path,
+                     headers=headers,method=method,data=data)
+                try:response=urlopen(req,timeout=3)
+                except HTTPError as err:response=err
+                with response:return response.status,json.loads(response.read())
+            command={"action":"archive","session":self.SID,"chat":self.CHAT}
+            self.assertEqual(read("/api/session-visibility",auth=False)[0],401)
+            self.assertEqual(read("/api/session-visibility",method="POST",
+                                  data=command,origin="https://untrusted.example")[0],403)
+            self.assertEqual(read("/api/session-visibility",method="POST",
+                                  data={**command,"admin":True})[0],403)
+            status,out=read("/api/session-visibility",method="POST",data=command)
+            self.assertEqual(status,200)
+            self.assertEqual(enrollment.revoked,[self.SID])
+            self.assertEqual(read("/api/session-visibility")[1]["archived"],
+                             {self.SID:self.CHAT})
+            self.assertEqual(read("/api/state")[1]["sessions"][0]["title"],"Original",
+                "archiving hides operational UI, not the Docker archive")
+            self.assertEqual(read("/api/notifier/discovered")[1]["chats"],[])
+            self.assertEqual(read("/api/notifier/discovered")[1]["available_sessions"],[])
+            self.assertEqual(read("/api/session-visibility",method="POST",
+                                  data={"action":"restore","session":self.SID,
+                                        "chat":"not-the-same-chat"})[0],403)
+            self.assertEqual(read("/api/session-visibility",method="POST",
+               data={"action":"restore","session":self.SID,"chat":self.CHAT})[0],200)
+            self.assertEqual(read("/api/session-visibility")[1]["archived"],{})
+            self.assertEqual(read("/api/notifier/discovered")[1]["chats"][0]["chat"],
+                             self.CHAT)
+            self.assertEqual(read("/api/session-visibility",method="POST",
+               data={"action":"disconnect","session":self.SID,"chat":self.CHAT})[0],200)
+            self.assertEqual(enrollment.revoked,[self.SID,self.SID])
+            self.assertEqual(read("/api/session-visibility")[1]["archived"],{})
 
 if __name__=="__main__":
     unittest.main()

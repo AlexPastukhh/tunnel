@@ -1,0 +1,14 @@
+{
+  "status": "candidate_only_not_installed",
+  "date": "2026-10-24",
+  "sha256": {
+    "owner_viewer.py": "eae6879f7559b6b540acbdbaa3ced1c031935883aa6793f8a5901a1d658b3e05",
+    "owner_enrollment.py": "873ec864c5996234e930c3ceaf9fb75cbcdea945b7b84c76ea47d1cef164b0d3",
+    "test_owner_viewer.py": "b7e418e635cc415057b8858379b6a2fe89465e97505961b76ffd62823917d764",
+    "test_owner_viewer_ui.mjs": "dd9e76e59874ee9f34ff9cae1c1419d9ef3a7ca2391be8ca3a1b24483666351b",
+    "test_owner_enrollment.py": "f85aa75b96acbc5f17e26a0c7a6bf1bb9401064db01805b09d4f57cfa1aa0b42",
+    "session-groups.patch": "660cff8e72a6cc37e5302519617c3431319c0b205edcda904ea63cad57f369d3",
+    "Apply-ObservatorySessionGroups.ps1": "caff60d59013082f60f4cea5b16605493b9b4ab70b8ad1ac0cf07401f7c7f810",
+    "README.md": "780d5a3e1d39bb5e3038e134b2f633ac3123eb17f902372f865a9c6744a5a151"
+  }
+}

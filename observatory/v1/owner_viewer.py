@@ -70,8 +70,41 @@ button.active,.action-toggle[aria-expanded="true"]{border-color:#a3c4f7;backgrou
 .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;margin:0;border:1px solid #34465f;border-radius:10px;background:#192231}
 .toolbar button{padding:7px 11px}
 #status{margin-left:auto;color:#b5c8df;font-size:.84rem}
-.session-tab-bar{display:flex;align-items:stretch;gap:12px;padding:5px 12px 3px;
+.session-tab-bar{display:block;padding:5px 12px 6px;
   border:1px solid #34465f;border-top:0;border-radius:0 0 10px 10px;background:#192231;min-width:0}
+.session-online-row{display:flex;align-items:stretch;gap:12px;min-width:0}
+.session-secondary-row{display:flex;align-items:center;gap:9px;margin:3px 0 2px;
+  min-width:0;border-top:1px solid #34465f;padding:6px 0 2px;flex-wrap:wrap}
+.session-secondary-row[hidden]{display:none}
+.session-secondary-row .group-label{color:#8ce2db;font-size:.79rem;white-space:nowrap}
+#discoveryTabs{display:flex;gap:5px;overflow-x:auto;min-width:0;scrollbar-width:thin}
+#discoveryTabs button{flex:0 0 auto;max-width:230px;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;padding:5px 11px;border:1px dashed #50b9b5;
+  color:#b6fff0;background:#123c45}
+#discoveryTabs button:hover{background:#20505b}
+.session-fold{border-top:1px solid #34465f;padding-top:5px;margin:3px 0}
+.session-fold[hidden]{display:none}
+.session-fold summary{cursor:pointer;font-size:.8rem;color:#d5c8ad;padding:4px 0;
+  list-style:disclosure-closed}
+.session-fold[open] summary{list-style:disclosure-open}
+.offline-tabs{display:flex;flex-wrap:wrap;gap:5px;padding:5px 0}
+.offline-tabs button{font-size:.82rem;padding:5px 11px;border-color:#806d58;
+  background:#38342e;color:#edcaaa;max-width:240px;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.offline-tabs button.linked{background:#4c3527;color:#ffdcad;border-color:#d9a258}
+.offline-tabs button.unpaired{background:#243140;color:#b5c7d9;border-color:#6d819c}
+.offline-tabs button[aria-selected="true"]{color:#fff;border:2px solid #fff3c2;
+  box-shadow:0 0 0 2px #18283c}
+.archive-tab-list{display:flex;flex-wrap:wrap;gap:7px;padding:7px 0}
+.archive-tab-list button{background:#273647;font-size:.8rem;padding:5px 10px}
+#sessionArchiveNotice{font-size:.76rem;color:#a6c1d5}
+#sessions button.session.active{
+  background:#365c93;border-color:#f1f8ff;color:#fff;font-weight:750;
+  outline:2px solid #a8d5ff;outline-offset:-3px;
+  box-shadow:0 0 0 2px #132e51,0 4px 14px #0009}
+#sessions button.session.active::before{content:"●";color:#d6f9ff;margin-right:7px}
+#sessions button.session.available{border-top:2px solid #66d7a8}
+#sessions button.session:not(.active){color:#cbdcf3}
 .session-tab-bar .tab-label{flex:0 0 auto;font-size:.78rem;color:#a9bed8;
   align-self:center;white-space:nowrap}
 #sessions{display:flex;flex:1 1 auto;gap:6px;min-width:0;padding:4px 0 6px;
@@ -194,9 +227,19 @@ small{color:#9fb5ce}#unlock{max-width:720px}
 <button id="togglePair" class="secondary action-toggle" type="button" aria-controls="pairPanel" aria-expanded="false">Привязка Notifier</button>
 <span id="status" role="status" aria-live="polite">История ещё не загружена</span>
 </nav>
-<nav id="sessionTabBar" class="session-tab-bar" aria-label="Переключение сессий" hidden>
-<span class="tab-label" aria-hidden="true">Сессии</span>
-<div id="sessions" role="tablist" aria-label="Подключённые сессии"></div>
+<nav id="sessionTabBar" class="session-tab-bar" aria-label="Сессии и доступные чаты" hidden>
+<div class="session-online-row"><span class="tab-label" aria-hidden="true">На связи</span>
+<div id="sessions" role="tablist" aria-label="Подключённые доступные сессии"></div></div>
+<div id="discoveryTabRow" class="session-secondary-row" hidden>
+<span class="group-label">Доступны · не подключены</span>
+<div id="discoveryTabs" role="group" aria-label="Доступные неподключённые чаты"></div></div>
+<details id="offlineSessionGroup" class="session-fold" hidden>
+<summary id="offlineSessionHeading">Недоступные подключённые (0)</summary>
+<div id="offlineSessions" class="offline-tabs" role="group" aria-label="Недоступные зарегистрированные сессии"></div></details>
+<details id="archivedSessionGroup" class="session-fold" hidden>
+<summary id="archivedSessionHeading">Архив (0) · восстановить</summary>
+<div id="archivedSessions" class="archive-tab-list" role="group" aria-label="Архивированные сессии"></div>
+<p id="sessionArchiveNotice">История и задачи остаются в Docker; отправка через Notifier отключена.</p></details>
 </nav>
 </div>
 <section id="unlock" class="panel"><h2>Локальный просмотр</h2>
@@ -300,6 +343,9 @@ placeholder="https://chatgpt.com/c/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label
 <button id="enableTaskIntents" class="secondary" type="button" hidden>Разрешить метаданные сохранённых задач</button>
 <button id="revokeAutoNotifier" class="secondary" type="button" hidden>Отозвать постоянную привязку</button>
 <button id="checkNotifierConnection" class="secondary" type="button">Проверить связь Notifier</button>
+<button id="disconnectSession" class="secondary" type="button">Отключить Notifier</button>
+<button id="archiveSession" class="secondary" type="button">Архивировать сессию</button>
+<p id="sessionVisibilityStatus" role="status" class="dim"></p>
 </div></details></section>
 <div id="resize0" class="column-resizer" role="separator" tabindex="0" aria-label="Изменить ширину сессий и задач" aria-orientation="vertical"></div>
 <section class="panel tasks-column" aria-labelledby="tasksHeading"><h2 id="tasksHeading">Задачи <small id="taskCount"></small></h2><p id="taskStatusNotice" class="status-note" role="status" hidden></p><div id="tasks"></div></section>
@@ -316,6 +362,10 @@ placeholder="https://chatgpt.com/c/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label
 "use strict";
 let token="", state=null, chosenSession="", chosenTask="", taskCards=[];
 let discoveredChats=[], discoveryReadBusy=false;
+let sessionLiveIds=new Set(),sessionConnectedIds=new Set(),sessionPresenceKnown=false;
+let archivedSessions=new Map(),archiveVisibilityKnown=false;
+let autoOpenedOfflineForSession="";
+const CHAT_RE=/^[A-Za-z0-9-]{8,100}$/;
 const connectingChats=new Set();
 let sessionTitlesById=new Map();
 function validTabTitle(value){
@@ -412,9 +462,26 @@ async function req(path,options={}){
  if(!res.ok)throw Error("HTTP "+res.status);
  return res.json()
 }
+function visibleRegisteredSessions(){
+ if(!archiveVisibilityKnown)return [];
+ return (Array.isArray(state?.sessions)?state.sessions:[]).filter(s=>
+  SESSION_RE.test(s?.reporting_session_id||"")&&!archivedSessions.has(s.reporting_session_id))
+}
+function availableDiscoveredChats(){
+ if(!archiveVisibilityKnown)return [];
+ const archivedChats=new Set(archivedSessions.values());
+ return discoveredChats.filter(row=>!archivedChats.has(row.chat) &&
+   !row.blocked&&row.fingerprints.length===1)
+}
 function renderDiscoveredChats(stale=false){
  const list=$("discoveredChats");clear(list);
+ if(!archiveVisibilityKnown){
+  list.append(el("p","Список архивированных сессий не проверен: чаты скрыты до восстановления связи."));
+  return
+ }
+ const archivedChats=new Set(archivedSessions.values());
  for(const item of discoveredChats){
+  if(archivedChats.has(item.chat))continue;
   const row=el("div");row.className="discovered-chat";
   const link=el("a",item.title||item.chat);link.href="https://chatgpt.com/c/"+item.chat;
   link.target="_blank";link.rel="noopener noreferrer";link.referrerPolicy="no-referrer";
@@ -448,6 +515,11 @@ async function refreshDiscoveredChats(){
    return {chat:item.chat,title:item.title||"",fingerprints:[...item.fingerprints],
      last_seen_seconds_ago:item.last_seen_seconds_ago,blocked:item.blocked}
   });
+  const fresh=new Set(data.available_sessions??[]);
+  const connected=new Set(data.connected_sessions??[]);
+  if(fresh.size>256||connected.size>256 ||
+     [...fresh,...connected].some(id=>!SESSION_RE.test(id)))throw Error("Неверная сводка доступности");
+  sessionLiveIds=fresh;sessionConnectedIds=connected;sessionPresenceKnown=true;
   const titles=data.session_titles??{};
   if(typeof titles!=="object"||titles===null||Array.isArray(titles)||Object.keys(titles).length>256)
    throw Error("Неверные названия сессий");
@@ -462,13 +534,14 @@ async function refreshDiscoveredChats(){
    ?"Выберите чат для подключения."
    :"Новых чатов пока нет. Откройте беседу ChatGPT с включённым Notifier.";
  }catch(error){
-  renderDiscoveredChats(true);
+  sessionPresenceKnown=false;
+  renderDiscoveredChats(true);renderSessions();
   $("discoveryStatus").textContent="Список чатов недоступен: "+error.message;
  }finally{discoveryReadBusy=false}
 }
 async function connectDiscoveredChat(chat,fingerprint){
  const item=discoveredChats.find(row=>row.chat===chat);
- if(!token||connectingChats.has(chat)||!item||item.blocked||
+ if(!token||!archiveVisibilityKnown||connectingChats.has(chat)||!item||item.blocked||
     item.fingerprints.length!==1||item.fingerprints[0]!==fingerprint)return;
  connectingChats.add(chat);renderDiscoveredChats();
  $("discoveryStatus").textContent="Подключение чата…";
@@ -624,6 +697,8 @@ function renderSessionDiagnostics(session){
  const info=session?connectionBySession.get(session.reporting_session_id):null;
  $("notifierConnection").textContent=info?.error||describeNotifierConnection(info?.data);
  $("checkNotifierConnection").disabled=!session;
+ $("archiveSession").disabled=!session||!archiveVisibilityKnown;
+ $("disconnectSession").disabled=!session||!archiveVisibilityKnown;
  const auto=session?enrollmentBySession.get(session.reporting_session_id):null;
  const approval=$("approveNotifier"),revoke=$("revokeAutoNotifier");
  const pending=Array.isArray(auto?.pending)?auto.pending:[];
@@ -744,6 +819,63 @@ function renderTaskStatus(button,record){
  }
 }
 const TAB_ORDER_KEY="fortis-owner-session-tab-order-v1";
+async function refreshSessionVisibility(){
+ try{
+  const response=await req("/api/session-visibility");
+  if(response?.ok!==true||!response.archived||
+     typeof response.archived!=="object"||Array.isArray(response.archived)||
+     Object.keys(response.archived).length>256)throw Error("Неверная структура архива");
+  const next=new Map();
+  for(const [id,chat] of Object.entries(response.archived)){
+   if(!SESSION_RE.test(id)||typeof chat!=="string"||!CHAT_RE.test(chat))
+    throw Error("Неверная запись архива");
+   next.set(id,chat)
+  }
+  archivedSessions=next;archiveVisibilityKnown=true;
+  return true
+ }catch(error){
+  archiveVisibilityKnown=false;
+  $("sessionVisibilityStatus").textContent="Архив сессий недоступен: "+error.message;
+  return false
+ }
+}
+async function sessionVisibilityAction(action,sid){
+ const record=(state?.sessions||[]).find(s=>s.reporting_session_id===sid);
+ const chat=record?.conversation_id||archivedSessions.get(sid);
+ if(!SESSION_RE.test(sid)||typeof chat!=="string"||!CHAT_RE.test(chat))return;
+ const label=String(sessionDisplayTitle(record||{reporting_session_id:sid,conversation_id:chat}));
+ if(action==="archive"&&!window.confirm?.(
+   "Архивировать «"+label+"»? Сессия исчезнет из обычных списков; связь Notifier будет отозвана, история останется."))return;
+ if(action==="disconnect"&&!window.confirm?.(
+   "Отключить Notifier для «"+label+"»? История и регистрация сессии сохранятся."))return;
+ const button=action==="archive"?$("archiveSession"):$("disconnectSession");
+ button.disabled=true;
+ try{
+  const result=await req("/api/session-visibility",{method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({action,session:sid,chat})});
+  if(result?.ok!==true||result.session!==sid)throw Error("Не подтверждено");
+  connectionBySession.delete(sid);enrollmentBySession.delete(sid);
+  if(!await refreshSessionVisibility())throw Error("Не удалось подтвердить запись в архиве");
+  await refresh();
+  $("sessionVisibilityStatus").textContent=action==="archive"
+   ?"Сессия архивирована. Задачи не удалены."
+   :action==="restore"?"Сессия восстановлена. Для Notifier может потребоваться новое одобрение."
+   :"Notifier отключён. Зарегистрированная сессия сохранена.";
+ }catch(error){
+  $("sessionVisibilityStatus").textContent="Действие не подтверждено: "+error.message+
+   ". Обновите архив перед повторной попыткой.";
+  await refreshSessionVisibility();renderSessions()
+ }finally{button.disabled=false}
+}
+$("archiveSession").addEventListener("click",()=>sessionVisibilityAction("archive",chosenSession));
+$("disconnectSession").addEventListener("click",()=>sessionVisibilityAction("disconnect",chosenSession));
+$("offlineSessionGroup").addEventListener("toggle",()=>{
+ try{window.localStorage?.setItem("fortis-session-offline-open-v1",
+   $("offlineSessionGroup").open?"1":"0")}catch(_){}
+});
+try{$("offlineSessionGroup").open=window.localStorage?.getItem("fortis-session-offline-open-v1")==="1"}catch(_){}
+
 let tabOrder=[];
 try{
  const saved=JSON.parse(window.localStorage?.getItem(TAB_ORDER_KEY)||"[]");
@@ -762,8 +894,7 @@ function persistSessionOrder(next){
 }
 function moveSessionTab(source,target){
  if(!SESSION_RE.test(source)||!SESSION_RE.test(target)||source===target)return;
- const list=Array.isArray(state?.sessions)?state.sessions:[];
- const ids=list.map(s=>s.reporting_session_id).filter(id=>SESSION_RE.test(id));
+ const ids=visibleRegisteredSessions().map(s=>s.reporting_session_id);
  if(!ids.includes(source)||!ids.includes(target))return;
  const next=[...new Set([...tabOrder.filter(id=>ids.includes(id)),...ids])];
  next.splice(next.indexOf(source),1);
@@ -893,29 +1024,87 @@ function finishTabSlide(event,cancel=false){
   window.setTimeout?.(()=>{if(!tabSlide)renderSessions()},190)
  }
 }
+function selectRegisteredSession(sid){
+ if(!SESSION_RE.test(sid)||archivedSessions.has(sid)||
+    !visibleRegisteredSessions().some(s=>s.reporting_session_id===sid)||
+    chosenSession===sid)return;
+ chosenSession=sid;chosenTask="";taskCards=[];
+ resetSessionActions();resetRecordView("Загрузка задач…");
+ renderSessions();void loadTasks();void refreshNotifierConnection();
+ void refreshNotifierEnrollment()
+}
 function renderSessions(){
  if(tabSlide?.active){tabSlideNeedsRender=true;return}
  updateComposeTarget();
  const list=$("sessions"), tasks=$("tasks");
  const sessionScrollLeft=list.scrollLeft,taskScroll=tasks.scrollTop;
  clear(list);clear(tasks);
- const sessions=(Array.isArray(state?.sessions)?state.sessions:[]).slice();
+ const sessions=visibleRegisteredSessions().slice();
  sessions.sort((a,b)=>{
   const aa=tabOrder.indexOf(a.reporting_session_id),bb=tabOrder.indexOf(b.reporting_session_id);
   return (aa<0?Number.MAX_SAFE_INTEGER:aa)-(bb<0?Number.MAX_SAFE_INTEGER:bb)
  });
- $("sessionTabBar").hidden=!sessions.length;
+ const online=sessions.filter(s=>sessionPresenceKnown&&sessionLiveIds.has(s.reporting_session_id));
+ const offline=sessions.filter(s=>!sessionPresenceKnown||!sessionLiveIds.has(s.reporting_session_id));
+ const discovered=availableDiscoveredChats();
+ const allSessions=Array.isArray(state?.sessions)?state.sessions:[];
+ const archived=[...archivedSessions].filter(([sid,chat])=>
+  allSessions.some(s=>s.reporting_session_id===sid&&s.conversation_id===chat));
+ $("sessionTabBar").hidden=!sessions.length&&!discovered.length&&!archived.length;
  $("sessionCount").textContent=String(sessions.length);
  $("taskCount").textContent=chosenSession?String(taskCards.length):"—";
- if(!sessions.length){
-  list.append(el("p","Пока нет подключённых сессий. Выберите найденный чат выше или добавьте ссылку вручную."));
-  tasks.append(el("p","Сначала подключите сессию."));return
+ const discoveredList=$("discoveryTabs");clear(discoveredList);
+ for(const item of discovered){
+  const button=el("button",item.title||item.chat);button.type="button";
+  button.title="Доступен в Edge · подключить Notifier и сессию";
+  button.setAttribute("aria-label","Подключить доступный чат "+item.chat);
+  button.disabled=connectingChats.has(item.chat)||!sessionPresenceKnown;
+  button.onclick=()=>connectDiscoveredChat(item.chat,item.fingerprints[0]);
+  discoveredList.append(button)
  }
- for(const s of sessions){
+ $("discoveryTabRow").hidden=!discovered.length;
+ const unavailable=$("offlineSessions");clear(unavailable);
+ const linkedCount=offline.filter(item=>sessionConnectedIds.has(item.reporting_session_id)).length;
+ $("offlineSessionHeading").textContent=(sessionPresenceKnown
+  ?"Нет связи · привязаны ("+linkedCount+"), без привязки ("+(offline.length-linkedCount)+")"
+  :"Доступность не подтверждена ("+offline.length+")");
+ $("offlineSessionGroup").hidden=!offline.length;
+ for(const item of offline){
+  const button=el("button",String(sessionDisplayTitle(item)));
+  const linked=sessionConnectedIds.has(item.reporting_session_id);
+  button.type="button";button.className=linked?"linked":"unpaired";
+  button.title=!sessionPresenceKnown?"Доступность Notifier не подтверждена":
+   linked?"Привязка есть, но активная вкладка Notifier не отвечает":
+    "Сессия зарегистрирована, но привязка Notifier не одобрена";
+  button.setAttribute("aria-selected",chosenSession===item.reporting_session_id?"true":"false");
+  button.onclick=()=>selectRegisteredSession(item.reporting_session_id);
+  unavailable.append(button)
+ }
+ if(offline.some(s=>s.reporting_session_id===chosenSession)){
+  if(autoOpenedOfflineForSession!==chosenSession){
+   $("offlineSessionGroup").open=true;
+   autoOpenedOfflineForSession=chosenSession
+  }
+ }else autoOpenedOfflineForSession="";
+ const archiveList=$("archivedSessions");clear(archiveList);
+ $("archivedSessionHeading").textContent="Архив ("+archived.length+") · восстановить";
+ $("archivedSessionGroup").hidden=!archived.length;
+ for(const [sid,chat] of archived){
+  const record=allSessions.find(s=>s.reporting_session_id===sid);
+  const button=el("button","Восстановить · "+String(sessionDisplayTitle(record)));
+  button.type="button";button.title="Вернуть сессию в рабочий список, сохранив историю";
+  button.onclick=()=>sessionVisibilityAction("restore",sid);
+  archiveList.append(button)
+ }
+ if(!online.length){
+  list.append(el("span","Нет подключённых сессий на связи."));
+ }
+ for(const s of online){
   const b=el("button",String(sessionDisplayTitle(s)));
   b.title="Диагностика событий: "+String(s.state||"нет")+
    (s.task_overview?.primary_label?" · "+String(s.task_overview.primary_label):"");
-  b.type="button";b.className="session"+(chosenSession===s.reporting_session_id?" active":"");
+  b.type="button";b.className="session available"+
+    (chosenSession===s.reporting_session_id?" active":"");
   b.setAttribute("role","tab");b.setAttribute("aria-controls","workspaceGrid");
   b.setAttribute("aria-selected",chosenSession===s.reporting_session_id?"true":"false");
   b.tabIndex=chosenSession===s.reporting_session_id?0:-1;
@@ -927,12 +1116,7 @@ function renderSessions(){
       Date.now()-tabSlideClickGuard.at<450){
      event.preventDefault?.();return
    }
-   if(chosenSession===s.reporting_session_id)return;
-   // A fresh session selection always opens the newest task, regardless
-   // of whether automatic follow is currently enabled.
-   chosenSession=s.reporting_session_id;chosenTask="";taskCards=[];
-   resetSessionActions();resetRecordView("Загрузка задач…");
-   renderSessions();loadTasks();void refreshNotifierConnection();void refreshNotifierEnrollment()
+   selectRegisteredSession(s.reporting_session_id)
   };
   list.append(b)
  }
@@ -1427,9 +1611,13 @@ async function refresh(){
   const next=await req("/api/state");
   if(!token)return;
   state=next;archiveStatusStale=false;
+  await refreshSessionVisibility();
   const sessions=Array.isArray(state.sessions)?state.sessions:[];
-  if(!sessions.some(s=>s.reporting_session_id===chosenSession)){
-   chosenSession=sessions.length?sessions[0].reporting_session_id:"";
+  const visible=archiveVisibilityKnown
+   ?sessions.filter(s=>!archivedSessions.has(s.reporting_session_id)):[];
+  if(!visible.some(s=>s.reporting_session_id===chosenSession)){
+   chosenSession=visible.find(s=>sessionLiveIds.has(s.reporting_session_id))?.reporting_session_id||
+     visible[0]?.reporting_session_id||"";
    chosenTask="";taskCards=[];resetSessionActions();
    resetRecordView("Загрузка задач…")
   }
@@ -1459,7 +1647,11 @@ async function unlockViewer(value){
   state=await req("/api/state");
   $("unlock").hidden=true;$("app").hidden=false;
   const sessions=Array.isArray(state.sessions)?state.sessions:[];
-  if(sessions.length)chosenSession=sessions[0].reporting_session_id;
+  await refreshSessionVisibility();
+  if(sessions.length){
+   const first=sessions.find(s=>!archivedSessions.has(s.reporting_session_id));
+   chosenSession=first?.reporting_session_id||"";
+  }
   $("toolbar").hidden=false;applyColumnWidths();
   renderSessions();status("Подключено · сессий: "+sessions.length);
   await refreshDiscoveredChats();
@@ -1523,6 +1715,10 @@ $("registerForm").addEventListener("submit",async event=>{
    method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify({url,title})});
   if(!/^rs_[0-9a-f]{32}$/.test(result.session))throw Error("Неожиданный ответ");
+  if(archivedSessions.has(result.session)){
+   $("registerStatus").textContent="Эта сессия в архиве. Восстановите её через группу «Архив».";
+   return
+  }
   chosenSession=result.session;chosenTask="";taskCards=[];
   resetSessionActions();resetRecordView("Загрузка задач…");await refresh();
   $("registerStatus").textContent=result.created?"Сессия подключена.":"Этот чат уже подключён.";
@@ -1738,9 +1934,98 @@ def ensure_repo_running(container, docker_cli="docker.exe",
     raise ValueError("repo_service_not_ready")
 
 
+
+class OwnerSessionArchive:
+    """Owner-private view lifecycle, separate from immutable Docker task history.
+
+    Persist *only* IDs of hidden sessions; no messages, secrets or credentials.
+    Archiving revokes Notifier grants/dispatch in the owner handler, not in Docker.
+    """
+    FILENAME = "archived-sessions.json"
+
+    def __init__(self, directory):
+        self.directory = Path(directory)
+        self.path = self.directory / self.FILENAME
+        self.lock = threading.RLock()
+        self.items = self._load()
+
+    @staticmethod
+    def _valid(value):
+        if not isinstance(value, dict) or value.get("version") != 1 or set(value) != {"version", "sessions"}:
+            raise ValueError("invalid_session_archive")
+        sessions = value["sessions"]
+        if not isinstance(sessions, dict) or len(sessions) > 256 or any(
+            not SID.fullmatch(sid) or not isinstance(chat, str) or
+            not re.fullmatch(r"[A-Za-z0-9-]{8,100}", chat)
+            for sid, chat in sessions.items()
+        ):
+            raise ValueError("invalid_archive_entries")
+        return sessions
+
+    def _load(self):
+        if self.path.is_symlink():
+            raise ValueError("archive_symlink_denied")
+        if not self.path.exists():
+            return {}
+        if self.path.stat().st_size > 64000:
+            raise ValueError("archive_too_large")
+        return self._valid(json.loads(self.path.read_text(encoding="ascii")))
+
+    def _write(self, values):
+        if not self.directory.is_dir() or self.directory.is_symlink() or self.path.is_symlink():
+            raise ValueError("archive_path_denied")
+        payload = json.dumps({"version":1,"sessions":values},sort_keys=True,separators=(",",":"))
+        temp = self.directory / ("." + self.FILENAME + ".new")
+        if temp.exists() or temp.is_symlink():
+            raise ValueError("archive_temp_collision")
+        fd = os.open(temp, os.O_WRONLY|os.O_CREAT|os.O_EXCL, 0o600)
+        try:
+            with os.fdopen(fd, "w", encoding="ascii") as out:
+                out.write(payload)
+                out.flush()
+                os.fsync(out.fileno())
+            os.replace(temp,self.path)
+        finally:
+            if temp.exists():temp.unlink()
+        if self._load()!=values:
+            raise ValueError("archive_readback_failed")
+
+    def snapshot(self):
+        with self.lock:
+            return dict(self.items)
+
+    def has(self, sid, chat=None):
+        with self.lock:
+            value = self.items.get(sid)
+            return value is not None and (chat is None or value==chat)
+
+    def archive(self, sid, chat):
+        if not SID.fullmatch(sid or "") or not isinstance(chat,str) or not re.fullmatch(r"[A-Za-z0-9-]{8,100}", chat):
+            raise ValueError("invalid_archive_target")
+        with self.lock:
+            if sid in self.items and self.items[sid]!=chat:
+                raise ValueError("archive_identity_conflict")
+            new={**self.items,sid:chat}
+            self._valid({"version":1,"sessions":new})
+            self._write(new)
+            self.items=new
+            return {"ok":True,"archived":True,"session":sid}
+
+    def restore(self,sid,chat):
+        if not SID.fullmatch(sid or ""):
+            raise ValueError("invalid_restore_target")
+        with self.lock:
+            if self.items.get(sid)!=chat:
+                raise ValueError("archive_restore_identity_mismatch")
+            new=dict(self.items);del new[sid]
+            self._write(new)
+            self.items=new
+            return {"ok":True,"archived":False,"session":sid}
+
+
 def handler_for(token, read_data, nonce, register_data=None,
                 notifier_pair=None, notifier_forward=None, dispatch_board=None,
-                enrollment=None):
+                enrollment=None, session_archive=None):
     """Owner viewer plus narrow session-keyed Notifier transport."""
     registration_lock = threading.Lock()
 
@@ -1751,7 +2036,11 @@ def handler_for(token, read_data, nonce, register_data=None,
         matches=[i for i in data.get("sessions",[]) if
                  i.get("conversation_id")==chat and i.get("route")=="repo" and
                  SID.fullmatch(i.get("reporting_session_id") or "")]
-        return matches[0] if len(matches)==1 else None
+        if len(matches)!=1:return None
+        match=matches[0]
+        if session_archive is not None and session_archive.has(match["reporting_session_id"],chat):
+            return None
+        return match
 
     def valid_session(sid,chat):
         item=resolve_chat(chat)
@@ -1867,6 +2156,15 @@ def handler_for(token, read_data, nonce, register_data=None,
                     data={"ok":True,"pairing":pair}
                 elif uri.path == "/api/notifier/discovered" and not params and enrollment is not None:
                     data = enrollment.discovered_for_owner()
+                    if session_archive is not None:
+                        archived_chats=set(session_archive.snapshot().values())
+                        data["chats"]=[chat for chat in data["chats"] if chat["chat"] not in archived_chats]
+                        data["available_sessions"]=[sid for sid in data["available_sessions"]
+                          if not session_archive.has(sid)]
+                        data["connected_sessions"]=[sid for sid in data["connected_sessions"]
+                          if not session_archive.has(sid)]
+                elif uri.path == "/api/session-visibility" and not params and session_archive is not None:
+                    data={"ok":True,"archived":session_archive.snapshot()}
                 elif (uri.path=="/api/notifier/pending" and set(params)=={"session"} and
                       len(params["session"])==1 and SID.fullmatch(params["session"][0]) and
                       enrollment is not None):
@@ -2049,6 +2347,44 @@ def handler_for(token, read_data, nonce, register_data=None,
                     self.headers.get("Authorization", ""), "Bearer " + token):
                 self.write_reply(401, {"ok": False, "error": "viewer_key_required"})
                 return
+            if uri.path == "/api/session-visibility" and session_archive is not None:
+                if (uri.query or uri.fragment or uri.scheme or uri.netloc or
+                    self.headers.get("Content-Type","").lower() != "application/json" or
+                    self.headers.get("Transfer-Encoding") is not None):
+                    self.write_reply(403,{"ok":False,"error":"visibility_denied"})
+                    return
+                try:
+                    size=int(self.headers.get("Content-Length",""))
+                    if not 2<=size<=256:raise ValueError("visibility_size")
+                    obj=json.loads(self.rfile.read(size).decode("utf-8"))
+                    if (not isinstance(obj,dict) or set(obj)!={"action","session","chat"} or
+                        obj["action"] not in ("archive","restore","disconnect") or
+                        not SID.fullmatch(obj["session"] or "") or
+                        not isinstance(obj["chat"],str)):
+                        raise ValueError("invalid_visibility_request")
+                    sid=obj["session"];chat=obj["chat"]
+                    state=read_data("state",None,None)
+                    match=[item for item in state.get("sessions",[]) if
+                      item.get("reporting_session_id")==sid and item.get("conversation_id")==chat
+                      and item.get("route")=="repo"]
+                    if len(match)!=1:raise ValueError("unknown_session")
+                    if obj["action"]=="archive":
+                        result=session_archive.archive(sid,chat)
+                        # Cancel pending dispatch immediately, even if revocation
+                        # of the persisted Notifier grant subsequently fails.
+                        if dispatch_board is not None:dispatch_board.revoke(sid)
+                        if enrollment is not None:enrollment.revoke(sid)
+                    elif obj["action"]=="restore":
+                        result=session_archive.restore(sid,chat)
+                    else:
+                        if session_archive.has(sid):raise ValueError("archived_not_disconnected")
+                        if enrollment is not None:enrollment.revoke(sid)
+                        if dispatch_board is not None:dispatch_board.revoke(sid)
+                        result={"ok":True,"disconnected":True,"session":sid}
+                    self.write_reply(200,result)
+                except (ValueError, TypeError, KeyError, UnicodeError, OSError, json.JSONDecodeError):
+                    self.write_reply(403,{"ok":False,"error":"visibility_refused"})
+                return
             if uri.path == "/api/notifier/connect" and enrollment is not None and register_data:
                 if (uri.query or uri.fragment or uri.scheme or uri.netloc or
                         self.headers.get("Content-Type", "").lower() != "application/json" or
@@ -2142,7 +2478,8 @@ def handler_for(token, read_data, nonce, register_data=None,
                     matches = [item for item in current.get("sessions", []) if
                         item.get("reporting_session_id")==data["session"] and
                         item.get("route")=="repo" and item.get("conversation_id")==data["chat"]]
-                    if len(matches) != 1:
+                    if len(matches) != 1 or (session_archive is not None and
+                        session_archive.has(data["session"],data["chat"])):
                         raise ValueError("unregistered_recipient")
                     result=dispatch_board.enqueue(data["session"],data["chat"],
                         data["mode"],data["text"],data.get("module_ids"),
@@ -2333,6 +2670,7 @@ def main():
                 task_intents=enrollment.approved.get(sid,{}).get("task_intents",False))
             return {**pair,"dispatch_key":dispatch_board.pair(sid,pair["conversation_id"])}
         enrollment=Enrollment(owner_directory,approved_pair)
+        session_archive=OwnerSessionArchive(owner_directory)
         server=ThreadingHTTPServer(("127.0.0.1",WIN_PORT),
              handler_for(secret,lambda kind,sid,task:repo_read(
                  target,kind,sid,task,docker_cli),nonce,
@@ -2340,7 +2678,7 @@ def main():
                  lambda sid:owner_pair(target,sid,docker_cli=docker_cli),
                  lambda method,path,key,body:scoped_request(
                      target,method,path,key,body,docker_cli=docker_cli),
-                 dispatch_board,enrollment))
+                 dispatch_board,enrollment,session_archive))
     except (OSError, ValueError, TypeError, KeyError,
             subprocess.SubprocessError, json.JSONDecodeError) as ex:
         print("NOT_STARTED: "+type(ex).__name__+" (check approved config, container and Windows ACL)")

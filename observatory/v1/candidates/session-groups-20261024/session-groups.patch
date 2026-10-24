@@ -1,0 +1,959 @@
+diff --git a/observatory/v1/owner_enrollment.py b/observatory/v1/owner_enrollment.py
+index e139d51..d40b222 100644
+--- a/observatory/v1/owner_enrollment.py
++++ b/observatory/v1/owner_enrollment.py
+@@ -20,6 +20,7 @@ PROOF = re.compile(r"[0-9a-f]{64}\Z")
+ MAX_PENDING = 32
+ MAX_DISCOVERED = 200
+ PENDING_TTL = 180
++APPROVED_LIVE_TTL = 25  # Notifier enroll heartbeat every 7 sec; do not show 3-min stale tabs.
+ FILENAME = "approved-notifiers.json"
+ 
+ 
+@@ -45,6 +46,7 @@ class Enrollment:
+         self.pending = {}
+         self.discovered = {}
+         self.approved_titles = {}
++        self.approved_live = {}  # transient heartbeat per approved session
+         self.cached_pair = {}
+         self.approved = self._load()
+ 
+@@ -96,11 +98,15 @@ class Enrollment:
+         for sid, entry in list(self.approved_titles.items()):
+             if sid not in self.approved or entry["last_seen"] < limit:
+                 del self.approved_titles[sid]
++        for sid, stamp in list(self.approved_live.items()):
++            if sid not in self.approved or stamp < self.clock() - APPROVED_LIVE_TTL:
++                del self.approved_live[sid]
+ 
+     def _remember_discovery(self, chat, digest, title=None):
+         # Current-tab presence only. Titles stay in owner memory, not approvals.
+         for sid, grant in self.approved.items():
+             if grant["chat"] == chat and hmac.compare_digest(grant["sha256"], digest):
++                self.approved_live[sid] = self.clock()
+                 self.discovered.pop((chat, digest), None)
+                 if title is not None:
+                     self.approved_titles[sid] = {"title": title, "last_seen": self.clock()}
+@@ -140,6 +146,8 @@ class Enrollment:
+                 item["fingerprints"].sort()
+             return {"ok": True, "chats": sorted(grouped.values(),
+                      key=lambda i: (i["last_seen_seconds_ago"], i["chat"])),
++                    "available_sessions": sorted(self.approved_live),
++                    "connected_sessions": sorted(self.approved),
+                     "session_titles": {sid: entry["title"] for sid, entry in self.approved_titles.items()
+                                        if entry["title"]}}
+ 
+@@ -282,4 +290,5 @@ class Enrollment:
+             self.pending={key:value for key,value in self.pending.items() if key[0]!=sid}
+             self.cached_pair.pop(sid,None)
+             self.approved_titles.pop(sid, None)
++            self.approved_live.pop(sid, None)
+             return {"ok":True,"revoked":removed is not None}
+diff --git a/observatory/v1/owner_viewer.py b/observatory/v1/owner_viewer.py
+index 5e3867e..066596d 100644
+--- a/observatory/v1/owner_viewer.py
++++ b/observatory/v1/owner_viewer.py
+@@ -70,8 +70,41 @@ button.active,.action-toggle[aria-expanded="true"]{border-color:#a3c4f7;backgrou
+ .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;margin:0;border:1px solid #34465f;border-radius:10px;background:#192231}
+ .toolbar button{padding:7px 11px}
+ #status{margin-left:auto;color:#b5c8df;font-size:.84rem}
+-.session-tab-bar{display:flex;align-items:stretch;gap:12px;padding:5px 12px 3px;
++.session-tab-bar{display:block;padding:5px 12px 6px;
+   border:1px solid #34465f;border-top:0;border-radius:0 0 10px 10px;background:#192231;min-width:0}
++.session-online-row{display:flex;align-items:stretch;gap:12px;min-width:0}
++.session-secondary-row{display:flex;align-items:center;gap:9px;margin:3px 0 2px;
++  min-width:0;border-top:1px solid #34465f;padding:6px 0 2px;flex-wrap:wrap}
++.session-secondary-row[hidden]{display:none}
++.session-secondary-row .group-label{color:#8ce2db;font-size:.79rem;white-space:nowrap}
++#discoveryTabs{display:flex;gap:5px;overflow-x:auto;min-width:0;scrollbar-width:thin}
++#discoveryTabs button{flex:0 0 auto;max-width:230px;white-space:nowrap;overflow:hidden;
++  text-overflow:ellipsis;padding:5px 11px;border:1px dashed #50b9b5;
++  color:#b6fff0;background:#123c45}
++#discoveryTabs button:hover{background:#20505b}
++.session-fold{border-top:1px solid #34465f;padding-top:5px;margin:3px 0}
++.session-fold[hidden]{display:none}
++.session-fold summary{cursor:pointer;font-size:.8rem;color:#d5c8ad;padding:4px 0;
++  list-style:disclosure-closed}
++.session-fold[open] summary{list-style:disclosure-open}
++.offline-tabs{display:flex;flex-wrap:wrap;gap:5px;padding:5px 0}
++.offline-tabs button{font-size:.82rem;padding:5px 11px;border-color:#806d58;
++  background:#38342e;color:#edcaaa;max-width:240px;overflow:hidden;text-overflow:ellipsis;
++  white-space:nowrap}
++.offline-tabs button.linked{background:#4c3527;color:#ffdcad;border-color:#d9a258}
++.offline-tabs button.unpaired{background:#243140;color:#b5c7d9;border-color:#6d819c}
++.offline-tabs button[aria-selected="true"]{color:#fff;border:2px solid #fff3c2;
++  box-shadow:0 0 0 2px #18283c}
++.archive-tab-list{display:flex;flex-wrap:wrap;gap:7px;padding:7px 0}
++.archive-tab-list button{background:#273647;font-size:.8rem;padding:5px 10px}
++#sessionArchiveNotice{font-size:.76rem;color:#a6c1d5}
++#sessions button.session.active{
++  background:#365c93;border-color:#f1f8ff;color:#fff;font-weight:750;
++  outline:2px solid #a8d5ff;outline-offset:-3px;
++  box-shadow:0 0 0 2px #132e51,0 4px 14px #0009}
++#sessions button.session.active::before{content:"●";color:#d6f9ff;margin-right:7px}
++#sessions button.session.available{border-top:2px solid #66d7a8}
++#sessions button.session:not(.active){color:#cbdcf3}
+ .session-tab-bar .tab-label{flex:0 0 auto;font-size:.78rem;color:#a9bed8;
+   align-self:center;white-space:nowrap}
+ #sessions{display:flex;flex:1 1 auto;gap:6px;min-width:0;padding:4px 0 6px;
+@@ -194,9 +227,19 @@ small{color:#9fb5ce}#unlock{max-width:720px}
+ <button id="togglePair" class="secondary action-toggle" type="button" aria-controls="pairPanel" aria-expanded="false">Привязка Notifier</button>
+ <span id="status" role="status" aria-live="polite">История ещё не загружена</span>
+ </nav>
+-<nav id="sessionTabBar" class="session-tab-bar" aria-label="Переключение сессий" hidden>
+-<span class="tab-label" aria-hidden="true">Сессии</span>
+-<div id="sessions" role="tablist" aria-label="Подключённые сессии"></div>
++<nav id="sessionTabBar" class="session-tab-bar" aria-label="Сессии и доступные чаты" hidden>
++<div class="session-online-row"><span class="tab-label" aria-hidden="true">На связи</span>
++<div id="sessions" role="tablist" aria-label="Подключённые доступные сессии"></div></div>
++<div id="discoveryTabRow" class="session-secondary-row" hidden>
++<span class="group-label">Доступны · не подключены</span>
++<div id="discoveryTabs" role="group" aria-label="Доступные неподключённые чаты"></div></div>
++<details id="offlineSessionGroup" class="session-fold" hidden>
++<summary id="offlineSessionHeading">Недоступные подключённые (0)</summary>
++<div id="offlineSessions" class="offline-tabs" role="group" aria-label="Недоступные зарегистрированные сессии"></div></details>
++<details id="archivedSessionGroup" class="session-fold" hidden>
++<summary id="archivedSessionHeading">Архив (0) · восстановить</summary>
++<div id="archivedSessions" class="archive-tab-list" role="group" aria-label="Архивированные сессии"></div>
++<p id="sessionArchiveNotice">История и задачи остаются в Docker; отправка через Notifier отключена.</p></details>
+ </nav>
+ </div>
+ <section id="unlock" class="panel"><h2>Локальный просмотр</h2>
+@@ -300,6 +343,9 @@ placeholder="https://chatgpt.com/c/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label
+ <button id="enableTaskIntents" class="secondary" type="button" hidden>Разрешить метаданные сохранённых задач</button>
+ <button id="revokeAutoNotifier" class="secondary" type="button" hidden>Отозвать постоянную привязку</button>
+ <button id="checkNotifierConnection" class="secondary" type="button">Проверить связь Notifier</button>
++<button id="disconnectSession" class="secondary" type="button">Отключить Notifier</button>
++<button id="archiveSession" class="secondary" type="button">Архивировать сессию</button>
++<p id="sessionVisibilityStatus" role="status" class="dim"></p>
+ </div></details></section>
+ <div id="resize0" class="column-resizer" role="separator" tabindex="0" aria-label="Изменить ширину сессий и задач" aria-orientation="vertical"></div>
+ <section class="panel tasks-column" aria-labelledby="tasksHeading"><h2 id="tasksHeading">Задачи <small id="taskCount"></small></h2><p id="taskStatusNotice" class="status-note" role="status" hidden></p><div id="tasks"></div></section>
+@@ -316,6 +362,10 @@ placeholder="https://chatgpt.com/c/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"></label
+ "use strict";
+ let token="", state=null, chosenSession="", chosenTask="", taskCards=[];
+ let discoveredChats=[], discoveryReadBusy=false;
++let sessionLiveIds=new Set(),sessionConnectedIds=new Set(),sessionPresenceKnown=false;
++let archivedSessions=new Map(),archiveVisibilityKnown=false;
++let autoOpenedOfflineForSession="";
++const CHAT_RE=/^[A-Za-z0-9-]{8,100}$/;
+ const connectingChats=new Set();
+ let sessionTitlesById=new Map();
+ function validTabTitle(value){
+@@ -412,9 +462,26 @@ async function req(path,options={}){
+  if(!res.ok)throw Error("HTTP "+res.status);
+  return res.json()
+ }
++function visibleRegisteredSessions(){
++ if(!archiveVisibilityKnown)return [];
++ return (Array.isArray(state?.sessions)?state.sessions:[]).filter(s=>
++  SESSION_RE.test(s?.reporting_session_id||"")&&!archivedSessions.has(s.reporting_session_id))
++}
++function availableDiscoveredChats(){
++ if(!archiveVisibilityKnown)return [];
++ const archivedChats=new Set(archivedSessions.values());
++ return discoveredChats.filter(row=>!archivedChats.has(row.chat) &&
++   !row.blocked&&row.fingerprints.length===1)
++}
+ function renderDiscoveredChats(stale=false){
+  const list=$("discoveredChats");clear(list);
++ if(!archiveVisibilityKnown){
++  list.append(el("p","Список архивированных сессий не проверен: чаты скрыты до восстановления связи."));
++  return
++ }
++ const archivedChats=new Set(archivedSessions.values());
+  for(const item of discoveredChats){
++  if(archivedChats.has(item.chat))continue;
+   const row=el("div");row.className="discovered-chat";
+   const link=el("a",item.title||item.chat);link.href="https://chatgpt.com/c/"+item.chat;
+   link.target="_blank";link.rel="noopener noreferrer";link.referrerPolicy="no-referrer";
+@@ -448,6 +515,11 @@ async function refreshDiscoveredChats(){
+    return {chat:item.chat,title:item.title||"",fingerprints:[...item.fingerprints],
+      last_seen_seconds_ago:item.last_seen_seconds_ago,blocked:item.blocked}
+   });
++  const fresh=new Set(data.available_sessions??[]);
++  const connected=new Set(data.connected_sessions??[]);
++  if(fresh.size>256||connected.size>256 ||
++     [...fresh,...connected].some(id=>!SESSION_RE.test(id)))throw Error("Неверная сводка доступности");
++  sessionLiveIds=fresh;sessionConnectedIds=connected;sessionPresenceKnown=true;
+   const titles=data.session_titles??{};
+   if(typeof titles!=="object"||titles===null||Array.isArray(titles)||Object.keys(titles).length>256)
+    throw Error("Неверные названия сессий");
+@@ -462,13 +534,14 @@ async function refreshDiscoveredChats(){
+    ?"Выберите чат для подключения."
+    :"Новых чатов пока нет. Откройте беседу ChatGPT с включённым Notifier.";
+  }catch(error){
+-  renderDiscoveredChats(true);
++  sessionPresenceKnown=false;
++  renderDiscoveredChats(true);renderSessions();
+   $("discoveryStatus").textContent="Список чатов недоступен: "+error.message;
+  }finally{discoveryReadBusy=false}
+ }
+ async function connectDiscoveredChat(chat,fingerprint){
+  const item=discoveredChats.find(row=>row.chat===chat);
+- if(!token||connectingChats.has(chat)||!item||item.blocked||
++ if(!token||!archiveVisibilityKnown||connectingChats.has(chat)||!item||item.blocked||
+     item.fingerprints.length!==1||item.fingerprints[0]!==fingerprint)return;
+  connectingChats.add(chat);renderDiscoveredChats();
+  $("discoveryStatus").textContent="Подключение чата…";
+@@ -624,6 +697,8 @@ function renderSessionDiagnostics(session){
+  const info=session?connectionBySession.get(session.reporting_session_id):null;
+  $("notifierConnection").textContent=info?.error||describeNotifierConnection(info?.data);
+  $("checkNotifierConnection").disabled=!session;
++ $("archiveSession").disabled=!session||!archiveVisibilityKnown;
++ $("disconnectSession").disabled=!session||!archiveVisibilityKnown;
+  const auto=session?enrollmentBySession.get(session.reporting_session_id):null;
+  const approval=$("approveNotifier"),revoke=$("revokeAutoNotifier");
+  const pending=Array.isArray(auto?.pending)?auto.pending:[];
+@@ -744,6 +819,63 @@ function renderTaskStatus(button,record){
+  }
+ }
+ const TAB_ORDER_KEY="fortis-owner-session-tab-order-v1";
++async function refreshSessionVisibility(){
++ try{
++  const response=await req("/api/session-visibility");
++  if(response?.ok!==true||!response.archived||
++     typeof response.archived!=="object"||Array.isArray(response.archived)||
++     Object.keys(response.archived).length>256)throw Error("Неверная структура архива");
++  const next=new Map();
++  for(const [id,chat] of Object.entries(response.archived)){
++   if(!SESSION_RE.test(id)||typeof chat!=="string"||!CHAT_RE.test(chat))
++    throw Error("Неверная запись архива");
++   next.set(id,chat)
++  }
++  archivedSessions=next;archiveVisibilityKnown=true;
++  return true
++ }catch(error){
++  archiveVisibilityKnown=false;
++  $("sessionVisibilityStatus").textContent="Архив сессий недоступен: "+error.message;
++  return false
++ }
++}
++async function sessionVisibilityAction(action,sid){
++ const record=(state?.sessions||[]).find(s=>s.reporting_session_id===sid);
++ const chat=record?.conversation_id||archivedSessions.get(sid);
++ if(!SESSION_RE.test(sid)||typeof chat!=="string"||!CHAT_RE.test(chat))return;
++ const label=String(sessionDisplayTitle(record||{reporting_session_id:sid,conversation_id:chat}));
++ if(action==="archive"&&!window.confirm?.(
++   "Архивировать «"+label+"»? Сессия исчезнет из обычных списков; связь Notifier будет отозвана, история останется."))return;
++ if(action==="disconnect"&&!window.confirm?.(
++   "Отключить Notifier для «"+label+"»? История и регистрация сессии сохранятся."))return;
++ const button=action==="archive"?$("archiveSession"):$("disconnectSession");
++ button.disabled=true;
++ try{
++  const result=await req("/api/session-visibility",{method:"POST",
++   headers:{"Content-Type":"application/json"},
++   body:JSON.stringify({action,session:sid,chat})});
++  if(result?.ok!==true||result.session!==sid)throw Error("Не подтверждено");
++  connectionBySession.delete(sid);enrollmentBySession.delete(sid);
++  if(!await refreshSessionVisibility())throw Error("Не удалось подтвердить запись в архиве");
++  await refresh();
++  $("sessionVisibilityStatus").textContent=action==="archive"
++   ?"Сессия архивирована. Задачи не удалены."
++   :action==="restore"?"Сессия восстановлена. Для Notifier может потребоваться новое одобрение."
++   :"Notifier отключён. Зарегистрированная сессия сохранена.";
++ }catch(error){
++  $("sessionVisibilityStatus").textContent="Действие не подтверждено: "+error.message+
++   ". Обновите архив перед повторной попыткой.";
++  await refreshSessionVisibility();renderSessions()
++ }finally{button.disabled=false}
++}
++$("archiveSession").addEventListener("click",()=>sessionVisibilityAction("archive",chosenSession));
++$("disconnectSession").addEventListener("click",()=>sessionVisibilityAction("disconnect",chosenSession));
++$("offlineSessionGroup").addEventListener("toggle",()=>{
++ try{window.localStorage?.setItem("fortis-session-offline-open-v1",
++   $("offlineSessionGroup").open?"1":"0")}catch(_){}
++});
++try{$("offlineSessionGroup").open=window.localStorage?.getItem("fortis-session-offline-open-v1")==="1"}catch(_){}
++
+ let tabOrder=[];
+ try{
+  const saved=JSON.parse(window.localStorage?.getItem(TAB_ORDER_KEY)||"[]");
+@@ -762,8 +894,7 @@ function persistSessionOrder(next){
+ }
+ function moveSessionTab(source,target){
+  if(!SESSION_RE.test(source)||!SESSION_RE.test(target)||source===target)return;
+- const list=Array.isArray(state?.sessions)?state.sessions:[];
+- const ids=list.map(s=>s.reporting_session_id).filter(id=>SESSION_RE.test(id));
++ const ids=visibleRegisteredSessions().map(s=>s.reporting_session_id);
+  if(!ids.includes(source)||!ids.includes(target))return;
+  const next=[...new Set([...tabOrder.filter(id=>ids.includes(id)),...ids])];
+  next.splice(next.indexOf(source),1);
+@@ -893,29 +1024,87 @@ function finishTabSlide(event,cancel=false){
+   window.setTimeout?.(()=>{if(!tabSlide)renderSessions()},190)
+  }
+ }
++function selectRegisteredSession(sid){
++ if(!SESSION_RE.test(sid)||archivedSessions.has(sid)||
++    !visibleRegisteredSessions().some(s=>s.reporting_session_id===sid)||
++    chosenSession===sid)return;
++ chosenSession=sid;chosenTask="";taskCards=[];
++ resetSessionActions();resetRecordView("Загрузка задач…");
++ renderSessions();void loadTasks();void refreshNotifierConnection();
++ void refreshNotifierEnrollment()
++}
+ function renderSessions(){
+  if(tabSlide?.active){tabSlideNeedsRender=true;return}
+  updateComposeTarget();
+  const list=$("sessions"), tasks=$("tasks");
+  const sessionScrollLeft=list.scrollLeft,taskScroll=tasks.scrollTop;
+  clear(list);clear(tasks);
+- const sessions=(Array.isArray(state?.sessions)?state.sessions:[]).slice();
++ const sessions=visibleRegisteredSessions().slice();
+  sessions.sort((a,b)=>{
+   const aa=tabOrder.indexOf(a.reporting_session_id),bb=tabOrder.indexOf(b.reporting_session_id);
+   return (aa<0?Number.MAX_SAFE_INTEGER:aa)-(bb<0?Number.MAX_SAFE_INTEGER:bb)
+  });
+- $("sessionTabBar").hidden=!sessions.length;
++ const online=sessions.filter(s=>sessionPresenceKnown&&sessionLiveIds.has(s.reporting_session_id));
++ const offline=sessions.filter(s=>!sessionPresenceKnown||!sessionLiveIds.has(s.reporting_session_id));
++ const discovered=availableDiscoveredChats();
++ const allSessions=Array.isArray(state?.sessions)?state.sessions:[];
++ const archived=[...archivedSessions].filter(([sid,chat])=>
++  allSessions.some(s=>s.reporting_session_id===sid&&s.conversation_id===chat));
++ $("sessionTabBar").hidden=!sessions.length&&!discovered.length&&!archived.length;
+  $("sessionCount").textContent=String(sessions.length);
+  $("taskCount").textContent=chosenSession?String(taskCards.length):"—";
+- if(!sessions.length){
+-  list.append(el("p","Пока нет подключённых сессий. Выберите найденный чат выше или добавьте ссылку вручную."));
+-  tasks.append(el("p","Сначала подключите сессию."));return
++ const discoveredList=$("discoveryTabs");clear(discoveredList);
++ for(const item of discovered){
++  const button=el("button",item.title||item.chat);button.type="button";
++  button.title="Доступен в Edge · подключить Notifier и сессию";
++  button.setAttribute("aria-label","Подключить доступный чат "+item.chat);
++  button.disabled=connectingChats.has(item.chat)||!sessionPresenceKnown;
++  button.onclick=()=>connectDiscoveredChat(item.chat,item.fingerprints[0]);
++  discoveredList.append(button)
++ }
++ $("discoveryTabRow").hidden=!discovered.length;
++ const unavailable=$("offlineSessions");clear(unavailable);
++ const linkedCount=offline.filter(item=>sessionConnectedIds.has(item.reporting_session_id)).length;
++ $("offlineSessionHeading").textContent=(sessionPresenceKnown
++  ?"Нет связи · привязаны ("+linkedCount+"), без привязки ("+(offline.length-linkedCount)+")"
++  :"Доступность не подтверждена ("+offline.length+")");
++ $("offlineSessionGroup").hidden=!offline.length;
++ for(const item of offline){
++  const button=el("button",String(sessionDisplayTitle(item)));
++  const linked=sessionConnectedIds.has(item.reporting_session_id);
++  button.type="button";button.className=linked?"linked":"unpaired";
++  button.title=!sessionPresenceKnown?"Доступность Notifier не подтверждена":
++   linked?"Привязка есть, но активная вкладка Notifier не отвечает":
++    "Сессия зарегистрирована, но привязка Notifier не одобрена";
++  button.setAttribute("aria-selected",chosenSession===item.reporting_session_id?"true":"false");
++  button.onclick=()=>selectRegisteredSession(item.reporting_session_id);
++  unavailable.append(button)
++ }
++ if(offline.some(s=>s.reporting_session_id===chosenSession)){
++  if(autoOpenedOfflineForSession!==chosenSession){
++   $("offlineSessionGroup").open=true;
++   autoOpenedOfflineForSession=chosenSession
++  }
++ }else autoOpenedOfflineForSession="";
++ const archiveList=$("archivedSessions");clear(archiveList);
++ $("archivedSessionHeading").textContent="Архив ("+archived.length+") · восстановить";
++ $("archivedSessionGroup").hidden=!archived.length;
++ for(const [sid,chat] of archived){
++  const record=allSessions.find(s=>s.reporting_session_id===sid);
++  const button=el("button","Восстановить · "+String(sessionDisplayTitle(record)));
++  button.type="button";button.title="Вернуть сессию в рабочий список, сохранив историю";
++  button.onclick=()=>sessionVisibilityAction("restore",sid);
++  archiveList.append(button)
++ }
++ if(!online.length){
++  list.append(el("span","Нет подключённых сессий на связи."));
+  }
+- for(const s of sessions){
++ for(const s of online){
+   const b=el("button",String(sessionDisplayTitle(s)));
+   b.title="Диагностика событий: "+String(s.state||"нет")+
+    (s.task_overview?.primary_label?" · "+String(s.task_overview.primary_label):"");
+-  b.type="button";b.className="session"+(chosenSession===s.reporting_session_id?" active":"");
++  b.type="button";b.className="session available"+
++    (chosenSession===s.reporting_session_id?" active":"");
+   b.setAttribute("role","tab");b.setAttribute("aria-controls","workspaceGrid");
+   b.setAttribute("aria-selected",chosenSession===s.reporting_session_id?"true":"false");
+   b.tabIndex=chosenSession===s.reporting_session_id?0:-1;
+@@ -927,12 +1116,7 @@ function renderSessions(){
+       Date.now()-tabSlideClickGuard.at<450){
+      event.preventDefault?.();return
+    }
+-   if(chosenSession===s.reporting_session_id)return;
+-   // A fresh session selection always opens the newest task, regardless
+-   // of whether automatic follow is currently enabled.
+-   chosenSession=s.reporting_session_id;chosenTask="";taskCards=[];
+-   resetSessionActions();resetRecordView("Загрузка задач…");
+-   renderSessions();loadTasks();void refreshNotifierConnection();void refreshNotifierEnrollment()
++   selectRegisteredSession(s.reporting_session_id)
+   };
+   list.append(b)
+  }
+@@ -1427,9 +1611,13 @@ async function refresh(){
+   const next=await req("/api/state");
+   if(!token)return;
+   state=next;archiveStatusStale=false;
++  await refreshSessionVisibility();
+   const sessions=Array.isArray(state.sessions)?state.sessions:[];
+-  if(!sessions.some(s=>s.reporting_session_id===chosenSession)){
+-   chosenSession=sessions.length?sessions[0].reporting_session_id:"";
++  const visible=archiveVisibilityKnown
++   ?sessions.filter(s=>!archivedSessions.has(s.reporting_session_id)):[];
++  if(!visible.some(s=>s.reporting_session_id===chosenSession)){
++   chosenSession=visible.find(s=>sessionLiveIds.has(s.reporting_session_id))?.reporting_session_id||
++     visible[0]?.reporting_session_id||"";
+    chosenTask="";taskCards=[];resetSessionActions();
+    resetRecordView("Загрузка задач…")
+   }
+@@ -1459,7 +1647,11 @@ async function unlockViewer(value){
+   state=await req("/api/state");
+   $("unlock").hidden=true;$("app").hidden=false;
+   const sessions=Array.isArray(state.sessions)?state.sessions:[];
+-  if(sessions.length)chosenSession=sessions[0].reporting_session_id;
++  await refreshSessionVisibility();
++  if(sessions.length){
++   const first=sessions.find(s=>!archivedSessions.has(s.reporting_session_id));
++   chosenSession=first?.reporting_session_id||"";
++  }
+   $("toolbar").hidden=false;applyColumnWidths();
+   renderSessions();status("Подключено · сессий: "+sessions.length);
+   await refreshDiscoveredChats();
+@@ -1523,6 +1715,10 @@ $("registerForm").addEventListener("submit",async event=>{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({url,title})});
+   if(!/^rs_[0-9a-f]{32}$/.test(result.session))throw Error("Неожиданный ответ");
++  if(archivedSessions.has(result.session)){
++   $("registerStatus").textContent="Эта сессия в архиве. Восстановите её через группу «Архив».";
++   return
++  }
+   chosenSession=result.session;chosenTask="";taskCards=[];
+   resetSessionActions();resetRecordView("Загрузка задач…");await refresh();
+   $("registerStatus").textContent=result.created?"Сессия подключена.":"Этот чат уже подключён.";
+@@ -1738,9 +1934,98 @@ def ensure_repo_running(container, docker_cli="docker.exe",
+     raise ValueError("repo_service_not_ready")
+ 
+ 
++
++class OwnerSessionArchive:
++    """Owner-private view lifecycle, separate from immutable Docker task history.
++
++    Persist *only* IDs of hidden sessions; no messages, secrets or credentials.
++    Archiving revokes Notifier grants/dispatch in the owner handler, not in Docker.
++    """
++    FILENAME = "archived-sessions.json"
++
++    def __init__(self, directory):
++        self.directory = Path(directory)
++        self.path = self.directory / self.FILENAME
++        self.lock = threading.RLock()
++        self.items = self._load()
++
++    @staticmethod
++    def _valid(value):
++        if not isinstance(value, dict) or value.get("version") != 1 or set(value) != {"version", "sessions"}:
++            raise ValueError("invalid_session_archive")
++        sessions = value["sessions"]
++        if not isinstance(sessions, dict) or len(sessions) > 256 or any(
++            not SID.fullmatch(sid) or not isinstance(chat, str) or
++            not re.fullmatch(r"[A-Za-z0-9-]{8,100}", chat)
++            for sid, chat in sessions.items()
++        ):
++            raise ValueError("invalid_archive_entries")
++        return sessions
++
++    def _load(self):
++        if self.path.is_symlink():
++            raise ValueError("archive_symlink_denied")
++        if not self.path.exists():
++            return {}
++        if self.path.stat().st_size > 64000:
++            raise ValueError("archive_too_large")
++        return self._valid(json.loads(self.path.read_text(encoding="ascii")))
++
++    def _write(self, values):
++        if not self.directory.is_dir() or self.directory.is_symlink() or self.path.is_symlink():
++            raise ValueError("archive_path_denied")
++        payload = json.dumps({"version":1,"sessions":values},sort_keys=True,separators=(",",":"))
++        temp = self.directory / ("." + self.FILENAME + ".new")
++        if temp.exists() or temp.is_symlink():
++            raise ValueError("archive_temp_collision")
++        fd = os.open(temp, os.O_WRONLY|os.O_CREAT|os.O_EXCL, 0o600)
++        try:
++            with os.fdopen(fd, "w", encoding="ascii") as out:
++                out.write(payload)
++                out.flush()
++                os.fsync(out.fileno())
++            os.replace(temp,self.path)
++        finally:
++            if temp.exists():temp.unlink()
++        if self._load()!=values:
++            raise ValueError("archive_readback_failed")
++
++    def snapshot(self):
++        with self.lock:
++            return dict(self.items)
++
++    def has(self, sid, chat=None):
++        with self.lock:
++            value = self.items.get(sid)
++            return value is not None and (chat is None or value==chat)
++
++    def archive(self, sid, chat):
++        if not SID.fullmatch(sid or "") or not isinstance(chat,str) or not re.fullmatch(r"[A-Za-z0-9-]{8,100}", chat):
++            raise ValueError("invalid_archive_target")
++        with self.lock:
++            if sid in self.items and self.items[sid]!=chat:
++                raise ValueError("archive_identity_conflict")
++            new={**self.items,sid:chat}
++            self._valid({"version":1,"sessions":new})
++            self._write(new)
++            self.items=new
++            return {"ok":True,"archived":True,"session":sid}
++
++    def restore(self,sid,chat):
++        if not SID.fullmatch(sid or ""):
++            raise ValueError("invalid_restore_target")
++        with self.lock:
++            if self.items.get(sid)!=chat:
++                raise ValueError("archive_restore_identity_mismatch")
++            new=dict(self.items);del new[sid]
++            self._write(new)
++            self.items=new
++            return {"ok":True,"archived":False,"session":sid}
++
++
+ def handler_for(token, read_data, nonce, register_data=None,
+                 notifier_pair=None, notifier_forward=None, dispatch_board=None,
+-                enrollment=None):
++                enrollment=None, session_archive=None):
+     """Owner viewer plus narrow session-keyed Notifier transport."""
+     registration_lock = threading.Lock()
+ 
+@@ -1751,7 +2036,11 @@ def handler_for(token, read_data, nonce, register_data=None,
+         matches=[i for i in data.get("sessions",[]) if
+                  i.get("conversation_id")==chat and i.get("route")=="repo" and
+                  SID.fullmatch(i.get("reporting_session_id") or "")]
+-        return matches[0] if len(matches)==1 else None
++        if len(matches)!=1:return None
++        match=matches[0]
++        if session_archive is not None and session_archive.has(match["reporting_session_id"],chat):
++            return None
++        return match
+ 
+     def valid_session(sid,chat):
+         item=resolve_chat(chat)
+@@ -1867,6 +2156,15 @@ def handler_for(token, read_data, nonce, register_data=None,
+                     data={"ok":True,"pairing":pair}
+                 elif uri.path == "/api/notifier/discovered" and not params and enrollment is not None:
+                     data = enrollment.discovered_for_owner()
++                    if session_archive is not None:
++                        archived_chats=set(session_archive.snapshot().values())
++                        data["chats"]=[chat for chat in data["chats"] if chat["chat"] not in archived_chats]
++                        data["available_sessions"]=[sid for sid in data["available_sessions"]
++                          if not session_archive.has(sid)]
++                        data["connected_sessions"]=[sid for sid in data["connected_sessions"]
++                          if not session_archive.has(sid)]
++                elif uri.path == "/api/session-visibility" and not params and session_archive is not None:
++                    data={"ok":True,"archived":session_archive.snapshot()}
+                 elif (uri.path=="/api/notifier/pending" and set(params)=={"session"} and
+                       len(params["session"])==1 and SID.fullmatch(params["session"][0]) and
+                       enrollment is not None):
+@@ -2049,6 +2347,44 @@ def handler_for(token, read_data, nonce, register_data=None,
+                     self.headers.get("Authorization", ""), "Bearer " + token):
+                 self.write_reply(401, {"ok": False, "error": "viewer_key_required"})
+                 return
++            if uri.path == "/api/session-visibility" and session_archive is not None:
++                if (uri.query or uri.fragment or uri.scheme or uri.netloc or
++                    self.headers.get("Content-Type","").lower() != "application/json" or
++                    self.headers.get("Transfer-Encoding") is not None):
++                    self.write_reply(403,{"ok":False,"error":"visibility_denied"})
++                    return
++                try:
++                    size=int(self.headers.get("Content-Length",""))
++                    if not 2<=size<=256:raise ValueError("visibility_size")
++                    obj=json.loads(self.rfile.read(size).decode("utf-8"))
++                    if (not isinstance(obj,dict) or set(obj)!={"action","session","chat"} or
++                        obj["action"] not in ("archive","restore","disconnect") or
++                        not SID.fullmatch(obj["session"] or "") or
++                        not isinstance(obj["chat"],str)):
++                        raise ValueError("invalid_visibility_request")
++                    sid=obj["session"];chat=obj["chat"]
++                    state=read_data("state",None,None)
++                    match=[item for item in state.get("sessions",[]) if
++                      item.get("reporting_session_id")==sid and item.get("conversation_id")==chat
++                      and item.get("route")=="repo"]
++                    if len(match)!=1:raise ValueError("unknown_session")
++                    if obj["action"]=="archive":
++                        result=session_archive.archive(sid,chat)
++                        # Cancel pending dispatch immediately, even if revocation
++                        # of the persisted Notifier grant subsequently fails.
++                        if dispatch_board is not None:dispatch_board.revoke(sid)
++                        if enrollment is not None:enrollment.revoke(sid)
++                    elif obj["action"]=="restore":
++                        result=session_archive.restore(sid,chat)
++                    else:
++                        if session_archive.has(sid):raise ValueError("archived_not_disconnected")
++                        if enrollment is not None:enrollment.revoke(sid)
++                        if dispatch_board is not None:dispatch_board.revoke(sid)
++                        result={"ok":True,"disconnected":True,"session":sid}
++                    self.write_reply(200,result)
++                except (ValueError, TypeError, KeyError, UnicodeError, OSError, json.JSONDecodeError):
++                    self.write_reply(403,{"ok":False,"error":"visibility_refused"})
++                return
+             if uri.path == "/api/notifier/connect" and enrollment is not None and register_data:
+                 if (uri.query or uri.fragment or uri.scheme or uri.netloc or
+                         self.headers.get("Content-Type", "").lower() != "application/json" or
+@@ -2142,7 +2478,8 @@ def handler_for(token, read_data, nonce, register_data=None,
+                     matches = [item for item in current.get("sessions", []) if
+                         item.get("reporting_session_id")==data["session"] and
+                         item.get("route")=="repo" and item.get("conversation_id")==data["chat"]]
+-                    if len(matches) != 1:
++                    if len(matches) != 1 or (session_archive is not None and
++                        session_archive.has(data["session"],data["chat"])):
+                         raise ValueError("unregistered_recipient")
+                     result=dispatch_board.enqueue(data["session"],data["chat"],
+                         data["mode"],data["text"],data.get("module_ids"),
+@@ -2333,6 +2670,7 @@ def main():
+                 task_intents=enrollment.approved.get(sid,{}).get("task_intents",False))
+             return {**pair,"dispatch_key":dispatch_board.pair(sid,pair["conversation_id"])}
+         enrollment=Enrollment(owner_directory,approved_pair)
++        session_archive=OwnerSessionArchive(owner_directory)
+         server=ThreadingHTTPServer(("127.0.0.1",WIN_PORT),
+              handler_for(secret,lambda kind,sid,task:repo_read(
+                  target,kind,sid,task,docker_cli),nonce,
+@@ -2340,7 +2678,7 @@ def main():
+                  lambda sid:owner_pair(target,sid,docker_cli=docker_cli),
+                  lambda method,path,key,body:scoped_request(
+                      target,method,path,key,body,docker_cli=docker_cli),
+-                 dispatch_board,enrollment))
++                 dispatch_board,enrollment,session_archive))
+     except (OSError, ValueError, TypeError, KeyError,
+             subprocess.SubprocessError, json.JSONDecodeError) as ex:
+         print("NOT_STARTED: "+type(ex).__name__+" (check approved config, container and Windows ACL)")
+diff --git a/observatory/v1/test_owner_enrollment.py b/observatory/v1/test_owner_enrollment.py
+index 201ef4a..6509b80 100644
+--- a/observatory/v1/test_owner_enrollment.py
++++ b/observatory/v1/test_owner_enrollment.py
+@@ -255,5 +255,24 @@ class TabTitleTests(unittest.TestCase):
+         self.e.connect_discovered(CID, FINGERPRINT_A, self.register, self.valid)
+         self.assertEqual(self.e.discovered_for_owner()["session_titles"], {})
+ 
++    def test_live_connected_presence_expires_faster_than_discovery(self):
++        self.e.discover(CID, SECRET_A)
++        self.e.connect_discovered(CID, FINGERPRINT_A, self.register, self.valid)
++        self.assertEqual(self.e.discovered_for_owner()["connected_sessions"],[SID])
++        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[],
++                         "approval alone does not mean the browser is open")
++        self.e.announce(SID, CID, SECRET_A, self.valid)
++        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[SID])
++        self.clock += 26
++        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[],
++                         "a 26 second old heartbeat must not appear live")
++        self.assertEqual(self.e.discovered_for_owner()["connected_sessions"],[SID],
++                         "temporary silence does not revoke an approved pairing")
++        self.e.announce(SID, CID, SECRET_A, self.valid)
++        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[SID])
++        self.e.revoke(SID)
++        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[])
++        self.assertEqual(self.e.discovered_for_owner()["connected_sessions"],[])
++
+ if __name__=="__main__":
+     unittest.main()
+diff --git a/observatory/v1/test_owner_viewer.py b/observatory/v1/test_owner_viewer.py
+index b8b112c..00190ff 100644
+--- a/observatory/v1/test_owner_viewer.py
++++ b/observatory/v1/test_owner_viewer.py
+@@ -3,6 +3,7 @@ from http.server import ThreadingHTTPServer
+ from pathlib import Path
+ import json
+ import subprocess
++import tempfile
+ import threading
+ import unittest
+ from urllib.request import Request, urlopen
+@@ -13,6 +14,7 @@ from owner_viewer import (
+     handler_for, repo_read, repo_register, valid_registration,
+     ensure_repo_running, docker_command, read_owner_config,
+     PAGE, WIN_PORT, DOCKER_READER, DOCKER_SERVICE, open_owner_edge,
++    OwnerSessionArchive,
+ )
+ 
+ 
+@@ -664,5 +666,95 @@ class OwnerViewerTest(unittest.TestCase):
+         with self.assertRaises(ValueError):
+             read_owner_config(platform="linux")
+ 
++class SessionArchiveTest(unittest.TestCase):
++    SID="rs_"+"a"*32
++    CHAT="abcdefgh-01234567"
++
++    def test_persistent_archiving_readback_and_corruption(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            registry=OwnerSessionArchive(tmp)
++            self.assertEqual(registry.snapshot(), {})
++            self.assertEqual(registry.archive(self.SID,self.CHAT)["archived"],True)
++            self.assertTrue(registry.has(self.SID,self.CHAT))
++            self.assertEqual(OwnerSessionArchive(tmp).snapshot(),{self.SID:self.CHAT})
++            with self.assertRaises(ValueError):
++                registry.archive(self.SID, "wrongchat-123456")
++            with self.assertRaises(ValueError):
++                registry.restore(self.SID,"anotherchat-123")
++            self.assertEqual(registry.restore(self.SID,self.CHAT)["archived"],False)
++            self.assertFalse(registry.has(self.SID))
++            self.assertEqual(OwnerSessionArchive(tmp).snapshot(),{})
++            registry.path.write_text('{"version":1,"sessions":{"../x":"chat"}}',encoding="ascii")
++            with self.assertRaises(ValueError):
++                OwnerSessionArchive(tmp)
++
++    def test_owner_visibility_endpoints_revoke_and_restore(self):
++        with tempfile.TemporaryDirectory() as tmp:
++            registry=OwnerSessionArchive(tmp)
++            class EnrollmentStub:
++                def __init__(self):self.revoked=[]
++                def discovered_for_owner(self):
++                    return {"ok":True,"chats":[{"chat":SessionArchiveTest.CHAT,
++                       "title":"Chat","fingerprints":["a"*12],
++                       "last_seen_seconds_ago":1,"blocked":False}],
++                      "available_sessions":[SessionArchiveTest.SID],
++                      "connected_sessions":[SessionArchiveTest.SID],"session_titles":{}}
++                def revoke(self,sid):
++                    self.revoked.append(sid)
++                    return {"ok":True,"revoked":True}
++            enrollment=EnrollmentStub()
++            def data(action,sid,task):
++                return {"ok":True,"sessions":[{"reporting_session_id":self.SID,
++                    "conversation_id":self.CHAT,"route":"repo","title":"Original"}]}
++            board=DispatchBoard()
++            token="owner_only_token_"+"a"*32
++            server=ThreadingHTTPServer(("127.0.0.1",0),
++                  handler_for(token,data,"testnonce",dispatch_board=board,
++                              enrollment=enrollment,session_archive=registry))
++            thread=threading.Thread(target=server.serve_forever,daemon=True)
++            thread.start()
++            self.addCleanup(server.server_close)
++            self.addCleanup(server.shutdown)
++            self.addCleanup(lambda:thread.join(timeout=3))
++            def read(path, method="GET",data=None,origin="http://127.0.0.1:18755",
++                     auth=True):
++                headers={"Host":"127.0.0.1:18755","Origin":origin}
++                if auth:headers["Authorization"]="Bearer "+token
++                if data is not None:
++                    headers["Content-Type"]="application/json"
++                    data=json.dumps(data).encode()
++                req=Request(f"http://127.0.0.1:{server.server_port}"+path,
++                     headers=headers,method=method,data=data)
++                try:response=urlopen(req,timeout=3)
++                except HTTPError as err:response=err
++                with response:return response.status,json.loads(response.read())
++            command={"action":"archive","session":self.SID,"chat":self.CHAT}
++            self.assertEqual(read("/api/session-visibility",auth=False)[0],401)
++            self.assertEqual(read("/api/session-visibility",method="POST",
++                                  data=command,origin="https://untrusted.example")[0],403)
++            self.assertEqual(read("/api/session-visibility",method="POST",
++                                  data={**command,"admin":True})[0],403)
++            status,out=read("/api/session-visibility",method="POST",data=command)
++            self.assertEqual(status,200)
++            self.assertEqual(enrollment.revoked,[self.SID])
++            self.assertEqual(read("/api/session-visibility")[1]["archived"],
++                             {self.SID:self.CHAT})
++            self.assertEqual(read("/api/state")[1]["sessions"][0]["title"],"Original",
++                "archiving hides operational UI, not the Docker archive")
++            self.assertEqual(read("/api/notifier/discovered")[1]["chats"],[])
++            self.assertEqual(read("/api/notifier/discovered")[1]["available_sessions"],[])
++            self.assertEqual(read("/api/session-visibility",method="POST",
++                                  data={"action":"restore","session":self.SID,
++                                        "chat":"not-the-same-chat"})[0],403)
++            self.assertEqual(read("/api/session-visibility",method="POST",
++               data={"action":"restore","session":self.SID,"chat":self.CHAT})[0],200)
++            self.assertEqual(read("/api/session-visibility")[1]["archived"],{})
++            self.assertEqual(read("/api/notifier/discovered")[1]["chats"][0]["chat"],
++                             self.CHAT)
++            self.assertEqual(read("/api/session-visibility",method="POST",
++               data={"action":"disconnect","session":self.SID,"chat":self.CHAT})[0],200)
++            self.assertEqual(enrollment.revoked,[self.SID,self.SID])
++            self.assertEqual(read("/api/session-visibility")[1]["archived"],{})
++
+ if __name__=="__main__":
+     unittest.main()
+diff --git a/observatory/v1/test_owner_viewer_ui.mjs b/observatory/v1/test_owner_viewer_ui.mjs
+index d2996a9..a6ba828 100644
+--- a/observatory/v1/test_owner_viewer_ui.mjs
++++ b/observatory/v1/test_owner_viewer_ui.mjs
+@@ -13,7 +13,10 @@ for(const id of ["registerPanel","instructionPanel","pairPanel"]){
+ assert.ok(page.indexOf('<main id="workspaceGrid" class="grid">')>page.indexOf('class="action-area"'));
+ assert.match(page,/class="sticky-top"/);
+ assert.match(page,/<nav id="sessionTabBar" class="session-tab-bar"[^>]+ hidden>/);
+-assert.match(page,/<div id="sessions" role="tablist" aria-label="Подключённые сессии">/);
++assert.match(page,/<div id="sessions" role="tablist" aria-label="Подключённые доступные сессии">/);
++assert.match(page,/id="offlineSessionGroup"/);
++assert.match(page,/id="archivedSessionGroup"/);
++assert.match(page,/id="discoveryTabs"/);
+ assert.ok(page.indexOf('id="sessionTabBar"')>page.indexOf('id="toolbar"'),
+   "session tabs are under actions in the header");
+ assert.ok(page.indexOf('id="sessionTabBar"')<page.indexOf('<section id="app"'),
+@@ -93,13 +96,15 @@ const intervals=[];
+ const savedStorage=new Map();
+ const localStorage={getItem:key=>savedStorage.has(key)?savedStorage.get(key):null,
+  setItem:(key,value)=>savedStorage.set(key,String(value)),removeItem:key=>savedStorage.delete(key)};
+-const window={localStorage,addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}};
++const window={localStorage,confirm(){return true},addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}};
+ const session1="rs_"+"a".repeat(32), session2="rs_"+"b".repeat(32);
+ const task1="task_"+"c".repeat(32), task2="task_"+"d".repeat(32);
+ const requests=[],postRequests=[],approvalRequests=[];
+ let holdPair=false,releasePair=null,holdState=false,releaseState=null;
+ const responses={
+- "/api/notifier/discovered":{ok:true,chats:[]},
++ "/api/notifier/discovered":{ok:true,chats:[],
++  available_sessions:[session1,session2],connected_sessions:[session1,session2]},
++ "/api/session-visibility":{ok:true,archived:{}},
+  "/api/notifier/connect":{ok:true,created:false,approved:true,session:session1,
+    conversation_id:"discovered-chat-12345678",task_intents:false},
+  "/api/state":{sessions:[
+@@ -609,7 +614,8 @@ console.log("Owner Viewer hung-read staleness and no overlapping requests: PASS"
+ // Discovery is owner-viewer-only, creates no command, and preserves selection.
+ const discoveryChat="discovered-chat-12345678";
+ const discoveryFp="abcde1234567";
+-responses["/api/notifier/discovered"]={ok:true,chats:[{
++responses["/api/notifier/discovered"]={ok:true,
++ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[{
+  chat:discoveryChat,fingerprints:[discoveryFp],last_seen_seconds_ago:2,blocked:false
+ }]};
+ // Restore the ordinary server fixture after the preceding synthetic stale snapshot.
+@@ -625,7 +631,9 @@ let discoveryRow=elements.get("discoveredChats").children[0];
+ assert.equal(discoveryRow.children[0].href,"https://chatgpt.com/c/"+discoveryChat);
+ assert.equal(discoveryRow.children[0].textContent,discoveryChat);
+ assert.equal(discoveryRow.children[2].disabled,false);
+-responses["/api/notifier/discovered"]={ok:true,chats:[]};
++responses["/api/notifier/discovered"]={ok:true,
++ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[],
++ available_sessions:[session1,session2],connected_sessions:[session1,session2]};
+ const discoveryRequestsBefore=requests.length;
+ await discoveryRow.children[2].onclick();
+ assert.ok(requests.slice(discoveryRequestsBefore).includes("/api/notifier/connect"));
+@@ -634,7 +642,8 @@ assert.equal(vm.runInContext("chosenTask",sandbox),selectedTaskBeforeDiscovery);
+ assert.equal(postRequests.length,commandsBeforeDiscovery,"connecting a chat never sends text");
+ assert.equal(elements.get("discoveredChats").children.length,0);
+ 
+-responses["/api/notifier/discovered"]={ok:true,chats:[{
++responses["/api/notifier/discovered"]={ok:true,
++ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[{
+  chat:discoveryChat,fingerprints:[discoveryFp,"123456789abc"],last_seen_seconds_ago:1,blocked:false
+ }]};
+ await vm.runInContext("refreshDiscoveredChats()",sandbox);
+@@ -644,7 +653,8 @@ assert.match(discoveryRow.children[1].textContent,/несколько Notifier/)
+ const beforeAmbiguous=requests.length;
+ await discoveryRow.children[2].onclick();
+ assert.equal(requests.length,beforeAmbiguous);
+-responses["/api/notifier/discovered"]={ok:true,chats:[{
++responses["/api/notifier/discovered"]={ok:true,
++ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[{
+  chat:"<script>bad</script>",fingerprints:[discoveryFp],last_seen_seconds_ago:1,blocked:false
+ }]};
+ await vm.runInContext("refreshDiscoveredChats()",sandbox);
+@@ -655,7 +665,8 @@ console.log("Owner Viewer discovered-chat connection, ambiguity and safe DOM: PA
+ 
+ // Human captions remain inert text and do not replace chat/session identities.
+ const humanTitle="Проект 🧪 <b>Альфа</b>";
+-responses["/api/notifier/discovered"]={ok:true,chats:[{
++responses["/api/notifier/discovered"]={ok:true,
++ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[{
+  chat:discoveryChat,title:humanTitle,fingerprints:[discoveryFp],last_seen_seconds_ago:1,blocked:false
+ }],session_titles:{[session1]:"Проект Альфа"}};
+ const taskBeforeTitle=vm.runInContext("chosenTask",sandbox);
+@@ -810,3 +821,97 @@ assert.ok(bar.scrollLeft>beforeEdge,
+ bar.listeners.pointerup(pointer(305,"pointerup",46));
+ bar.scrollWidth=undefined;
+ console.log("Owner Viewer real-time slide, release, cancel, vertical gesture, autoscroll: PASS");
++
++
++// Real operational grouping: only fresh *approved* Notifier heartbeats count
++// as available; unrelated discovered chats are connectable but not selected.
++vm.runInContext("sessionPresenceKnown=true;sessionLiveIds=new Set(["+JSON.stringify(session1)+"]);"+
++ "sessionConnectedIds=new Set(["+JSON.stringify(session1)+","+JSON.stringify(session2)+"]);"+
++ "discoveredChats=[{chat:'available-other-12345678',title:'Свободный чат',"+
++ "fingerprints:['abcdef123456'],last_seen_seconds_ago:1,blocked:false}];"+
++ "renderSessions()",sandbox);
++assert.equal(elements.get("sessions").children.length,1,
++ "only one online registered session should appear in the main tab row");
++assert.equal(elements.get("offlineSessionGroup").hidden,false);
++assert.equal(elements.get("offlineSessions").children.length,1);
++assert.equal(elements.get("offlineSessions").children[0].textContent,"Второй чат");
++assert.equal(elements.get("discoveryTabRow").hidden,false);
++assert.equal(elements.get("discoveryTabs").children.length,1);
++assert.equal(elements.get("discoveryTabs").children[0].textContent,"Свободный чат");
++assert.ok(elements.get("discoveryTabs").children[0].attributes["aria-label"].includes("Подключить"),
++ "available but unconnected chat must offer explicit connect, not a false existing session");
++assert.match(page,/#sessions button.session.active\{[\s\S]*?outline:2px solid/);
++assert.match(page,/#discoveryTabs button\{[\s\S]*?border:1px dashed/);
++assert.match(page,/\.offline-tabs button\{[\s\S]*?color:#edcaaa/);
++
++// Archived session is removed from BOTH normal groups, but still restorable,
++// and never silently selected by a refresh.
++responses["/api/notifier/discovered"].available_sessions=[session1];
++const stateBeforeArchive=responses["/api/state"];
++responses["/api/session-visibility"]={ok:true,archived:{[session2]:"abcdefgh-22222222"}};
++await vm.runInContext("refreshSessionVisibility()",sandbox);
++vm.runInContext("renderSessions()",sandbox);
++assert.equal(elements.get("offlineSessionGroup").hidden,true);
++assert.equal(elements.get("offlineSessions").children.length,0);
++assert.equal(elements.get("archivedSessionGroup").hidden,false);
++assert.equal(elements.get("archivedSessions").children.length,1);
++assert.match(elements.get("archivedSessions").children[0].textContent,/Восстановить/);
++assert.equal(elements.get("sessions").children.some(b=>b.dataset.sessionId===session2),false);
++assert.equal(elements.get("discoveryTabs").children.some(b=>b.textContent==="Второй чат"),false);
++const beforeArchiveFetch=requests.length;
++await vm.runInContext("refresh()",sandbox);
++assert.notEqual(vm.runInContext("chosenSession",sandbox),session2,
++ "poll must not silently reselect an archived session");
++assert.equal(postRequests.length,commandsBeforeDiscovery,
++ "archive grouping and polling must never dispatch a ChatGPT message");
++
++// Restore requires a real owner POST, followed by readback; no UI-only marker.
++// Stub only the owner visibility endpoint; all other read/dispatch behavior stays.
++const originalFetch=sandbox.fetch;
++let restorePosts=[];
++sandbox.fetch=async (url,options={})=>{
++ if(url==="/api/session-visibility"&&options.method==="POST"){
++  const body=JSON.parse(options.body);restorePosts.push(body);
++  responses["/api/session-visibility"]={ok:true,archived:{}};
++  return {ok:true,json:async()=>({ok:true,session:body.session,archived:false})}
++ }
++ return originalFetch(url,options)
++};
++await elements.get("archivedSessions").children[0].onclick();
++sandbox.fetch=originalFetch;
++assert.equal(restorePosts.length,1);
++assert.equal(restorePosts[0].action,"restore");
++assert.equal(restorePosts[0].session,session2);
++assert.equal(elements.get("archivedSessionGroup").hidden,true);
++assert.equal(elements.get("offlineSessionGroup").hidden,false);
++assert.equal(elements.get("offlineSessions").children.length,1);
++console.log("Owner Viewer online / unconnected / offline / archive groups: PASS");
++
++// Archiving the selected session requires owner POST + readback and selects a
++// non-archived fallback. The session keeps its original Docker history.
++const originalArchiveFetch=sandbox.fetch;
++const archivedPost=[];
++sandbox.fetch=async (url,options={})=>{
++ if(url==="/api/session-visibility"&&options.method==="POST"){
++  const body=JSON.parse(options.body);
++  archivedPost.push(body);
++  assert.equal(body.action,"archive");
++  assert.equal(body.session,session1);
++  responses["/api/session-visibility"]={ok:true,
++   archived:{[session1]:"abcdefgh-01234567"}};
++  return {ok:true,json:async()=>({ok:true,archived:true,session:session1})}
++ }
++ return originalArchiveFetch(url,options)
++};
++vm.runInContext("chosenSession="+JSON.stringify(session1)+";renderSessions()",sandbox);
++await elements.get("archiveSession").listeners.click();
++sandbox.fetch=originalArchiveFetch;
++assert.equal(archivedPost.length,1);
++assert.equal(vm.runInContext("chosenSession",sandbox),session2,
++ "archive of selected session must choose non-archived fallback");
++assert.equal(elements.get("sessions").children.some(b=>b.dataset.sessionId===session1),false);
++assert.equal(elements.get("offlineSessions").children.some(b=>b.textContent==="Первый чат"),false);
++assert.equal(elements.get("archivedSessionGroup").hidden,false);
++assert.equal(postRequests.length,commandsBeforeDiscovery,
++ "archiving may revoke capabilities but never dispatch ChatGPT commands");
++console.log("Owner Viewer owner-confirmed archive and safe fallback: PASS");

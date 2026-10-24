@@ -20,6 +20,7 @@ PROOF = re.compile(r"[0-9a-f]{64}\Z")
 MAX_PENDING = 32
 MAX_DISCOVERED = 200
 PENDING_TTL = 180
+APPROVED_LIVE_TTL = 25  # Notifier enroll heartbeat every 7 sec; do not show 3-min stale tabs.
 FILENAME = "approved-notifiers.json"
 
 
@@ -45,6 +46,7 @@ class Enrollment:
         self.pending = {}
         self.discovered = {}
         self.approved_titles = {}
+        self.approved_live = {}  # transient heartbeat per approved session
         self.cached_pair = {}
         self.approved = self._load()
 
@@ -96,11 +98,15 @@ class Enrollment:
         for sid, entry in list(self.approved_titles.items()):
             if sid not in self.approved or entry["last_seen"] < limit:
                 del self.approved_titles[sid]
+        for sid, stamp in list(self.approved_live.items()):
+            if sid not in self.approved or stamp < self.clock() - APPROVED_LIVE_TTL:
+                del self.approved_live[sid]
 
     def _remember_discovery(self, chat, digest, title=None):
         # Current-tab presence only. Titles stay in owner memory, not approvals.
         for sid, grant in self.approved.items():
             if grant["chat"] == chat and hmac.compare_digest(grant["sha256"], digest):
+                self.approved_live[sid] = self.clock()
                 self.discovered.pop((chat, digest), None)
                 if title is not None:
                     self.approved_titles[sid] = {"title": title, "last_seen": self.clock()}
@@ -140,6 +146,8 @@ class Enrollment:
                 item["fingerprints"].sort()
             return {"ok": True, "chats": sorted(grouped.values(),
                      key=lambda i: (i["last_seen_seconds_ago"], i["chat"])),
+                    "available_sessions": sorted(self.approved_live),
+                    "connected_sessions": sorted(self.approved),
                     "session_titles": {sid: entry["title"] for sid, entry in self.approved_titles.items()
                                        if entry["title"]}}
 
@@ -282,4 +290,5 @@ class Enrollment:
             self.pending={key:value for key,value in self.pending.items() if key[0]!=sid}
             self.cached_pair.pop(sid,None)
             self.approved_titles.pop(sid, None)
+            self.approved_live.pop(sid, None)
             return {"ok":True,"revoked":removed is not None}

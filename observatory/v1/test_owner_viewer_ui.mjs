@@ -13,7 +13,10 @@ for(const id of ["registerPanel","instructionPanel","pairPanel"]){
 assert.ok(page.indexOf('<main id="workspaceGrid" class="grid">')>page.indexOf('class="action-area"'));
 assert.match(page,/class="sticky-top"/);
 assert.match(page,/<nav id="sessionTabBar" class="session-tab-bar"[^>]+ hidden>/);
-assert.match(page,/<div id="sessions" role="tablist" aria-label="Подключённые сессии">/);
+assert.match(page,/<div id="sessions" role="tablist" aria-label="Подключённые доступные сессии">/);
+assert.match(page,/id="offlineSessionGroup"/);
+assert.match(page,/id="archivedSessionGroup"/);
+assert.match(page,/id="discoveryTabs"/);
 assert.ok(page.indexOf('id="sessionTabBar"')>page.indexOf('id="toolbar"'),
   "session tabs are under actions in the header");
 assert.ok(page.indexOf('id="sessionTabBar"')<page.indexOf('<section id="app"'),
@@ -93,13 +96,15 @@ const intervals=[];
 const savedStorage=new Map();
 const localStorage={getItem:key=>savedStorage.has(key)?savedStorage.get(key):null,
  setItem:(key,value)=>savedStorage.set(key,String(value)),removeItem:key=>savedStorage.delete(key)};
-const window={localStorage,addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}};
+const window={localStorage,confirm(){return true},addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}};
 const session1="rs_"+"a".repeat(32), session2="rs_"+"b".repeat(32);
 const task1="task_"+"c".repeat(32), task2="task_"+"d".repeat(32);
 const requests=[],postRequests=[],approvalRequests=[];
 let holdPair=false,releasePair=null,holdState=false,releaseState=null;
 const responses={
- "/api/notifier/discovered":{ok:true,chats:[]},
+ "/api/notifier/discovered":{ok:true,chats:[],
+  available_sessions:[session1,session2],connected_sessions:[session1,session2]},
+ "/api/session-visibility":{ok:true,archived:{}},
  "/api/notifier/connect":{ok:true,created:false,approved:true,session:session1,
    conversation_id:"discovered-chat-12345678",task_intents:false},
  "/api/state":{sessions:[
@@ -609,7 +614,8 @@ console.log("Owner Viewer hung-read staleness and no overlapping requests: PASS"
 // Discovery is owner-viewer-only, creates no command, and preserves selection.
 const discoveryChat="discovered-chat-12345678";
 const discoveryFp="abcde1234567";
-responses["/api/notifier/discovered"]={ok:true,chats:[{
+responses["/api/notifier/discovered"]={ok:true,
+ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[{
  chat:discoveryChat,fingerprints:[discoveryFp],last_seen_seconds_ago:2,blocked:false
 }]};
 // Restore the ordinary server fixture after the preceding synthetic stale snapshot.
@@ -625,7 +631,9 @@ let discoveryRow=elements.get("discoveredChats").children[0];
 assert.equal(discoveryRow.children[0].href,"https://chatgpt.com/c/"+discoveryChat);
 assert.equal(discoveryRow.children[0].textContent,discoveryChat);
 assert.equal(discoveryRow.children[2].disabled,false);
-responses["/api/notifier/discovered"]={ok:true,chats:[]};
+responses["/api/notifier/discovered"]={ok:true,
+ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[],
+ available_sessions:[session1,session2],connected_sessions:[session1,session2]};
 const discoveryRequestsBefore=requests.length;
 await discoveryRow.children[2].onclick();
 assert.ok(requests.slice(discoveryRequestsBefore).includes("/api/notifier/connect"));
@@ -634,7 +642,8 @@ assert.equal(vm.runInContext("chosenTask",sandbox),selectedTaskBeforeDiscovery);
 assert.equal(postRequests.length,commandsBeforeDiscovery,"connecting a chat never sends text");
 assert.equal(elements.get("discoveredChats").children.length,0);
 
-responses["/api/notifier/discovered"]={ok:true,chats:[{
+responses["/api/notifier/discovered"]={ok:true,
+ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[{
  chat:discoveryChat,fingerprints:[discoveryFp,"123456789abc"],last_seen_seconds_ago:1,blocked:false
 }]};
 await vm.runInContext("refreshDiscoveredChats()",sandbox);
@@ -644,7 +653,8 @@ assert.match(discoveryRow.children[1].textContent,/несколько Notifier/)
 const beforeAmbiguous=requests.length;
 await discoveryRow.children[2].onclick();
 assert.equal(requests.length,beforeAmbiguous);
-responses["/api/notifier/discovered"]={ok:true,chats:[{
+responses["/api/notifier/discovered"]={ok:true,
+ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[{
  chat:"<script>bad</script>",fingerprints:[discoveryFp],last_seen_seconds_ago:1,blocked:false
 }]};
 await vm.runInContext("refreshDiscoveredChats()",sandbox);
@@ -655,7 +665,8 @@ console.log("Owner Viewer discovered-chat connection, ambiguity and safe DOM: PA
 
 // Human captions remain inert text and do not replace chat/session identities.
 const humanTitle="Проект 🧪 <b>Альфа</b>";
-responses["/api/notifier/discovered"]={ok:true,chats:[{
+responses["/api/notifier/discovered"]={ok:true,
+ available_sessions:[session1,session2],connected_sessions:[session1,session2],chats:[{
  chat:discoveryChat,title:humanTitle,fingerprints:[discoveryFp],last_seen_seconds_ago:1,blocked:false
 }],session_titles:{[session1]:"Проект Альфа"}};
 const taskBeforeTitle=vm.runInContext("chosenTask",sandbox);
@@ -810,3 +821,97 @@ assert.ok(bar.scrollLeft>beforeEdge,
 bar.listeners.pointerup(pointer(305,"pointerup",46));
 bar.scrollWidth=undefined;
 console.log("Owner Viewer real-time slide, release, cancel, vertical gesture, autoscroll: PASS");
+
+
+// Real operational grouping: only fresh *approved* Notifier heartbeats count
+// as available; unrelated discovered chats are connectable but not selected.
+vm.runInContext("sessionPresenceKnown=true;sessionLiveIds=new Set(["+JSON.stringify(session1)+"]);"+
+ "sessionConnectedIds=new Set(["+JSON.stringify(session1)+","+JSON.stringify(session2)+"]);"+
+ "discoveredChats=[{chat:'available-other-12345678',title:'Свободный чат',"+
+ "fingerprints:['abcdef123456'],last_seen_seconds_ago:1,blocked:false}];"+
+ "renderSessions()",sandbox);
+assert.equal(elements.get("sessions").children.length,1,
+ "only one online registered session should appear in the main tab row");
+assert.equal(elements.get("offlineSessionGroup").hidden,false);
+assert.equal(elements.get("offlineSessions").children.length,1);
+assert.equal(elements.get("offlineSessions").children[0].textContent,"Второй чат");
+assert.equal(elements.get("discoveryTabRow").hidden,false);
+assert.equal(elements.get("discoveryTabs").children.length,1);
+assert.equal(elements.get("discoveryTabs").children[0].textContent,"Свободный чат");
+assert.ok(elements.get("discoveryTabs").children[0].attributes["aria-label"].includes("Подключить"),
+ "available but unconnected chat must offer explicit connect, not a false existing session");
+assert.match(page,/#sessions button.session.active\{[\s\S]*?outline:2px solid/);
+assert.match(page,/#discoveryTabs button\{[\s\S]*?border:1px dashed/);
+assert.match(page,/\.offline-tabs button\{[\s\S]*?color:#edcaaa/);
+
+// Archived session is removed from BOTH normal groups, but still restorable,
+// and never silently selected by a refresh.
+responses["/api/notifier/discovered"].available_sessions=[session1];
+const stateBeforeArchive=responses["/api/state"];
+responses["/api/session-visibility"]={ok:true,archived:{[session2]:"abcdefgh-22222222"}};
+await vm.runInContext("refreshSessionVisibility()",sandbox);
+vm.runInContext("renderSessions()",sandbox);
+assert.equal(elements.get("offlineSessionGroup").hidden,true);
+assert.equal(elements.get("offlineSessions").children.length,0);
+assert.equal(elements.get("archivedSessionGroup").hidden,false);
+assert.equal(elements.get("archivedSessions").children.length,1);
+assert.match(elements.get("archivedSessions").children[0].textContent,/Восстановить/);
+assert.equal(elements.get("sessions").children.some(b=>b.dataset.sessionId===session2),false);
+assert.equal(elements.get("discoveryTabs").children.some(b=>b.textContent==="Второй чат"),false);
+const beforeArchiveFetch=requests.length;
+await vm.runInContext("refresh()",sandbox);
+assert.notEqual(vm.runInContext("chosenSession",sandbox),session2,
+ "poll must not silently reselect an archived session");
+assert.equal(postRequests.length,commandsBeforeDiscovery,
+ "archive grouping and polling must never dispatch a ChatGPT message");
+
+// Restore requires a real owner POST, followed by readback; no UI-only marker.
+// Stub only the owner visibility endpoint; all other read/dispatch behavior stays.
+const originalFetch=sandbox.fetch;
+let restorePosts=[];
+sandbox.fetch=async (url,options={})=>{
+ if(url==="/api/session-visibility"&&options.method==="POST"){
+  const body=JSON.parse(options.body);restorePosts.push(body);
+  responses["/api/session-visibility"]={ok:true,archived:{}};
+  return {ok:true,json:async()=>({ok:true,session:body.session,archived:false})}
+ }
+ return originalFetch(url,options)
+};
+await elements.get("archivedSessions").children[0].onclick();
+sandbox.fetch=originalFetch;
+assert.equal(restorePosts.length,1);
+assert.equal(restorePosts[0].action,"restore");
+assert.equal(restorePosts[0].session,session2);
+assert.equal(elements.get("archivedSessionGroup").hidden,true);
+assert.equal(elements.get("offlineSessionGroup").hidden,false);
+assert.equal(elements.get("offlineSessions").children.length,1);
+console.log("Owner Viewer online / unconnected / offline / archive groups: PASS");
+
+// Archiving the selected session requires owner POST + readback and selects a
+// non-archived fallback. The session keeps its original Docker history.
+const originalArchiveFetch=sandbox.fetch;
+const archivedPost=[];
+sandbox.fetch=async (url,options={})=>{
+ if(url==="/api/session-visibility"&&options.method==="POST"){
+  const body=JSON.parse(options.body);
+  archivedPost.push(body);
+  assert.equal(body.action,"archive");
+  assert.equal(body.session,session1);
+  responses["/api/session-visibility"]={ok:true,
+   archived:{[session1]:"abcdefgh-01234567"}};
+  return {ok:true,json:async()=>({ok:true,archived:true,session:session1})}
+ }
+ return originalArchiveFetch(url,options)
+};
+vm.runInContext("chosenSession="+JSON.stringify(session1)+";renderSessions()",sandbox);
+await elements.get("archiveSession").listeners.click();
+sandbox.fetch=originalArchiveFetch;
+assert.equal(archivedPost.length,1);
+assert.equal(vm.runInContext("chosenSession",sandbox),session2,
+ "archive of selected session must choose non-archived fallback");
+assert.equal(elements.get("sessions").children.some(b=>b.dataset.sessionId===session1),false);
+assert.equal(elements.get("offlineSessions").children.some(b=>b.textContent==="Первый чат"),false);
+assert.equal(elements.get("archivedSessionGroup").hidden,false);
+assert.equal(postRequests.length,commandsBeforeDiscovery,
+ "archiving may revoke capabilities but never dispatch ChatGPT commands");
+console.log("Owner Viewer owner-confirmed archive and safe fallback: PASS");

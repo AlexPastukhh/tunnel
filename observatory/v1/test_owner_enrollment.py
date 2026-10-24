@@ -255,5 +255,24 @@ class TabTitleTests(unittest.TestCase):
         self.e.connect_discovered(CID, FINGERPRINT_A, self.register, self.valid)
         self.assertEqual(self.e.discovered_for_owner()["session_titles"], {})
 
+    def test_live_connected_presence_expires_faster_than_discovery(self):
+        self.e.discover(CID, SECRET_A)
+        self.e.connect_discovered(CID, FINGERPRINT_A, self.register, self.valid)
+        self.assertEqual(self.e.discovered_for_owner()["connected_sessions"],[SID])
+        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[],
+                         "approval alone does not mean the browser is open")
+        self.e.announce(SID, CID, SECRET_A, self.valid)
+        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[SID])
+        self.clock += 26
+        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[],
+                         "a 26 second old heartbeat must not appear live")
+        self.assertEqual(self.e.discovered_for_owner()["connected_sessions"],[SID],
+                         "temporary silence does not revoke an approved pairing")
+        self.e.announce(SID, CID, SECRET_A, self.valid)
+        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[SID])
+        self.e.revoke(SID)
+        self.assertEqual(self.e.discovered_for_owner()["available_sessions"],[])
+        self.assertEqual(self.e.discovered_for_owner()["connected_sessions"],[])
+
 if __name__=="__main__":
     unittest.main()
