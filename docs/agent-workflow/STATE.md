@@ -2,6 +2,8 @@
 
 Срез: **25 октября 2026 года, Asia/Bangkok**. Последний registry-сбор через G2: 25 октября, 01:12:26 (+07:00); последний проектный файловый тест: 24 октября, 22:06:40 (+07:00). Это документированный срез; действующие права задаёт runtime.
 
+Актуальная точка продолжения: [хендофф WF-022](handoffs/handoff-20261025-network-direct-mcp.md). Временный direct MCP тест ещё не выполнен; поздние уточнения имеют приоритет над ранней Godot-вехой.
+
 ## Текущая веха
 
 **Узкий файловый доступ G2 к одному Godot-проекту проверен. Игра и редактор в этой проверке не запускались.**
@@ -186,6 +188,14 @@ PR-A-13 assistant/pending — direct запуск защищённого install
 По сети переиспользованы существующие probes, Docker/manual JSON. Уточнены различия bridge/egress/firewall layers; новый /proc read не нашёл non-loopback IPv6 default. Выбор конкретных правил требует Windows ActiveStore/Hyper-V/backend metadata. Подготовлен [Read-RepoNetworkPolicy.ps1](tools/Read-RepoNetworkPolicy.ps1): selected read-only fields, без raw credentials/proxy URLs/command lines; Windows parser/исполнение нового collector не проверены. Нет причины выдавать NET_ADMIN/socket в Repo для сбора.
 
 Кандидат политики сохраняет нужные internet/DNS/API/data flows, ограничивает ненужный host/LAN/control доступ, учитывает raw protocols и исключения по задачам. Это не новый принятый FR и не готовые firewall commands. Junction PR-A-12 отложен пользователем; отдельный Windows-профиль Repo не предлагается. Сетевые правила, запуск нового MCP entry, Windows/G2, runtime/ACL/mounts/Observatory/публикация не выполнялись.
+
+## Передача: реальный direct MCP ещё не проверен — WF-022
+
+Пользователь поручил проверить прямое подключение, затем запросил краткий хендофф для чистого чата. [Точная точка продолжения и порядок чтения](handoffs/handoff-20261025-network-direct-mcp.md).
+
+Живой tool-command ancestry по /proc в 2026-10-24T21:45:30Z по-прежнему показывает installed DC PID149 под Bridge PID137, UID1000. Переключения/Stop/Restore не было. Подготовка временного actual-client теста сохранена как [черновик C-05](reviews/direct-mcp-client-test-20261025.draft.md) и [блокированный черновик helper](tools/Switch-RepoMcpTest.draft.ps1): Linux read-only preflight проверен; Windows AST/исполнение и точные ручные команды не завершены. Не выдавать draft как готовый скрипт.
+
+Ближайшее действие — закончить review/preflight и независимый ручной возврат, затем провести уже запрошенный временный тест руками пользователя. Постоянное удаление Bridge, применение C-04/сетевых правил не приняты. Network collector ещё не запускался; junction/Godot отложены. Все Windows/G2-действия остаются вне автоматического Repo-маршрута.
 
 ## Ближайший план
 

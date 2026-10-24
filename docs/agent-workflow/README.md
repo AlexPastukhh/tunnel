@@ -57,4 +57,6 @@
 
 ## Передача контекста
 
+- [Актуальный хендофф: сеть и прямой MCP, WF-022](handoffs/handoff-20261025-network-direct-mcp.md). Реальный direct тест ещё не выполнен; helper сохранён как draft.
+
 - [Хендофф для нового чата: Repo, Windows/G2 и общий workflow, 25 октября 2026](handoffs/handoff-20261025-repo-g2.md) — датированный срез после `80f500e`; текущие изменения и решения продолжать вести в REQUIREMENTS/STATE/JOURNAL.

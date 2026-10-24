@@ -312,6 +312,18 @@ PR-A-12 assistant/pending: адресная карта links/targets/Repo-пре
 
 STATE/C-04/общий отчёт дополнены текущим выбором и связями альтернатив. Новые blanket FR/приёмка C-04 не объявлены. Junction metadata/targets отложены; Windows/G2, настройки/ACL/mounts/network/runtime deployment/реальный restart/Observatory/CI/push не выполнялись. Проверки — relative links, read-back, diff/cached exact bytes, source fingerprints и native MCP comparison; локально фиксируются только относящиеся файлы. Для завершения выбора сетевых мер нужен ручной network JSON, для удаления Bridge — отдельная actual-client compatibility unit перед применением.
 
+## WF-022 — 2026-10-25: подготовка actual-client теста и краткий хендофф
+
+**Источник:** пользователь предположил связь Bridge с UI и поручил проверить прямое подключение; затем из-за лимита контекста попросил хендофф чистому чату, предпочитая ссылки на имеющиеся документы. Исходный HEAD `7b31000a9a1a2a33b7c8a91e09806e4877a79521`, дерево/index чистые.
+
+Адресно прочитаны source-копии текущих controller/run/probe и установленный DC server.js. Controller с совпавшим live hash допускает dot-source с ранним return перед Menu; discovery привязан к точному Repo ID. Старый startup probe исполняет Bridge и меняет marker/DC/Git state, поэтому не выбран как read-only preflight. Installed DC связывает get_config с config-editor, read_file с file-preview: UI metadata скрывает Bridge, а Windows GUI/Observatory он не строит. Из этого не выведена actual-client совместимость.
+
+Подготовлены, но не завершены [C-05 draft](reviews/direct-mcp-client-test-20261025.draft.md) и [helper draft](tools/Switch-RepoMcpTest.draft.ps1): временные direct/Bridge CLI overrides прежнего narrow runtime/profile/container, read-only guards до Stop, owner/PID/creation/Repo identity и независимый ручной Restore. Helper намеренно блокирован throw. Inline Linux read-only JavaScript checks фактически прошли; Windows AST/исполнение/ручные команды не проверены. Не запускались старый probe, новый helper или Windows/G2-инструменты.
+
+Отдельно собственная /proc ancestry реального tool-command в `2026-10-24T21:45:30.210585Z` показала Python258756 → bash258752 → installed DC149 → Bridge137, UID1000. Это подтверждает прежнюю serving chain независимо от cached get_config/systemInfo. Реальное direct переключение, Stop/Restore, пользовательская UI-проверка не выполнялись.
+
+Сохранён [краткий хендофф](handoffs/handoff-20261025-network-direct-mcp.md), обновлены README/STATE. В нём ссылки вместо повторного обзора, точный незавершённый шаг и границы: ручной Windows-тест уже запрошен, постоянные меры не приняты; network collector ещё не запускался; старый host JSON повторять не требуется; junction/Godot отложены. Проверки этого сохранения — read-back/hash, diff, ссылки и только свои staged paths; локальная Git-фиксация без push. Настройки/ACL/mounts/network/действующий runtime не менялись, сервисы/туннели/контейнер не перезапускались.
+
 ## Формат следующей записи
 
 Новая запись получает следующий WF-ID и содержит: дату; цель; источник разрешения/решения; фактически выполненное действие; проверку и её пределы; затронутые пути/версию; резервную копию/откат при необходимости; следующий шаг. Не записывать запланированное действие как выполненное.
