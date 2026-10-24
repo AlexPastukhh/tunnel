@@ -2,8 +2,9 @@
 
 ## Назначение и фактический статус
 
-SOURCE PREPARED / SYNTHETIC CHECKS PASS. Установленный Windows owner Viewer НЕ изменён.
-В локальной рабочей копии этот V1-каталог untracked. Ничего не публиковать/не коммитить без разрешения.
+Актуализация 25.10.2026: исходники V1 отслеживаются Git. Пользователь предоставил startup log с подготовленным owner-private launcher и успешно выполнил owner API helper из Windows PowerShell без ручного ввода bearer. Это подтверждает работу данного owner-local пути по предоставленному результату; точный установленный SHA, все сценарии Edge file:// и полный guest-negative/security smoke не подтверждены.
+
+Текущий состав, source SHA и ограничения — в [README V1](README.md); выбор guarded installer — в [Windows setup](OWNER_VIEWER_MANUAL_SETUP.md). Следующие инструкции/hashes описывают выпуск auto-login 24.10, а не последнюю версию main. Старый auto-login installer нельзя применять к более новому Viewer без проверки его ожидаемой базы.
 
 Пользователь хочет временно убрать необходимость вводить Viewer code и сохранить
 полную возможность возврата авторизации. Реализация НЕ отключает Bearer-проверки
@@ -47,12 +48,13 @@ API и не вводит unauthenticated localhost доступ для G2/дру
 Файловый bootstrap требует отдельно доверенного владельца Windows;
 не защищает от вредоносного кода с доступом *под тем же SID*.
 
-## Статус тестов
+## Синтетические проверки при подготовке 24.10.2026
 
 Repo Python: 69 HTTP unit tests PASS; отдельные 4 теста
 test_owner_autologin.py PASS. Node UI synthetic PASS (5 сценариев).
-Python AST/py_compile и JS syntax PASS. Реальные Windows PowerShell ACL,
-Edge file:// postMessage, G2-negative и инсталляция пока НЕ ПРОВЕДЕНЫ.
+Python AST/py_compile и JS syntax PASS. При подготовке этой версии Windows PowerShell ACL,
+Edge file:// postMessage, G2-negative и установка не проверялись. Последующее
+подтверждение owner-local API и границы его доказательства описаны выше.
 
 ## Установка без затрагивания Docker, Repo/G2 Tunnel, archive
 
@@ -109,7 +111,7 @@ Repo credentials и Git в ходе этой задачи. Не публиков
 В теле HTML **нет токена**. Запросы `/api/*` продолжают отклонять
 cross-site и требуют прежний Bearer; POST owner endpoints не менялись.
 
-Актуальный кандидат SHA-256 `owner_viewer.py`:
+SHA-256 кандидата hotfix на момент подготовки (не текущий main) `owner_viewer.py`:
 `a3eb75f113a6152adbb3381d6a9b6cd845dec4e927c7b20c80885968e635b48d`
 Проверенный SHA в `Apply-FortisObservatoryOwnerAutoLogin.ps1` синхронизирован.
 
@@ -117,5 +119,6 @@ cross-site и требуют прежний Bearer; POST owner endpoints не м
 запустить `-Action Preview`, затем `-Action Install`; сохранить путь
 `BACKUP=...` из результата, запустить только Viewer в owner-launch.
 Остальные Repo, G2, Docker, архив, ACL и Notifier не менять.
-Реальное принятие hotfix в Edge ещё не подтверждено пользователем;
-проверки синтетические и не заменяют реальную проверку.
+На момент подготовки hotfix его принятие в Edge не было подтверждено.
+Позднее пользователь подтвердил работу owner-local API; это не подтверждает
+каждый сценарий Edge bootstrap или точную установленную версию hotfix.

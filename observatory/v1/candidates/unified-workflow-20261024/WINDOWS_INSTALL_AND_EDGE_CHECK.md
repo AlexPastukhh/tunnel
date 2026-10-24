@@ -1,5 +1,7 @@
 # Fortis Unified Workflow 2026-10-24 — Windows owner installation / Edge smoke
 
+> Historical rollout instructions for the 2026-10-24 unified package. As of 2026-10-25 main has a newer Viewer/enrollment and Notifier 5.7.34; see [current status](../../README.md) and [setup entry point](../../OWNER_VIEWER_MANUAL_SETUP.md). User-reported owner API execution does not identify the installed SHA or complete Edge smoke. Verify the installer base before using any commands below; this is not a latest-version install recipe.
+
 **Status: Repo sources deployed and source tests PASS; owner-protected Windows installation and Edge smoke need the owner's action.** Do not run on G2 or as Administrator. No Docker/tunnel changes.
 
 ## What has been updated in Repo

@@ -1,5 +1,7 @@
 # Observatory V1 — unified textbox and session tabs candidate
 
+> Status update, 2026-10-25: this is a dated release package. Its source was subsequently applied to main, and newer sliding-tabs/session-groups changes superseded its Viewer bytes. Current source, user-reported Windows/API evidence and unverified install details are maintained in the [V1 README](../../README.md). Do not treat the original NOT INSTALLED status below as a current installation inventory or reapply this patch to newer main.
+
 **SOURCE-ONLY CANDIDATE. NOT INSTALLED IN WINDOWS OWNER VIEWER.** Prepared 2026-10-24 from committed Observatory source `38f705be33a7eb4123b0fc73f1fafc8b98da6e29`. Neither Windows Viewer, Docker, G2 nor the two Repo tunnels was restarted or modified by this package.
 
 ## Included

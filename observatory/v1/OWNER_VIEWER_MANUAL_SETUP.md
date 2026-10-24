@@ -1,5 +1,30 @@
 # Fortis Observatory — обновление Viewer из alexa
 
+## Актуальная точка входа — 25.10.2026
+
+Текущее состояние компонентов, owner API, результаты пользовательского теста и открытые проблемы ведутся в [главном README V1](README.md). Ниже сохранена история обновлений; старые команды/SHA не являются универсальной инструкцией для текущего main.
+
+Текущие source SHA-256 (установленная Windows-копия отдельно не сверена):
+
+| Файл | SHA-256 |
+|---|---|
+| `owner_viewer.py` | `eae6879f7559b6b540acbdbaa3ced1c031935883aa6793f8a5901a1d658b3e05` |
+| `owner_notifier_bridge.py` | `818089f6796fb2877dcce8535953ec179072b217ae62cb2afb3c189a337ba195` |
+| `owner_dispatch.py` | `9da1bc2a223804660c2a9ea9033b86889dca7119d3a1b1dab18c85565360fea5` |
+| `owner_enrollment.py` | `873ec864c5996234e930c3ceaf9fb75cbcdea945b7b84c76ea47d1cef164b0d3` |
+| `Start-FortisObservatoryAuto.cmd` | `857647ef4b4efdda6334cb7772ce899cfdc5061203b3dfa641efad94f457a9e1` |
+| `Enable-FortisObservatoryAutoStart.ps1` | `003a65ec88a10810545d01c8aa69e0af6827d35ba8948e93b6e80dd8428bfd82` |
+
+Main Viewer/enrollment соответствуют [пакету session-groups](candidates/session-groups-20261024/README.md), который включает предшествующие изменения unified workflow и sliding tabs. Этот installer ожидает конкретную предыдущую версию; неизвестную или уже более новую установленную копию не перезаписывать по старой инструкции. Использовать guarded Preview и согласованные source/install SHA; отказ проверки не обходить. Pinned README/manifest пакетов оставлены как датированные release evidence.
+
+Windows checkout пользователя: `C:\Users\alexa\Repos\tunnel\observatory\v1`; защищённая установка: `%LOCALAPPDATA%\FortisObservatoryV1\Viewer`. Ручную установку выполняет владелец alexa обычным PowerShell. Требуются backup, сохранённый идентификатор отката и readback. В рамках актуализации документации Viewer, Docker и туннели не перезапускались; ACL, ключи и Windows-файлы установки не менялись.
+
+Для Notifier текущая source-сборка — 5.7.34 в соседнем репозитории. Обновлять существующий script/Loader с сохранением identity/GM-данных и проверять runtime в каждом целевом профиле. Более старый Notifier может исполнить `mode=send` текстом; наличие owner API само по себе не гарантирует файловый путь. Выполненный пользователем API-тест был отменён им; файловая доставка не подтверждена. Перед новым явно согласованным Send проверить карточку через `Файл` без отправки; старый test helper блокирует повтор предыдущей попытки.
+
+## История обновлений
+
+Даты ниже описывают состояние на тот момент. Например, «не установлено» и PID в старой записи не являются текущим live-статусом.
+
 ## 22.10.2026 — «Чаты из браузера» свёрнуты при загрузке (SOURCE READY)
 
 В owner_viewer.py блок discoveryPanel переведён на native details/summary

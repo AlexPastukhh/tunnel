@@ -17,6 +17,7 @@
 | Как запустить, остановить или восстановить туннель? | [OPERATIONS](OPERATIONS.md) | [ACCESS](ACCESS.md) |
 | Какие файлы, процессы и сети доступны чату? | [ACCESS](ACCESS.md) | [ARCHITECTURE](ARCHITECTURE.md) |
 | Где история вызовов, как блокировать нежелательные операции? | [AUDIT](AUDIT.md) | [ACCESS](ACCESS.md) |
+| Как подключать/архивировать сессии и отправлять команды без Observatory UI? | [Observatory V1](../observatory/v1/README.md) | [Windows setup](../observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md) |
 | Есть ли монитор и GUI? | [OBSERVABILITY](OBSERVABILITY.md) | [AUDIT](AUDIT.md) |
 | Как создать новый hosted MCP-плагин? | [WORKFLOW](WORKFLOW.md) | [SITES](SITES.md) |
 | Где править и как доставить изменение? | [INSTRUCTIONS](INSTRUCTIONS.md) | [PROVENANCE](PROVENANCE.md) |
@@ -29,7 +30,7 @@
 - **[CURRENT_STATE](CURRENT_STATE.md)** — только проверенное состояние с датой; не источник живых разрешений.
 - **[ACCESS](ACCESS.md)** — источники полномочий, ограничения Windows/Docker, ключи, интернет и порядок изменения доступа.
 - **[AUDIT](AUDIT.md)** — фактические ограничения истории вызовов и *проектируемые*, пока не реализованные журнал/Policy Gate.
-- **[OBSERVABILITY](OBSERVABILITY.md)** — существующий read-only монитор и его границы; не система разрешений.
+- **[OBSERVABILITY](OBSERVABILITY.md)** — навигация по V1 и датированным read-only мониторам; не система разрешений. Текущие сессии/owner API и результаты проверок принадлежат [README V1](../observatory/v1/README.md).
 - **[OPERATIONS](OPERATIONS.md)** — эксплуатационные команды, запуск/остановка/восстановление.
 - **[SITES](SITES.md)** — идентификаторы, реализация и состояние **hosted** Sites, отдельно от native.
 - **[WORKFLOW](WORKFLOW.md)** — создание нового Site/MCP-плагина по актуальным skills.

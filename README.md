@@ -16,6 +16,7 @@
 | Запустить, остановить, восстановить подключение | [Операции](docs/OPERATIONS.md) |
 | Определить права, mounts, ключи и сетевые границы | [Доступ](docs/ACCESS.md) |
 | Узнать, что логируется и как проектируется запрет операций | [Аудит и политика](docs/AUDIT.md) |
+| Работать с сессиями, архивом и командами Observatory | [Observatory V1](observatory/v1/README.md) |
 | Посмотреть диагностику и планы GUI | [Наблюдаемость](docs/OBSERVABILITY.md) |
 | Создать плагин / обновить существующие компоненты | [Создание](docs/WORKFLOW.md) / [Обновление](docs/INSTRUCTIONS.md) |
 | Пользоваться Snapshot Bridge / Broker | [Snapshot](docs/SNAPSHOT.md), [Broker runbook](runtime/broker/README.md) |

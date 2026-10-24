@@ -1,5 +1,7 @@
 # Tunnel Observatory - Prototype 1
 
+> For the current session archive, Notifier integration and owner-command API, start with [Observatory V1](v1/README.md). This P1 runbook and its live/source statuses are historical; P1 and V1 are separate components.
+
 > This page preserves the original P1 runbook. The current repository copy and Repo collector status are described in [README_DUAL_TUNNEL.md](README_DUAL_TUNNEL.md). E39 fixed and tested automatic Repo discovery on Windows; the known legacy P1 installation was not replaced or started.
 
 Status: working live shadow prototype.

@@ -83,7 +83,8 @@ Site — отдельный размещённый MCP proxy с диагност
 | HOST | Windows ACL / учётная запись процесса + обязательная проверка вызовов (если будет внедрена) | Docker-изоляция Repo не распространяется на HOST |
 | Repo | Docker mounts/identity/network + ограничения доступного shell + обязательная проверка вызовов (если будет внедрена) | Файловый MCP allowlist сам по себе не ограничивает терминал |
 | Hosted Site | Авторизация Site, upstream-auth, gate для **своего** маршрута | Нельзя заблокировать native-путь одним Site gate |
-| Observatory | Read-only диагностика, история метрик и инцидентов | Не блокирует вызовы и не гарантирует полный аудит |
+| Observatory P1/activity | Read-only диагностика, история метрик и инцидентов | Не блокирует вызовы и не гарантирует полный аудит |
+| [Observatory V1](../observatory/v1/README.md) | Owner Bearer API, Host/Origin-проверки и scoped Notifier grant; Docker-архив отдельно | Не обязательный MCP gate; Repo/G2 не получают owner-полномочия от одного чтения архива |
 | Broker / Bridge | Отдельная политика выбора/экспорта snapshot | Не ограничивает прямой доступ Repo к mounts |
 
 **Принудительный audit/policy enforcement на всех native и Site путях пока не подтверждён как реализованный.** Проектируемые гарантии, модель событий и тесты — в [AUDIT](AUDIT.md). Не выдавать планы за работающие защиты.
@@ -95,5 +96,6 @@ Site — отдельный размещённый MCP proxy с диагност
 - Живые полномочия, ключи и сеть: [ACCESS](ACCESS.md).
 - Дата/доказательства текущего состояния: [CURRENT_STATE](CURRENT_STATE.md).
 - Snapshot — самостоятельный контур с ручным Broker: [SNAPSHOT](SNAPSHOT.md).
+- Observatory V1 source/API, установленные версии и доказательства: [README V1](../observatory/v1/README.md).
 
 Не менять лишние уровни вместе; одна ошибка Site или MCP-сессии не доказывает неисправность обоих native-туннелей.
