@@ -256,6 +256,22 @@ Windows/G2-вызовов, запуска непроверенного кода,
 
 Изменены только C-04, STATE и эта запись. Software inventory, marker и другие runtime probes не повторялись; Windows/G2, настройки, права, mounts, сервисы и публикация не затрагивались. REQUIREMENTS не менялся, новый FR не вводился. C-04 остаётся непринятым кандидатом. Проверка — provenance, diff, ссылки, read-back и только свои staged bytes; локальный коммит без push.
 
+## WF-018 — 2026-10-25: доступные исследования защиты Fortis Repo
+
+**Источник разрешения:** пользователь попросил доделать нужные оставшиеся исследования. Выполнен исследовательский scope C-04; это не автоматическое принятие мер/новых прав или разрешение применить настройки. Исходный HEAD `0f091aa43d72c9b54e42ffc695fdede9679e956b`, дерево/index чистые; применимые AGENTS/протокол не изменились.
+
+Переиспользованы WF-013–WF-014, отчёт registry/Repo, fd2193a/80f500e и актуальное направление c21d48f. Новые данные через Repo: active MCP process/module/security metadata; режимы/владельцы/parent-W/inode flags известных runtime paths; текущие cgroups; route/DNS/listening metadata; определения установленной DC config. Значения секретов/env, полные profiles/command lines и данные соседних проектов не выводились. Необходимая информация о listening services ограничена техническими metadata; к Observatory/соседним API не обращались.
+
+Подтверждена цепочка Node PID137 live Bridge → PID149 installed DC, UID/GID1000, все capability masks=0, NNP=1, Seccomp=2. Bridge hash `8389436658e22f213d9865a78872159e027ca33094999db64ca96b5a7c79fc21` совпадает с E38. Bridge root:root 0755, direct-W=false; родитель .fortis и корень volume принадлежат UID1000 и writable; immutable/append-only отсутствуют. **F-R-05 / Risk, unresolved:** возможность замены пути выводится из фактических metadata и Linux semantics; фактическая подмена не выполнялась/не обнаружена. В прочитанных E38 source launcher/probe нет hash-проверки Bridge; live Windows hashes/ACL не получены. Installed Node/DC root-owned на read-only корне; DC config UID1000/writable, file-tool ограничения не выданы за shell sandbox.
+
+Адресные сетевые проверки: DNS host.docker.internal=192.168.65.254, gateway.docker.internal=192.168.65.1; default route через 172.18.0.1. Попытки GET /_ping на стандартных Docker 2375 HTTP / 2376 TLS дали ConnectionRefusedError / errno 111 до HTTP-сеанса; credential/mutating requests не отправлялись. HEAD https://github.com/ и https://registry.npmjs.org/ с TLS verification дали 200. **F-R-06 / Risk, unresolved:** другие host/LAN/control маршруты и effective policy не исключены. Перебора портов/сетей не выполняли; Windows registry не запрашивали.
+
+Cgroup memory.max=1073741824, cpu.max=200000/100000, pids.max=256. Границы данных по широким RW roots/F-R-02 сохраняются. Совпадение live Linux bridge с E38 и положительные функциональные/сетевые ответы не объявлены общим security PASS. Docker Desktop/Engine patch level, точный seccomp profile, Windows ACL/live bytes и полная firewall policy остаются обозначенными gaps.
+
+Подготовлен [материальный результат](reviews/repo-protection-20261025.md): доступ → enforcement → evidence → неизвестное → меры/удобство; Findings и pending PR-A-07–10 с отношениями/gates. Первичные Docker/Linux man-pages использованы для интерпретации, не вместо live evidence. Подготовлен [Read-RepoHostBoundary.ps1](tools/Read-RepoHostBoundary.ps1) для ручного адресного сбора Windows hashes/ACL и выбранных Docker/listener metadata, без key contents/hash, полного profile/env/command line. Проверены код/границы; Windows parser/исполнение не проверялись, новых host-полномочий не использовали.
+
+Изменены отчёт, helper, C-04, STATE и эта запись. Runtime/конфигурация/права/ACL/mounts/network не применялись, процессы/туннели/Observatory не перезапускались, inventory/marker/CI не повторялись. Сохранено направление без отдельного Windows-профиля Repo и выбор пользователя для запуска результата. Проверки — read-back, относительные ссылки, diff/cached bytes и только свои пути; локальная Git-фиксация без push. Доступная Repo-часть исследования завершена; следующий proposed шаг — конкретизация/подготовка PR-A-07 с оставшимися относящимися host metadata.
+
 ## Формат следующей записи
 
 Новая запись получает следующий WF-ID и содержит: дату; цель; источник разрешения/решения; фактически выполненное действие; проверку и её пределы; затронутые пути/версию; резервную копию/откат при необходимости; следующий шаг. Не записывать запланированное действие как выполненное.
