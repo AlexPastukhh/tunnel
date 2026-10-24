@@ -1,0 +1,26 @@
+{
+  "status": "candidate_only",
+  "source_release": "Observatory V1",
+  "changes": [
+    {
+      "file": "owner_viewer.py",
+      "sha256": "f3230cb531d89d9cc4f60bea52fd5722b1b1e82a724759dede6636aabf806c8a",
+      "old_sha256": "a3eb75f113a6152adbb3381d6a9b6cd845dec4e927c7b20c80885968e635b48d"
+    },
+    {
+      "file": "owner_dispatch.py",
+      "sha256": "9da1bc2a223804660c2a9ea9033b86889dca7119d3a1b1dab18c85565360fea5",
+      "old_sha256": "a00d22dfdf4cfc8902e85cfd7b101867dc9507fb99f9b4b5352ffe1d5a81a31f"
+    },
+    {
+      "file": "test_owner_dispatch.py",
+      "sha256": "2e6a197322d3c6c1bfc75bc0637191eff0e1f416a88ee6dce5bea0cec025a8f3",
+      "old_sha256": "7d155c227de7c7e0a8ef5b546dfeae0f837ba9cf7ee5693588662608e7faaa63"
+    },
+    {
+      "file": "test_owner_viewer_ui.mjs",
+      "sha256": "3099a0514920df99933c7273ad58ccc81a3f346026eda6ac145b799d71ffdaa9",
+      "old_sha256": "fb5f4319c1bcf7e7ee1d10766cdf1ed173d98b4c84fc20f88d6bc0025df6ae68"
+    }
+  ]
+}

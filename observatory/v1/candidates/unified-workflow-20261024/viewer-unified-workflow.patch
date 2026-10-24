@@ -1,0 +1,620 @@
+--- a/owner_viewer.py
++++ b/owner_viewer.py
+@@ -69,17 +69,32 @@
+ button.active,.action-toggle[aria-expanded="true"]{border-color:#a3c4f7;background:#385478}
+ .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;margin:0;border:1px solid #34465f;border-radius:10px;background:#192231}
+ .toolbar button{padding:7px 11px}
+ #status{margin-left:auto;color:#b5c8df;font-size:.84rem}
++.session-tab-bar{display:flex;align-items:stretch;gap:12px;padding:5px 12px 3px;
++  border:1px solid #34465f;border-top:0;border-radius:0 0 10px 10px;background:#192231;min-width:0}
++.session-tab-bar .tab-label{flex:0 0 auto;font-size:.78rem;color:#a9bed8;
++  align-self:center;white-space:nowrap}
++#sessions{display:flex;flex:1 1 auto;gap:6px;min-width:0;padding:4px 0 6px;
++  overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;overscroll-behavior-x:contain}
++#sessions button.session{flex:0 0 auto;width:auto;max-width:220px;min-height:36px;
++  text-align:left;margin:0;padding:7px 12px;overflow:hidden;text-overflow:ellipsis;
++  white-space:nowrap;border-bottom:3px solid transparent;border-radius:7px 7px 3px 3px}
++#sessions button.session.active{background:#385478;border-color:#a3c4f7}
++#sessions button.session[data-status]{border-left:1px solid #6981a6;
++  border-bottom-color:var(--status-color)}
++#sessions button.session .status-line,#sessions button.session .status-note{
++  position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;
++  overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+ .action-panel{margin:0 0 12px}
+ .action-panel textarea{max-width:100%;margin:6px 0}
+ .action-panel button{margin:6px 8px 0 0}
+ .workspace-viewport{overflow-x:auto;margin-top:12px}
+ .grid{display:grid;min-width:1090px;grid-template-columns:minmax(165px,.8fr) 10px minmax(205px,1fr) 10px minmax(250px,1.35fr) 10px minmax(325px,1.8fr);gap:0;align-items:start}
+ .grid>.panel{min-width:0;min-height:calc(100vh - 160px)}
+ .grid h2{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+ .grid h2 small{font-size:.8rem;font-weight:400}
+-#sessions,#tasks,#records{overflow-y:auto;max-height:calc(100vh - 235px)}
++#tasks,#records{overflow-y:auto;max-height:calc(100vh - 275px)}
+ .column-resizer{align-self:stretch;min-height:220px;cursor:col-resize;touch-action:none;position:relative;outline-offset:-2px}
+ .column-resizer::after{content:"";position:absolute;top:0;bottom:0;left:4px;width:2px;background:#425674;border-radius:3px}
+ .column-resizer:hover::after,.column-resizer:focus-visible::after,.column-resizer.dragging::after{background:#96bfff;width:4px;left:3px}
+ .column-resizer:focus-visible{outline:2px solid #96bfff}
+@@ -129,9 +144,9 @@
+ #autoRefreshHint{font-size:.78rem}
+ #history pre{max-height:none;overflow:auto;font-size:.9rem;line-height:1.5}
+ #history .message-body{font-family:inherit;font-size:.95rem;line-height:1.6;white-space:pre-wrap}
+ [hidden]{display:none!important}
+-button.session,button.task{display:block;width:100%;text-align:left;margin:8px 0;overflow-wrap:anywhere}
++button.task{display:block;width:100%;text-align:left;margin:8px 0;overflow-wrap:anywhere}
+ button.session{font-size:.87rem;line-height:1.4}
+ button.task{padding:10px 11px;line-height:1.45}
+ .status-line{display:block;font-size:.8rem;line-height:1.45;margin-top:5px}
+ .status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--status-color);vertical-align:baseline}
+@@ -157,9 +172,9 @@
+ .discovered-chat p{margin:6px 0;font-size:.85rem}
+ .discovered-chat small{display:block;margin-top:7px;font-size:.72rem}
+ small{color:#9fb5ce}#unlock{max-width:720px}
+ .grid>.panel{margin:0 1px}
+-@media(max-width:700px){body{padding:8px}#status{margin-left:0;width:100%}.sticky-top{padding-top:7px}.masthead .dim{font-size:.77rem}}
++@media(max-width:700px){body{padding:8px}#status{margin-left:0;width:100%}.sticky-top{padding-top:7px}.masthead .dim{font-size:.77rem}.session-tab-bar{gap:7px;padding:5px 8px}.session-tab-bar .tab-label{display:none}#sessions button.session{max-width:165px}}
+ </style></head><body>
+ <div class="sticky-top">
+ <header class="masthead"><h1>Fortis Observatory</h1>
+ <p class="dim">Единый архив в Fortis Repo Docker · данные заявлены отправителем, не проверены по DOM ChatGPT</p></header>
+@@ -170,8 +185,12 @@
+ <button id="toggleRegister" class="secondary action-toggle" type="button" aria-controls="registerPanel" aria-expanded="false">＋ Ссылка вручную</button>
+ <button id="toggleInstructions" class="secondary action-toggle" type="button" aria-controls="instructionPanel" aria-expanded="false">Инструкция</button>
+ <button id="togglePair" class="secondary action-toggle" type="button" aria-controls="pairPanel" aria-expanded="false">Привязка Notifier</button>
+ <span id="status" role="status" aria-live="polite">История ещё не загружена</span>
++</nav>
++<nav id="sessionTabBar" class="session-tab-bar" aria-label="Переключение сессий" hidden>
++<span class="tab-label" aria-hidden="true">Сессии</span>
++<div id="sessions" role="tablist" aria-label="Подключённые сессии"></div>
+ </nav>
+ </div>
+ <section id="unlock" class="panel"><h2>Локальный просмотр</h2>
+ <p>Вставьте одноразовый код из защищённой консоли Windows, которая запустила просмотрщик. Код остаётся в памяти этой вкладки.</p>
+@@ -194,9 +213,15 @@
+ <div class="compose-command-row">
+ <div class="compose-actions">
+ <button id="composeFile" type="button" class="secondary" title="Отдать Notifier текст как .txt; без Send">Файл</button>
+ <button id="composeInsert" type="button" class="secondary" title="Вставить через Notifier без Send">Вставить</button>
+-<button id="composeSend" type="button" title="Отправить через Notifier в ChatGPT">Отправить</button>
++<button id="composeSend" type="button" title="Прикрепить TXT и один раз нажать Send">Файл + Send</button>
++<label for="composeSendDelay">Задержка после файла:
++<select id="composeSendDelay" aria-label="Задержка перед Send после готового файла">
++<option value="500">0,5 сек</option><option value="1000" selected>1 сек</option>
++<option value="2000">2 сек</option><option value="3000">3 сек</option>
++<option value="5000">5 сек</option><option value="10000">10 сек</option>
++</select></label>
+ <button id="toggleComposeModules" type="button" class="secondary" aria-expanded="false" aria-controls="composeModulesPanel">⚙ Модули</button>
+ <button id="composeSendPrepared" type="button" class="secondary"
+  title="Нажать Send для УЖЕ прикреплённого файла и сохранённого task_id; не прикреплять повторно">Нажать Send</button>
+ </div>
+@@ -212,8 +237,12 @@
+   aria-label="Поиск модуля Planning Helper" placeholder="Поиск по названию или ID…">
+ <div id="composeModulesList"><p class="dim">Ожидаю подключённый Notifier…</p></div>
+ </details>
+ <p id="composeStatus" role="status" aria-live="polite">Только открытые привязанные чаты. Нет очереди для закрытых вкладок.</p>
++<details id="composeLocalDraft"><summary>Локальный черновик · восстановление</summary>
++<p class="dim">Сохраняется только в этом профиле Edge. Не отправляется в Docker; при очистке данных Edge может пропасть.</p>
++<button id="composeRestoreDraft" type="button" class="secondary">Восстановить сохранённый текст</button>
++<span id="composeDraftStatus" role="status" class="dim"></span></details>
+ </section></section>
+ <div class="action-area">
+ <section id="registerPanel" class="panel action-panel" hidden><h2>Подключить чат ChatGPT</h2>
+ <p class="dim">Вставьте ссылку на беседу и выберите название. Маршрут сообщений: только Fortis Repo.</p>
+@@ -243,9 +272,9 @@
+ </section>
+ </div>
+ <div class="workspace-viewport" aria-label="Четыре колонки Observatory — ширину можно менять за разделители">
+ <main id="workspaceGrid" class="grid">
+-<section class="panel sessions-column" aria-labelledby="sessionsHeading"><h2 id="sessionsHeading">Сессии <small id="sessionCount"></small></h2>
++<section class="panel sessions-column" aria-labelledby="sessionsHeading"><h2 id="sessionsHeading">Чаты и привязка <small id="sessionCount"></small></h2>
+ <details id="discoveryPanel" aria-labelledby="discoveryHeading">
+ <summary id="discoveryHeading">Чаты из браузера</summary>
+ <p class="dim">Вкладки ChatGPT с работающим Notifier. «Подключить» связывает чат и Notifier; сообщения отправляются отдельной кнопкой.</p>
+ <div id="discoveredChats"></div>
+@@ -263,9 +292,9 @@
+ <button id="approveNotifier" class="secondary" type="button" hidden>Одобрить найденный Notifier (один раз)</button>
+ <button id="enableTaskIntents" class="secondary" type="button" hidden>Разрешить метаданные сохранённых задач</button>
+ <button id="revokeAutoNotifier" class="secondary" type="button" hidden>Отозвать постоянную привязку</button>
+ <button id="checkNotifierConnection" class="secondary" type="button">Проверить связь Notifier</button>
+-</div></details><div id="sessions"></div></section>
++</div></details></section>
+ <div id="resize0" class="column-resizer" role="separator" tabindex="0" aria-label="Изменить ширину сессий и задач" aria-orientation="vertical"></div>
+ <section class="panel tasks-column" aria-labelledby="tasksHeading"><h2 id="tasksHeading">Задачи <small id="taskCount"></small></h2><p id="taskStatusNotice" class="status-note" role="status" hidden></p><div id="tasks"></div></section>
+ <div id="resize1" class="column-resizer" role="separator" tabindex="0" aria-label="Изменить ширину задач и записей" aria-orientation="vertical"></div>
+ <section class="panel records-column" aria-labelledby="recordsHeading"><h2 id="recordsHeading">Записи <small id="recordCount"></small></h2>
+@@ -296,8 +325,62 @@
+ // In-memory only. Enabling follow reselects the freshest task + record.
+ const autoFollow=()=>Boolean($("autoFollow").checked);
+ let composeSession="";
+ const composeDrafts=new Map();
++const composePendingSends=new Map();
++const SESSION_RE=/^rs_[0-9a-f]{32}$/;
++const draftKey=sid=>"fortis-owner-draft-v1-"+sid;
++function safeDraftWrite(sid,text){
++ if(!SESSION_RE.test(sid)||typeof text!=="string"||text.length>400000)return false;
++ composeDrafts.set(sid,text);
++ try{
++  const storage=window.localStorage;
++  if(!storage)return false;
++  const payload=JSON.stringify({version:1,source:"owner-local-draft",text,at:Date.now()});
++  storage.setItem(draftKey(sid),payload);
++  return storage.getItem(draftKey(sid))===payload
++ }catch(_){return false}
++}
++function safeDraftRecovery(sid){
++ if(!SESSION_RE.test(sid))return null;
++ try{
++  const value=JSON.parse(window.localStorage?.getItem(draftKey(sid))||"null");
++  if(value?.version===1&&typeof value.text==="string"&&value.text.length<=400000)
++   return value
++ }catch(_){}
++ return null
++}
++function safeDraftRead(sid){
++ const value=safeDraftRecovery(sid);
++ if(value)return value.sent===true?"":value.text;
++ return composeDrafts.get(sid)||""
++}
++function markDraftSent(sid,text){
++ if(!SESSION_RE.test(sid)||typeof text!=="string")return false;
++ const old=safeDraftRecovery(sid);
++ if(!old||old.text!==text)return false;
++ try{
++  const payload=JSON.stringify({...old,sent:true,sent_at:Date.now()});
++  window.localStorage.setItem(draftKey(sid),payload);
++  return window.localStorage.getItem(draftKey(sid))===payload
++ }catch(_){return false}
++}
++let composeDraftTimer=null;
++function storeComposeDraft(){
++ if(!composeSession)return false;
++ // An empty editor following Send is not a new blank draft: keep the
++ // recovered original until the owner deliberately starts another message.
++ const recovered=safeDraftRecovery(composeSession);
++ if(!$("composeText").value&&recovered?.sent===true)return true;
++ const ok=safeDraftWrite(composeSession,$("composeText").value);
++ $("composeDraftStatus").textContent=ok?"Черновик сохранён локально":"Хранилище недоступно — текст не удаляйте";
++ return ok
++}
++function deferComposeSave(){
++ if(composeDraftTimer!==null)window.clearTimeout?.(composeDraftTimer);
++ composeDraftTimer=window.setTimeout?.(()=>{composeDraftTimer=null;storeComposeDraft()},500)??null;
++ if(composeDraftTimer===null)storeComposeDraft()
++}
+ const composeModulesBySession=new Map();
+ const composeProfilesBySession=new Map();
+ const composeProfileManuallySelected=new Set();
+ const composeProfileAppliedBySession=new Map();
+@@ -652,24 +735,66 @@
+  if(typeof record.send_label==="string"){
+   const note=el("span",record.send_label);note.className="status-note";button.append(note);
+  }
+ }
++const TAB_ORDER_KEY="fortis-owner-session-tab-order-v1";
++let tabOrder=[];
++try{
++ const saved=JSON.parse(window.localStorage?.getItem(TAB_ORDER_KEY)||"[]");
++ if(Array.isArray(saved)&&saved.length<=1000&&saved.every(id=>SESSION_RE.test(id))&&
++    new Set(saved).size===saved.length)tabOrder=saved
++}catch(_){}
++function moveSessionTab(source,target){
++ if(!SESSION_RE.test(source)||!SESSION_RE.test(target)||source===target)return;
++ const list=Array.isArray(state?.sessions)?state.sessions:[];
++ const ids=list.map(s=>s.reporting_session_id).filter(id=>SESSION_RE.test(id));
++ if(!ids.includes(source)||!ids.includes(target))return;
++ const next=[...new Set([...tabOrder.filter(id=>ids.includes(id)),...ids])];
++ next.splice(next.indexOf(source),1);
++ next.splice(next.indexOf(target),0,source);
++ try{
++  const string=JSON.stringify(next);
++  window.localStorage?.setItem(TAB_ORDER_KEY,string);
++  if(window.localStorage?.getItem(TAB_ORDER_KEY)!==string)throw Error("readback");
++  tabOrder=next;renderSessions()
++ }catch(_){status("Порядок вкладок не сохранён; изменений нет")}
++}
+ function renderSessions(){
+  updateComposeTarget();
+  const list=$("sessions"), tasks=$("tasks");
+- const sessionScroll=list.scrollTop,taskScroll=tasks.scrollTop;
++ const sessionScrollLeft=list.scrollLeft,taskScroll=tasks.scrollTop;
+  clear(list);clear(tasks);
+- const sessions=Array.isArray(state?.sessions)?state.sessions:[];
++ const sessions=(Array.isArray(state?.sessions)?state.sessions:[]).slice();
++ sessions.sort((a,b)=>{
++  const aa=tabOrder.indexOf(a.reporting_session_id),bb=tabOrder.indexOf(b.reporting_session_id);
++  return (aa<0?Number.MAX_SAFE_INTEGER:aa)-(bb<0?Number.MAX_SAFE_INTEGER:bb)
++ });
++ $("sessionTabBar").hidden=!sessions.length;
+  $("sessionCount").textContent=String(sessions.length);
+  $("taskCount").textContent=chosenSession?String(taskCards.length):"—";
+  if(!sessions.length){
+   list.append(el("p","Пока нет подключённых сессий. Выберите найденный чат выше или добавьте ссылку вручную."));
+   tasks.append(el("p","Сначала подключите сессию."));return
+  }
+  for(const s of sessions){
+   const b=el("button",String(sessionDisplayTitle(s)));
+-  b.title="Диагностика событий: "+String(s.state||"нет");
++  b.title="Диагностика событий: "+String(s.state||"нет")+
++   (s.task_overview?.primary_label?" · "+String(s.task_overview.primary_label):"");
+   b.type="button";b.className="session"+(chosenSession===s.reporting_session_id?" active":"");
++  b.setAttribute("role","tab");b.setAttribute("aria-controls","workspaceGrid");
++  b.setAttribute("aria-selected",chosenSession===s.reporting_session_id?"true":"false");
++  b.tabIndex=chosenSession===s.reporting_session_id?0:-1;
++  b.draggable=true;b.dataset.sessionId=s.reporting_session_id;
++  b.addEventListener("dragstart",event=>{
++    event.dataTransfer?.setData("text/plain",s.reporting_session_id);
++    if(event.dataTransfer)event.dataTransfer.effectAllowed="move";
++  });
++  b.addEventListener("dragover",event=>event.preventDefault());
++  b.addEventListener("drop",event=>{
++    event.preventDefault();
++    const from=event.dataTransfer?.getData("text/plain");
++    if(SESSION_RE.test(from||""))moveSessionTab(from,s.reporting_session_id)
++  });
+   renderSessionStatus(b,s.task_overview);
+   b.onclick=()=>{
+    if(chosenSession===s.reporting_session_id)return;
+    // A fresh session selection always opens the newest task, regardless
+@@ -699,10 +824,32 @@
+    renderSessions();void showHistory({follow:true})
+   };
+   tasks.append(b)
+  }
+- list.scrollTop=sessionScroll;tasks.scrollTop=taskScroll
+-}
++ list.scrollLeft=sessionScrollLeft;tasks.scrollTop=taskScroll
++}
++// Tabs remain keyboard operable when their horizontal row overflows.
++$("sessions").addEventListener("keydown",event=>{
++ if(!["ArrowLeft","ArrowRight","Home","End"].includes(event.key))return;
++ if(event.altKey&&(event.key==="ArrowLeft"||event.key==="ArrowRight")){
++   const buttons=Array.from($("sessions").children),index=buttons.indexOf(event.target);
++   if(index<0)return;const next=index+(event.key==="ArrowLeft"?-1:1);
++   if(next<0||next>=buttons.length)return;
++   event.preventDefault();
++   moveSessionTab(event.target.dataset.sessionId,buttons[next].dataset.sessionId);
++   Array.from($("sessions").children).find(b=>b.dataset.sessionId===event.target.dataset.sessionId)?.focus();
++   return
++ }
++ const buttons=Array.from($("sessions").children);
++ const index=buttons.indexOf(event.target);
++ if(index<0||!buttons.length)return;
++ event.preventDefault();
++ const next=event.key==="Home"?0:event.key==="End"?buttons.length-1:
++  (index+(event.key==="ArrowRight"?1:-1)+buttons.length)%buttons.length;
++ buttons[next].onclick();
++ // The selection rerenders the buttons; focus the replacement, not the old node.
++ Array.from($("sessions").children)[next]?.focus();
++});
+ async function loadTasks(){
+  const active=chosenSession;
+  if(!active)return;
+  try{
+@@ -815,10 +962,10 @@
+ }
+ function updateComposeTarget(){
+  const next=chosenSession||"";
+  if(composeSession!==next){
+-  if(composeSession)composeDrafts.set(composeSession,$("composeText").value);
+-  composeSession=next;$("composeText").value=composeDrafts.get(next)||"";
++  if(composeSession)storeComposeDraft();
++  composeSession=next;$("composeText").value=safeDraftRead(next);
+   $("composeModuleSearch").value="";
+   renderComposeModules(composeCatalogBySession.get(next)||null);
+   $("composeStatus").textContent="Только открытая привязанная вкладка. Проверяю доступность…"
+  }
+@@ -831,9 +978,9 @@
+  $("composeFile").disabled=!record;
+  $("composeSendPrepared").disabled=!record
+ }
+ const composerActionNames={file:"Файл",insert:"Вставить",
+- send:"Отправить",send_prepared:"Нажать Send"};
++ send:"Файл + Send",send_prepared:"Нажать Send"};
+ const composerEventNames={queued:"Команда поставлена в очередь Viewer",
+  claimed:"Notifier принял команду",expired:"Команда истекла без получения",
+  unconfirmed:"Notifier не подтвердил выполнение вовремя",
+  preparing:"Notifier начал подготовку",inserted:"Контекст вставлен без Send",
+@@ -891,9 +1038,9 @@
+     inserted:"контекст вставлен; Send не нажат",
+     file_attached:"файл и контекст подготовлены; Send не нажат",
+     attachment_unconfirmed:"одна попытка прикрепления; результат не подтверждён. Файл мог прикрепиться, повторять нельзя",
+     attachment_only:"карточка файла обнаружена, но task_id / Fortis-контекст не подтверждены. Не отправлять",
+-    send_initiated:"оригинал сохранён в Notifier, отправка поставлена в очередь; приём ChatGPT не подтверждён",
++    send_initiated:"Notifier сообщил об одной попытке Send; приём ChatGPT не подтверждён",
+     refused:"Notifier отказал; текст сохранён в поле Observatory",
+     unconfirmed:"нет подтверждения после получения команды — возможна отправка, автоматического повтора нет",
+     expired:"команда не была получена вовремя"};
+    message+=" · "+(statuses[event.status]||"неизвестное состояние");
+@@ -901,8 +1048,23 @@
+     message+=" · ВНИМАНИЕ: task_id не подтверждён (старый протокол)";
+    if(event.task_id)message+=" · task_id: "+event.task_id
+   }
+   $("composeStatus").textContent=message
++  // Only the exact dispatch ACK may clear the field; queue receipt is insufficient.
++  const pending=composePendingSends.get(sid);
++  if(pending && event?.dispatch_id===pending.dispatchId &&
++     event?.status==="send_initiated"&&/^task_[0-9a-f]{32}$/.test(event.task_id||"")){
++    composePendingSends.delete(sid);
++    if($("composeText").value===pending.original &&markDraftSent(sid,pending.original)){
++      $("composeText").value="";
++      // Keep the locally saved exact original available for restoration.
++      $("composeStatus").textContent+=" · Поле очищено; оригинал доступен в истории Notifier и локальном черновике";
++    }
++  }else if(pending&&event?.dispatch_id===pending.dispatchId&&
++           ["refused","expired","unconfirmed"].includes(event.status)){
++    composePendingSends.delete(sid)
++  }
++  return event
+  }catch(error){
+   if(sid===chosenSession)$("composeStatus").textContent="Связь с адресатом недоступна: "+error.message
+  }
+ }
+@@ -925,15 +1087,23 @@
+  const moduleIds=mode==="send_prepared"?null:
+   selected&&composeModuleEditedBySession.has(sid)?Array.from(selected):null;
+  button.disabled=true;
+  try{
++  // Read-back is compulsory before dispatch of a new original and clearing.
++  if(mode!=="send_prepared"&&!safeDraftWrite(sid,original)){
++   $("composeStatus").textContent="Черновик не сохранился локально. Команда отменена.";return
++  }
+   const answer=await req("/api/dispatch",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({session:sid,chat:session.conversation_id,
+      mode:actualMode,text:original,module_ids:moduleIds,
+-     profile_id:mode==="send_prepared"?null:profileId})});
++     profile_id:mode==="send_prepared"?null:profileId,
++     ...(mode==="send"?{delay_ms:Number($("composeSendDelay").value)}:{})})});
+   if(sid!==chosenSession)return;
+   $("composeStatus").textContent="Команда "+answer.dispatch_id+" принята локально. Это ещё не подтверждение действия."
++  if(mode==="send"||mode==="send_prepared")
++   composePendingSends.set(sid,{dispatchId:answer.dispatch_id,
++    original:mode==="send_prepared"?$("composeText").value:original});
+   await checkComposeStatus()
+  }catch(error){
+   if(sid===chosenSession)$("composeStatus").textContent=
+    "Команда не доставлена: "+error.message+". Текст сохранён."
+@@ -967,10 +1137,17 @@
+  composeModuleEditedBySession.delete(sid);
+  composeProfileAppliedBySession.delete(sid);
+  renderComposeModules(data)
+ });
+-$("composeText").addEventListener("input",()=>{
+- if(chosenSession)composeDrafts.set(chosenSession,$("composeText").value)
++$("composeText").addEventListener("input",deferComposeSave);
++$("composeRestoreDraft").addEventListener("click",()=>{
++ if(!chosenSession)return;
++ if($("composeText").value.trim()){
++  $("composeDraftStatus").textContent="Поле занято: ничего не заменено";return
++ }
++ const saved=safeDraftRecovery(chosenSession);
++ $("composeText").value=saved?.text||safeDraftRead(chosenSession);
++ $("composeDraftStatus").textContent="Сохранённый оригинал восстановлен без Send"
+ });
+ window.setInterval?.(()=>{if(!$("composePanel").hidden)checkComposeStatus()},5000);
+ function previewText(value,maxLength=118){
+  const cleaned=String(value??"").replace(/\s+/g," ").trim();
+@@ -1812,9 +1989,11 @@
+                     if (not isinstance(data,dict) or
+                         set(data) not in ({"session","chat","mode","text"},
+                                           {"session","chat","mode","text","module_ids"},
+                                           {"session","chat","mode","text","module_ids",
+-                                           "profile_id"})):
++                                           "profile_id"},
++                                          {"session","chat","mode","text","module_ids",
++                                           "profile_id","delay_ms"})):
+                         raise ValueError("bad_dispatch_body")
+                     current=read_data("state",None,None)
+                     matches = [item for item in current.get("sessions", []) if
+                         item.get("reporting_session_id")==data["session"] and
+@@ -1822,9 +2001,9 @@
+                     if len(matches) != 1:
+                         raise ValueError("unregistered_recipient")
+                     result=dispatch_board.enqueue(data["session"],data["chat"],
+                         data["mode"],data["text"],data.get("module_ids"),
+-                        data.get("profile_id"))
++                        data.get("profile_id"),data.get("delay_ms"))
+                     self.write_reply(202,result)
+                 except (ValueError, TypeError, UnicodeError, json.JSONDecodeError):
+                     self.write_reply(409, {"ok": False, "error": "dispatch_unavailable"})
+                 except (OSError, subprocess.SubprocessError):
+--- a/owner_dispatch.py
++++ b/owner_dispatch.py
+@@ -158,9 +158,10 @@
+                 return {"ok": True, "session": sid, "chat": chat,
+                         "command": {"dispatch_id": item["id"],
+                                     "mode": item["mode"], "text": item["text"],
+                                     "module_ids": item.get("module_ids"),
+-                                    "profile_id": item.get("profile_id")}}
++                                    "profile_id": item.get("profile_id"),
++                                    **({"delay_ms":item["delay_ms"]} if "delay_ms" in item else {})}}
+             return {"ok": True, "session": sid, "chat": chat, "command": None}
+ 
+     def status(self, sid):
+         if not SID.fullmatch(sid or ""):
+@@ -239,13 +240,16 @@
+                 entry.pop("profiles",None)
+                 entry.pop("active_profile_id",None)
+             return {"ok":True,"count":len(modules)}
+ 
+-    def enqueue(self, sid, chat, mode, text, module_ids=None, profile_id=None):
++    def enqueue(self, sid, chat, mode, text, module_ids=None, profile_id=None,
++                delay_ms=None):
+         if (not SID.fullmatch(sid or "") or not CID.fullmatch(chat or "") or
+                 (profile_id is not None and
+                  (not isinstance(profile_id,str) or not PROFILE_ID.fullmatch(profile_id))) or
+                 mode not in ("insert", "send", "file", "send_prepared") or not isinstance(text, str) or
++                (delay_ms is not None and (mode != "send" or
++                 type(delay_ms) is not int or delay_ms not in (500,1000,2000,3000,5000,10000))) or
+                 (mode != "send_prepared" and not text.strip()) or
+                 (mode == "send_prepared" and (text or profile_id is not None or module_ids is not None)) or len(text.encode("utf-8")) > MAX_TEXT_BYTES or
+                 (module_ids is not None and
+                  (not isinstance(module_ids,list) or len(module_ids)>MAX_MODULES or
+@@ -272,8 +276,9 @@
+             item = {"id": "dispatch_" + uuid.uuid4().hex,
+                     "mode": mode, "text": text,
+                     "module_ids":None if module_ids is None else list(module_ids),
+                     "profile_id":profile_id,
++                    **({"delay_ms": delay_ms} if delay_ms is not None else {}),
+                     "status": "pending", "created": now}
+             entry["command"] = item
+             self._log(entry,"queued",item)
+             return {"ok": True, "dispatch_id": item["id"], "status": "pending"}
+--- a/test_owner_dispatch.py
++++ b/test_owner_dispatch.py
+@@ -49,8 +49,23 @@
+         with self.assertRaises(PermissionError):
+             self.board.poll(SID, "wrong-chat", self.key)
+         self.assertIsNone(self.board.poll(SID, CHAT, self.key)["command"])
+         self.assertTrue(self.board.status(SID)["available"])
++
++    def test_explicit_file_send_dwell_is_scoped_and_bounded(self):
++        self.board.poll(SID, CHAT, self.key)
++        with self.assertRaises(ValueError):
++            self.board.enqueue(SID, CHAT, "file", "X", delay_ms=1000)
++        for bad in (0, 200, 11000, True, "1000"):
++            with self.assertRaises(ValueError):
++                self.board.enqueue(SID, CHAT, "send", "X", delay_ms=bad)
++        item = self.board.enqueue(SID, CHAT, "send", "X", delay_ms=500)
++        polled = self.board.poll(SID, CHAT, self.key)
++        self.assertEqual(polled["command"]["delay_ms"], 500)
++        self.assertEqual(polled["command"]["dispatch_id"], item["dispatch_id"])
++        self.board.ack(SID, CHAT, self.key, item["dispatch_id"],
++                       "send_initiated", TASK)
++        self.assertNotIn("text", self.board._sessions[SID]["command"])
+ 
+     def test_claim_only_once_even_with_two_tabs(self):
+         self.board.poll(SID, CHAT, self.key)
+         command = self.board.enqueue(SID, CHAT, "send", "Проверка 🪐")
+--- a/test_owner_viewer_ui.mjs
++++ b/test_owner_viewer_ui.mjs
+@@ -11,16 +11,25 @@
+  assert.match(page,new RegExp('id="'+id+'"[^>]+ hidden'));
+ }
+ assert.ok(page.indexOf('<main id="workspaceGrid" class="grid">')>page.indexOf('class="action-area"'));
+ assert.match(page,/class="sticky-top"/);
++assert.match(page,/<nav id="sessionTabBar" class="session-tab-bar"[^>]+ hidden>/);
++assert.match(page,/<div id="sessions" role="tablist" aria-label="Подключённые сессии">/);
++assert.ok(page.indexOf('id="sessionTabBar"')>page.indexOf('id="toolbar"'),
++  "session tabs are under actions in the header");
++assert.ok(page.indexOf('id="sessionTabBar"')<page.indexOf('<section id="app"'),
++  "session tabs are in the sticky header, not in the columns");
++assert.ok(page.indexOf('id="sessions"')<page.indexOf('class="workspace-viewport"'));
++assert.doesNotMatch(page,/class="sessions-column"[\s\S]*?<div id="sessions"/,
++  "side column must not keep a duplicate session list");
+ assert.ok(page.indexOf('id="composeArea"')>page.indexOf('<section id="app"'),
+   "full-width composer is outside sticky header");
+ assert.ok(page.indexOf('id="composeArea"')<page.indexOf('class="workspace-viewport"'),
+   "composer is above the four columns");
+ assert.equal((page.match(/id="toggleCompose"/g)||[]).length,1);
+ assert.match(page,/id="composeFile"[^>]*>Файл<\/button>/);
+ assert.match(page,/id="composeInsert"[^>]*>Вставить<\/button>/);
+-assert.match(page,/id="composeSend"[^>]*>Отправить<\/button>/);
++assert.match(page,/id="composeSend"[^>]*>Файл \+ Send<\/button>/);
+ assert.match(page,/id="composeSendPrepared"[^>]*>Нажать Send<\/button>/);
+ assert.match(page,/id="composeEvents" role="log"/);
+ assert.ok(page.indexOf('id="composeEvents"')>page.indexOf('id="composeFile"'));
+ assert.match(page,/class="compose-command-row"/);
+@@ -31,9 +40,9 @@
+ class Element {
+  constructor(tag="div"){
+   this.tagName=tag;this.children=[];this.textContent="";this.value="";
+   this.hidden=false;this.listeners={};this.attributes={};this.className="";
+-  this.clientWidth=1200;this.style={};
++  this.clientWidth=1200;this.style={};this.dataset={};
+   this.classList={add(){},remove(){},contains(){return false}};
+  }
+  setPointerCapture(id){this.pointerId=id}
+  hasPointerCapture(id){return this.pointerId===id}
+@@ -55,9 +64,12 @@
+  getElementById(id){assert.ok(elements.has(id),"unknown id: "+id);return elements.get(id)},
+  createElement(tag){return new Element(tag)}
+ };
+ const intervals=[];
+-const window={addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}};
++const savedStorage=new Map();
++const localStorage={getItem:key=>savedStorage.has(key)?savedStorage.get(key):null,
++ setItem:(key,value)=>savedStorage.set(key,String(value)),removeItem:key=>savedStorage.delete(key)};
++const window={localStorage,addEventListener(){},setInterval(callback,delay){intervals.push({callback,delay})}};
+ const session1="rs_"+"a".repeat(32), session2="rs_"+"b".repeat(32);
+ const task1="task_"+"c".repeat(32), task2="task_"+"d".repeat(32);
+ const requests=[],postRequests=[],approvalRequests=[];
+ let holdPair=false,releasePair=null,holdState=false,releaseState=null;
+@@ -165,8 +177,13 @@
+ elements.get("secret").value="synthetic_viewer_token";
+ await fire("form","submit");
+ assert.equal(elements.get("app").hidden,false);
+ assert.equal(elements.get("sessions").children.length,2);
++assert.equal(elements.get("sessionTabBar").hidden,false);
++assert.equal(elements.get("sessions").children[0].attributes.role,"tab");
++assert.equal(elements.get("sessions").children[0].attributes["aria-selected"],"true");
++assert.equal(elements.get("sessions").children[1].attributes["aria-selected"],"false");
++assert.equal(elements.get("sessions").children[0].attributes["aria-controls"],"workspaceGrid");
+ assert.equal(elements.get("tasks").children.length,1);
+ assert.equal(elements.get("records").children.length,5);
+ assert.equal(elements.get("recordCount").textContent,"5");
+ assert.equal(elements.get("history").children.length,5);
+@@ -462,8 +479,12 @@
+ await fire("toggleInstructions");
+ assert.equal(elements.get("instructions").value,"Инструкция два");
+ await fire("refresh");
+ assert.equal(elements.get("sessions").children.length,2);
++elements.get("sessions").scrollLeft=180;
++await fire("refresh");
++assert.equal(elements.get("sessions").scrollLeft,180,
++  "five-second state refresh must preserve horizontally scrolled tabs");
+ assert.equal(elements.get("taskCount").textContent,"1");
+ assert.equal(elements.get("registerPanel").hidden,true);
+ // Slow state read cannot overlap another poll: one active request at a time.
+ const baseline=requests.filter(x=>x==="/api/state").length;
+@@ -627,4 +648,51 @@
+ assert.equal(elements.get("discoveredChats").children[0].children[0].textContent,"Переименованный чат");
+ assert.equal(elements.get("sessions").children[0].textContent,"Обновлённый проект");
+ assert.equal(vm.runInContext("chosenTask",sandbox),taskBeforeTitle);
+ console.log("Owner Viewer private tab titles, live rename, safe DOM and stable task: PASS");
++
++const beforeKeyboard=vm.runInContext("chosenSession",sandbox);
++let tabSelectPrevented=false;
++const buttonsBefore=elements.get("sessions").children;
++const firstSelected=buttonsBefore.findIndex(b=>b.attributes["aria-selected"]==="true");
++const keyboardFrom=buttonsBefore[firstSelected];
++elements.get("sessions").listeners.keydown({
++ key:"ArrowRight",target:keyboardFrom,preventDefault(){tabSelectPrevented=true}
++});
++assert.equal(tabSelectPrevented,true);
++assert.notEqual(vm.runInContext("chosenSession",sandbox),beforeKeyboard,
++ "right arrow must switch the active session");
++await tick();
++assert.equal(elements.get("sessions").children.filter(
++ b=>b.attributes["aria-selected"]==="true").length,1);
++const otherActive=elements.get("sessions").children.find(
++ b=>b.attributes["aria-selected"]==="true");
++elements.get("sessions").listeners.keydown({
++ key:"ArrowLeft",target:otherActive,preventDefault(){}
++});
++assert.equal(vm.runInContext("chosenSession",sandbox),beforeKeyboard,
++ "left arrow returns to the previous session");
++await tick();
++console.log("Owner Viewer sticky session tabs, keyboard and horizontal scroll: PASS");
++
++assert.match(page,/id="composeSendDelay"/);
++assert.match(page,/id="composeRestoreDraft"/);
++assert.match(page,/Файл \+ Send/);
++const durableSample="Точный черновик 🌙\nвторая строка";
++assert.equal(vm.runInContext("safeDraftWrite("+JSON.stringify(session1)+","+JSON.stringify(durableSample)+")",sandbox),true);
++assert.equal(vm.runInContext("safeDraftRead("+JSON.stringify(session1)+")",sandbox),durableSample);
++assert.equal(vm.runInContext("markDraftSent("+JSON.stringify(session1)+","+JSON.stringify(durableSample)+")",sandbox),true);
++assert.equal(vm.runInContext("safeDraftRead("+JSON.stringify(session1)+")",sandbox),"",
++ "confirmed one-shot Send leaves the editor empty across page reload");
++assert.equal(vm.runInContext("safeDraftRecovery("+JSON.stringify(session1)+").text",sandbox),durableSample,
++ "sent original stays recoverable in the owner-only local browser profile");
++const savedBefore=JSON.parse(savedStorage.get("fortis-owner-draft-v1-"+session1));
++assert.equal(savedBefore.sent,true);
++const existingOrder=elements.get("sessions").children.map(b=>b.dataset.sessionId);
++assert.equal(existingOrder.length,2);
++vm.runInContext("moveSessionTab("+JSON.stringify(existingOrder[1])+","+JSON.stringify(existingOrder[0])+")",sandbox);
++assert.equal(elements.get("sessions").children[0].dataset.sessionId,existingOrder[1],
++ "manual tab order must affect only tabs, not archive order");
++assert.equal(JSON.parse(savedStorage.get("fortis-owner-session-tab-order-v1"))[0],existingOrder[1],
++ "manual tab order must survive refresh");
++assert.deepEqual(elements.get("sessions").children.filter(b=>b.attributes["aria-selected"]==="true").length,1);
++console.log("Owner Viewer durable drafts, sent recovery, reorder: PASS");
