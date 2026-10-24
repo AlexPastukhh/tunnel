@@ -1,6 +1,6 @@
-# PR-A-13: подготовка постоянного прямого MCP entry (не установлен)
+# PR-A-13: установка прямого MCP entry — live smoke PASS(scope)
 
-25 октября 2026, Asia/Bangkok. Следующий этап после [C-05](direct-mcp-client-test-20261025.md): direct и независимый Restore реально проверены, но полного UI/resource PASS нет. Пользователь поручил продолжить подготовку. **Это source + ручной план, не Windows deployment и не постоянное принятие PR-A-13.**
+25 октября 2026, Asia/Bangkok. После [C-05](direct-mcp-client-test-20261025.md) пользователь вручную выполнил Windows AST/Preview, backup исходного launcher, остановку общего Repo, установку кандидата и Run. **Новый direct сервер фактически обслуживает ChatGPT: live smoke PASS(scope).** Подробные доказательства и ограничения — в разделе WF-026 ниже. Инструкции подготовки и аварийного возврата сохранены для воспроизводимости, **не повторять Stop/Install на уже работающем direct**.
 
 ## Выбранный узкий кандидат
 
@@ -145,6 +145,12 @@
 
 Если установка оборвалась **до копирования** нового launcher, проверка installed hash должна вернуть прежний hash; не выполнять этот блок повторно «на всякий случай». **Временное восстановление MCP через Bridge само по себе не возвращает файл постоянного launcher.** При несовпадении identity/pins не завершать неизвестные процессы по имени и не обходить guard.
 
-## Проверки и текущий статус
+## Реальная Windows установка и direct actual-client smoke — WF-026
 
-Source-only. Из текущего Repo выполнены сверка исходного кода, static JS parse (если проходит), SHA/CRLF/diff/link checks; Windows AST/Preview кандидата, ручное копирование, stop/start/actual-client на постоянном launcher не выполнялись. Не отправлять raw runtime/doctor/key/logs. Pending PR-A-13 и F-R-05 должны оставаться явными до Windows install + recovery проверки. Сетевой enforcement PR-A-09 и junction PR-A-12 — отдельные задачи.
+**Пользователь:** сообщил PASS для Windows hash/AST/Preview кандидата, затем выполнил резервную копию Bridge launcher с контролем SHA, сообщил STOP PASS после guarded Stop и INSTALL PASS после pinned copy/ACL/read-back/Preview. После запуска `Run` сообщил «сделал». Консольный вывод самого Run и Windows installed-file hash после запуска отдельно не предоставлялись; утверждение об установленной версии опирается на сообщение пользователя об успешном INSTALL PASS.
+
+**Live Fortis Repo:** в `2026-10-24T23:31:55Z` read-only terminal-команда выполнилась из настоящего клиента. Собственная `/proc` process ancestry: Python → bash → **installed DC node PID275748**, аргумент `/opt/dc/node_modules/@wonderwhy-er/desktop-commander/dist/index.js`, UID1000, **без Bridge**. `read_file` прочёл начало `/workspace/repos/tunnel/AGENTS.md`. `get_config` вернул DC `0.2.52`, allowedDirectories `/workspace/repos`, `/workspace/files`, `/workspace/repo`, defaultShell `/bin/bash`, telemetry=false. Доказательство переключения — именно ancestry, а не только `get_config`/UI.
+
+**Итог:** PR-A-13 direct entry **установлен пользователем по проверенному сценарию и работает сейчас (PASS(scope))**; прежний Bridge launcher сохранён владельцем в `run-tunnel.bridge.pre-direct.bak.ps1`. Это не полная Windows runtime attestation и не security PASS: новую startup-конфигурацию **не проверяли после перезапуска Windows/обычного control Start**, альтернативную аварийную процедуру *после* постоянной установки ещё не запускали (ранее C-05 Restore PASS); не проверяли полный UI/resources и все 26 tools, совместную работу других чатов, сетевую изоляцию, все Windows aliases/ACL или долговременную стабильность. Старые shutdown/startup команды не повторять на работающем Repo без необходимости. Текущее PowerShell окно с Run сохранять открытым; не запускать второй Tunnel.
+
+**Дальнейший gate:** пользователь подтверждает отсутствие UI-ошибок; затем при отдельном согласованном обслуживании проверить штатный restart через `control.ps1 -Action Start` и независимый Restore/launcher rollback (без ненужного нарушения работы других чатов). F-R-05 — узкая эксплуатация mutable Bridge entry на текущем serving-path устранена; все остальные границы защиты и Windows tool ACL остаются отдельными. Сетевой enforcement PR-A-09 и junction PR-A-12 отдельно.
