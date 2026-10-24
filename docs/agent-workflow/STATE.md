@@ -219,6 +219,8 @@ PR-A-13 assistant/pending — direct запуск защищённого install
 
 Пользователь по шагам подтвердил: Windows Preview PASS, backup создан, STOP PASS, INSTALL PASS, затем запуск `Run` («сделал»). Точная Windows консоль Run не предъявлялась, но live Fortis Repo в `2026-10-24T23:31:55Z` подтвердил serving chain **Python → bash → installed DC PID275748 без Bridge**, UID1000, `AGENTS.md` read PASS, read-only Linux terminal PASS, `get_config` прежние roots/shell/telemetry, DC 0.2.52. Результат **direct actual-client PASS(scope)**; предыдущий backup старого launcher сохранён по сообщению пользователя. Новое окно PowerShell Run не закрывать. Документ [PR-A-13](reviews/permanent-direct-mcp-rollout-20261025.md) содержит точную последовательность и rollback и теперь фактические evidence.
 
+**Визуальная проверка интерфейса по пользователю:** после live direct smoke сообщил «нормально все»; наблюдаемых им UI-ошибок нет, **PASS(scope)**. Это не тест полного списка MCP resources/UI actions и не исключение кэша UI.
+
 **Не переносить это на полноту:** обычный запуск `control.ps1 -Action Start`, восстановление после перезагрузки Windows, аварийный Restore с установленным новым launcher, полный набор 26 tools и UI resources, долгое наблюдение, Windows/сетевые ACL/aliases не проверены. F-R-05: риск именно runtime invocation mutable Bridge снят у наблюдаемого serving path; прочие риски в [обзоре защиты](reviews/repo-protection-20261025.md) не сняты.
 
 ## Ближайший план
@@ -227,7 +229,7 @@ PR-A-13 assistant/pending — direct запуск защищённого install
 | --- | --- | --- | --- |
 | RP-04 | ACTIVE; manual data needed | Определить сетевую политику по ActiveStore/Hyper-V/backend metadata; collector подготовлен | Выбран применимый enforcement и необходимые исключения; настройки отдельно |
 | RP-01 | DONE(scope), host gaps | Доступные исследования защиты нынешнего Repo выполнены; результат в repo-protection-20261025.md | Есть карта доступа/механизмов/evidence/gaps и pending меры; полного host/security PASS нет |
-| RP-02 | PR-A-13 manually installed; live direct PASS(scope); startup/recovery follow-up pending | Проверить наблюдения ChatGPT UI; позднее штатный Start/recovery с контролем версии и отдельным согласованием разрыва общей связи | Перезапуск новой версии по штатному controller и, при необходимости, проверенный rollback; нет неучтённого изменения доступа |
+| RP-02 | PR-A-13 manually installed; live direct и визуальный UI PASS(scope); startup/recovery follow-up pending | Позднее штатный Start/recovery с контролем версии и отдельным согласованием разрыва общей связи; сейчас работающий Tunnel не прерывать | Перезапуск новой версии по штатному controller и, при необходимости, проверенный rollback; нет неучтённого изменения доступа |
 | RP-03 | DEFERRED(user) / PR-A-12 | Учесть возможные junction: адресная metadata-карта до изменения границ данных/переноса | Известны ссылки/записанные цели/Repo-представление; посторонние targets не читаются автоматически; миграция отдельно |
 | N-01 | DONE(scope) | Установить mounts и проверить узкий доступ G2 к проекту | Выполненные источники и проверки перечислены выше |
 | N-02 | DEFERRED / PER PROJECT | Когда выбран Godot-результат для ручной проверки, определить Windows exe/версию и аккаунт запуска | Известны конкретные вход, инструмент и ручной маршрут; это не prerequisite защиты Repo |
