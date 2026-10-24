@@ -2,7 +2,7 @@
 
 Срез: **25 октября 2026 года, Asia/Bangkok**. Последний registry-сбор через G2: 25 октября, 01:12:26 (+07:00); последний проектный файловый тест: 24 октября, 22:06:40 (+07:00). Это документированный срез; действующие права задаёт runtime.
 
-Актуальная точка продолжения: [C-05 — выполненная ручная проверка direct и Restore](reviews/direct-mcp-client-test-20261025.md), WF-024 в JOURNAL. Реальный direct smoke и независимый Restore прошли в ограниченном scope; сейчас снова Bridge. Следующая развилка — отдельное решение о постоянном direct PR-A-13 либо защищённом Bridge PR-A-07, не автоматическое применение. Поздние уточнения имеют приоритет над ранней Godot-вехой.
+Актуальная точка продолжения: [PR-A-13 — подготовленный постоянный direct launcher и ручной rollout](reviews/permanent-direct-mcp-rollout-20261025.md), после [проверенного C-05 и Restore](reviews/direct-mcp-client-test-20261025.md). Кандидат **не установлен**; сейчас снова Bridge. Ближайший gate — ручная Windows AST/Preview без переключения, затем отдельная контролируемая установка с backup/recovery. PR-A-07 (защищённый Bridge) остаётся альтернативой; постоянное применение не принято автоматически.
 
 ## Текущая веха
 
@@ -209,13 +209,19 @@ PR-A-13 assistant/pending — direct запуск защищённого install
 
 После ручного независимого Restore в `2026-10-24T22:58:59Z` проверена цепочка **Python → bash → DC PID270829 → Bridge PID270817**, UID1000, прочитана часть того же файла и выполнены readonly terminal/get_config. Таким образом, direct и возврат **PASS(scope)**. Это не полная UI-совместимость: пользователь не заметил изменений, но cache/resources/все tools не проверялись. Постоянный runtime/profile не применялись; не делать выводов о полном security PASS. Подробности и пределы — в [C-05](reviews/direct-mcp-client-test-20261025.md).
 
+## Постоянный direct MCP entry — WF-025 (только исходник и инструкция)
+
+После успешного C-05 подготовлен [кандидат PR-A-13](reviews/permanent-direct-mcp-rollout-20261025.md) и независимый read-only startup guard в [source launcher](../../runtime/host-g2/runtime-api-migration/repo-run-tunnel-direct.candidate.ps1). Он запускает защищённый installed DC напрямую с прежним runtime/profile, не вызывает RW Bridge и старый mutating `probe.mjs`. Есть `Preview` с fail-closed Docker/Linux/прочими pins, backup исходного Windows launcher и отдельный rollback его файла после восстановления Bridge. Source/JS preflight прошли локальные проверки; Windows AST/Preview/deployment **ещё не были выполнены**, контейнер/текущая связь остаются как были.
+
+Следующий пользовательский шаг — выполнить **только** read-only Windows hash/AST/Preview из PR-A-13 review, проверить current source/live drift. Только после такого результата обсуждать ручную остановку общего Repo, backup, установку и rollback. Это проект изменения доверенного Windows startup по S-05, не разрешение агенту делать его через Windows/G2. F-R-05 не закрыт до установленного и проверенного нового пути; вопрос Windows ACL/aliases и полная UI-совместимость остаются ограничениями. Сетевой enforcement и junction отдельно.
+
 ## Ближайший план
 
 | ID | Статус | Действие | Критерий завершения |
 | --- | --- | --- | --- |
 | RP-04 | ACTIVE; manual data needed | Определить сетевую политику по ActiveStore/Hyper-V/backend metadata; collector подготовлен | Выбран применимый enforcement и необходимые исключения; настройки отдельно |
 | RP-01 | DONE(scope), host gaps | Доступные исследования защиты нынешнего Repo выполнены; результат в repo-protection-20261025.md | Есть карта доступа/механизмов/evidence/gaps и pending меры; полного host/security PASS нет |
-| RP-02 | C-05 direct + Restore PASS(scope); permanent choice pending | Решить между PR-A-13 (direct) и PR-A-07 (защищённый Bridge); спроектировать изменение доверенного startup/rollback отдельно | Избранный вариант применён вручную и проверен в установленном runtime; до этого текущий Bridge сохраняется |
+| RP-02 | C-05 PASS(scope); PR-A-13 source/rollout PREPARED; Windows gate pending | Ручная Windows hash/AST/Preview кандидата, затем отдельная контролируемая установка/backup/rollback; PR-A-07 остаётся альтернативой | Избранный startup-path применён владельцем, verified actual-client и local recovery, при сохранённых границах; пока Bridge |
 | RP-03 | DEFERRED(user) / PR-A-12 | Учесть возможные junction: адресная metadata-карта до изменения границ данных/переноса | Известны ссылки/записанные цели/Repo-представление; посторонние targets не читаются автоматически; миграция отдельно |
 | N-01 | DONE(scope) | Установить mounts и проверить узкий доступ G2 к проекту | Выполненные источники и проверки перечислены выше |
 | N-02 | DEFERRED / PER PROJECT | Когда выбран Godot-результат для ручной проверки, определить Windows exe/версию и аккаунт запуска | Известны конкретные вход, инструмент и ручной маршрут; это не prerequisite защиты Repo |
