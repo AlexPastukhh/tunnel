@@ -1,8 +1,8 @@
 # C-05: ручная проверка прямого MCP через существующий Fortis Repo
 
-**Инструкция к ручному тесту подготовлена; сам тест НЕ проведён.** Основной helper и независимый fallback сохранены с hash guard. Linux review/read-back и адресная проверка известных runtime pins проведены; Windows PowerShell AST, Windows Preview, TestDirect, UI и Restore пока не выполнялись. **Не запускать TestDirect без успешных AST + обоих Preview и возможности локального Restore.** При любом неожиданном drift/ошибке не обходить guard.
+**Ручной C-05 выполнен с настоящим ChatGPT-клиентом и возвратом (PASS в ограниченном scope).** Исходные инструкции и hash guards ниже сохранены как воспроизводимый порядок, но не означают, что нужно запускать TestDirect повторно. Детальный фактический результат — в конце документа. Постоянный launcher/profile/runtime не переводились на direct; сейчас снова Bridge.
 
-25 октября 2026 года, Asia/Bangkok. Пользователь попросил проверить прямое подключение и объяснить смысл. **Начата подготовка ограниченной ручной проверки; реальное переключение ещё не выполнялось.** Это не принятие постоянного удаления Bridge, сетевых правил или всей C-04.
+25 октября 2026 года, Asia/Bangkok. Пользователь поручил временную ручную проверку прямого подключения и возврата; после подготовки выполнил Windows AST/оба Preview, TestDirect и независимый Restore. Это не принятие постоянного удаления Bridge, сетевых правил или всей C-04.
 
 ## Что значит «прямое»
 
@@ -136,6 +136,14 @@ PASS ограничен реально проверенными tool/transport/U
 
 После возобновления связи сообщить **«Bridge восстановлен»**: агент отдельно проверит настоящую serving `/proc` chain и ограниченный read-only tool smoke. Проверка только `get_config` недостаточна.
 
-## Текущий статус
+## Результат реального теста и границы доказательств — WF-024
 
-C-05 подготовлен для **ручного AST/Preview gate и последующего пользовательского TestDirect**, но не является PASS actual-client. Linux code review и hashes двух скриптов зафиксированы; Windows AST, оба Windows Preview, фактическая временная смена, UI-проверка и Restore **не выполнены**. Сохранённые профили/launcher, ACL, mounts, network не менялись. Сетевой collector — отдельный pending шаг; junction отложены.
+**Пользователь (ручной Windows PowerShell):** сообщил о двух успешных `Preflight: PASS` и ожидаемых предупреждениях; показал текст `Starting TestDirect using the existing repo-mode profile`, процесс оставался работающим. При direct-сессии сообщил, что видимых изменений ChatGPT UI не заметил. Позднее сообщил, что выполнил независимый Restore; вывод команды Restore отдельно не предоставлялся, но его эффект подтверждён следующими live tool-вызовами.
+
+**Через настоящий Fortis Repo, во время direct:** в `2026-10-24T22:47:59Z` собственный read-only Python tool command обнаружил Python → bash → `node` PID269634 (`/opt/dc/node_modules/@wonderwhy-er/desktop-commander/dist/index.js`), UID1000, без Bridge в цепочке. Работали read_file известного `AGENTS.md`, read-only terminal operation и `get_config`: DC 0.2.52, roots `/workspace/repos`, `/workspace/files`, `/workspace/repo`, shell `/bin/bash`, telemetry=false. Metadata сами по себе не служили доказательством переключения.
+
+**После пользовательского Restore:** в `2026-10-24T22:58:59Z` реальная chain вновь Python → bash → installed DC PID270829 → Bridge PID270817, UID1000. Известный `AGENTS.md` снова читался; Linux read-only terminal и `get_config` работали, настройки совпали с прежними. Это PASS восстановленной serving chain, а не только отображения UI.
+
+**Ограничения:** визуальный UI outcome основан на наблюдении пользователя («вроде ничего не изменилось»); возможен кэш metadata, отдельные UI resources/actions не испытывались, поэтому полного UI PASS нет. Иные tools, длительная стабильность, изменения underlying Windows ACL/network/mounts и состояние других чатов отдельно не тестировались. Переход PR-A-13 на постоянный direct и альтернативное усиление Bridge PR-A-07 остаются pending и требуют отдельного решения. Сетевой collector не проводился; junction отложены. Сохранённые launcher/profile по плану не редактировали; проверка их файлов после теста отдельно не выполнялась.
+
+**Итог C-05:** временный direct actual-client smoke **PASS(scope)**, независимый Restore обратно к Bridge **PASS(scope)**. Ближайший вопрос — принять ли подготовку постоянного direct PR-A-13 с startup validation/recovery или сохранить и защитить Bridge PR-A-07.

@@ -2,7 +2,7 @@
 
 Срез: **25 октября 2026 года, Asia/Bangkok**. Последний registry-сбор через G2: 25 октября, 01:12:26 (+07:00); последний проектный файловый тест: 24 октября, 22:06:40 (+07:00). Это документированный срез; действующие права задаёт runtime.
 
-Актуальная точка продолжения: [ручная инструкция C-05](reviews/direct-mcp-client-test-20261025.md), подготовленная после [хендоффа WF-022](handoffs/handoff-20261025-network-direct-mcp.md). Временный direct MCP тест ещё не выполнен; сначала ручные Windows AST/Preview, затем TestDirect и проверенный Restore. Поздние уточнения имеют приоритет над ранней Godot-вехой.
+Актуальная точка продолжения: [C-05 — выполненная ручная проверка direct и Restore](reviews/direct-mcp-client-test-20261025.md), WF-024 в JOURNAL. Реальный direct smoke и независимый Restore прошли в ограниченном scope; сейчас снова Bridge. Следующая развилка — отдельное решение о постоянном direct PR-A-13 либо защищённом Bridge PR-A-07, не автоматическое применение. Поздние уточнения имеют приоритет над ранней Godot-вехой.
 
 ## Текущая веха
 
@@ -203,13 +203,19 @@ PR-A-13 assistant/pending — direct запуск защищённого install
 
 **Реальный тест НЕ выполнялся.** Windows AST/оба Preview — обязательный пользовательский gate; Linux не имеет PowerShell. Смена MCP, actual-client/UI acceptance, Restore, изменения Windows runtime/launcher/profile/ACL/mounts/network — не проводились. До Windows проверки нельзя считать подготовку проверенным Windows PASS. Сетевой collector и junction — отдельные задачи.
 
+## Реальный ручной C-05 и возврат — WF-024
+
+Пользователь подтвердил два Windows `Preflight: PASS` (AST/Preview gate), запустил TestDirect и не заметил видимых изменений интерфейса ChatGPT. Настоящий инструментальный read-only запрос показал **direct DC PID269634 без Bridge** в собственной serving ancestry, UID1000; известный `AGENTS.md`, readonly terminal и `get_config` работали, DC 0.2.52, roots/shell/telemetry без отличий от ожидаемого scope.
+
+После ручного независимого Restore в `2026-10-24T22:58:59Z` проверена цепочка **Python → bash → DC PID270829 → Bridge PID270817**, UID1000, прочитана часть того же файла и выполнены readonly terminal/get_config. Таким образом, direct и возврат **PASS(scope)**. Это не полная UI-совместимость: пользователь не заметил изменений, но cache/resources/все tools не проверялись. Постоянный runtime/profile не применялись; не делать выводов о полном security PASS. Подробности и пределы — в [C-05](reviews/direct-mcp-client-test-20261025.md).
+
 ## Ближайший план
 
 | ID | Статус | Действие | Критерий завершения |
 | --- | --- | --- | --- |
 | RP-04 | ACTIVE; manual data needed | Определить сетевую политику по ActiveStore/Hyper-V/backend metadata; collector подготовлен | Выбран применимый enforcement и необходимые исключения; настройки отдельно |
 | RP-01 | DONE(scope), host gaps | Доступные исследования защиты нынешнего Repo выполнены; результат в repo-protection-20261025.md | Есть карта доступа/механизмов/evidence/gaps и pending меры; полного host/security PASS нет |
-| RP-02 | Manual C-05 ready; Windows gate pending; actual-client pending | Проверить Windows AST + оба Preview, затем вручную TestDirect/Restore; выбрать direct DC PR-A-13 либо защищённый адаптер PR-A-07 | Реальные process/tool/UI outcomes и восстановленная Bridge chain; постоянное применение отдельно |
+| RP-02 | C-05 direct + Restore PASS(scope); permanent choice pending | Решить между PR-A-13 (direct) и PR-A-07 (защищённый Bridge); спроектировать изменение доверенного startup/rollback отдельно | Избранный вариант применён вручную и проверен в установленном runtime; до этого текущий Bridge сохраняется |
 | RP-03 | DEFERRED(user) / PR-A-12 | Учесть возможные junction: адресная metadata-карта до изменения границ данных/переноса | Известны ссылки/записанные цели/Repo-представление; посторонние targets не читаются автоматически; миграция отдельно |
 | N-01 | DONE(scope) | Установить mounts и проверить узкий доступ G2 к проекту | Выполненные источники и проверки перечислены выше |
 | N-02 | DEFERRED / PER PROJECT | Когда выбран Godot-результат для ручной проверки, определить Windows exe/версию и аккаунт запуска | Известны конкретные вход, инструмент и ручной маршрут; это не prerequisite защиты Repo |

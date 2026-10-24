@@ -57,6 +57,6 @@
 
 ## Передача контекста
 
-- [Исторический хендофф: сеть и прямой MCP, WF-022](handoffs/handoff-20261025-network-direct-mcp.md). После него [C-05](reviews/direct-mcp-client-test-20261025.md) подготовлен с ручными командами и независимым восстановлением (WF-023). Реальный direct тест и Windows AST/Preview ещё не выполнены.
+- [Исторический хендофф: сеть и прямой MCP, WF-022](handoffs/handoff-20261025-network-direct-mcp.md). После подготовки WF-023 [C-05](reviews/direct-mcp-client-test-20261025.md) **реально проведён** (WF-024): direct smoke и независимый Restore PASS(scope), сейчас снова Bridge. Постоянное решение PR-A-13/PR-A-07 не принято.
 
 - [Хендофф для нового чата: Repo, Windows/G2 и общий workflow, 25 октября 2026](handoffs/handoff-20261025-repo-g2.md) — датированный срез после `80f500e`; текущие изменения и решения продолжать вести в REQUIREMENTS/STATE/JOURNAL.
