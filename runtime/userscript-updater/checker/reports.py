@@ -51,12 +51,18 @@ def parse_eslint(stdout: str, exit_code: int, expected: tuple[Path, ...], scanne
         for item in rows:
             if not isinstance(item, dict) or not isinstance(item.get("filePath"), str):
                 raise ValueError("Missing filePath")
+            suppressed = item.get("suppressedMessages", [])
+            if not isinstance(suppressed, list):
+                raise ValueError("Malformed suppression list")
             messages = item.get("messages")
             if not isinstance(messages, list):
                 raise ValueError("Missing messages")
             paths.append(_report_path(item["filePath"], scanner_workdir))
             if any(not isinstance(msg, dict) for msg in messages):
                 raise ValueError("Malformed message")
+            # Suppressed findings are not proof of a clean scan.
+            if suppressed:
+                fatal = True
             count += len(messages)
             fatal |= any(bool(msg.get("fatal")) for msg in messages)
             if item.get("fatalErrorCount", 0):
@@ -87,7 +93,7 @@ def parse_semgrep(stdout: str, exit_code: int, expected: tuple[Path, ...], scann
         if not isinstance(paths, dict):
             raise ValueError("Missing targeting information")
         scanned = paths.get("scanned")
-        skipped = paths.get("skipped")
+        skipped = paths.get("skipped", [])  # Optional in the published output schema.
         findings = result.get("results")
         errors = result.get("errors")
         skipped_rules = result.get("skipped_rules", [])
@@ -95,7 +101,7 @@ def parse_semgrep(stdout: str, exit_code: int, expected: tuple[Path, ...], scann
                 or not isinstance(findings, list) or not isinstance(errors, list)
                 or not isinstance(skipped_rules, list)):
             raise ValueError("Incomplete Semgrep JSON schema")
-        if any(not isinstance(path, str) for path in scanned):
+        if any(not isinstance(path, str) for path in scanned) or any(not isinstance(item, dict) for item in skipped):
             raise ValueError("Unexpected scanned path type")
         visited = tuple(_report_path(path, scanner_workdir) for path in scanned)
         if exit_code not in (0, 1) or errors:
@@ -124,10 +130,17 @@ def summarize(snapshot: Snapshot, policy_sha256: str,
         path = snapshot.root / item.snapshot_relative
         if not path.is_file() or digest(path.read_bytes()) != item.sha256:
             damaged.append(str(path))
+    invalid_reports = []
     for report in reports:
+        if report.engine not in SUPPORTED or not set(report.expected).issubset(expected):
+            invalid_reports.append(report.engine)
+        elif (report.status in ("STRUCTURAL_CLEAR", "FINDINGS")
+              and (set(report.scanned) != set(report.expected)
+                   or len(report.scanned) != len(set(report.scanned)))):
+            invalid_reports.append(report.engine)
         covered.update(report.expected)
     uncovered = tuple(sorted(expected - covered))
-    if damaged or any(r.status == "ERROR" for r in reports) or not policy_sha256:
+    if damaged or invalid_reports or any(r.status == "ERROR" for r in reports) or not policy_sha256:
         status = "ERROR"
     elif uncovered or not reports or any(r.status in ("UNSUPPORTED", "INCOMPLETE") for r in reports):
         status = "INCOMPLETE" if reports else "UNSUPPORTED"

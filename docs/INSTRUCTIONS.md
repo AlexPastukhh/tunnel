@@ -4,6 +4,10 @@
 
 Подготовлен [source-кандидат постоянного Repo launcher](../runtime/host-g2/runtime-api-migration/repo-run-tunnel-direct.candidate.ps1) с прямым DC из защищённого контейнерного image path, read-only preflight и fail-closed checks; он не исполняет нынешний Bridge и не запускает mutating `probe.mjs`. [Windows AST/Preview, backup/install/rollback и критерии](agent-workflow/reviews/permanent-direct-mcp-rollout-20261025.md). **Это только Git source, не установленная конфигурация**: текущий Windows `run-tunnel.ps1`, runtime/profile, Docker, firewall/ACL/mounts, UID, network не изменены, процессы не перезапускались. До выполнения ручного gate и отдельного owner-controlled deployment другие чаты продолжают работу через восстановленный Bridge. Legacy probe больше не будет автоматически приводить Git/DC к нужному состоянию после такой будущей замены; drift требует отдельного решения. PR-A-07 остаётся альтернативой, F-R-05 ещё unresolved. Push не выполнялся.
 
+## 25.10.2026 — Project Checker: Docker-only analyzer validation
+
+ESLint 10.13.0 и Semgrep CE 1.182.1 проверены на синтетических JS/Python в Fortis Repo Docker, 40/40 тестов PASS без skips. Development-only политики находятся в runtime/userscript-updater/policies/demo; Docker-копии совпадают по SHA-256. Нет trusted Windows installation или external update; сведения и границы проверки — в [журнале реализации](userscript-updater/IMPLEMENTATION_LOG.md). Не запускать source/CLI в Docker как доверенный Windows-checker.
+
 ## 25.10.2026 — Project Checker: исходники, не установленный runtime
 
 Новые исходники: [runtime/userscript-updater](../runtime/userscript-updater/README.md). ESLint 10.13.0 для синтетических тестов установлен только во внутреннем volume Docker, путь /workspace/repo/project-checker-devtools. Действующий Windows-компонент, Loader, внешние назначения, политики, права и mounts не менялись. Факты, недоказанные гарантии и следующий gate — в [журнале реализации](userscript-updater/IMPLEMENTATION_LOG.md). Для настоящего использования необходим отдельный ручной перенос и независимая проверка границы доверия.

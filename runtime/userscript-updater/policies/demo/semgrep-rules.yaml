@@ -1,0 +1,11 @@
+rules:
+  - id: fixture-js-no-eval
+    languages: [javascript]
+    severity: ERROR
+    message: eval prohibited in synthetic JavaScript
+    pattern: eval(...)
+  - id: fixture-py-no-eval
+    languages: [python]
+    severity: ERROR
+    message: eval prohibited in synthetic Python
+    pattern: eval(...)
