@@ -13,6 +13,10 @@
 
 Owner read-only по обоим закреплённым EXE: `Get-AuthenticodeSignature` = **NotSigned**, на самих файлах найдено по **одной** broad write-type `Allow` ACE, на каждом предке (включая `C:\Tools`) **по две**; broad `Deny` = 0, неразрешённых SID = 0, reparse = false. Это **не доказывает эффективный доступ произвольной учётки**: нужен список конкретных ACL прав, применимости ACE, targeted Deny и actual access check под соответствующим token. NotSigned не доказывает вредоносность; прежние hash pins Client/Runtime совпадают, но независимой publisher attestation нет. **Не менять ACL на работающей системе до адресного плана и контролируемого восстановления**; не объявлять Windows trust boundary защищённым только на основании SHA. Риск F-R-07 остаётся приоритетным.
 
+## Дополнение WF-042: защита ACL без блокировки `alexa`
+
+Owner ACL counts для Client/Runtime EXE и каталогов `C:\Tools`, `tunnel-client`, `runtime/v0.0.15`: `InheritanceProtected=False`, `AlexaAllowWriteACE=0`, `SYSTEM=1`, `Administrators=1`, broad Authenticated Users Write Allow=1, прочих Write Allow=0. Нельзя удалять Authenticated Users Modify вслепую: обычная сессия `alexa` может лишиться возможности обслуживать Tunnel. Не следует делать массовый ACL reset на общем `C:\Tools` или корне `C:\`. Сначала owner read-only проверяет фактических владельцев, состав токена, наследование и права Delete/DeleteChild на файлах **и предках**, затем согласует узкий secure root, явные права `alexa`, SYSTEM, Administrators, RX потребителей и независимый ACL backup/restore. Microsoft Win32 `DeleteFile` подтверждает, что для удаления/переименования достаточно DELETE на объекте либо DELETE_CHILD у родителя. Только потом адресное изменение Windows с rollback, без остановки двух Repo до согласованного окна.
+
 ## Порядок проверки и безопасной очистки
 
 1. **Проверить всю цепочку исполнения и доверия**: Windows launcher/control/guard, `$Client` и `$Runtime`, `docker.exe` PATH, Linux node/DC, разрешения файлов и их предков, effective Windows ACL, junction aliases. Проверка только безопасной метаинформации без вывода профилей/ключей.
