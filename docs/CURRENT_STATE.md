@@ -1,5 +1,9 @@
 # Текущее состояние — датированный срез
 
+## 25.10.2026 — Project Checker: Tkinter GUI source и Windows layout preflight
+
+Добавлены checker/windows_layout.py, checker/ui_model.py и checker/gui.py. Tkinter source содержит вкладки проектов, правил, отчётов, preview и проверки схемы размещения, но кнопки проверки/обновления отключены до независимой защищённой Windows-установки. Никакого Windows визуального прогона нет: Tkinter недоступен в Docker. Схема путей всегда требует native path/ACL/agent-write проверки, даже при отсутствии явных пересечений. [Описание границы](userscript-updater/WINDOWS_TRUST_BOUNDARY.md), [журнал](userscript-updater/IMPLEMENTATION_LOG.md). Внешние user-consumed copies и Windows profiles не менялись.
+
 ## 25.10.2026 — Project Checker: лаборатория транзакции/отката без Windows-допуска
 
 Добавлена отдельная **синтетическая** лаборатория devtools/fixture_transactions.py: сборка заранее проверенных байтов, резервные копии, JSON-журнал, демонстрационная привязка preview/source/policy/target, отказ при дрейфе и тесты восстановления после прерывания. Она жёстко ограничена временными тестовыми каталогами и **не** входит в пакет checker как действующий updater. Уточнён preview: пустые папки и ранее управляемый состав входят в fingerprint. Реальные ESLint+Semgrep тесты включены, 74/74 PASS без skips. НЕ созданы защищённая Windows-установка, реальный пользовательский допуск, Windows GUI и разрешённый external update. [Факты и недостатки](userscript-updater/IMPLEMENTATION_LOG.md). Все более ранние описания ниже — исторические.

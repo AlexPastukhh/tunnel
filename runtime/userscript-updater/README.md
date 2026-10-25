@@ -12,7 +12,9 @@ Scope: full Windows checker and controlled external promotion per CPW-PC-2026102
 - Per-file coverage matrix: required scanners, actual scanned files, unsupported extensions and missing reports. Rule-to-language applicability still requires trusted-policy validation.
 - Read-only target preview builder (synthetic trees only): create/modify/delete/unchanged, UTF-8 text diffs, binary hashes/sizes, preserved unmanaged files/empty directories, target inventory fingerprint AND previously-managed-scope fingerprint, collision refusal.
 - A SEPARATE TEST-ONLY LAB under devtools/fixture_transactions.py (NOT the checker installable package). It requires a temporary canary-marked fixture directory and simulates reviewed-plan fingerprint matching, fresh source/pack/target checks, exact checked-byte staging, backups, durable JSON journal, idempotent status, injected failure/crash, selective rollback, manual recovery, and explicit residual-drift status when unrelated owner files changed. This is a synthetic, nonsecure model, not an approving/updating Windows API.
-- 74 Python tests including actual ESLint 10.13.0 and Semgrep CE 1.182.1 integration against isolated synthetic JS/Python. Clean inputs -> STRUCTURAL_CLEAR; eval examples -> FINDINGS. Aggregate clean status is always NOT_AUTHORIZED.
+- Windows structural deployment preflight (checker/windows_layout.py): checks for obvious trusted-root/agent-write/source overlap, rejects ambiguous string paths, and ALWAYS returns NEEDS_NATIVE_WINDOWS_VERIFICATION even with separated paths. It never claims OS ACL/alias verification.
+- Presentation state (checker/ui_model.py) and Tkinter Windows desktop prototype (checker/gui.py) with project registration JSON import, project/rule listings, report and preview views, file-level diff details, preserved external data and installation-layout diagnostics. **Both Check and Update are disabled** pending independent trusted Windows backend. GUI has not been visually run on Windows; Docker Python lacks Tkinter.
+- 95 Python tests including actual ESLint 10.13.0 and Semgrep CE 1.182.1 integration against isolated synthetic JS/Python. Clean inputs -> STRUCTURAL_CLEAR; eval examples -> FINDINGS. Aggregate clean status is always NOT_AUTHORIZED.
 
 To run tests inside Repo:
 
@@ -35,7 +37,7 @@ ESLint 10.13.0 was installed with npm --ignore-scripts. Semgrep CE 1.182.1 was i
 
 Copy the two development demo configs from policies/demo/ to $DEV/eslint.config.cjs and $DEV/semgrep-rules.yaml and verify hashes. Both copies are already present and checked in the active Docker volume.
 
-To run all 74 tests, configure the installed Docker CLI paths (unset env vars result in explicit integration-test skips):
+To run all 95 tests, configure the installed Docker CLI paths (unset env vars result in explicit integration-test skips):
 
     export UPDATER_DEV_ESLINT=/workspace/repo/project-checker-devtools/node_modules/eslint/bin/eslint.js
     export UPDATER_DEV_ESLINT_CONFIG=/workspace/repo/project-checker-devtools/eslint.config.cjs
@@ -45,6 +47,16 @@ To run all 74 tests, configure the installed Docker CLI paths (unset env vars re
 
 ## Critical remaining work
 
-There is NO approved PASS, NO external promotion and NO trusted Windows app. Both directories in Repo/Docker are agent-writable. Main CLI byte pins do not protect transitive dependencies. Linux path pre-checks + O_NOFOLLOW where available are not proven Windows secure-handle/TOCTOU protection. No independently validated language/rule coverage, pinned full analyzer dependency closure, production rules, installed pack edit locking, source tree relative-import semantics, empty directory copying, trusted external target observation and owner approval, actual promotion (create/modify/delete), target-lock checks, backup/journal/rollback, GUI, Windows ACL/install/consumer acceptance. Unknown files cannot silently be ignored or deemed safe. The full A4 final scope is unchanged.
+There is NO approved PASS, NO external promotion and NO trusted Windows app. Both directories in Repo/Docker are agent-writable. Main CLI byte pins do not protect transitive dependencies. Linux path pre-checks + O_NOFOLLOW where available are not proven Windows secure-handle/TOCTOU protection. No independently validated language/rule coverage, pinned full analyzer dependency closure, production rules, installed pack edit locking, source tree relative-import semantics, empty directory copying, trusted external target observation and owner approval, actual promotion (create/modify/delete), target-lock checks, backup/journal/rollback, fully functional GUI (current view-only source), Windows ACL/install/consumer acceptance. Unknown files cannot silently be ignored or deemed safe. The full A4 final scope is unchanged.
 
 The preview and devtools/fixture_transactions.py are **strictly for SYNTHETIC destination trees**. The test-only fingerprint is NOT user authentication/permission, there is NO trusted scan PASS or installed authorization gate, no protected previous-managed inventory, no real Windows ACL/reparse protection, no service or UI, and NO authorization to promote any Repo bytes outside synthetic fixtures. The test transaction deliberately refuses nonfixture destinations; it is kept OUTSIDE checker/ to reduce accidental production inclusion. Synthetic OS replace, fsync, backups and journals do not prove Windows crash-atomicity or prevent concurrent writes by AI/other processes. Do not run any of this as a trusted approving/installing Windows tool. Real use requires separate independent implementation, manual installation, external authorization and negative owner-side acceptance.
+
+## Desktop UI source-only smoke
+
+The pure presentation smoke can run inside Fortis Repo Docker without Tkinter:
+
+    PYTHONDONTWRITEBYTECODE=1 python3 -m checker.gui --model-smoke
+
+On a future controlled native Windows test environment with Tkinter, checker.gui is intended to render five tabs and show imported registration JSON as **data**. That Windows visual test is NOT RUN. The two action buttons are intentionally disabled; no source code scanning or external promotion is available in this view-only GUI.
+
+Trust boundary design and manual-acceptance gates: docs/userscript-updater/WINDOWS_TRUST_BOUNDARY.md. The synthetic transaction lab under devtools is NEVER an installed service or backend for this GUI.

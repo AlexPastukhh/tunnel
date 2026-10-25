@@ -1,5 +1,15 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026: Windows path preflight and Tkinter view-only source (fifth slice)
+
+**Source:** checker/windows_layout.py reviews Windows drive-path scheme for app/tools/policies/state/approved/source/agent-write roots. Literal agent-write/source intersections and unsupported ambiguous names are blockers. Even collision-free strings return NEEDS_NATIVE_WINDOWS_VERIFICATION because this is not a native OS final-path/reparse/ACL/route probe. checker/ui_model.py stores data-only registrations, scanner and preview views, invalidates cached results across shared policy consumers; checker/gui.py implements the tabbed Tkinter presentation of projects, rule links, scan results, effects and Windows path preflight. Update/Check buttons are disabled; no scanner or updater invoked.
+
+**Observed tests:** 95/95 Python tests PASS with live Docker ESLint 10.13.0 and Semgrep CE 1.182.1 integrations enabled and zero skips, plus separate GUI model smoke and checker-source AST parse. Python tkinter is unavailable in Docker, so no visual GUI or native host interaction tested. No owner applications, external copies, mounts, ACL, Tampermonkey or Windows installs changed. See WINDOWS_TRUST_BOUNDARY.md for future manual gates.
+
+**Next:** native Windows secure-handle and effective-agent-route probes, independently protected executable/rules/dependency closure, trusted policy editor and scanner pipeline, user approval, installed recovery, GUI walkthrough. Source-only UI must not be interpreted as an installed app.
+
+---
+
 ## 25 October 2026: synthetic transaction and recovery laboratory (fourth slice)
 
 **Scope:** User continued A4 development in Fortis Repo. Added devtools/fixture_transactions.py, deliberately **outside the production checker package**, guarded to a Python TemporaryDirectory with a special synthetic-only marker. No production write/update API was created. Neither the marker nor the fingerprint equals owner authentication or scanner acceptance.
