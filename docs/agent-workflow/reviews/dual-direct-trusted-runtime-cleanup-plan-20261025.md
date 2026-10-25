@@ -9,6 +9,10 @@
 - WF-040 owner read-only: Repo2 `$Client` (строка 21) и `$Runtime` (22) — статические существующие исполняемые файлы вне Repos/Workfiles, не reparse points. SHA Client `1946DE55A038313A9B9B2458D05FE1719FA9CF1F20A94DD5F38FC26A98BFDD42` совпадает с *историческим локальным pin* `C:\Tools\tunnel-client\tunnel-client.exe` из `Get-RepoApiProtectionPreview.ps1` и `Test-G3SelectedOwnerTcpListeners.ps1`; SHA Runtime `A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A` совпал с pinned runtime. `Get-FileHash` в установленном втором launcher пока найден только для `$Runtime`, поэтому Client не утверждать startup-pinned. Нужны vendor signature/provenance и effective ACL/ancestor alias: доверенные Windows `C:\Tools` ранее имели условный F-R-07 с Modify для некоторых principals.
 - Writable Docker roots: `/workspace/repos`, `/workspace/files`, `/workspace/repo`; shared UID1000/сеть/конфигурация DC; другой браузерный профиль не создаёт OS isolation.
 
+## Приоритетный обнаруженный Windows ACL gap — WF-041
+
+Owner read-only по обоим закреплённым EXE: `Get-AuthenticodeSignature` = **NotSigned**, на самих файлах найдено по **одной** broad write-type `Allow` ACE, на каждом предке (включая `C:\Tools`) **по две**; broad `Deny` = 0, неразрешённых SID = 0, reparse = false. Это **не доказывает эффективный доступ произвольной учётки**: нужен список конкретных ACL прав, применимости ACE, targeted Deny и actual access check под соответствующим token. NotSigned не доказывает вредоносность; прежние hash pins Client/Runtime совпадают, но независимой publisher attestation нет. **Не менять ACL на работающей системе до адресного плана и контролируемого восстановления**; не объявлять Windows trust boundary защищённым только на основании SHA. Риск F-R-07 остаётся приоритетным.
+
 ## Порядок проверки и безопасной очистки
 
 1. **Проверить всю цепочку исполнения и доверия**: Windows launcher/control/guard, `$Client` и `$Runtime`, `docker.exe` PATH, Linux node/DC, разрешения файлов и их предков, effective Windows ACL, junction aliases. Проверка только безопасной метаинформации без вывода профилей/ключей.
