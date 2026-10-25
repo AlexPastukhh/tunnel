@@ -2,7 +2,7 @@
 
 Срез: **25 октября 2026 года, Asia/Bangkok**. Последний registry-сбор через G2: 25 октября, 01:12:26 (+07:00); последний проектный файловый тест: 24 октября, 22:06:40 (+07:00). Это документированный срез; действующие права задаёт runtime.
 
-Актуальная точка продолжения: [PR-A-13 — установленный пользователем direct entry, actual-client smoke PASS(scope)](reviews/permanent-direct-mcp-rollout-20261025.md), после [C-05 и проверенного независимого Restore](reviews/direct-mcp-client-test-20261025.md). **Сейчас ChatGPT обслуживает прямой Desktop Commander, без Bridge; действующее PowerShell-окно Run оставлять открытым.** Следующий gate — наблюдение UI и позднее отдельно согласованный тест обычного startup/recovery. Windows reboot/все MCP resources/долгосрочная стабильность не проверены; остальные security gaps отдельно.
+Актуальная точка продолжения: [PR-A-13 — установленный direct и проверенный штатный Start через control.ps1 (WF-027)](reviews/permanent-direct-mcp-rollout-20261025.md), после [C-05 и проверенного независимого Restore](reviews/direct-mcp-client-test-20261025.md). **Единственный текущий Windows Repo Tunnel использует direct entry без Bridge** (Windows read-only проверка пользователя). Работающее PowerShell-окно runtime оставить открытым. Два старых Bridge и их DC-потомки существуют в контейнере; принадлежность/безопасность остановки не проверена, не завершать наугад. Windows reboot/все MCP resources/долгосрочная стабильность/откат после постоянной установки не проверены; остальные security gaps отдельно.
 
 ## Текущая веха
 
@@ -223,13 +223,17 @@ PR-A-13 assistant/pending — direct запуск защищённого install
 
 **Не переносить это на полноту:** обычный запуск `control.ps1 -Action Start`, восстановление после перезагрузки Windows, аварийный Restore с установленным новым launcher, полный набор 26 tools и UI resources, долгое наблюдение, Windows/сетевые ACL/aliases не проверены. F-R-05: риск именно runtime invocation mutable Bridge снят у наблюдаемого serving path; прочие риски в [обзоре защиты](reviews/repo-protection-20261025.md) не сняты.
 
+## Штатный restart/Windows direct entry — WF-027
+
+Пользователь поэтапно получил STOP PASS для прямого соединения, затем штатный `control.ps1 -Action Start` открыл новое окно с сообщением direct launcher. После рестарта Fortis Repo `read_file`/`get_config` PASS(scope); повторный `start_process` блокируется системой безопасности OpenAI, поэтому serving `/proc` ancestry через инструмент **после рестарта** не получена. Независимые read-only Windows команды подтвердили **RepoTunnelCount=1, DirectEntry=True, BridgeEntry=False** по действительной командной строке единственного Repo Tunnel. В контейнере существуют старые цепочки PID137 Bridge → DC149 и PID183 Bridge → DC195, а также новый DC PID276507 PPid0; PPid0 не делает их безопасными для завершения. Старые Bridge не используются нынешним Windows Repo Tunnel, но причин/владельцев остаточных процессов и влияния на иные каналы не доказали. **Штатный Start — PASS(scope), полная уборка старых процессов pending и не применяется без отдельного guard.** Подробности и границы — [PR-A-13](reviews/permanent-direct-mcp-rollout-20261025.md).
+
 ## Ближайший план
 
 | ID | Статус | Действие | Критерий завершения |
 | --- | --- | --- | --- |
 | RP-04 | ACTIVE; manual data needed | Определить сетевую политику по ActiveStore/Hyper-V/backend metadata; collector подготовлен | Выбран применимый enforcement и необходимые исключения; настройки отдельно |
 | RP-01 | DONE(scope), host gaps | Доступные исследования защиты нынешнего Repo выполнены; результат в repo-protection-20261025.md | Есть карта доступа/механизмов/evidence/gaps и pending меры; полного host/security PASS нет |
-| RP-02 | PR-A-13 manually installed; live direct и визуальный UI PASS(scope); startup/recovery follow-up pending | Позднее штатный Start/recovery с контролем версии и отдельным согласованием разрыва общей связи; сейчас работающий Tunnel не прерывать | Перезапуск новой версии по штатному controller и, при необходимости, проверенный rollback; нет неучтённого изменения доступа |
+| RP-02 | PR-A-13 installed; live direct/UI/штатный Start/Windows entry PASS(scope); recovery и legacy cleanup pending | Не трогая рабочий direct, отдельно оценить старые Bridge PID и будущий disaster-recovery/reboot gate | Установлен единственный прямой Windows Repo Tunnel; отдельные cleanup/rollback/reboot проверяются без неучтённого расширения доступа |
 | RP-03 | DEFERRED(user) / PR-A-12 | Учесть возможные junction: адресная metadata-карта до изменения границ данных/переноса | Известны ссылки/записанные цели/Repo-представление; посторонние targets не читаются автоматически; миграция отдельно |
 | N-01 | DONE(scope) | Установить mounts и проверить узкий доступ G2 к проекту | Выполненные источники и проверки перечислены выше |
 | N-02 | DEFERRED / PER PROJECT | Когда выбран Godot-результат для ручной проверки, определить Windows exe/версию и аккаунт запуска | Известны конкретные вход, инструмент и ручной маршрут; это не prerequisite защиты Repo |
