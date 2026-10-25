@@ -1,5 +1,9 @@
 # Обновление инструкций после изменений
 
+## 25.10.2026 — Project Checker: новая очередность полного личного V1
+
+Актуальный [PLAN.md](userscript-updater/PLAN.md) заменяет старую узкую userscript execution sequence; исторический план сохранён в [PLAN_LEGACY_USERSCRIPTS_20261025.md](userscript-updater/PLAN_LEGACY_USERSCRIPTS_20261025.md). Ближайшая задача разработки — V1-1: устранение cross-project preview binding, полное представление бинарных sizes/hash и реальная валидация effective ESLint/Semgrep configs. Следом V1-2 — рабочая check-only GUI-цепочка, затем V1-3 exact promotion, V1-4 owner-run host acceptance. Нет новой установленной версии, окон Windows, CLI scan owner-проектов, изменения Loader/политик/ACL или внешних файлов; этот шаг только планирование. Актуальное evidence — [IMPLEMENTATION_LOG](userscript-updater/IMPLEMENTATION_LOG.md).
+
 ## 25.10.2026 — PR-A-13: прямой MCP launcher установлен пользователем, live smoke PASS(scope)
 
 Исходник [direct Repo launcher](../runtime/host-g2/runtime-api-migration/repo-run-tunnel-direct.candidate.ps1) после ручных hash/AST/Preview/backup/Stop/INSTALL PASS **установлен пользователем** вместо Windows `run-tunnel.ps1`. [Проверки и независимый rollback](agent-workflow/reviews/permanent-direct-mcp-rollout-20261025.md): actual-client через Fortis Repo подтвердил direct DC PID275748, UID1000, без Bridge, чтение файла/readonly terminal/get_config PASS(scope), WF-026. **Текущий запуск прямой.** Агент не применял Windows/G2 команды, сеть/Docker/ACL/mounts не перенастраивал. Консоль PowerShell Run оставлять открытой, второй Repo Tunnel не запускать. Штатный startup через control после остановки/Windows reboot, полный UI/resources и возврат после постоянной установки ещё не испытаны. Старый mutating `probe.mjs` более не вызывается этим launcher, прежний Bridge launcher сохранён пользователем под backup. Push не выполнялся; отдельные security gaps сохраняются.

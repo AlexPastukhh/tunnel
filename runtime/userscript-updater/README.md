@@ -1,5 +1,7 @@
 # Project Checker — development source, NOT a trusted Windows installation
 
+**Current execution plan:** [docs/userscript-updater/PLAN.md](../../docs/userscript-updater/PLAN.md). Personal V1 remains a full local Windows app, not a demo; work proceeds as bug fixes → working Check UI/persistence/shared rules → reviewed promotion and recovery → owner-run trusted Windows acceptance. The plan changes no executable code or approval status.
+
 Scope: full Windows checker and controlled external promotion per CPW-PC-20261025/v4 (A4). All current code is agent-writeable and development-only. User will later manually install independent verified app, rules, tools and targets outside agent-write routes.
 
 ## Implemented, source-only

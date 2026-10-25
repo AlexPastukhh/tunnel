@@ -1,5 +1,9 @@
 # Текущее состояние — датированный срез
 
+## 25.10.2026 — Project Checker: актуализирована последовательность V1
+
+По прямому запросу пользователя обновлён [рабочий план личной V1](userscript-updater/PLAN.md), сохранены полный scope и security invariants A4. Приоритет: подтверждённые дефекты preview/policy, затем законченное Check workflow (registry, mutable packs, real CLI, GUI), затем controlled Update и native Windows owner acceptance. Исторический [узкий план userscripts](userscript-updater/PLAN_LEGACY_USERSCRIPTS_20261025.md) сохранён побайтно. На этом шаге **только документы**, без кодовых исправлений, Windows установок, ACL, Loader или внешнего переноса. Последнее проверенное программное evidence — Docker 95/95 tests, Tkinter Windows NOT_RUN; не выводить из изменения плана новый PASS.
+
 ## 25.10.2026 — Project Checker: Tkinter GUI source и Windows layout preflight
 
 Добавлены checker/windows_layout.py, checker/ui_model.py и checker/gui.py. Tkinter source содержит вкладки проектов, правил, отчётов, preview и проверки схемы размещения, но кнопки проверки/обновления отключены до независимой защищённой Windows-установки. Никакого Windows визуального прогона нет: Tkinter недоступен в Docker. Схема путей всегда требует native path/ACL/agent-write проверки, даже при отсутствии явных пересечений. [Описание границы](userscript-updater/WINDOWS_TRUST_BOUNDARY.md), [журнал](userscript-updater/IMPLEMENTATION_LOG.md). Внешние user-consumed copies и Windows profiles не менялись.
