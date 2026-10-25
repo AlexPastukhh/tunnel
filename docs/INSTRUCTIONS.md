@@ -1,5 +1,10 @@
 # Обновление инструкций после изменений
 
+## 25.10.2026 — Project Checker V1-3: portable core и полный read-only preview
+
+Независимое ядро связывает Check/source/snapshot/policy/tools/managed scope/actual target с review и одноразовым confirmation; реализованы staged checked bytes, backup/write-ahead journal/readback/recovery и reviewed rollback. Мутации только в private Docker fixtures через test-only adapter вне checker; native backend отсутствует, default apply и GUI Update заблокированы. Полный suite **161/161 PASS без skips** с обоими CLI; actual Tk **10/10 PASS**, preview/adoption не меняют target. [Контракт и оставшийся scope](userscript-updater/PROMOTION_CORE.md), [журнал](userscript-updater/IMPLEMENTATION_LOG.md). V1-3 ещё IN_PROGRESS: native I/O/issuer, folder/resource/data/recovery UI contracts и V1-4 owner acceptance впереди. Никаких Windows/ACL/Loader/actual external updates, push или перезапуска shared runtime этой задачей.
+
+
 ## 25.10.2026 — Примечание к живой установке двух Repo (WF-048)
 
 Два Windows Fortis Repo уже используют **Direct MCP** (`/opt/dc/.../dist/index.js`), а не старый Bridge по `/workspace/repo/.fortis/mcp-bridge.mjs`. Последний read-only snapshot: **2 Direct, 0 Bridge**. Все более ранние в этом длинном файле candidate/source/Bridge/Stop/Install команды считать **датированной историей**, а не предложением для повторного исполнения. Проверять [актуальную security карту](agent-workflow/TUNNEL_SECURITY_ISOLATION.md), [STATE](agent-workflow/STATE.md), [операции с предупреждениями](OPERATIONS.md); **не переносить вручную Tunnel**, не трогать ACL/ключи/reboot и legacy Bridge до owner-approved gate будущего trusted promotion app. Документацию обновлять после каждого значимого шага в рамках [протокола](agent-workflow/README.md).

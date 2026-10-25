@@ -1,5 +1,10 @@
 # Текущее состояние — датированный срез
 
+## 25.10.2026 — Project Checker V1-3: portable core и полный read-only preview
+
+Независимое ядро связывает Check/source/snapshot/policy/tools/managed scope/actual target с review и одноразовым confirmation; реализованы staged checked bytes, backup/write-ahead journal/readback/recovery и reviewed rollback. Мутации только в private Docker fixtures через test-only adapter вне checker; native backend отсутствует, default apply и GUI Update заблокированы. Полный suite **161/161 PASS без skips** с обоими CLI; actual Tk **10/10 PASS**, preview/adoption не меняют target. [Контракт и оставшийся scope](userscript-updater/PROMOTION_CORE.md), [журнал](userscript-updater/IMPLEMENTATION_LOG.md). V1-3 ещё IN_PROGRESS: native I/O/issuer, folder/resource/data/recovery UI contracts и V1-4 owner acceptance впереди. Никаких Windows/ACL/Loader/actual external updates, push или перезапуска shared runtime этой задачей.
+
+
 ## 25.10.2026 — Repo/Tunnel security baseline и handoff (WF-048)
 
 По поручению владельца выполнена согласованность актуальной документации двух Fortis Repo: [единая карта безопасности/план проверок будущего Windows promotion](agent-workflow/TUNNEL_SECURITY_ISOLATION.md), [актуальный Repo STATE](agent-workflow/STATE.md), [JOURNAL](agent-workflow/JOURNAL.md). Owner-installed два Direct MCP, Linux read-only повтор — **2 Direct, 0 legacy Bridge**, модуль DC SHA сохранился. Исторические инструкции запуска Bridge в ARCHITECTURE/OPERATIONS помечены legacy; **не возвращаться к Bridge**, не переносить Tunnel вручную и не изменять действующие Windows ACL/runtime до приёмки нового локального приложения. Project Checker пока **Docker dev Check**, Update disabled, Windows native/install NOT_RUN — см. собственный хендофф ниже. Windows F-R-07 broad Modify, F-R-06 network/API, key2, aliases и cold reboot двух профилей OPEN. Этот пункт — документальный read-only срез, не новый host hardening или acceptance.

@@ -12,7 +12,7 @@
 
 ## 2. Наблюдаемое состояние на дату обновления
 
-Исходники в Fortis Repo уже содержат модели регистраций и shared packs, SHA-256 snapshots, ESLint/Semgrep JSON adapters и per-file coverage, read-only preview, **отдельную синтетическую** transaction laboratory, development Tkinter Check GUI и строковую проверку Windows layout. В Docker фактически протестированы ESLint 10.13.0 и Semgrep CE 1.182.1 на синтетических JS/Python; последний полный прогон — 140/140 Python tests без skips с обоими CLI. V1-1 исправлен: review binding, бинарные размеры и отдельная реальная effective-config validation. Коммит source-only GUI: 4a832b8; HEAD перед любой новой работой проверять, поскольку есть соседняя работа в том же repo.
+Исходники в Fortis Repo уже содержат модели регистраций и shared packs, SHA-256 snapshots, ESLint/Semgrep JSON adapters и per-file coverage, read-only preview, **отдельную синтетическую** transaction laboratory, development Tkinter Check GUI и строковую проверку Windows layout. В Docker фактически протестированы ESLint 10.13.0 и Semgrep CE 1.182.1 на синтетических JS/Python; последний полный прогон — 161/161 Python tests без skips с обоими CLI. V1-1 исправлен: review binding, бинарные размеры и отдельная реальная effective-config validation. Коммит source-only GUI: 4a832b8; HEAD перед любой новой работой проверять, поскольку есть соседняя работа в том же repo.
 
 **V1-2 source Check реализован:** persistence/pickers, shared-pack create/edit/copy/bind/rebind/delete, real async CLI jobs/progress/cancel/timeout, file/rule reports и evidence. Реальные Tk widgets: 8/8 Docker/Xvfb scenarios PASS; native Windows GUI/Job Object/ACL всё ещё NOT_RUN. [Рабочий путь](DEVELOPMENT_CHECK_WORKFLOW.md).
 
@@ -50,7 +50,9 @@
 
 **Development gate выполнен на синтетических Docker fixtures (реальные widgets/CLI); native Windows acceptance pending:** через интерфейс можно сохранить проект и пакет, запустить полноценную check-only проверку безопасного примера, увидеть причины и повторить после перезапуска. Реальная external mutation ещё отключена.
 
-### V1-3 — завершить preview → confirmation → controlled promotion (E-03, E-04)
+### V1-3 — IN_PROGRESS: завершить preview → confirmation → controlled promotion (E-03, E-04)
+
+**Первый source slice реализован (161/161 Python + 10/10 Tk):** независимый promotion core, managed-state, одноразовые confirmations, staging/backups/write-ahead journal/readback/recovery и explicit rollback. GUI строит полный read-only preview после Check и показывает явный первый импорт. Мутации проверены только в private Docker fixtures через adapter вне checker. Native backend/issuer и настоящий Update отсутствуют. [Контракт и оставшийся scope](PROMOTION_CORE.md).
 
 - Собрать полноценную цепочку для file/multiple/mixed/folder: scan evidence относится к snapshot, actual target inventory и управляемому previous set; перед применением repeat source/policy/tool/target checks.
 - Пользователь видит **полный эффект** относительно фактической внешней копии, включая текстовый diff, бинарные размеры/hashes, удаления ранее управляемого и сохранившиеся unmanaged files/data. Первый импорт existing target не затирает чужие данные без явного включения scope.
@@ -84,7 +86,7 @@
 
 ## 6. Как вести работу и подтверждать результаты
 
-- V1-1 завершён; основной V1-2 Check workflow реализован и проверен в Docker. Следующий coding шаг — **V1-3**, при сохранении native Windows gate V1-2/V1-4. Не тратить следующий цикл на новый большой synthetic transaction framework, пока Check как пользовательский путь не завершён.
+- V1-1 завершён; основной V1-2 Check workflow реализован и проверен в Docker. Продолжается **V1-3**: portable core/preview реализованы; дальше native source/state/target backend/issuer и оставшиеся folder/resource/recovery UI contracts, с V1-4 owner gate. Не тратить следующий цикл на новый большой synthetic transaction framework, пока Check как пользовательский путь не завершён.
 - Перед записью — AGENTS, git status/index; изменять только свои файлы, не захватывать чужой staged work. Локальные коммиты отдельны от push/Windows install.
 - Различать SOURCE_READY, DOCKER_TESTED, WINDOWS_PREREQS_CHECKED, WINDOWS_GUI_TESTED, HOST_BOUNDARY_VERIFIED, OWNER_ACCEPTED. Не выводить из Docker tests статус Windows-установки.
 - Все Windows-модификации, Loader, браузер/GM/secrets и использование реальных пользовательских target **вне текущего поручения обновить план**.

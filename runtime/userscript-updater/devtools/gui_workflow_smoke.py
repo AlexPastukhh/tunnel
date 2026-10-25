@@ -3,6 +3,7 @@
 File-picker results and message boxes are injected. This is NOT native Windows QA.
 """
 import json
+from dataclasses import replace
 import os
 import tempfile
 import time
@@ -178,10 +179,39 @@ def main():
         pump(app, lambda: not app.jobs.busy and "CANCELLED" in app.job_status)
         assert project_id not in app.presenter.scan_reports
         print("TK-08 PASS: GUI cancellation stops job without restoring stale report", flush=True)
+        py.write_text("answer = 42\\n")
+        target = root / "approved"
+        target.mkdir()
+        (target / "owner.txt").write_text("preserved owner data")
+        current = app.presenter.registrations[project_id]
+        current = replace(current, target_root=str(target), selections=tuple(
+            replace(selection, target=Path(selection.source).name) for selection in current.selections))
+        assert app._save_project(current)
+        app.check_button.invoke()
+        pump(app, lambda: project_id in app.presenter.scan_reports and not app.jobs.busy)
+        app.preview_button.invoke()
+        pump(app, lambda: app.active_review is not None and not app.jobs.busy)
+        assert {c.kind for c in app.active_review.preview.changes} == {"create"}
+        assert app.active_review.preview.preserved == ("owner.txt",)
+        assert list(target.iterdir()) == [target / "owner.txt"]
+        assert str(app.update_button["state"]) == "disabled"
+        print("TK-09 PASS: actual Check -> full read-only target preview; Update disabled", flush=True)
+
+        (target / "пример.js").write_text("old external content")
+        app.preview_button.invoke()
+        pump(app, lambda: not app.jobs.busy and app.job_status.startswith("ERROR"))
+        assert app.active_review is None
+        app.import_button.invoke()
+        pump(app, lambda: app.active_review is not None and not app.jobs.busy)
+        assert app.active_review.preview.adopted_existing == ("пример.js",)
+        assert (target / "пример.js").read_text() == "old external content"
+        assert (target / "owner.txt").read_text() == "preserved owner data"
+        assert str(app.update_button["state"]) == "disabled"
+        print("TK-10 PASS: explicit first-import preview, exact adoption scope, no target writes", flush=True)
         assert not app.presenter.can_apply(project_id)
         assert not dialogs.errors, dialogs.errors
         app._close()
-        print("Tk widget smoke: 8/8 PASS. SYNTHETIC DOCKER ONLY; WINDOWS NOT TESTED.", flush=True)
+        print("Tk widget smoke: 10/10 PASS. SYNTHETIC DOCKER ONLY; WINDOWS NOT TESTED.", flush=True)
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ from .settings import DevelopmentSettings
 from .policies import PolicyStore
 from .policy_editor import PolicyEditor
 from .policy_service import PolicyService
+from .promotion import PromotionService
 from pathlib import Path
 
 from .model import Registration
@@ -57,6 +58,9 @@ class DesktopApp:
             except (OSError, ValueError, TypeError, KeyError) as exc:
                 messagebox.showerror("Тестовый профиль не загружен", str(exc))
                 self.job_status = "Check отключён: неверный тестовый профиль."
+        self.promotion = PromotionService(self.jobs.settings) if self.jobs else None
+        self.check_results = {}
+        self.active_review = None
         self.tables = {}
         self.row_details = {}
         self.detail_panes = {}
@@ -93,6 +97,14 @@ class DesktopApp:
         t.Button(control, text="Обновить вид", command=self.refresh).pack(side="left", padx=3)
         policies_frame = self.tabs.nametowidget(self.tabs.tabs()[1])
         self._policy_controls(policies_frame)
+        preview_frame = self.tabs.nametowidget(self.tabs.tabs()[3])
+        controls = t.Frame(preview_frame)
+        controls.pack(side="bottom", fill="x", pady=4)
+        self.preview_button = t.Button(controls, text="Сформировать полный просмотр", command=self._review, state="disabled")
+        self.preview_button.pack(side="left")
+        self.import_button = t.Button(controls, text="Просмотр первого импорта", command=lambda: self._review(first_import=True), state="disabled")
+        self.import_button.pack(side="left", padx=5)
+        t.Label(controls, text="Подтверждение и запись ждут проверенной Windows-установки.").pack(side="left", padx=5)
         install_frame = self.tabs.nametowidget(self.tabs.tabs()[4])
         self._layout_controls(install_frame)
         self.tabs.bind("<<NotebookTabChanged>>", lambda _: self.refresh())
@@ -103,7 +115,8 @@ class DesktopApp:
         self.check_button.pack(side="right", padx=5)
         self.cancel_button = t.Button(footer, text="Отмена проверки", command=self._cancel_job, state="disabled")
         self.cancel_button.pack(side="right", padx=5)
-        t.Button(footer, text="Обновить (недоступно)", state="disabled").pack(side="right", padx=5)
+        self.update_button = t.Button(footer, text="Обновить (недоступно)", state="disabled")
+        self.update_button.pack(side="right", padx=5)
 
     def _new_table(self, frame):
         t = self.ttk
@@ -271,6 +284,9 @@ class DesktopApp:
             if self.jobs and self.jobs.busy:
                 raise ValueError("Дождитесь завершения или отмены текущей операции")
             self.registry.put(project)
+            self.check_results.pop(project.registration_id, None)
+            if self.promotion:
+                self.promotion.invalidate(project.registration_id)
         except (OSError, ValueError, TypeError) as exc:
             self.messagebox.showerror("Не удалось сохранить регистрацию", str(exc))
             return False
@@ -287,6 +303,9 @@ class DesktopApp:
             if self.jobs and self.jobs.busy:
                 raise ValueError("Дождитесь завершения или отмены текущей операции")
             self.registry.remove(self.selected)
+            self.check_results.pop(self.selected, None)
+            if self.promotion:
+                self.promotion.invalidate(self.selected)
         except (OSError, ValueError) as exc:
             self.messagebox.showerror("Не удалось удалить регистрацию", str(exc))
             return
@@ -332,6 +351,11 @@ class DesktopApp:
         enabled = self.jobs is not None and not busy and not self.registry_error
         self.check_button.configure(state="normal" if enabled and self.selected else "disabled")
         self.cancel_button.configure(state="normal" if busy else "disabled")
+        selected_project = self.presenter.registrations.get(self.selected)
+        review_enabled = (enabled and self.selected in self.check_results
+                          and selected_project is not None and selected_project.target_root is not None)
+        self.preview_button.configure(state="normal" if review_enabled else "disabled")
+        self.import_button.configure(state="normal" if review_enabled else "disabled")
         for button in self.policy_buttons:
             button.configure(state="normal" if enabled else "disabled")
 
@@ -390,6 +414,10 @@ class DesktopApp:
         if project is None:
             return
         try:
+            self.check_results.pop(project.registration_id, None)
+            if self.promotion:
+                self.promotion.invalidate(project.registration_id)
+            self.active_review = None
             self.active_ticket = self.jobs.start(project)
             self.active_check_project = project.registration_id
             self.presenter.cancel_review(project.registration_id)
@@ -398,11 +426,30 @@ class DesktopApp:
         except (ValueError, OSError) as exc:
             self.messagebox.showerror("Проверка не начата", str(exc))
 
+    def _review(self, first_import=False):
+        project = self.presenter.registrations.get(self.selected)
+        check = self.check_results.get(self.selected)
+        if not project or check is None or not self.jobs or self.jobs.busy:
+            return
+        try:
+            self.active_review = None
+            self.presenter.previews.pop(project.registration_id, None)
+            self.promotion.invalidate(project.registration_id)
+            self.active_ticket = self.jobs.start_review(self.promotion, check, project, first_import=first_import)
+            self.active_check_project = project.registration_id
+            self.job_status = "Формируется полный просмотр. Назначение не изменяется."
+            self.refresh()
+        except (ValueError, OSError) as exc:
+            self.messagebox.showerror("Просмотр не сформирован", str(exc))
+
     def _cancel_job(self):
         if self.jobs:
             self.jobs.cancel()
         if self.active_check_project:
             self.presenter.cancel_review(self.active_check_project)
+            self.check_results.pop(self.active_check_project, None)
+            if self.promotion:
+                self.promotion.invalidate(self.active_check_project)
         self.job_status = "Отмена: ожидание остановки процессов анализаторов."
         self.status.set(self.job_status)
 
@@ -414,7 +461,11 @@ class DesktopApp:
                 self.job_status = event.phase + ": " + event.detail
                 if event.terminal:
                     if event.phase == "POLICY_SAVED":
-                        self.presenter.invalidate_shared_pack(event.result.pack_id)
+                        affected = self.presenter.invalidate_shared_pack(event.result.pack_id)
+                        for key in affected:
+                            self.check_results.pop(key, None)
+                            if self.promotion:
+                                self.promotion.invalidate(key)
                         self.pack_choice.set(event.result.pack_id)
                         if self.policy_editor is not None:
                             self.policy_editor.window.destroy()
@@ -423,6 +474,7 @@ class DesktopApp:
                         result = event.result
                         current = self.presenter.registrations.get(event.project_id)
                         if self.jobs.is_current(result, current):
+                            self.check_results[event.project_id] = result
                             binding = self.presenter.begin_review(event.project_id, result.snapshot,
                                 result.captured.combined_sha256, result.effective.tool_fingerprints)
                             self.presenter.set_reports(event.project_id, scan=replace(result.scan, binding=binding))
@@ -431,6 +483,16 @@ class DesktopApp:
                             self.job_status = "Проверка: " + result.scan.status + ". Это НЕ ДОПУСК."
                         else:
                             self.job_status = "STALE: регистрация, правила или инструменты изменились. Повторите Проверить."
+                    elif event.phase == "REVIEW_READY":
+                        review = event.result
+                        if self.jobs.is_current(review.check, self.presenter.registrations.get(event.project_id)):
+                            self.presenter.attach_promotion_preview(review.preview)
+                            self.active_review = review
+                            self.tabs.select(self.tabs.tabs()[3])
+                            self.job_status = "Просмотр готов: " + review.fingerprint + ". Запись заблокирована."
+                        else:
+                            self.promotion.invalidate(event.project_id)
+                            self.job_status = "STALE: выполните новую проверку."
                     elif self.policy_editor is not None:
                         self.policy_editor.notice.set(self.job_status)
                         self.policy_editor.save_button.configure(state="normal")

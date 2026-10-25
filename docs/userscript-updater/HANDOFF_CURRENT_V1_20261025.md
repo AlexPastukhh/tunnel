@@ -42,6 +42,7 @@
 - checker/review.py — immutable job/project/snapshot/policy/tool/target/managed-set binding; checker/policy_validation.py — real effective-config compilation/validation, deterministic shared-pack composition;
 - checker/ui_model.py и gui.py — state и Tkinter GUI, Check включается только явным --development-settings, Update всегда отключён; checker/registry.py и registration_editor.py — versioned JSON persistence/last selection и file/files/folder/mixed chooser/editor; --registry включает сохранение; corrupt config не заменяется пустым;
 - checker/jobs.py/settings.py/processes.py/process_gate.py — background development Check, bounded cancellation/child cleanup, explicit profile и local evidence; policy_service.py/policy_editor.py — real validated shared edits/copy/bind/rebind/delete;
+- checker/promotion.py/promotion_state.py — portable review/confirmation/managed-state/staging/journal/rollback core, без native mutation backend; adapter только в tests/promotion_support.py, приложение его не импортирует;
 - checker/windows_layout.py — только проверка строк путей; без реального Windows ACL/reparse evidence;
 - devtools/fixture_transactions.py — **отдельная СИНТЕТИЧЕСКАЯ лаборатория записи/backup/journal/rollback**. Не импортировать как trusted updater;
 - tests/ — синтетические отрицательные и реальные CLI fixture tests;
@@ -49,7 +50,7 @@
 
 **Текущий агрегированный результат scanner reports — NOT_AUTHORIZED**, даже если один CLI возвращает structural clear. Ни JSON анализатора, ни sandbox fixture не разрешают owner target writes.
 
-**Фактическая проверка этого хендоффа:** заново запущено 140/140 Python unittest с обоими настоящими CLI (ESLint 10.13.0; Semgrep CE 1.182.1) в Docker: PASS без skips. Проверка GUI-модели печатает PROMOTION DISABLED. Есть 8/8 actual Linux Tk widget flows; нет native Windows rendering/Job Object test, host boundary/ACL, настоящего owner target или installed source→PASS→approved chain.
+**Фактическая проверка этого хендоффа:** заново запущено 161/161 Python unittest с обоими настоящими CLI (ESLint 10.13.0; Semgrep CE 1.182.1) в Docker: PASS без skips. Проверка GUI-модели печатает PROMOTION DISABLED. Есть 10/10 actual Linux Tk widget flows; нет native Windows rendering/Job Object test, host boundary/ACL, настоящего owner target или installed source→PASS→approved chain.
 
 Для воспроизведения в текущем Docker:
 ~~~bash
@@ -73,19 +74,20 @@ PolicyPack.validate остаётся schema-проверкой. Отдельны
 
 Зависимость PyYAML 6.0.3 установлена только в Docker venv; tests запускать указанным venv Python. VALIDATED_DEVELOPMENT не доказывает semantic effectiveness, full project coverage или owner PASS. Другие языки требуют отдельного fixture/capability профиля и пока дают явный отказ. Полный dependency closure и native Windows gates ещё не выполнены.
 
-## 4. V1-2 development Check выполнен; следующий этап V1-3
+## 4. V1-3 продолжается: core и полный GUI preview реализованы
 
-Source GUI теперь сохраняет shared packs только после реальной валидации, поддерживает copy/link/unlink/rebind/delete-unused и инвалидирует все consumer reports. Check с явным development profile идёт в фоне: snapshot/captured policy/real CLI/progress/cancel/timeout/freshness, file/rule/location reports и raw local evidence. Смена проекта и поздний callback не восстанавливают чужой/старый результат. [Запуск и profile schema](DEVELOPMENT_CHECK_WORKFLOW.md).
+PromotionService независимо от старой devtools lab связывает actual Check/snapshot/policy/tools/managed-state/target с точной review и одноразовым confirmation. Staging читает snapshot, apply проверяет buffer до записи и ведёт backups/write-ahead intents/readback/managed entries. Recovery различает before/after/third-party bytes и сохраняет чужие изменения; explicit rollback требует отдельной review. Native backend отсутствует: default service отказывает, Windows Update disabled.
 
-8/8 реальных Tk widget scenarios в Docker/Xvfb PASS, включая save→restart→check→report, findings и cancel. Chooser results/message boxes были инъецированы, не проверен native Windows dialog/appearance. Windows Job Object source НЕ native-tested. Полная dependency closure, secure handles/ACL/route и OWNER_ACCEPTED отсутствуют.
+В GUI есть полный read-only preview и явный первый импорт mapped existing files; они не записывают target. 10/10 actual Tk widget scenarios в Docker PASS. [Контракт](PROMOTION_CORE.md).
 
-1. Проверить Git/index; сохранять соседнюю работу docs/agent-workflow/launcher/Observatory/Notifier/Helper. HEAD мог продвинуться параллельными коммитами; не откатывать его.
-2. Следующий coding шаг V1-3: production design/implementation exact review→confirmation→staged checked-byte promotion и recovery; НЕ подключать devtools fixture lab как trusted writer.
-3. Сохранить полный actual-target preview, previous-managed scope, freshness всех inputs, backups/readback/journal и unmanaged data. Target-only bytes/папки не удалять автоматически.
-4. До включения реального Update обязателен V1-4 ручной owner Windows install/полный tool closure/native handles/ACL/agent-write-route и consumer acceptance. Metadata-only late UI freshness не заменяет full-byte проверки перед promotion.
-5. Обновлять plan/log/docs и делать scoped local commits; no push. Все Windows/Loader/actual external copies выполняются отдельно вручную владельцем.
+Следующая наша разработка, пока без ручных действий владельца:
+1. Проверить Git/index; сохранить соседние docs/agent-workflow/launcher/Observatory/Notifier/Helper. Не откатывать HEAD к старым хешам.
+2. Продолжить native secure source/snapshot/state/target I/O и authority issuer, Windows metadata/locks/races/durability, без boolean/profile bypass. Test adapter не включать в release.
+3. Закончить source empty-directory/delete-only и explicit resource/exclusion/dependency/data contracts, UI confirmation/recovery и полный folder/mixed scope A4.
+4. Подготовить V1-4 reviewed package/full dependency closure/hashes и конкретные owner-run проверки. Только затем владелец вручную устанавливает и проверяет Windows chain.
+5. До native gate не включать real Update/owner PASS и не менять Loader/actual external copies. No push.
 
-V1-2 подтверждён как source/Docker Check workflow, а не готовая защищённая Windows V1. Никакого owner PASS или HOST_BOUNDARY_VERIFIED.
+V1-3 ещё не DONE; portable tests не равны Windows acceptance.
 
 ## 5. Дальнейшая последовательность и release gates
 
@@ -104,4 +106,4 @@ V1-2 подтверждён как source/Docker Check workflow, а не гот�
 
 ## 7. Короткая команда новому чату
 
-> Продолжай Project Checker через подключённый Fortis Repo. Прочитай AGENTS.md, docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md, актуальный PLAN.md, источник CANDIDATE_PREWORK_V4_READING_COPY.md и журнал; затем проверь live Git/status и текущие Docker tests. Пользователь разрешил разработку и установку зависимостей в Repo; Windows install/ACL/Loader/Approved target выполняются отдельно вручную владельцем. Не спрашивай снова F-U-01–F-U-05, не сокращай полный scope A4, но оптимизируй порядок под личную V1. V1-1 исправлен; V1-2 source Check/packs/registry пройдены: 140/140 Python tests и 8/8 actual Tk flows. Продолжай V1-3 с сохранением Windows native gates, затем обнови docs и сделай scoped local commit. Не включай update/owner PASS и не трогай другие workstreams.
+> Продолжай Project Checker через подключённый Fortis Repo. Прочитай AGENTS.md, docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md, актуальный PLAN.md, источник CANDIDATE_PREWORK_V4_READING_COPY.md и журнал; затем проверь live Git/status и текущие Docker tests. Пользователь разрешил разработку и установку зависимостей в Repo; Windows install/ACL/Loader/Approved target выполняются отдельно вручную владельцем. Не спрашивай снова F-U-01–F-U-05, не сокращай полный scope A4, но оптимизируй порядок под личную V1. V1-1 исправлен; V1-2 source Check/packs/registry пройдены: 140/140 Python tests и 8/8 actual Tk flows. Продолжай оставшийся V1-3 по PROMOTION_CORE.md: native backend/issuer и folder/resource/recovery contracts, сохраняя Windows gates, затем обнови docs и сделай scoped local commit. Не включай update/owner PASS и не трогай другие workstreams.

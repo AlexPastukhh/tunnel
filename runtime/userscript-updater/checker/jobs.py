@@ -21,6 +21,7 @@ from .processes import RunControl, Cancelled, DeadlineExceeded
 from .reports import ScanReport, summarize
 from .settings import DevelopmentSettings
 from .policy_service import PolicyService, PolicySaved
+from .promotion import PromotionReview
 
 
 @dataclass(frozen=True)
@@ -54,7 +55,7 @@ class JobEvent:
     project_id: str
     phase: str
     detail: str = ""
-    result: CheckResult | PolicySaved | None = None
+    result: CheckResult | PolicySaved | PromotionReview | None = None
     terminal: bool = False
 
 
@@ -91,6 +92,35 @@ class CheckJobs:
         self.thread = threading.Thread(target=self._worker, args=(ticket, project, control), daemon=True)
         self.thread.start()
         return ticket
+
+    def start_review(self, service, check, current, *, first_import=False):
+        if self.busy:
+            raise ContractError("Another operation is running")
+        self.job_id = str(uuid.uuid4())
+        self.control = RunControl(self.settings.timeout_seconds)
+        self.thread = threading.Thread(target=self._review_worker,
+            args=(self.job_id, service, check, current, first_import, self.control), daemon=True)
+        self.thread.start()
+        return self.job_id
+
+    def _review_worker(self, ticket, service, check, current, first_import, control):
+        try:
+            control.check()
+            self.events.put(JobEvent(ticket, current.registration_id, "preview",
+                                     "Сверка Check, управляемого состава и фактического target"))
+            adopted = tuple(r.target_relative for r in check.snapshot.records
+                            if first_import and r.target_relative is not None
+                            and (Path(current.target_root) / r.target_relative).is_file())
+            review = service.review(check, current, adopted_existing=adopted)
+            control.check()
+            self.events.put(JobEvent(ticket, current.registration_id, "REVIEW_READY",
+                                     "Полный просмотр готов; native Update ещё заблокирован", review, True))
+        except (Cancelled, DeadlineExceeded) as exc:
+            service.invalidate(current.registration_id)
+            self.events.put(JobEvent(ticket, current.registration_id,
+                "CANCELLED" if isinstance(exc, Cancelled) else "TIMEOUT", str(exc), terminal=True))
+        except Exception as exc:
+            self.events.put(JobEvent(ticket, current.registration_id, "ERROR", str(exc), terminal=True))
 
     def start_policy_save(self, pack, expected_sha256, projects):
         if self.busy:
@@ -190,7 +220,7 @@ class CheckJobs:
                 event = self.events.get_nowait()
                 # A late prior job cannot become the selected/current result.
                 if event.job_id == self.job_id:
-                    if event.phase == "COMPLETE_DEVELOPMENT" and self.control.cancelled.is_set():
+                    if event.phase in ("COMPLETE_DEVELOPMENT", "REVIEW_READY") and self.control.cancelled.is_set():
                         event = JobEvent(event.job_id, event.project_id, "CANCELLED", "Cancelled before presentation", terminal=True)
                     result.append(event)
             except queue.Empty:

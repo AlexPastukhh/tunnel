@@ -34,3 +34,8 @@ checker/gui.py: вкладки проектов, привязок правил, 
 V1-2 shared-pack UI и background Check worker проверены в Docker; следующий coding этап V1-3 exact promotion, native Windows handle/ACL/protected dependency design остаётся обязательным перед trusted approval. Check/packs/persistence/picker/editor — source/DOCKER_TESTED и Linux widget-tested; ни один из этих статусов не равен native Windows verification.
 
 **Никакого реального PASS/внешнего обновления эта документация не разрешает.**
+
+
+## V1-3 core не выдаёт OS-полномочий
+
+promotion.py/promotion_state.py содержат review/confirmation/managed entries/staged bytes/journal/recovery, но native backend/issuer отсутствуют. Default service не пишет target даже с confirmation; native_update_available=False. Adapter находится только в tests и ограничен private TemporaryDirectory. Read-only preview/first-import не разрешают запись. [Контракт](PROMOTION_CORE.md).

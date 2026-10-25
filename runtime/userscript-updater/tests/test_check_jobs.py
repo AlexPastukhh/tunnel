@@ -35,6 +35,11 @@ def present_event(jobs, event, presenter):
     app = DesktopApp.__new__(DesktopApp)
     app.jobs = jobs
     app.presenter = presenter
+    app.check_results = {}
+    app.promotion = None
+    app.active_review = None
+    app.preview_button = FakeWidget()
+    app.import_button = FakeWidget()
     app.active_ticket = event.job_id
     app.active_check_project = event.project_id
     app.policy_editor = None

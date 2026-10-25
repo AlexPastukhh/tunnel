@@ -4,7 +4,7 @@ All reports and previews are display data. They never grant promotion.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from .model import ContractError, Registration
 from .inventory import Snapshot
@@ -120,6 +120,28 @@ class ReviewPresenter:
         if preview is not None:
             self.previews[project_id] = preview
 
+    def attach_promotion_preview(self, preview):
+        binding = preview.binding
+        if binding is None:
+            raise ContractError("Promotion preview has no binding")
+        project_id = binding.project_id
+        project = self.registrations.get(project_id)
+        old = self.review_bindings.get(project_id)
+        scan = self.scan_reports.get(project_id)
+        fields = ("project_id", "registration_sha256", "snapshot_id", "manifest_sha256",
+                  "source_files", "policy_sha256", "tool_fingerprints", "target_root")
+        if (project is None or old is None or scan is None
+                or binding.registration_sha256 != project.fingerprint()
+                or any(getattr(old, key) != getattr(binding, key) for key in fields)):
+            raise ContractError("Promotion preview is not bound to the displayed Check")
+        details = self.analysis_details.get(project_id)
+        if details is None:
+            raise ContractError("Missing source manifest for preview")
+        binding.validate_snapshot(details[0])
+        self.review_bindings[project_id] = binding
+        self.scan_reports[project_id] = replace(scan, binding=binding)
+        self.set_reports(project_id, preview=preview)
+
     def projects_table(self) -> DisplayTable:
         rows = []
         for project in sorted(self.registrations.values(), key=lambda p: p.name.casefold()):
@@ -217,7 +239,9 @@ class ReviewPresenter:
                             ("Эффект", "Путь", "До SHA-256", "После SHA-256", "До, байт", "После, байт"), rows,
                             f"План: {preview.fingerprint}. Вне состава: "
                             f"{len(preview.preserved)} файлов и "
-                            f"{len(preview.preserved_directories)} каталогов.")
+                            f"{len(preview.preserved_directories)} каталогов. "
+                            f"Первый импорт: {len(preview.adopted_existing)} явно сопоставленных файлов. "
+                            f"Корень назначения: {'существует' if preview.target_root_exists else 'будет создан'}.")
 
     @staticmethod
     def layout_table(review: BoundaryReview | None) -> DisplayTable:

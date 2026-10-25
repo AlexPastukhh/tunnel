@@ -43,6 +43,8 @@ class TargetPreview:
     target_inventory_sha256: str
     fingerprint: str
     binding: ReviewBinding | None = None
+    adopted_existing: tuple[str, ...] = ()
+    target_root_exists: bool = False
     # A preview has NO approval power and cannot be passed to a promoter.
 
 
@@ -110,7 +112,7 @@ def _change(kind: str, rel: str, before: bytes | None, after: bytes | None) -> C
 
 def build_target_preview(
     snapshot: Snapshot, target_root: Path, previously_managed: tuple[str, ...],
-    *, binding: ReviewBinding | None = None
+    *, binding: ReviewBinding | None = None, adopted_existing: tuple[str, ...] = ()
 ) -> TargetPreview:
     """Prepare complete read-only plan for one destination root.
 
@@ -125,6 +127,8 @@ def build_target_preview(
         binding.validate_snapshot(snapshot)
         if binding.target_root != str(target_root) or binding.previously_managed != earlier:
             raise ContractError("Review binding destination/managed set differs")
+    adopted = managed_paths(adopted_existing)
+    root_exists = target_root.exists()
     actual, actual_dirs = _read_tree(target_root)
     keys = {name.casefold(): name for name in actual}
     desired: dict[str, bytes] = {}
@@ -141,8 +145,14 @@ def build_target_preview(
             raise ContractError(f"Tampered review snapshot: {path}")
         desired[rel] = data
 
-    old_managed = {name.casefold() for name in earlier}
+    if set(adopted) - set(desired):
+        raise ContractError("Adoption must name current explicit source destinations")
+    if any(name.casefold() not in keys for name in adopted):
+        raise ContractError("Adoption refers to missing existing destination")
+    old_managed = {name.casefold() for name in (*earlier, *adopted)}
     for path in desired:
+        if path.casefold() in keys and keys[path.casefold()] != path:
+            raise ContractError("Case-only target renames require an explicit migration")
         if path.casefold() in keys and path.casefold() not in old_managed:
             raise ContractError(f"Unmanaged target collision requires explicit adoption: {path}")
     # A file cannot be both a target and a parent directory for another file.
@@ -187,7 +197,7 @@ def build_target_preview(
     fingerprint = hashlib.sha256(json.dumps(
         [snapshot.snapshot_id, snapshot.registration_sha256, str(target_root),
          target_digest, sorted(earlier, key=str.casefold),
-         action_fields, preserved, actual_dirs, asdict(binding) if binding else None], ensure_ascii=False,
+         action_fields, preserved, actual_dirs, asdict(binding) if binding else None, adopted, root_exists], ensure_ascii=False,
         sort_keys=True).encode("utf-8")).hexdigest()
     return TargetPreview(str(target_root), tuple(changes), preserved, actual_dirs,
-                         target_digest, fingerprint, binding)
+                         target_digest, fingerprint, binding, adopted, root_exists)

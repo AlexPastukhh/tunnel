@@ -4,7 +4,9 @@
 
 **Текущий рабочий маршрут личной V1:** [актуальный PLAN.md](PLAN.md) — универсальный Project Checker для файлов, папок и смешанных составов, а не только двух userscripts. План пересмотрен по просьбе пользователя: сначала исправление известных дефектов, затем полноценная Check-цепочка/GUI, далее preview и контролируемое Update, затем ручная Windows-приёмка. Без потери требований A4 к разделению от ИИ, полноте анализа, подтверждению и восстановлению. Старый узкий [план сохранён отдельно](PLAN_LEGACY_USERSCRIPTS_20261025.md); текст ниже — исторический срез на момент первоначального хендоффа.
 
-**V1-1 завершён; V1-2 source Check проверен:** shared-pack UI, background real CLI/progress/cancel и подробные file/rule отчёты; **140/140 Python tests** без skips с настоящими ESLint/Semgrep и **8/8 Tk/Xvfb scenarios PASS**. Дальше V1-3, native Windows gates сохраняются. [Рабочий путь](DEVELOPMENT_CHECK_WORKFLOW.md).
+**V1-1 завершён; V1-2 source Check проверен:** shared-pack UI, background real CLI/progress/cancel и подробные file/rule отчёты; **161/161 Python tests** без skips с настоящими ESLint/Semgrep и **10/10 Tk/Xvfb scenarios PASS**. Дальше V1-3, native Windows gates сохраняются. [Рабочий путь](DEVELOPMENT_CHECK_WORKFLOW.md).
+
+**V1-3 IN_PROGRESS:** portable promotion core и полный read-only preview/первый импорт; мутации только в private Docker fixtures, native Update заблокирован. [Контракт и оставшаяся разработка](PROMOTION_CORE.md).
 
 **Текущая разработка:** [Windows boundary и GUI/installation gate](WINDOWS_TRUST_BOUNDARY.md); [source-only implementation evidence](IMPLEMENTATION_LOG.md). Реальное использование внешних копий остаётся запрещено до независимого Windows-теста.
 
