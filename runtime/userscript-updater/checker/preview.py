@@ -10,11 +10,12 @@ import hashlib
 import json
 import os
 import stat
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from .inventory import Snapshot, check_plain_chain, digest, read_stable_file
 from .model import ContractError, relative_target
+from .review import ReviewBinding, managed_paths
 
 MAX_DIFF_BYTES = 512 * 1024
 TEXT_SUFFIXES = {".js", ".jsx", ".ts", ".tsx", ".py", ".json",
@@ -41,6 +42,7 @@ class TargetPreview:
     preserved_directories: tuple[str, ...]
     target_inventory_sha256: str
     fingerprint: str
+    binding: ReviewBinding | None = None
     # A preview has NO approval power and cannot be passed to a promoter.
 
 
@@ -107,7 +109,8 @@ def _change(kind: str, rel: str, before: bytes | None, after: bytes | None) -> C
 
 
 def build_target_preview(
-    snapshot: Snapshot, target_root: Path, previously_managed: tuple[str, ...]
+    snapshot: Snapshot, target_root: Path, previously_managed: tuple[str, ...],
+    *, binding: ReviewBinding | None = None
 ) -> TargetPreview:
     """Prepare complete read-only plan for one destination root.
 
@@ -117,9 +120,11 @@ def build_target_preview(
     """
     if not target_root.is_absolute() or ".." in target_root.parts:
         raise ContractError("Target root must be absolute without traversal")
-    earlier = [relative_target(path) for path in previously_managed]
-    if len({name.casefold() for name in earlier}) != len(earlier):
-        raise ContractError("Duplicate previously managed paths")
+    earlier = managed_paths(previously_managed)
+    if binding is not None:
+        binding.validate_snapshot(snapshot)
+        if binding.target_root != str(target_root) or binding.previously_managed != earlier:
+            raise ContractError("Review binding destination/managed set differs")
     actual, actual_dirs = _read_tree(target_root)
     keys = {name.casefold(): name for name in actual}
     desired: dict[str, bytes] = {}
@@ -182,7 +187,7 @@ def build_target_preview(
     fingerprint = hashlib.sha256(json.dumps(
         [snapshot.snapshot_id, snapshot.registration_sha256, str(target_root),
          target_digest, sorted(earlier, key=str.casefold),
-         action_fields, preserved, actual_dirs], ensure_ascii=False,
+         action_fields, preserved, actual_dirs, asdict(binding) if binding else None], ensure_ascii=False,
         sort_keys=True).encode("utf-8")).hexdigest()
     return TargetPreview(str(target_root), tuple(changes), preserved, actual_dirs,
-                         target_digest, fingerprint)
+                         target_digest, fingerprint, binding)

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import json
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,6 +19,12 @@ class EngineConfig:
     config: Path
     config_sha256: str
     node: Path | None = None
+
+    def fingerprint(self) -> str:
+        self.validate()
+        return digest(json.dumps([self.kind, str(self.executable), self.executable_sha256,
+            str(self.config), self.config_sha256, str(self.node),
+            digest(self.node.read_bytes()) if self.node else None]).encode())
 
     def validate(self) -> None:
         if self.kind not in ("eslint", "semgrep"):
@@ -51,7 +58,8 @@ def build_argv(config: EngineConfig, files: tuple[Path, ...]) -> list[str]:
     raise ValueError("Unknown engine")
 
 
-def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 30) -> EngineReport:
+def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 30,
+                   required_rules: tuple[str, ...] = ()) -> EngineReport:
     """Tests ONLY. Not a trusted launcher, no dependency closure/Windows ACL validation."""
     extensions = {".js", ".mjs", ".cjs"} if config.kind == "eslint" else {".js", ".mjs", ".cjs", ".py"}
     requested = tuple(
@@ -62,6 +70,10 @@ def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 3
         return EngineReport(config.kind, "UNSUPPORTED", (), (), 0, "No applicable files")
     try:
         config.validate()
+        from .policy_validation import validate_engine_config
+        validation = validate_engine_config(config, required_rules=required_rules, timeout=timeout)
+        if validation.status != "VALIDATED_DEVELOPMENT":
+            raise ValueError(f"Effective policy validation failed: {validation.detail}")
         for record in snapshot.records:
             path = snapshot.root / record.snapshot_relative
             if not path.is_file() or digest(path.read_bytes()) != record.sha256:
@@ -86,6 +98,8 @@ def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 3
             path = snapshot.root / record.snapshot_relative
             if not path.is_file() or digest(path.read_bytes()) != record.sha256:
                 raise ValueError("Snapshot changed during scan")
+        if config.fingerprint() != validation.tool_fingerprint:
+            raise ValueError("Tool/config changed during scan")
         return result
     except (OSError, subprocess.TimeoutExpired, ValueError) as exc:
         return EngineReport(config.kind, "ERROR", tuple(str(path) for path in requested), (),

@@ -35,10 +35,11 @@
 Компоненты:
 - checker/model.py — регистрация, Selection (file/directory), check-only, optional target_root;
 - checker/inventory.py — инвентаризация/снимок/хеши, прототип Linux, НЕ доказанные native Windows handles;
-- checker/policies.py — schema, shared mutable pack capture/edit/copy; не effective engine-config validation;
+- checker/policies.py — schema, shared mutable pack capture/edit/copy; структурная schema; отдельный policy_validation.py проверяет фактические engine configs;
 - checker/engines.py и reports.py — Docker-only CLI и JSON adapters, структурный результат **не даёт owner PASS**;
 - checker/coverage.py — пофайловое покрытие, требуемые engines/unsupported;
 - checker/preview.py — **read-only** план целевого дерева, manifest и fingerprint;
+- checker/review.py — immutable job/project/snapshot/policy/tool/target/managed-set binding; checker/policy_validation.py — real effective-config compilation/validation, deterministic shared-pack composition;
 - checker/ui_model.py и gui.py — view-only state и исходник Tkinter, обе кнопки Check/Update отключены;
 - checker/windows_layout.py — только проверка строк путей; без реального Windows ACL/reparse evidence;
 - devtools/fixture_transactions.py — **отдельная СИНТЕТИЧЕСКАЯ лаборатория записи/backup/journal/rollback**. Не импортировать как trusted updater;
@@ -47,7 +48,7 @@
 
 **Текущий агрегированный результат scanner reports — NOT_AUTHORIZED**, даже если один CLI возвращает structural clear. Ни JSON анализатора, ни sandbox fixture не разрешают owner target writes.
 
-**Фактическая проверка этого хендоффа:** заново запущено 95/95 Python unittest с обоими настоящими CLI (ESLint 10.13.0; Semgrep CE 1.182.1) в Docker: PASS без skips. Проверка GUI-модели печатает PROMOTION DISABLED. Нет теста Windows/Tkinter rendering, host boundary/ACL, настоящего owner target или installed source→PASS→approved chain.
+**Фактическая проверка этого хендоффа:** заново запущено 115/115 Python unittest с обоими настоящими CLI (ESLint 10.13.0; Semgrep CE 1.182.1) в Docker: PASS без skips. Проверка GUI-модели печатает PROMOTION DISABLED. Нет теста Windows/Tkinter rendering, host boundary/ACL, настоящего owner target или installed source→PASS→approved chain.
 
 Для воспроизведения в текущем Docker:
 ~~~bash
@@ -56,30 +57,30 @@ UPDATER_DEV_ESLINT=/workspace/repo/project-checker-devtools/node_modules/eslint/
 UPDATER_DEV_ESLINT_CONFIG=/workspace/repo/project-checker-devtools/eslint.config.cjs \
 UPDATER_DEV_SEMGREP=/workspace/repo/project-checker-devtools/semgrep-venv/bin/semgrep \
 UPDATER_DEV_SEMGREP_CONFIG=/workspace/repo/project-checker-devtools/semgrep-rules.yaml \
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -v
+PYTHONDONTWRITEBYTECODE=1 /workspace/repo/project-checker-devtools/semgrep-venv/bin/python -m unittest discover -s tests -v
 PYTHONDONTWRITEBYTECODE=1 python3 -m checker.gui --model-smoke
 ~~~
 При переносе в новый контейнер сначала проверять наличие версий/исполняемых файлов и demo configs; отсутствие = NO TEST, не скрытый skip-as-PASS. Не гонять анализаторы по личным скриптам, пока нет согласованных защищённых правил.
 
 **История коммитов по checker:** initial 24b5234; hardening af816d0; real Semgrep 1e098a1; preview d231451; lab 7f6e11c; view-only UI 4a832b8; план личной V1 144db14. Текущий HEAD может быть более новым из-за **параллельной работы других агентов**: ни один из этих хешей не является требованием откатывать HEAD.
 
-## 3. Проверенные проблемы текущего исходника (не исправлены планом)
+## 3. V1-1 завершён в исходниках и Docker
 
-1. **Cross-project preview binding**: ReviewPresenter.set_reports проверяет только совпадение target_root, и preview для другого проекта с таким же target принимается как своё. Отдельный identity/snapshot/managed-set binding обязателен, прежде чем GUI будет доверять preview.
-2. **Effective rule validation**: PolicyPack.validate проверяет JSON/schema, но может принять несуществующее ESLint rule ID либо бессмысленный Semgrep YAML. Перед настоящим Check нужна независимая проверка фактических config+engine rules и полного coverage, ошибки не PASS.
-3. **Видимость бинарных эффектов**: Change хранит before_size/after_size, но ui_model.preview_table показывает лишь hashes, без размеров old/new.
+Три известных дефекта исправлены и покрыты регрессиями. ReviewPresenter принимает только preview/scan с активным ReviewBinding выбранного проекта: registration hash, snapshot ID/manifest, captured policy, tool references, target/managed set и уникальный job ID. Edit/cancel/new job/shared-pack edit инвалидируют контекст. Чужой preview с тем же target отвергается. В preview GUI видны old/new hashes и **размеры в байтах**, включая 0 и отсутствующие файлы.
 
-Все три воспроизведены в предыдущем ревью на синтетических данных. Называть их «починенными» по одному обновлению плана нельзя. Остальные незакрытые вещи — persistence, file picker, job/progress/cancel, trust chain/route validation, production promotion — документированные будущие функции V1.
+PolicyPack.validate остаётся schema-проверкой. Отдельный policy_validation.py загружает действующий ESLint config в настоящем API, проверяет core IDs/включённые required rules на JS/CJS/MJS; Semgrep CE реально компилирует правила на безопасных JS/Python и сверяет loaded IDs/coverage. Invalid YAML/patterns/duplicates/skips/disabled required/missing tools/timeouts → ERROR. run_dev_engine отказывает до project scan при невалидном config. Составление shared packs выявляет конфликты, без last-write-wins.
 
-## 4. Точный следующий исполнительный шаг: V1-1, без избыточного усложнения
+Зависимость PyYAML 6.0.3 установлена только в Docker venv; tests запускать указанным venv Python. VALIDATED_DEVELOPMENT не доказывает semantic effectiveness, full project coverage или owner PASS. Другие языки требуют отдельного fixture/capability профиля и пока дают явный отказ. Полный dependency closure и native Windows gates ещё не выполнены.
 
-1. Проверить Git/status/index на момент нового вызова, правила AGENTS и тесты; сохранить все чужие unstaged/staged изменения. Особенно не изменять docs/agent-workflow, Repo launcher, Observatory и проекты Notifier/Helper.
-2. Добавить в модель явный review binding: project ID, registration fingerprint, snapshot, policy/tool references, target_root и previously-managed set; запретить присоединять чужой или устаревший preview к UI. Сохранить fail-closed, не выдавать реальный PASS.
-3. Добавить старый/новый **размер** в preview UI наряду с hashes/diff и видимостью preserve. Тесты на русский/Unicode, missing files и бинарные изменения.
-4. Добавить отдельный validator effective-policy (не заменять schema validation) с **реальными** ESLint/Semgrep fixture checks и negative tests invalid rule ID/YAML/disabled required rule/missing engine; правдиво отразить limitations каждого CLI. Полнота semantic coverage не следует из JSON exit0.
-5. Запустить 95 baseline tests плюс новые regression tests с реальными CLI в Docker. В журнале назвать версии, skips, оставшиеся ограничения. Локальный Git-коммит только checker/docs файлов. **Затем V1-2**, а не новый расширенный механизм recovery.
+## 4. Точный следующий исполнительный шаг: V1-2
 
-**V1-1 DONE** только когда три воспроизведённых недостатка реально исчезли и протестированы. Нельзя включать «Обновить», переносить файлы на owner Windows или объявлять HOST_BOUNDARY_VERIFIED.
+1. Проверить Git/index; сохранять чужую работу, особенно docs/agent-workflow, launcher, Observatory, Notifier/Helper. Не откатывать HEAD к старому срезу.
+2. Реализовать persistent versioned JSON registry и picker/editor для file/files/folder/mixed/check-only; save→restart без потери Unicode или данных при corrupt config.
+3. Подключить shared policy edit/copy/bind/rebind и effective validation, затем real Check worker с progress/cancel/timeout и stale callback protection.
+4. Показать per-file/per-rule coverage/findings и source/policy/tool fingerprints. Сохранить aggregate NOT_AUTHORIZED до Windows host acceptance.
+5. Обновлять plan/log/docs после значимых результатов и делать scoped local commits. Windows install/ACL/Loader/реальные внешние copies вручную выполняет владелец.
+
+V1-1 DONE относится только к Docker/source. Не включать «Обновить» и не заявлять HOST_BOUNDARY_VERIFIED.
 
 ## 5. Дальнейшая последовательность и release gates
 
@@ -87,7 +88,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m checker.gui --model-smoke
 - **V1-3**: exact source→scan→review→owner confirmation→promotion в доверенной цепочке; full actual target preview, managed deletes/preserved extras, staged bytes, backup/journal/recovery. Folder/mixed и explicit data/dependency/lock handling; не заимствовать devtools fixture lab как production writer.
 - **V1-4**: готовый пакет и manifest/hashes/полная dependency closure, **ручная owner Windows install**, native final-path/ACL/agent-write-route negative probes, настоящие CLI/GUI tests, безопасный один файл и папка/mixed, consumer/Loader QA. Только подтверждённая отдельная установка/QA даёт OWNER_ACCEPTED.
 
-**Параллельно:** можно готовить host verification scripts/templates и binary/deps closure ещё во время V1-1/2; Windows вручную делает владелец, никакого auto-apply из Repo. PR-08 (ранняя host validation) не является приказом урезать V1 до демо.
+**Параллельно:** можно готовить host verification scripts/templates и binary/deps closure ещё во время V1-2; Windows вручную делает владелец, никакого auto-apply из Repo. PR-08 (ранняя host validation) не является приказом урезать V1 до демо.
 
 ## 6. Что сохранить при завершении нового чата
 
@@ -98,4 +99,4 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m checker.gui --model-smoke
 
 ## 7. Короткая команда новому чату
 
-> Продолжай Project Checker через подключённый Fortis Repo. Прочитай AGENTS.md, docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md, актуальный PLAN.md, источник CANDIDATE_PREWORK_V4_READING_COPY.md и журнал; затем проверь live Git/status и 95 Docker tests. Пользователь разрешил разработку и установку зависимостей в Repo; Windows install/ACL/Loader/Approved target выполняются отдельно вручную владельцем. Не спрашивай снова F-U-01–F-U-05, не сокращай полный scope A4, но оптимизируй порядок под личную V1. Начни с V1-1: исправь cross-project preview binding, бинарные размеры в GUI и effective ESLint/Semgrep policy validation; добавь регрессионные и реальные CLI fixtures, обнови docs и сделай локальный коммит только своих файлов. Не включай update/owner PASS и не трогай другие workstreams.
+> Продолжай Project Checker через подключённый Fortis Repo. Прочитай AGENTS.md, docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md, актуальный PLAN.md, источник CANDIDATE_PREWORK_V4_READING_COPY.md и журнал; затем проверь live Git/status и текущие Docker tests. Пользователь разрешил разработку и установку зависимостей в Repo; Windows install/ACL/Loader/Approved target выполняются отдельно вручную владельцем. Не спрашивай снова F-U-01–F-U-05, не сокращай полный scope A4, но оптимизируй порядок под личную V1. V1-1 исправлен и проверен (115/115). Продолжай V1-2: persistence/pickers/shared packs и реальный Check worker, затем обнови docs и сделай scoped local commit. Не включай update/owner PASS и не трогай другие workstreams.

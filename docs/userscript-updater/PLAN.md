@@ -12,9 +12,9 @@
 
 ## 2. Наблюдаемое состояние на дату обновления
 
-Исходники в Fortis Repo уже содержат модели регистраций и shared packs, SHA-256 snapshots, ESLint/Semgrep JSON adapters и per-file coverage, read-only preview, **отдельную синтетическую** transaction laboratory, view-only Tkinter GUI и строковую проверку Windows layout. В Docker фактически протестированы ESLint 10.13.0 и Semgrep CE 1.182.1 на синтетических JS/Python; последний проверенный прогон — 95/95 Python tests без skips с обоими CLI. Коммит source-only GUI: 4a832b8; HEAD перед любой новой работой проверять, поскольку есть соседняя работа в том же repo.
+Исходники в Fortis Repo уже содержат модели регистраций и shared packs, SHA-256 snapshots, ESLint/Semgrep JSON adapters и per-file coverage, read-only preview, **отдельную синтетическую** transaction laboratory, view-only Tkinter GUI и строковую проверку Windows layout. В Docker фактически протестированы ESLint 10.13.0 и Semgrep CE 1.182.1 на синтетических JS/Python; последний полный прогон — 115/115 Python tests без skips с обоими CLI. V1-1 исправлен: review binding, бинарные размеры и отдельная реальная effective-config validation. Коммит source-only GUI: 4a832b8; HEAD перед любой новой работой проверять, поскольку есть соседняя работа в том же repo.
 
-**НЕ готово:** persistence/edit/pickers, effective policy validation, реальный job/progress/cancel/кнопка Check, полноценный Windows GUI test, защищённый установленный toolchain с ACL/handles/route-evidence, production approval/promotion и реальная внешняя приёмка. Scan aggregate в коде остаётся NOT_AUTHORIZED, обе основные GUI-кнопки отключены. Транзакционная лаборатория не является production writer.
+**НЕ готово:** persistence/edit/pickers, реальный job/progress/cancel/кнопка Check, полноценный Windows GUI test, защищённый установленный toolchain с ACL/handles/route-evidence, production approval/promotion и реальная внешняя приёмка. Scan aggregate в коде остаётся NOT_AUTHORIZED, обе основные GUI-кнопки отключены. Транзакционная лаборатория не является production writer.
 
 ## 3. Неизменные требования A4: даже для личного использования
 
@@ -29,16 +29,16 @@
 
 **Почему переставляем:** завершить удобный V1 check-only и полную пару Check → Review → Update раньше создания универсальных вспомогательных механизмов. E-01…E-05 A4 сохраняются как контрольные блоки. Host-проверки можно готовить параллельно Docker-коду, но **не** пропускать перед доверенным PASS/реальным переносом.
 
-### V1-1 — ближайшая задача: устранить установленные дефекты модели (E-01 / база E-02)
+### V1-1 — DONE / DOCKER_TESTED: устранить установленные дефекты модели (E-01 / база E-02)
 
 1. Связать отчёт и preview с конкретной registration, snapshot, policy/tool и target/managed set. **Уже воспроизведён дефект:** GUI-модель принимает preview другого проекта при одинаковом target. Не превращать текущую проверку только target_root в допуск.
 2. В полном preview показывать файлы create/modify/delete/unchanged/preserve; для бинарных old/new **размеры** рядом с hashes, а не только пояснение в данных.
 3. Развести структуру JSON policy и **валидацию реального effective CLI config**: существование rule IDs, корректность Semgrep YAML, конфликты и доступность обязательных правил; фиктивный валидный JSON-пакет не является валидной политикой.
 4. Добавить регрессионные тесты воспроизведённых дефектов и stale bindings. Проверять только synthetic fixtures.
 
-**Gate:** кросс-проектный preview отвергнут; у пользователя в UI виден полный эффект; неправильные effective rules/config блокируют проверку. Docker regressions PASS; permission на реальный перенос всё ещё отсутствует.
+**Gate выполнен в Docker (115/115):** кросс-проектный preview отвергнут; у пользователя в UI виден полный эффект; неправильные effective rules/config блокируют проверку. Docker regressions PASS; permission на реальный перенос всё ещё отсутствует.
 
-### V1-2 — закончить Check в одном окне (основной E-02, DS-01–03)
+### V1-2 — следующий рабочий этап: закончить Check в одном окне (основной E-02, DS-01–03)
 
 - Локальные versioned JSON-профили для личного применения (никакая БД не нужна): add/edit/remove регистрации, выбор/сохранение последней, Unicode, chooser source/target, one/many/folder/mixed, check-only, atomic save и понятная ошибка при corrupt config/отмене.
 - Общие rule packs: create/copy/direct edit/link/unlink/rebind, стабильный captured config при job, effective rules с конфликтами, инвалидировать все зависимые проверки после редактирования.
@@ -82,7 +82,7 @@
 
 ## 6. Как вести работу и подтверждать результаты
 
-- Следующий coding шаг — **V1-1**, после него **V1-2**. Не тратить следующий цикл на новый большой synthetic transaction framework, пока Check как пользовательский путь не завершён.
+- V1-1 завершён; следующий coding шаг — **V1-2**. Не тратить следующий цикл на новый большой synthetic transaction framework, пока Check как пользовательский путь не завершён.
 - Перед записью — AGENTS, git status/index; изменять только свои файлы, не захватывать чужой staged work. Локальные коммиты отдельны от push/Windows install.
 - Различать SOURCE_READY, DOCKER_TESTED, WINDOWS_PREREQS_CHECKED, WINDOWS_GUI_TESTED, HOST_BOUNDARY_VERIFIED, OWNER_ACCEPTED. Не выводить из 95 тестов статус Windows-установки.
 - Все Windows-модификации, Loader, браузер/GM/secrets и использование реальных пользовательских target **вне текущего поручения обновить план**.

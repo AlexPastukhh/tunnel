@@ -1,5 +1,10 @@
 # Текущее состояние — датированный срез
 
+## 25.10.2026 — Project Checker V1-1: три дефекта исправлены в Docker
+
+Review binding теперь связывает GUI reports/preview с project/registration/snapshot/manifest/policy/tool/target/managed-set и job ID; чужие и устаревшие callbacks отклоняются. В GUI-model добавлены old/new byte sizes, а реальный effective-config validator ESLint/Semgrep блокирует неверные/отключённые обязательные правила, конфликты, missing tools и skips. 115/115 Docker tests PASS без skips с ESLint 10.13.0, Semgrep CE 1.182.1 и новой PyYAML 6.0.3 в dev venv. Актуальные запуск/ограничения — [source README](../runtime/userscript-updater/README.md), [журнал](userscript-updater/IMPLEMENTATION_LOG.md), [план](userscript-updater/PLAN.md). Следующий этап V1-2: persistence/pickers/Check. Windows GUI/ACL/installation/Approved NOT_RUN; обе основные кнопки ещё отключены, runtime не применялся, внешние копии не менялись. Push не выполнялся.
+
+
 ## 25.10.2026 — Project Checker: проверен хендофф для нового чата
 
 Сверены актуальный [PLAN V1](userscript-updater/PLAN.md), [текущий хендофф](userscript-updater/HANDOFF_CURRENT_V1_20261025.md), полная [A4/v4 reading copy](userscript-updater/CANDIDATE_PREWORK_V4_READING_COPY.md) и исходники. A4/v4 сохранён как historical candidate, не объявлен принятым baseline; предыдущие узкие userscript документы не используются как текущий маршрут. Повторно пройдено 95/95 Python tests с ESLint 10.13.0 и Semgrep CE 1.182.1 в Docker, GUI model PROMOTION DISABLED. Следующая задача V1-1 — исправить три известные ошибки; Windows native/ACL/GUI/Approved NOT_RUN. Только docs/read-only verification, другие workstreams не изменялись.

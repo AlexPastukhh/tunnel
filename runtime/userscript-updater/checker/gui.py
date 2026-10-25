@@ -146,7 +146,8 @@ class DesktopApp:
         tree["columns"] = keys
         for key, title in zip(keys, data.columns):
             tree.heading(key, text=title)
-            tree.column(key, width=135 if key == "c0" else 240, stretch=True)
+            width = 100 if "байт" in title else (135 if key == "c0" else 240)
+            tree.column(key, width=width, minwidth=80, stretch=True)
         for idx, row in enumerate(data.rows):
             iid = f"item{idx}"
             tree.insert("", "end", iid=iid, values=row.columns)

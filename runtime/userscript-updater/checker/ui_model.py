@@ -7,6 +7,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .model import ContractError, Registration
+from .inventory import Snapshot
+from .review import ReviewBinding
 from .preview import TargetPreview
 from .reports import ScanReport
 from .windows_layout import BoundaryReview
@@ -38,12 +40,14 @@ class ReviewPresenter:
         self.registrations: dict[str, Registration] = {}
         self.scan_reports: dict[str, ScanReport] = {}
         self.previews: dict[str, TargetPreview] = {}
+        self.review_bindings: dict[str, ReviewBinding] = {}
 
     def register(self, project: Registration) -> None:
         project.validate()
         self.registrations[project.registration_id] = project
         self.scan_reports.pop(project.registration_id, None)
         self.previews.pop(project.registration_id, None)
+        self.review_bindings.pop(project.registration_id, None)
 
     def register_json(self, raw: str) -> Registration:
         project = Registration.from_json(raw)
@@ -54,6 +58,7 @@ class ReviewPresenter:
         self.registrations.pop(project_id, None)
         self.scan_reports.pop(project_id, None)
         self.previews.pop(project_id, None)
+        self.review_bindings.pop(project_id, None)
 
     def invalidate_shared_pack(self, policy_pack_id: str) -> tuple[str, ...]:
         """Presentation invalidation for every registration referencing a changed pack."""
@@ -62,21 +67,51 @@ class ReviewPresenter:
             if policy_pack_id in project.policy_pack_ids:
                 self.scan_reports.pop(project_id, None)
                 self.previews.pop(project_id, None)
+                self.review_bindings.pop(project_id, None)
                 affected.append(project_id)
         return tuple(sorted(affected))
+
+    def begin_review(self, project_id: str, snapshot: Snapshot, policy_sha256: str,
+                     tool_fingerprints: tuple[tuple[str, str], ...] = (),
+                     previously_managed: tuple[str, ...] = ()) -> ReviewBinding:
+        if project_id not in self.registrations:
+            raise ContractError("Unknown project")
+        binding = ReviewBinding.capture(self.registrations[project_id], snapshot,
+                                        policy_sha256, tool_fingerprints, previously_managed)
+        self.scan_reports.pop(project_id, None)
+        self.previews.pop(project_id, None)
+        self.review_bindings[project_id] = binding
+        return binding
+
+    def cancel_review(self, project_id: str) -> None:
+        self.review_bindings.pop(project_id, None)
+        self.scan_reports.pop(project_id, None)
+        self.previews.pop(project_id, None)
 
     def set_reports(self, project_id: str, scan: ScanReport | None = None,
                     preview: TargetPreview | None = None) -> None:
         if project_id not in self.registrations:
             raise ContractError("Unknown project")
         project = self.registrations[project_id]
+        expected = self.review_bindings.get(project_id)
+        # Validate the whole callback before modifying any cached presentation.
         if scan is not None:
             if scan.registration_sha256 != project.fingerprint():
                 raise ContractError("Report refers to different registration")
-            self.scan_reports[project_id] = scan
+            if (expected is None or scan.binding != expected
+                    or scan.snapshot_id != expected.snapshot_id
+                    or scan.policy_sha256 != expected.policy_sha256
+                    or scan.source_files != expected.source_files):
+                raise ContractError("Report has stale or missing review binding")
         if preview is not None:
             if preview.target_root != project.target_root:
                 raise ContractError("Preview destination differs from registration")
+            if (expected is None or preview.binding != expected
+                    or expected.registration_sha256 != project.fingerprint()):
+                raise ContractError("Preview has foreign, stale or missing review binding")
+        if scan is not None:
+            self.scan_reports[project_id] = scan
+        if preview is not None:
             self.previews[project_id] = preview
 
     def projects_table(self) -> DisplayTable:
@@ -112,20 +147,22 @@ class ReviewPresenter:
     def preview_table(self, project_id: str) -> DisplayTable:
         preview = self.previews.get(project_id)
         if preview is None:
-            return DisplayTable("Просмотр", ("Эффект", "Путь", "До SHA-256", "После SHA-256"), (),
+            return DisplayTable("Просмотр", ("Эффект", "Путь", "До SHA-256", "После SHA-256", "До, байт", "После, байт"), (),
                                 "Предварительный просмотр не сформирован.")
         rows = tuple(DisplayRow((c.kind, c.relative_path,
-                                 c.before_sha256 or "—", c.after_sha256 or "—"),
+                                 c.before_sha256 or "—", c.after_sha256 or "—",
+                                 str(c.before_size) if c.before_size is not None else "—",
+                                 str(c.after_size) if c.after_size is not None else "—"),
                                 c.text_diff if c.text_diff is not None else (c.diff_note or ""))
                      for c in preview.changes)
-        rows += tuple(DisplayRow(("preserve", path, "—", "—"),
+        rows += tuple(DisplayRow(("preserve", path, "—", "—", "—", "—"),
                                  "Вне управляемого состава: не изменять и не удалять.")
                       for path in preview.preserved)
-        rows += tuple(DisplayRow(("preserve-dir", path, "—", "—"),
+        rows += tuple(DisplayRow(("preserve-dir", path, "—", "—", "—", "—"),
                                  "Существующий каталог сохраняется.")
                       for path in preview.preserved_directories)
         return DisplayTable("Просмотр (НЕ РАЗРЕШЕНИЕ)",
-                            ("Эффект", "Путь", "До SHA-256", "После SHA-256"), rows,
+                            ("Эффект", "Путь", "До SHA-256", "После SHA-256", "До, байт", "После, байт"), rows,
                             f"План: {preview.fingerprint}. Вне состава: "
                             f"{len(preview.preserved)} файлов и "
                             f"{len(preview.preserved_directories)} каталогов.")

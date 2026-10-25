@@ -28,7 +28,8 @@ class PresentationTests(unittest.TestCase):
 
     def test_cached_scan_invalidated_on_registration_change(self):
         snap = make_snapshot(self.reg, (self.base,), self.base / "reviews")
-        scan = ScanReport("NOT_AUTHORIZED", self.reg.fingerprint(), snap.snapshot_id, "demo", 1, (), ())
+        binding = self.presenter.begin_review("one", snap, "demo")
+        scan = ScanReport("NOT_AUTHORIZED", self.reg.fingerprint(), snap.snapshot_id, "demo", 1, (), (), binding)
         self.presenter.set_reports("one", scan=scan)
         self.assertIn("NOT_AUTHORIZED", self.presenter.scan_table("one").footer)
         self.presenter.register(Registration("one", "Changed", self.reg.selections, ("different",)))
@@ -47,7 +48,8 @@ class PresentationTests(unittest.TestCase):
                            ("pack",), str(target))
         self.presenter.register(reg)
         snap = make_snapshot(reg, (self.base,), self.base / "reviews")
-        plan = build_target_preview(snap, target, ("old.js",))
+        binding = self.presenter.begin_review("two", snap, "policy", previously_managed=("old.js",))
+        plan = build_target_preview(snap, target, ("old.js",), binding=binding)
         self.presenter.set_reports("two", preview=plan)
         self.assertEqual({r.columns[0] for r in self.presenter.preview_table("two").rows},
                          {"create", "delete"})
@@ -83,8 +85,10 @@ class PresentationTests(unittest.TestCase):
         self.presenter.register(second)
         self.presenter.register(third)
         for project in (self.reg, second, third):
+            snap = make_snapshot(project, (self.base,), self.base / "reviews")
+            binding = self.presenter.begin_review(project.registration_id, snap, "policy")
             self.presenter.set_reports(project.registration_id, scan=ScanReport(
-                "NOT_AUTHORIZED", project.fingerprint(), "snap", "policy", 1, (), ()))
+                "NOT_AUTHORIZED", project.fingerprint(), snap.snapshot_id, "policy", 1, (), (), binding))
         affected = self.presenter.invalidate_shared_pack("rule-alpha")
         self.assertEqual(affected, ("one", "two"))
         self.assertIn("не выполнялась", self.presenter.scan_table("one").footer)
@@ -100,7 +104,8 @@ class PresentationTests(unittest.TestCase):
                            ("pack",), str(target))
         self.presenter.register(reg)
         snap = make_snapshot(reg, (self.base,), self.base / "reviews")
-        plan = build_target_preview(snap, target, ())
+        binding = self.presenter.begin_review("two", snap, "policy")
+        plan = build_target_preview(snap, target, (), binding=binding)
         self.presenter.set_reports("two", preview=plan)
         names = {row.columns[0] for row in self.presenter.preview_table("two").rows}
         self.assertEqual(names, {"create", "preserve", "preserve-dir"})

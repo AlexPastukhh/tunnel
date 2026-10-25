@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Literal
 
 from .inventory import Snapshot, digest
+from .review import ReviewBinding
 
 Status = Literal["STRUCTURAL_CLEAR", "NOT_AUTHORIZED", "FINDINGS", "ERROR", "INCOMPLETE", "UNSUPPORTED"]
 SUPPORTED = {"eslint", "semgrep"}
@@ -31,6 +32,7 @@ class ScanReport:
     source_files: int
     reports: tuple[EngineReport, ...]
     uncovered: tuple[str, ...]
+    binding: ReviewBinding | None = None
 
 
 def _report_path(name: str, scanner_workdir: Path) -> str:
@@ -121,8 +123,13 @@ def parse_semgrep(stdout: str, exit_code: int, expected: tuple[Path, ...], scann
 
 
 def summarize(snapshot: Snapshot, policy_sha256: str,
-              reports: tuple[EngineReport, ...]) -> ScanReport:
+              reports: tuple[EngineReport, ...], *,
+              binding: ReviewBinding | None = None) -> ScanReport:
     """PASS needs full manifest covered and no analyzer problems."""
+    if binding is not None:
+        binding.validate_snapshot(snapshot)
+        if binding.policy_sha256 != policy_sha256:
+            raise ValueError("Report policy differs from review binding")
     expected = {str((snapshot.root / item.snapshot_relative).absolute()) for item in snapshot.records}
     covered = set()
     damaged = []
@@ -150,4 +157,4 @@ def summarize(snapshot: Snapshot, policy_sha256: str,
         # Parser output alone is not evidence of an approved installed scanner.
         status = "NOT_AUTHORIZED"
     return ScanReport(status, snapshot.registration_sha256, snapshot.snapshot_id,
-                      policy_sha256, len(expected), reports, uncovered)
+                      policy_sha256, len(expected), reports, uncovered, binding)
