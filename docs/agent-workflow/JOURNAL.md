@@ -396,3 +396,11 @@ STATE/C-04/общий отчёт дополнены текущим выборо�
 **После SIGTERM:** живой Fortis Repo read-only start_process перечислил **только один MCP-модульный процесс** DC276507 (PPid0, sleeping); Bridge137/DC149 отсутствуют. read_file успешно прочёл AGENTS.md, get_config вернул DC0.2.52, исходные roots, defaultShell и telemetry. **Очистка исторических Bridge-процессов и доступность нынешнего direct — PASS(scope).**
 
 **Ограничения:** census отражает момент проверки, а не бессрочную гарантию или запрет второму профилю вновь запустить Bridge. Windows reboot, полный UI/tools ресурсный охват, проверка independent Restore после постоянной установки, network enforcement/ACL остались отдельными. Сохранять работающий PowerShell foreground direct, новых restart не требуется.
+
+## WF-029 — 2026-10-25: оценка второго Fortis Repo и доступа к доверенному Tunnel
+
+**Запрос:** пользователь рассматривает будущую миграцию второго Fortis Repo и перенос Tunnel из рабочего Repo для изоляции.
+
+**Факты:** второй браузерный профиль коррелировал с отдельным Windows Bridge/Tunnel и дочерней Bridge→DC парой внутри общего `fortis-repo-test`. Точный shortcut/launcher второго подключения не читали, его Windows конфигурацию не меняли. Прямой первый вход уже использует pinned installed Windows launcher вне штатных bind roots и readonly Node/DC module под `/opt/dc`. Read-only проверки известных Linux путей подтвердили writable `/workspace/repos/tunnel/runtime` и `/workspace/repo/.fortis` (Bridge root-owned файл, но parent writable), RW Repos/Workfiles/volume, RW DC config и RO installed code/rootfs. Не следовали подозрительным junction и не читали посторонние targets.
+
+**Решение/план:** **не** переносить весь рабочий Git-репозиторий `tunnel` как мнимую меру безопасности. Разделить source (можно RW) и trusted executable startup (должен быть вне агенто-записываемых путей и алиасов, с проверенными ACL родителей/pins). Второе подключение при повторном использовании целесообразно отдельно мигрировать на direct либо защищённый RO Bridge после проверки его точного назначения и rollback. Два ChatGPT профиля на одном контейнере не являются независимой изоляцией: отдельный контейнер/volume/минимальные mounts — только если пользователь выберет этот уровень. Изменения runtime/Windows/Docker не выполнялись. Подробности: `reviews/repo-protection-20261025.md` WF-029 и STATE.
