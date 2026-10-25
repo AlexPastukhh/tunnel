@@ -78,6 +78,37 @@ Executed Docker evidence:
   These branches remain WINDOWS_NOT_RUN. Re-ran six release/console/batch
   regressions on Linux after the console bridge change: PASS.
 
+### Frozen candidate delivery receipt
+
+Source commit: **619266036a40a6d11f2c41ad5bba68af079da395**.
+Final archive in the connected Repo:
+**/workspace/repos/tunnel/runtime/userscript-updater/.artifacts/project-checker-v1-candidate-20261025.zip**.
+
+SHA-256: **ecb89592bb8a6abad0f36383c838d7802d5b95edf4589404a87e05858720acad**.
+Size: **147,549,114 bytes**. Sidecars in that same directory:
+package-summary.json, verification-receipt.json and ZIP.sha256.
+
+Verified the outer archive hash, exact member set, every manifest member's
+hash/size, absence of Windows case collisions and own fixture-writer folders,
+and exact bytes of all **43 packaged source files** against the source commit.
+The bundle manifest accounts for **269 files**. Complete dependency inventory
+and offline replay evidence are described above. No snapshots/test payloads or
+devtools/test writer were put in the application import tree.
+
+The final source also passed AST/doc-link checks and index/commit byte
+comparison; git diff --check passed. Full regression evidence is the release
+logs above; six focused release/console/batch regressions were rerun after
+the final bridge change, log v1-release-focused.log, PASS. PowerShell parse is
+syntax evidence, not Windows execution.
+
+Developer source/Docker/packaging work for this candidate is ready for owner
+manual acceptance. **WINDOWS_NOT_RUN / OWNER_ACCEPTANCE_PENDING** remains
+explicit in the package. Copy the reviewed ZIP out of all agent write routes,
+verify this SHA-256 and follow
+[russian owner procedure](../../runtime/userscript-updater/release/WINDOWS_ACCEPTANCE.md).
+Run the prepared probes; native FAIL returns to development. No need for the
+owner to implement missing source features. No push or Windows deployment ran.
+
 Observed failures kept in history: first expanded suite 167 tests had two old
 empty-directory assertions; next 172 had incomplete fake-widget setup and an
 obsolete source-label assertion; 178 had a doubly escaped binary fixture

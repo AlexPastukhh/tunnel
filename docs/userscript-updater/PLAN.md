@@ -21,9 +21,9 @@ Windows handle I/O, scoped writer, installed closure/ACL/route verifier и issue
 установки и защищённых owner receipts; чужой report/exit0/JSON flag его не создаёт.
 
 V1-4: подготовлены offline Windows dependencies, установочные/acceptance/rollback
-скрипты и builder с проверкой полного wheel closure/RECORD/хешей. Финальные
-проверки и сборка кандидата продолжаются; точные выполненные прогоны, ошибки и
-артефакт — только в [журнале](IMPLEMENTATION_LOG.md).
+скрипты и builder с проверкой полного wheel closure/RECORD/хешей. Кандидат
+собран и проверен; source commit, точные выполненные прогоны, ошибки,
+архив и SHA-256 — только в [журнале](IMPLEMENTATION_LOG.md).
 
 **Не подтверждены:** native Win32/Job Object/ACL/race/metadata и GUI/chooser,
 все фактические agent write routes, installed безопасный walkthrough и реальные
@@ -63,7 +63,7 @@ consumer/Loader. Windows install и эти проверки выполняет �
 
 **Development gate выполнен на синтетических Docker fixtures (реальные widgets/CLI); native Windows acceptance pending:** через интерфейс можно сохранить проект и пакет, запустить полноценную check-only проверку безопасного примера, увидеть причины и повторить после перезапуска. Реальная external mutation ещё отключена.
 
-### V1-3 — IN_PROGRESS: завершить preview → confirmation → controlled promotion (E-03, E-04)
+### V1-3 — SOURCE_CANDIDATE_READY / NATIVE_GATE_PENDING: завершить preview → confirmation → controlled promotion (E-03, E-04)
 
 **SOURCE_CANDIDATE:** exact managed scope, одноразовый confirmation, staging,
 backup/write-ahead journal/readback, полный target preview и GUI восстановления.
@@ -78,7 +78,7 @@ backup/write-ahead journal/readback, полный target preview и GUI восс
 
 **Gate:** синтетические сценарии create/modify/delete, cancel, stale, partial crash и восстановление; затем native Windows controlled fixtures до любых реальных external targets.
 
-### V1-4 — подготовка и ручная проверка Windows-цепочки (E-01 host gate + E-05)
+### V1-4 — CANDIDATE_PACKAGED / OWNER_WINDOWS_ACCEPTANCE_PENDING (E-01 host gate + E-05)
 
 **Подготовку пакета можно вести одновременно с V1-1…3; owner-run проверка обязательна до активации настоящих Check/Update/Approved.**
 - Подготовить отдельную установку app/Node/Python/Tkinter/ESLint/Semgrep со **всеми транзитивными зависимостями и локальными packs**; inventory, hashes, версионированный config/state, команды ручной установки/отката.
@@ -102,12 +102,12 @@ backup/write-ahead journal/readback, полный target preview и GUI восс
 
 ## 6. Как вести работу и следующий gate
 
-1. Закончить текущую проверку source candidate: полный suite с настоящими
-   анализаторами, actual Tk workflows, упаковка/manifest, проверка установочных
-   скриптов и документации. Исправить обнаруженные ошибки, сохранить только свои
-   файлы осмысленным локальным коммитом. Источник результатов — журнал.
-2. Передать конкретный пакет и owner-run команды. Не просить владельца вручную
-   доделывать backend/GUI/dependency closure. Native FAIL возвращается в разработку,
+1. Source/Docker/package gate текущего кандидата выполнен; source commit,
+   archive/SHA и проверочные receipts записаны в журнале. Не повторять завершённую
+   разработку/эксперименты без изменения кода или нового FAIL.
+2. Следующий gate — владелец копирует reviewed ZIP вне agent routes и вручную
+   выполняет подготовленную Windows-процедуру. Не просить владельца доделывать
+   backend/GUI/dependency closure. Native FAIL возвращается в разработку,
    а не превращается в PASS редактированием receipt.
 3. После ручного native/GUI/route gate проверить установленную цепочку сначала
    на независимых безопасных файле и folder/mixed, включая pending recovery и

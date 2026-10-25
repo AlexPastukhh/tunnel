@@ -49,8 +49,9 @@ resource/data contracts, native handle I/O, installed closure/ACL/receipt verifi
 и отдельный issuer. Development profile по-прежнему не даёт права записи;
 QA writers ограничены новой temporary fixture и отсутствуют в app import path.
 
-Следовать текущему PLAN и последней записи журнала: закончить Docker/package
-verification, scoped commit и reviewed candidate, затем ручной Windows gate.
+Текущий source/Docker/offline candidate уже зафиксирован и собран; точный
+receipt — в журнале. Следовать PLAN: ближайший gate — ручная Windows-приёмка
+владельца. Не повторять завершённую разработку без новых изменений/FAIL.
 Не объявлять source implementation доказательством native совместимости,
 изоляции write routes, power-loss durability или OWNER_ACCEPTED.
 
