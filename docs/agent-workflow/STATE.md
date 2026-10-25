@@ -8,6 +8,8 @@
 
 **Срез соединений:** ранее owner install и Linux actual-client подтвердили **два Direct DC в общем `fortis-repo-test`, 0 Bridge** (WF-036–038), второй Repo уже переведён, использует отдельный Windows launcher/guard/profile. При read-only повторе WF-048 из первого Repo: **2 Direct, 0 Bridge**, Linux module SHA `a4145198dc75cd34e7c7452c2054b4cc0d29e199ae1459961a17e4da25a13500`, DC get_config v0.2.52, root set `/workspace/repos`, `/workspace/files`, `/workspace/repo`, `/bin/bash`, telemetry false. Это срез без полного Windows-side повторного теста; cold reboot обоих профилей остаётся OPEN. Риски F-R-06 сеть/host API, F-R-07 broad Windows ACL, aliases, второй key/profile и startup pin Client не закрыты.
 
+**Наблюдение по устойчивости WF-049:** во время коммита документации возникли временные `fork: Resource temporarily unavailable`/`cannot fork()` в Linux Repo; после ограниченной попытки Git-коммит `38f2670` прошёл, проверка Git status прошла. Причина ресурсного отказа не доказана; F-R-13 OPEN. Не kill/restart, когда работает другой чат; в будущий read-only gate добавить pids.current/max/events и memory.events.
+
 **Живая документация:** после **каждого существенного** теста/решения/изменения кода, установки, ACL, сетевого пути, credentials, регистрации/approval или rollback одновременно обновлять [карту](TUNNEL_SECURITY_ISOLATION.md), эту сводку и [хронологический журнал](JOURNAL.md) с датой, средой, источником доказательств и пределами; Planned ≠ PASS. Все негативные/отказавшие тесты фиксировать, не скрывать. [Протокол](README.md).
 
 ## Исторические срезы и прежние вехи (ниже — не текущие инструкции)
