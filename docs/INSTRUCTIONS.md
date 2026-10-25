@@ -1,5 +1,10 @@
 # Обновление инструкций после изменений
 
+## 25.10.2026 — Project Checker V1-2: действующий development Check и общие пакеты
+
+GUI source с явным development-профилем выполняет background Check настоящими ESLint/Semgrep: snapshot, captured effective policy, progress/cancel/timeout/child cleanup, file/rule/location reports и raw local evidence. Общие пакеты create/edit/copy/bind/rebind/delete-unused валидируются до записи; shared edit инвалидирует всех потребителей. Полный Python suite **140/140 PASS без skips**, отдельные реальные Tk widgets в Docker/Xvfb **8/8 PASS**, включая save→restart→check→report. [Рабочий путь](userscript-updater/DEVELOPMENT_CHECK_WORKFLOW.md), [журнал](userscript-updater/IMPLEMENTATION_LOG.md), [план](userscript-updater/PLAN.md). Default GUI без профиля не запускает Check, Update всегда disabled. Windows native GUI/Job Object/ACL/install/consumer NOT_RUN; owner PASS нет. Следующий coding этап V1-3; Windows/Loader/внешние копии не менялись, push/runtime deployment не было.
+
+
 ## 25.10.2026 — Project Checker V1-2: сохранение регистраций и редактор source
 
 После V1-1 добавлены versioned JSON registry/last selection и GUI source editor/pickers для файла/файлов/папки/mixed/check-only с явными mappings. Cancel не сохраняет полуготовую регистрацию; corrupt JSON, конфликт с другим редактором и ошибка replace сохраняют прежние данные. 123/123 Docker tests PASS без skips с реальными CLI; Tkinter/Windows visual NOT_RUN, Check/Update всё ещё отключены. V1-2 продолжается с shared-pack UI и real Check worker, полный gate не закрыт. [Журнал](userscript-updater/IMPLEMENTATION_LOG.md), [план](userscript-updater/PLAN.md). Windows/runtime/ACL/Loader/внешние копии не менялись; push не было.

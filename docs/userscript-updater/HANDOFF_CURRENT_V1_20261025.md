@@ -30,7 +30,7 @@
 
 ## 2. Где работать и что сейчас реально есть
 
-**Основной Repo:** /workspace/repos/tunnel. **Исходники Project Checker:** /workspace/repos/tunnel/runtime/userscript-updater/. Python 3.11, Tkinter **не установлен в Repo Docker** (нельзя заявлять visual Windows GUI PASS). Источник/код на Docker RW /workspace/repos — **недоверенный**; /workspace/repo — отдельный Docker volume, **тоже agent-writeable**. В этой среде tests/devtools лежат по абсолютным путям ниже, но другой контейнер может отличаться.
+**Основной Repo:** /workspace/repos/tunnel. **Исходники Project Checker:** /workspace/repos/tunnel/runtime/userscript-updater/. Python 3.11, В base Python Tkinter отсутствует; для QA отдельно распакованы Tk 8.6/Xvfb в Docker internal volume и проверены 8/8 actual widget scenarios. Windows GUI NOT_RUN. Источник/код на Docker RW /workspace/repos — **недоверенный**; /workspace/repo — отдельный Docker volume, **тоже agent-writeable**. В этой среде tests/devtools лежат по абсолютным путям ниже, но другой контейнер может отличаться.
 
 Компоненты:
 - checker/model.py — регистрация, Selection (file/directory), check-only, optional target_root;
@@ -40,7 +40,8 @@
 - checker/coverage.py — пофайловое покрытие, требуемые engines/unsupported;
 - checker/preview.py — **read-only** план целевого дерева, manifest и fingerprint;
 - checker/review.py — immutable job/project/snapshot/policy/tool/target/managed-set binding; checker/policy_validation.py — real effective-config compilation/validation, deterministic shared-pack composition;
-- checker/ui_model.py и gui.py — state и исходник Tkinter, обе кнопки Check/Update отключены; checker/registry.py и registration_editor.py — versioned JSON persistence/last selection и file/files/folder/mixed chooser/editor; --registry включает сохранение; corrupt config не заменяется пустым;
+- checker/ui_model.py и gui.py — state и Tkinter GUI, Check включается только явным --development-settings, Update всегда отключён; checker/registry.py и registration_editor.py — versioned JSON persistence/last selection и file/files/folder/mixed chooser/editor; --registry включает сохранение; corrupt config не заменяется пустым;
+- checker/jobs.py/settings.py/processes.py/process_gate.py — background development Check, bounded cancellation/child cleanup, explicit profile и local evidence; policy_service.py/policy_editor.py — real validated shared edits/copy/bind/rebind/delete;
 - checker/windows_layout.py — только проверка строк путей; без реального Windows ACL/reparse evidence;
 - devtools/fixture_transactions.py — **отдельная СИНТЕТИЧЕСКАЯ лаборатория записи/backup/journal/rollback**. Не импортировать как trusted updater;
 - tests/ — синтетические отрицательные и реальные CLI fixture tests;
@@ -48,7 +49,7 @@
 
 **Текущий агрегированный результат scanner reports — NOT_AUTHORIZED**, даже если один CLI возвращает structural clear. Ни JSON анализатора, ни sandbox fixture не разрешают owner target writes.
 
-**Фактическая проверка этого хендоффа:** заново запущено 123/123 Python unittest с обоими настоящими CLI (ESLint 10.13.0; Semgrep CE 1.182.1) в Docker: PASS без skips. Проверка GUI-модели печатает PROMOTION DISABLED. Нет теста Windows/Tkinter rendering, host boundary/ACL, настоящего owner target или installed source→PASS→approved chain.
+**Фактическая проверка этого хендоффа:** заново запущено 140/140 Python unittest с обоими настоящими CLI (ESLint 10.13.0; Semgrep CE 1.182.1) в Docker: PASS без skips. Проверка GUI-модели печатает PROMOTION DISABLED. Есть 8/8 actual Linux Tk widget flows; нет native Windows rendering/Job Object test, host boundary/ACL, настоящего owner target или installed source→PASS→approved chain.
 
 Для воспроизведения в текущем Docker:
 ~~~bash
@@ -72,15 +73,19 @@ PolicyPack.validate остаётся schema-проверкой. Отдельны
 
 Зависимость PyYAML 6.0.3 установлена только в Docker venv; tests запускать указанным venv Python. VALIDATED_DEVELOPMENT не доказывает semantic effectiveness, full project coverage или owner PASS. Другие языки требуют отдельного fixture/capability профиля и пока дают явный отказ. Полный dependency closure и native Windows gates ещё не выполнены.
 
-## 4. Точный следующий исполнительный шаг: V1-2
+## 4. V1-2 development Check выполнен; следующий этап V1-3
 
-1. Проверить Git/index; сохранять чужую работу, особенно docs/agent-workflow, launcher, Observatory, Notifier/Helper. Не откатывать HEAD к старому срезу.
-2. Persistence/last selection и picker/editor уже реализованы в source: 123/123 Docker tests. Native visual QA остаётся NOT_RUN. Следом реализовать shared-pack editor/copy/bind/rebind с реальной валидацией до сохранения; затем Check worker.
-3. Подключить shared policy edit/copy/bind/rebind и effective validation, затем real Check worker с progress/cancel/timeout и stale callback protection.
-4. Показать per-file/per-rule coverage/findings и source/policy/tool fingerprints. Сохранить aggregate NOT_AUTHORIZED до Windows host acceptance.
-5. Обновлять plan/log/docs после значимых результатов и делать scoped local commits. Windows install/ACL/Loader/реальные внешние copies вручную выполняет владелец.
+Source GUI теперь сохраняет shared packs только после реальной валидации, поддерживает copy/link/unlink/rebind/delete-unused и инвалидирует все consumer reports. Check с явным development profile идёт в фоне: snapshot/captured policy/real CLI/progress/cancel/timeout/freshness, file/rule/location reports и raw local evidence. Смена проекта и поздний callback не восстанавливают чужой/старый результат. [Запуск и profile schema](DEVELOPMENT_CHECK_WORKFLOW.md).
 
-V1-1 DONE относится только к Docker/source. Не включать «Обновить» и не заявлять HOST_BOUNDARY_VERIFIED.
+8/8 реальных Tk widget scenarios в Docker/Xvfb PASS, включая save→restart→check→report, findings и cancel. Chooser results/message boxes были инъецированы, не проверен native Windows dialog/appearance. Windows Job Object source НЕ native-tested. Полная dependency closure, secure handles/ACL/route и OWNER_ACCEPTED отсутствуют.
+
+1. Проверить Git/index; сохранять соседнюю работу docs/agent-workflow/launcher/Observatory/Notifier/Helper. HEAD мог продвинуться параллельными коммитами; не откатывать его.
+2. Следующий coding шаг V1-3: production design/implementation exact review→confirmation→staged checked-byte promotion и recovery; НЕ подключать devtools fixture lab как trusted writer.
+3. Сохранить полный actual-target preview, previous-managed scope, freshness всех inputs, backups/readback/journal и unmanaged data. Target-only bytes/папки не удалять автоматически.
+4. До включения реального Update обязателен V1-4 ручной owner Windows install/полный tool closure/native handles/ACL/agent-write-route и consumer acceptance. Metadata-only late UI freshness не заменяет full-byte проверки перед promotion.
+5. Обновлять plan/log/docs и делать scoped local commits; no push. Все Windows/Loader/actual external copies выполняются отдельно вручную владельцем.
+
+V1-2 подтверждён как source/Docker Check workflow, а не готовая защищённая Windows V1. Никакого owner PASS или HOST_BOUNDARY_VERIFIED.
 
 ## 5. Дальнейшая последовательность и release gates
 
@@ -99,4 +104,4 @@ V1-1 DONE относится только к Docker/source. Не включат�
 
 ## 7. Короткая команда новому чату
 
-> Продолжай Project Checker через подключённый Fortis Repo. Прочитай AGENTS.md, docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md, актуальный PLAN.md, источник CANDIDATE_PREWORK_V4_READING_COPY.md и журнал; затем проверь live Git/status и текущие Docker tests. Пользователь разрешил разработку и установку зависимостей в Repo; Windows install/ACL/Loader/Approved target выполняются отдельно вручную владельцем. Не спрашивай снова F-U-01–F-U-05, не сокращай полный scope A4, но оптимизируй порядок под личную V1. V1-1 исправлен; V1-2 persistence/pickers source добавлены (123/123). Продолжай V1-2: shared packs и реальный Check worker, затем обнови docs и сделай scoped local commit. Не включай update/owner PASS и не трогай другие workstreams.
+> Продолжай Project Checker через подключённый Fortis Repo. Прочитай AGENTS.md, docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md, актуальный PLAN.md, источник CANDIDATE_PREWORK_V4_READING_COPY.md и журнал; затем проверь live Git/status и текущие Docker tests. Пользователь разрешил разработку и установку зависимостей в Repo; Windows install/ACL/Loader/Approved target выполняются отдельно вручную владельцем. Не спрашивай снова F-U-01–F-U-05, не сокращай полный scope A4, но оптимизируй порядок под личную V1. V1-1 исправлен; V1-2 source Check/packs/registry пройдены: 140/140 Python tests и 8/8 actual Tk flows. Продолжай V1-3 с сохранением Windows native gates, затем обнови docs и сделай scoped local commit. Не включай update/owner PASS и не трогай другие workstreams.

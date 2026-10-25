@@ -41,12 +41,14 @@ class ReviewPresenter:
         self.scan_reports: dict[str, ScanReport] = {}
         self.previews: dict[str, TargetPreview] = {}
         self.review_bindings: dict[str, ReviewBinding] = {}
+        self.analysis_details: dict[str, tuple] = {}
 
     def register(self, project: Registration) -> None:
         project.validate()
         self.registrations[project.registration_id] = project
         self.scan_reports.pop(project.registration_id, None)
         self.previews.pop(project.registration_id, None)
+        self.analysis_details.pop(project.registration_id, None)
         self.review_bindings.pop(project.registration_id, None)
 
     def register_json(self, raw: str) -> Registration:
@@ -58,6 +60,7 @@ class ReviewPresenter:
         self.registrations.pop(project_id, None)
         self.scan_reports.pop(project_id, None)
         self.previews.pop(project_id, None)
+        self.analysis_details.pop(project_id, None)
         self.review_bindings.pop(project_id, None)
 
     def invalidate_shared_pack(self, policy_pack_id: str) -> tuple[str, ...]:
@@ -67,6 +70,7 @@ class ReviewPresenter:
             if policy_pack_id in project.policy_pack_ids:
                 self.scan_reports.pop(project_id, None)
                 self.previews.pop(project_id, None)
+                self.analysis_details.pop(project_id, None)
                 self.review_bindings.pop(project_id, None)
                 affected.append(project_id)
         return tuple(sorted(affected))
@@ -80,6 +84,7 @@ class ReviewPresenter:
                                         policy_sha256, tool_fingerprints, previously_managed)
         self.scan_reports.pop(project_id, None)
         self.previews.pop(project_id, None)
+        self.analysis_details.pop(project_id, None)
         self.review_bindings[project_id] = binding
         return binding
 
@@ -87,6 +92,7 @@ class ReviewPresenter:
         self.review_bindings.pop(project_id, None)
         self.scan_reports.pop(project_id, None)
         self.previews.pop(project_id, None)
+        self.analysis_details.pop(project_id, None)
 
     def set_reports(self, project_id: str, scan: ScanReport | None = None,
                     preview: TargetPreview | None = None) -> None:
@@ -138,11 +144,57 @@ class ReviewPresenter:
         if report is None:
             return DisplayTable("Проверка", ("Анализатор", "Статус", "Находки", "Детали"), (),
                                 "Нет доверенного Windows-сканирования; проверка не выполнялась.")
-        rows = tuple(DisplayRow((r.engine, r.status, str(r.findings), r.detail))
-                     for r in report.reports)
+        details = self.analysis_details.get(project_id)
+        source_names = ({str(details[0].root / r.snapshot_relative): r.source_path
+                         for r in details[0].records} if details else {})
+        rows = []
+        for report_item in report.reports:
+            rows.append(DisplayRow((report_item.engine, report_item.status,
+                                    str(report_item.findings), report_item.detail)))
+            for issue in report_item.issues:
+                source = source_names.get(issue.path, issue.path)
+                location = f"{source}:{issue.line}:{issue.column}"
+                rows.append(DisplayRow((issue.rule_id, "FINDING", location, issue.message),
+                                       f"{report_item.engine}: {issue.rule_id}\n{location}\n{issue.message}"))
         return DisplayTable("Результат (НЕ ДОПУСК)",
-                            ("Анализатор", "Статус", "Находки", "Детали"), rows,
-                            f"Итог: {report.status}. Нет полномочий на перенос.")
+                            ("Анализатор / правило", "Статус", "Находки / место", "Детали"), tuple(rows),
+                            f"Итог: {report.status}. Snapshot: {report.snapshot_id}. "
+                            f"Policy: {report.policy_sha256}. Нет полномочий на перенос.")
+
+    def set_check_details(self, project_id, snapshot, coverage, validations, evidence_dir):
+        report = self.scan_reports.get(project_id)
+        expected = self.review_bindings.get(project_id)
+        if report is None or expected is None or report.binding != expected:
+            raise ContractError("No current bound report for check details")
+        expected.validate_snapshot(snapshot)
+        self.analysis_details[project_id] = (snapshot, coverage, validations, evidence_dir)
+
+    def coverage_table(self, project_id):
+        details = self.analysis_details.get(project_id)
+        columns = ("Файл", "Требуется", "Обработан", "Статус")
+        if details is None:
+            return DisplayTable("Пофайловое покрытие", columns, (), "Проверка не выполнялась.")
+        snapshot, coverage, _, evidence = details
+        records = {r.source_path: r for r in snapshot.records}
+        rows = tuple(DisplayRow((r.source_path, ", ".join(r.required_engines),
+                                 ", ".join(r.scanned_by), r.status),
+            f"{r.reason}\nSHA-256: {records[r.source_path].sha256}\n"
+            f"Размер: {records[r.source_path].size} байт\nSnapshot: {r.snapshot_relative}")
+                     for r in coverage.files)
+        return DisplayTable("Пофайловое покрытие (НЕ ДОПУСК)", columns, rows,
+            f"{coverage.status}. Файлов: {len(rows)}. Локальное evidence: {evidence}")
+
+    def rules_table(self, project_id):
+        details = self.analysis_details.get(project_id)
+        columns = ("Анализатор", "Правило", "Наблюдение")
+        if details is None:
+            return DisplayTable("Действующие правила", columns, (), "Нет выполненной проверки.")
+        rows = tuple(DisplayRow((v.engine, rule, "Загружено и валидировано"),
+                     f"{v.detail}\nTool/config reference: {v.tool_fingerprint}")
+                     for v in details[2] for rule in v.effective_rules)
+        return DisplayTable("Действующие правила", columns, rows,
+            "Список загруженных правил не доказывает выполнение каждого правила на каждом файле. "
+            "Покрытие файлов и находки показаны отдельно.")
 
     def preview_table(self, project_id: str) -> DisplayTable:
         preview = self.previews.get(project_id)

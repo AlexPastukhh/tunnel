@@ -95,8 +95,12 @@ def build_coverage_matrix(
                     states.append("INCOMPLETE")
                     reason.append(f"File not accounted for: {engine}")
                 elif report.status == "FINDINGS":
-                    states.append("FINDINGS")
-                    reason.append(f"Scanner reported findings: {engine}")
+                    precise = bool(report.issues) and all(issue.path in report.scanned for issue in report.issues)
+                    if not precise or any(issue.path == filename for issue in report.issues):
+                        states.append("FINDINGS")
+                        reason.append(f"Scanner reported findings: {engine}")
+                    else:
+                        states.append("NOT_AUTHORIZED")
                 elif report.status == "STRUCTURAL_CLEAR":
                     states.append("NOT_AUTHORIZED")
                 else:

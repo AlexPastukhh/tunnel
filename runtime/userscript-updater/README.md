@@ -1,69 +1,51 @@
-# Project Checker — development source, NOT a trusted Windows installation
+# Project Checker — development source, not a trusted Windows installation
 
-**Current execution plan:** [docs/userscript-updater/PLAN.md](../../docs/userscript-updater/PLAN.md). Personal V1 remains a full local Windows app, not a demo; work proceeds as bug fixes → working Check UI/persistence/shared rules → reviewed promotion and recovery → owner-run trusted Windows acceptance. V1-1 fixes are source/DOCKER_TESTED; V1-2 has persisted registrations/picker-editor source; shared-pack UI and real Check jobs are next.
+Current route: [personal V1 plan](../../docs/userscript-updater/PLAN.md), [current handoff](../../docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md), [implementation evidence](../../docs/userscript-updater/IMPLEMENTATION_LOG.md). Full A4 scope remains. Source/Docker checks never grant owner PASS or external update authority.
 
-Scope: full Windows checker and controlled external promotion per CPW-PC-20261025/v4 (A4). All current code is agent-writeable and development-only. User will later manually install independent verified app, rules, tools and targets outside agent-write routes.
+## Working development Check workflow
 
-## Implemented, source-only
+- Persisted schema-versioned JSON registry: Unicode, last selection, file/files/folder/mixed, explicit relative mappings and check-only. Atomic save, corrupt-file preservation and concurrent editor refusal.
+- Tk registration editor/pickers and shared policy editor: create, direct edit, independent copy, link/unlink/rebind. Invalid effective configuration preserves the old pack. A successful shared edit invalidates every consumer report. Used packs must be unbound before deletion.
+- Actual ESLint/Semgrep config validation: built-in/enabled rule IDs, real compile/load, safe fixtures, duplicate/conflicting/disabled/missing rules and language coverage failures.
+- Explicit development-profile Check button: background snapshot -> captured effective policy -> real pinned CLI -> file/rule findings -> fresh source/policy/tool comparison -> local report. Target/state/policy/app/tool intersections are refused before Check starts, so evidence cannot alter a registered target tree. Default GUI has no enabled Check without a profile. **Update always remains disabled.**
+- Progress, bounded job/analyzer timeout, cancel and child-tree cleanup; stale callbacks and double-starts refused. POSIX cleanup has actual child-process tests. Windows Job Object containment source has NOT been native-tested.
+- File findings include original source names, rule IDs and line/column. File coverage distinguishes clean files, findings, missing engines and unsupported material. Loaded-rule lists are separate and do not pretend to prove every rule ran on every file.
+- Raw CLI JSON/stderr, snapshot manifest, hashes and structured report are saved only in job-owned development state. They are historical evidence, not transferable authorization.
+- Read-only target preview: full create/modify/delete/unchanged/preserve, text diff, binary sizes/hashes, bound project/registration/snapshot/policy/tool/target/managed set and job identity. No target writer exists in checker/.
+- Windows structural path preflight always requires separate native final-path/ACL/route verification.
 
-- File/directory/mixed registration, check-only and target mappings, conservative path validation. Tk editor supports multiple-file, folder and target pickers with explicit relative mappings. Versioned local JSON registry persists registrations and last selection (optional --registry absolute-path), atomically saves, rejects corrupt/unknown schema or concurrent edits without overwriting prior state. Picker Cancel leaves persisted data unchanged.
-- Fail-closed source inventory, hardlink/reparse refusal, size/count bounds, SHA-256, source rehash/re-enumeration, extension-preserving snapshot.
-- Mutable shared policy packs, clone/independent copy, content hashing and captured pack fingerprints. Separate actual effective-config validator compiles real ESLint/Semgrep rules on safe fixtures, checks loaded/enabled required IDs, rejects invalid/disabled/missing/conflicting configurations before development scan. Validation is not semantic policy acceptance.
-- Immutable ReviewBinding binds presenter callbacks to project, registration, snapshot manifest, captured policy, tools/config/Node references, target and managed set plus unique job; edit/cancel/new job invalidates it. UI shows binary old/new byte sizes, hashes and text diffs.
-- ESLint and Semgrep machine-readable report parsers. Missing files, findings, errors and skipped rules/files cannot become CLEAR. Even structurally clear report results in aggregate NOT_AUTHORIZED.
-- Demo-only CLI launcher: fixed argv, no shell, no project configs, no inline ESLint disable, no autofix, Semgrep nosem/git/metrics safeguards and bounded timeout.
-- Per-file coverage matrix: required scanners, actual scanned files, unsupported extensions and missing reports. Rule-to-language applicability still requires trusted-policy validation.
-- Read-only target preview builder (synthetic trees only): create/modify/delete/unchanged, UTF-8 text diffs, binary hashes/sizes, preserved unmanaged files/empty directories, target inventory fingerprint AND previously-managed-scope fingerprint, collision refusal.
-- A SEPARATE TEST-ONLY LAB under devtools/fixture_transactions.py (NOT the checker installable package). It requires a temporary canary-marked fixture directory and simulates reviewed-plan fingerprint matching, fresh source/pack/target checks, exact checked-byte staging, backups, durable JSON journal, idempotent status, injected failure/crash, selective rollback, manual recovery, and explicit residual-drift status when unrelated owner files changed. This is a synthetic, nonsecure model, not an approving/updating Windows API.
-- Windows structural deployment preflight (checker/windows_layout.py): checks for obvious trusted-root/agent-write/source overlap, rejects ambiguous string paths, and ALWAYS returns NEEDS_NATIVE_WINDOWS_VERIFICATION even with separated paths. It never claims OS ACL/alias verification.
-- Presentation state (checker/ui_model.py) and Tkinter Windows desktop prototype (checker/gui.py) with persisted registration editor/pickers, JSON data import, project/rule listings, report and preview views, file-level diff details, preserved external data and installation-layout diagnostics. **Both Check and Update are disabled** pending independent trusted Windows backend. GUI has not been visually run on Windows; Docker Python lacks Tkinter.
-- 123 Python tests including actual ESLint 10.13.0 and Semgrep CE 1.182.1 integration against isolated synthetic JS/Python. Clean inputs -> STRUCTURAL_CLEAR; eval examples -> FINDINGS. Aggregate clean status is always NOT_AUTHORIZED.
+A separate synthetic transaction lab under devtools/fixture_transactions.py is **not imported by the app** and is never an installed updater.
 
-Dependency: PyYAML==6.0.3 (requirements.txt), installed in the existing Docker Semgrep venv. No Windows dependency install has been done.
+Latest verification: **140/140 Python tests, zero skips**, with both actual CLIs; separate actual Tk widget workflow **8/8 PASS**. Native Windows GUI/Job Object/ACL tests NOT_RUN.
 
-To run tests inside Repo:
+## Run in the authorized Docker environment
 
-    cd /workspace/repos/tunnel/runtime/userscript-updater
-    PYTHONDONTWRITEBYTECODE=1 /workspace/repo/project-checker-devtools/semgrep-venv/bin/python -m unittest discover -s tests -v
+Python 3.11 + pinned PyYAML 6.0.3 from requirements.txt. Existing tools: ESLint 10.13.0 and Semgrep CE 1.182.1 under /workspace/repo/project-checker-devtools. Use the existing venv Python, which includes PyYAML:
 
-Optional local Docker volume ESLint fixture installation:
+```bash
+cd /workspace/repos/tunnel/runtime/userscript-updater
+export UPDATER_DEV_ESLINT=/workspace/repo/project-checker-devtools/node_modules/eslint/bin/eslint.js
+export UPDATER_DEV_ESLINT_CONFIG=/workspace/repo/project-checker-devtools/eslint.config.cjs
+export UPDATER_DEV_SEMGREP=/workspace/repo/project-checker-devtools/semgrep-venv/bin/semgrep
+export UPDATER_DEV_SEMGREP_CONFIG=/workspace/repo/project-checker-devtools/semgrep-rules.yaml
+PYTHONDONTWRITEBYTECODE=1 /workspace/repo/project-checker-devtools/semgrep-venv/bin/python -m unittest discover -s tests -v
+PYTHONDONTWRITEBYTECODE=1 python3 -m checker.gui --model-smoke
+```
 
-    mkdir -p /workspace/repo/project-checker-devtools
-    npm install --prefix /workspace/repo/project-checker-devtools --no-audit --no-fund --ignore-scripts --save-exact eslint@10.13.0
+[Development profile format and UI workflow](../../docs/userscript-updater/DEVELOPMENT_CHECK_WORKFLOW.md). With Tk and an appropriate test display:
 
-Demo configs are tracked under policies/demo/eslint.config.cjs and policies/demo/semgrep-rules.yaml. They are development-only, NOT production trusted policies. Their Docker-volume copies were verified byte-identical via SHA-256.
+```bash
+python -m checker.gui --registry /absolute/path/projects.json --development-settings /absolute/path/development.json
+```
 
-ESLint 10.13.0 was installed with npm --ignore-scripts. Semgrep CE 1.182.1 was installed with uv 0.13.5 and Python 3.11 in the Docker internal volume. The uv wheel was downloaded from PyPI and verified against the PyPI SHA-256 value fa8d26e08e34c29c0c4e820cf3181757086d547240b4f4d31ff1d8bd810ca946. Installation commands (Docker only; never run on Windows):
+Omitting --registry uses an explicitly labelled in-memory session. Omitting --development-settings disables scanner and policy-edit actions. A corrupt registry/profile is reported, not silently replaced. An interrupted-save .lock requires review.
 
-    UV=/workspace/repo/project-checker-devtools/uv-wheel/uv
-    DEV=/workspace/repo/project-checker-devtools
-    "$UV" venv --python /usr/bin/python3 "$DEV/semgrep-venv"
-    UV_CACHE_DIR="$DEV/.cache-uv" TMPDIR="$DEV/.tmp-uv" "$UV" pip install --python "$DEV/semgrep-venv/bin/python" --no-build-isolation 'semgrep==1.182.1'
+Baseline Docker Python still has no Tk. An isolated QA-only Debian Tk 8.6/Xvfb tree was extracted inside the internal volume to run devtools/gui_workflow_smoke.py. Eight actual widget scenarios passed, including real CLI jobs and save/restart. File chooser results/message boxes are injected; native Windows dialogs and visual appearance remain untested. No system Tk/Windows installation was performed.
 
-Copy the two development demo configs from policies/demo/ to $DEV/eslint.config.cjs and $DEV/semgrep-rules.yaml and verify hashes. Both copies are already present and checked in the active Docker volume.
+## Remaining release gates
 
-To run all 123 tests, configure the installed Docker CLI paths (unset env vars result in explicit integration-test skips):
+No owner PASS, production promotion, protected Windows app, full pinned dependency closure or accepted production policy exists. Main entry-point/config/Node hashes do not pin transitive modules. Current validation fixtures cover ESLint JS/CJS/MJS and Semgrep JS/Python; unsupported required material is explicitly non-clear. Config validity is not semantic policy sufficiency.
 
-    export UPDATER_DEV_ESLINT=/workspace/repo/project-checker-devtools/node_modules/eslint/bin/eslint.js
-    export UPDATER_DEV_ESLINT_CONFIG=/workspace/repo/project-checker-devtools/eslint.config.cjs
-    export UPDATER_DEV_SEMGREP=/workspace/repo/project-checker-devtools/semgrep-venv/bin/semgrep
-    export UPDATER_DEV_SEMGREP_CONFIG=/workspace/repo/project-checker-devtools/semgrep-rules.yaml
-    PYTHONDONTWRITEBYTECODE=1 /workspace/repo/project-checker-devtools/semgrep-venv/bin/python -m unittest discover -s tests -v
+Linux path checks/O_NOFOLLOW and Windows Job Object source do not prove native secure handles, reparse/races, ACL/alternate write-route isolation, process/environment compatibility or crash durability. Full data/dependency/lock/empty-folder contracts, protected previously-managed scope, trusted approval, production staged-byte copy/backup/readback/recovery and Windows GUI/consumer acceptance remain V1-3/V1-4 work. [Windows trust boundary](../../docs/userscript-updater/WINDOWS_TRUST_BOUNDARY.md).
 
-## Critical remaining work
-
-There is NO approved PASS, NO external promotion and NO trusted Windows app. Both directories in Repo/Docker are agent-writable. Main CLI byte pins do not protect transitive dependencies. Linux path pre-checks + O_NOFOLLOW where available are not proven Windows secure-handle/TOCTOU protection. Config validation is tested for ESLint JS/CJS/MJS and Semgrep JS/Python fixtures; full independent semantic rule/project coverage remains incomplete. No pinned full analyzer dependency closure, production rules, installed pack edit locking, source tree relative-import semantics, empty directory copying, trusted external target observation and owner approval, actual promotion (create/modify/delete), target-lock checks, backup/journal/rollback, fully functional GUI (current view-only source), Windows ACL/install/consumer acceptance. Unknown files cannot silently be ignored or deemed safe. The full A4 final scope is unchanged.
-
-The preview and devtools/fixture_transactions.py are **strictly for SYNTHETIC destination trees**. The test-only fingerprint is NOT user authentication/permission, there is NO trusted scan PASS or installed authorization gate, no protected previous-managed inventory, no real Windows ACL/reparse protection, no service or UI, and NO authorization to promote any Repo bytes outside synthetic fixtures. The test transaction deliberately refuses nonfixture destinations; it is kept OUTSIDE checker/ to reduce accidental production inclusion. Synthetic OS replace, fsync, backups and journals do not prove Windows crash-atomicity or prevent concurrent writes by AI/other processes. Do not run any of this as a trusted approving/installing Windows tool. Real use requires separate independent implementation, manual installation, external authorization and negative owner-side acceptance.
-
-## Desktop UI source-only smoke
-
-The pure presentation smoke can run inside Fortis Repo Docker without Tkinter:
-
-    PYTHONDONTWRITEBYTECODE=1 python3 -m checker.gui --model-smoke
-
-For persisted registrations, pass --registry followed by an absolute JSON path; omitting it explicitly selects an in-memory session. An unreadable/corrupt registry blocks saving, and an interrupted-save .lock requires review. These are source features, not protected Windows state.
-
-On a future controlled native Windows test environment with Tkinter, checker.gui is intended to render five tabs and show imported registration JSON as **data**. That Windows visual test is NOT RUN. The two action buttons are intentionally disabled; no source code scanning or external promotion is available in this view-only GUI.
-
-Trust boundary design and manual-acceptance gates: docs/userscript-updater/WINDOWS_TRUST_BOUNDARY.md. The synthetic transaction lab under devtools is NEVER an installed service or backend for this GUI.
+The external Update button is disabled for every status. Neither scanner exit0, VALIDATED_DEVELOPMENT, NOT_AUTHORIZED, JSON evidence, metadata freshness nor test fixture results can enable it. Cheap metadata checks only prevent late presentation of changed tool inputs; a future promotion must independently rehash and validate the entire protected chain.

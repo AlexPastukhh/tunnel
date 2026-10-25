@@ -16,6 +16,7 @@ from .inventory import digest
 from .model import ContractError
 from .policies import CapturedPolicies, PolicyPack
 from .reports import parse_semgrep
+from .processes import execute, RunControl, Cancelled, DeadlineExceeded
 
 if TYPE_CHECKING:
     from .engines import EngineConfig
@@ -45,7 +46,7 @@ const { builtinRules } = require(path.join(pkg, 'lib/unsupported-api.js'));
 
 def _environment(root: Path) -> dict[str, str]:
     return {"PATH": "/usr/local/bin:/usr/bin:/bin", "LC_ALL": "C.UTF-8",
-            "NODE_OPTIONS": "", "HOME": str(root), "SEMGREP_SEND_METRICS": "off",
+            "NODE_OPTIONS": "", "PYTHONDONTWRITEBYTECODE": "1", "HOME": str(root), "SEMGREP_SEND_METRICS": "off",
             "SEMGREP_ENABLE_VERSION_CHECK": "false"}
 
 
@@ -95,7 +96,7 @@ class EnginePolicyValidation:
 
 
 def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, ...] = (),
-                           timeout: int = 30) -> EnginePolicyValidation:
+                           timeout: int = 30, control: RunControl | None = None) -> EnginePolicyValidation:
     """Load actual pinned config in real engine; all errors block development scan."""
     try:
         config.validate()
@@ -106,10 +107,10 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
             if config.kind == "eslint":
                 for suffix in ("js", "cjs", "mjs"):
                     (root / f"fixture.{suffix}").write_text("const answer = 42;\n", encoding="utf-8")
-                process = subprocess.run([str(config.node), "-e", ESLINT_PROBE,
+                process = execute([str(config.node), "-e", ESLINT_PROBE,
                     str(config.executable.parent.parent), str(config.config), str(root)],
                     cwd=root, env=env, shell=False, capture_output=True, text=True,
-                    errors="replace", timeout=timeout, check=False)
+                    errors="replace", timeout=timeout, check=False, control=control)
                 if process.returncode:
                     raise ContractError(f"ESLint config load failed: {process.stderr[-2000:]}")
                 data = json.loads(process.stdout)
@@ -156,8 +157,8 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
                     files.append(path)
                 argv = build_argv(config, tuple(files))
                 argv[argv.index("--"):argv.index("--")] = ["--time", "--no-rewrite-rule-ids"]
-                process = subprocess.run(argv, cwd=root, env=env, shell=False,
-                    capture_output=True, text=True, errors="replace", timeout=timeout, check=False)
+                process = execute(argv, cwd=root, env=env, shell=False,
+                    capture_output=True, text=True, errors="replace", timeout=timeout, check=False, control=control)
                 report = parse_semgrep(process.stdout, process.returncode, tuple(files), root)
                 if report.status not in ("STRUCTURAL_CLEAR", "FINDINGS"):
                     raise ContractError(f"Semgrep config compile/fixture coverage failed: {report.detail}; {process.stderr[-1500:]}")
@@ -172,6 +173,8 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
             raise ContractError("Tool/config changed during policy validation")
         return EnginePolicyValidation(config.kind, "VALIDATED_DEVELOPMENT", active, identity,
             f"{version}; actual config loaded on safe fixtures; semantic effectiveness NOT proven")
+    except (Cancelled, DeadlineExceeded):
+        raise
     except Exception as exc:
         # Malformed YAML/JSON, missing dependency/tool, timeout, unsupported API/version.
         return EnginePolicyValidation(config.kind, "ERROR", (), "",
@@ -193,7 +196,7 @@ class EffectivePolicy:
 def prepare_effective_policy(captured: CapturedPolicies, tools: tuple[EngineConfig, ...],
                              directory: Path, *,
                              required_rules: tuple[tuple[str, tuple[str, ...]], ...] = (),
-                             timeout: int = 30) -> EffectivePolicy:
+                             timeout: int = 30, control: RunControl | None = None) -> EffectivePolicy:
     """Compose captured shared packs, reject conflicts, compile real configs or raise.
 
     directory must be new job-owned development storage, never a source directory.
@@ -247,7 +250,7 @@ def prepare_effective_policy(captured: CapturedPolicies, tools: tuple[EngineConf
             path.write_text(json.dumps({"rules": semgrep}, ensure_ascii=False), encoding="utf-8")
             required = tuple(sorted(set(requirements.get(kind, ())) | ids))
         config = replace(by_kind[kind], config=path, config_sha256=digest(path.read_bytes()))
-        validation = validate_engine_config(config, required_rules=required, timeout=timeout)
+        validation = validate_engine_config(config, required_rules=required, timeout=timeout, control=control)
         if validation.status != "VALIDATED_DEVELOPMENT":
             raise ContractError(f"{kind} effective policy invalid: {validation.detail}")
         configs.append(config)

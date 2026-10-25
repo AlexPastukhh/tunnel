@@ -14,7 +14,9 @@ class GuiSourceTests(unittest.TestCase):
         source = (Path(__file__).resolve().parent.parent / "checker" / "gui.py").read_text()
         self.assertIn('state="disabled"', source)
         self.assertIn("Обновить (недоступно)", source)
-        self.assertIn("Проверить (недоступно)", source)
+        self.assertIn("Проверить (тестовая среда)", source)
+        self.assertIn("--development-settings", source)
+        self.assertIn("def _poll_jobs", source)
         self.assertNotIn("devtools", source)
         for node in ast.walk(ast.parse(source)):
             if isinstance(node, ast.ImportFrom):

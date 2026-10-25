@@ -14,6 +14,15 @@ SUPPORTED = {"eslint", "semgrep"}
 
 
 @dataclass(frozen=True)
+class Finding:
+    path: str
+    rule_id: str
+    line: int
+    column: int
+    message: str
+
+
+@dataclass(frozen=True)
 class EngineReport:
     engine: str
     status: Status
@@ -21,6 +30,7 @@ class EngineReport:
     scanned: tuple[str, ...]
     findings: int
     detail: str
+    issues: tuple[Finding, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -50,6 +60,7 @@ def parse_eslint(stdout: str, exit_code: int, expected: tuple[Path, ...], scanne
         paths = []
         count = 0
         fatal = False
+        issues = []
         for item in rows:
             if not isinstance(item, dict) or not isinstance(item.get("filePath"), str):
                 raise ValueError("Missing filePath")
@@ -65,6 +76,10 @@ def parse_eslint(stdout: str, exit_code: int, expected: tuple[Path, ...], scanne
             # Suppressed findings are not proof of a clean scan.
             if suppressed:
                 fatal = True
+            for msg in messages:
+                issues.append(Finding(_report_path(item["filePath"], scanner_workdir),
+                    str(msg.get("ruleId") or "parser"), int(msg.get("line") or 0),
+                    int(msg.get("column") or 0), str(msg.get("message") or "")))
             count += len(messages)
             fatal |= any(bool(msg.get("fatal")) for msg in messages)
             if item.get("fatalErrorCount", 0):
@@ -80,7 +95,7 @@ def parse_eslint(stdout: str, exit_code: int, expected: tuple[Path, ...], scanne
         else:
             status = "STRUCTURAL_CLEAR"
         return EngineReport("eslint", status, wanted, tuple(paths), count,
-                            f"exit={exit_code}; messages={count}")
+                            f"exit={exit_code}; messages={count}", tuple(issues))
     except (ValueError, TypeError, json.JSONDecodeError) as exc:
         return EngineReport("eslint", "ERROR", wanted, (), 0, f"Invalid JSON: {exc}")
 
@@ -105,6 +120,18 @@ def parse_semgrep(stdout: str, exit_code: int, expected: tuple[Path, ...], scann
             raise ValueError("Incomplete Semgrep JSON schema")
         if any(not isinstance(path, str) for path in scanned) or any(not isinstance(item, dict) for item in skipped):
             raise ValueError("Unexpected scanned path type")
+        issues = []
+        for finding in findings:
+            if not isinstance(finding, dict):
+                raise ValueError("Malformed Semgrep finding")
+            start = finding.get("start", {})
+            extra = finding.get("extra", {})
+            path = finding.get("path")
+            if not isinstance(start, dict) or not isinstance(extra, dict):
+                raise ValueError("Malformed Semgrep finding metadata")
+            issues.append(Finding(_report_path(path, scanner_workdir) if isinstance(path, str) else "",
+                str(finding.get("check_id") or "unknown"), int(start.get("line") or 0),
+                int(start.get("col") or 0), str(extra.get("message") or "")))
         visited = tuple(_report_path(path, scanner_workdir) for path in scanned)
         if exit_code not in (0, 1) or errors:
             status = "ERROR"
@@ -117,7 +144,7 @@ def parse_semgrep(stdout: str, exit_code: int, expected: tuple[Path, ...], scann
         else:
             status = "STRUCTURAL_CLEAR"
         return EngineReport("semgrep", status, wanted, visited, len(findings),
-                            f"exit={exit_code}; results={len(findings)}; errors={len(errors)}; skipped={len(skipped)}; skipped_rules={len(skipped_rules)}")
+                            f"exit={exit_code}; results={len(findings)}; errors={len(errors)}; skipped={len(skipped)}; skipped_rules={len(skipped_rules)}", tuple(issues))
     except (ValueError, TypeError, json.JSONDecodeError) as exc:
         return EngineReport("semgrep", "ERROR", wanted, (), 0, f"Invalid JSON: {exc}")
 

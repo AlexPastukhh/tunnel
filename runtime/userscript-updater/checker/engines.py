@@ -1,4 +1,4 @@
-"""Demo CLI invocation: fixed argv; parses real JSON but cannot authorize promotion."""
+"""Development CLI runner: fixed argv, optional job control; never authorizes promotion."""
 from __future__ import annotations
 
 import os
@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .inventory import Snapshot, digest
 from .reports import EngineReport, parse_eslint, parse_semgrep
+from .processes import execute, RunControl
 
 
 @dataclass(frozen=True)
@@ -59,8 +60,9 @@ def build_argv(config: EngineConfig, files: tuple[Path, ...]) -> list[str]:
 
 
 def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 30,
-                   required_rules: tuple[str, ...] = ()) -> EngineReport:
-    """Tests ONLY. Not a trusted launcher, no dependency closure/Windows ACL validation."""
+                   required_rules: tuple[str, ...] = (), control: RunControl | None = None,
+                   validation=None, evidence_dir: Path | None = None) -> EngineReport:
+    """Development Check only; no protected dependency closure/Windows ACL authority."""
     extensions = {".js", ".mjs", ".cjs"} if config.kind == "eslint" else {".js", ".mjs", ".cjs", ".py"}
     requested = tuple(
         snapshot.root / record.snapshot_relative
@@ -71,8 +73,11 @@ def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 3
     try:
         config.validate()
         from .policy_validation import validate_engine_config
-        validation = validate_engine_config(config, required_rules=required_rules, timeout=timeout)
-        if validation.status != "VALIDATED_DEVELOPMENT":
+        validation = validation or validate_engine_config(config, required_rules=required_rules,
+                                                           timeout=timeout, control=control)
+        if (validation.status != "VALIDATED_DEVELOPMENT"
+                or validation.tool_fingerprint != config.fingerprint()
+                or set(required_rules) - set(validation.effective_rules)):
             raise ValueError(f"Effective policy validation failed: {validation.detail}")
         for record in snapshot.records:
             path = snapshot.root / record.snapshot_relative
@@ -82,15 +87,20 @@ def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 3
             "PATH": "/usr/local/bin:/usr/bin:/bin",
             "LC_ALL": "C.UTF-8",
             "NODE_OPTIONS": "",
+            "PYTHONDONTWRITEBYTECODE": "1",
             "SEMGREP_SEND_METRICS": "off",
             "SEMGREP_ENABLE_VERSION_CHECK": "false",
             "HOME": str(snapshot.root), # prototype only; installed tool needs separate trusted state
         }
-        process = subprocess.run(
+        process = execute(
             build_argv(config, requested), shell=False, cwd=snapshot.root,
             capture_output=True, text=True, errors="replace",
-            timeout=timeout, env=env, check=False,
+            timeout=timeout, env=env, check=False, control=control,
         )
+        if evidence_dir is not None:
+            evidence_dir.mkdir(parents=True, exist_ok=True)
+            (evidence_dir / (config.kind + ".json")).write_text(process.stdout, encoding="utf-8")
+            (evidence_dir / (config.kind + ".stderr.txt")).write_text(process.stderr, encoding="utf-8")
         parser = parse_eslint if config.kind == "eslint" else parse_semgrep
         result = parser(process.stdout, process.returncode, requested, snapshot.root)
         # File input is checked again; changed scanner input invalidates the evidence.
