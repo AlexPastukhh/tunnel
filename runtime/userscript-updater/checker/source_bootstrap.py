@@ -219,21 +219,79 @@ def prepare_runtime(registry, archive=None):
                  "--cache", payload / "npm-cache", "--userconfig", userconfig,
                  "--globalconfig", globalconfig, "--prefix", eslint])
             shutil.copytree(payload / "profiles", runtime / "profiles")
-        paths = [".", "Lib", "DLLs", str(SOURCE_ROOT), "../pydeps", "../pydeps/win32",
-                 "../pydeps/win32/lib", "../pydeps/Pythonwin", "../pydeps/pywin32_system32"]
+        paths = isolated_python_paths()
         (runtime / "python/python313._pth").write_text("\n".join(paths) + "\n", encoding="utf-8")
-        profile = write_profile(runtime, data_root)
-        # Imports/versions are tested in the exact isolated runtime before publishing the pointer.
-        run([python, "-I", "-S", "-B", "-c",
-             "from pathlib import Path; from checker.source_bootstrap import validate_runtime; "
-             "validate_runtime(Path(" + repr(str(profile)) + "))"])
-        pointer = data_root / "source-runtime.json"
-        staged = data_root / (".source-runtime-" + uuid.uuid4().hex + ".json")
+        write_profile(runtime, data_root)
+        return finish_runtime(runtime, registry, env)
+    finally:
+        lock.unlink(missing_ok=True)
+
+
+def isolated_python_paths():
+    return [".", "Lib", "DLLs", str(SOURCE_ROOT), "../pydeps", "../pydeps/win32",
+            "../pydeps/win32/lib", "../pydeps/Pythonwin", "../pydeps/pywin32_system32"]
+
+
+def finish_runtime(runtime, registry, environment):
+    """Validate the existing staged runtime before publishing its ready pointer."""
+    from .settings import DevelopmentSettings
+    if (not registry.is_absolute() or not runtime.is_absolute() or ".." in runtime.parts
+            or runtime.parent != registry.parent / "runtimes"):
+        raise ContractError("Resume requires an existing runtime under this registry's runtimes directory")
+    check_plain_chain(runtime)
+    profile = runtime / "source-profile.json"
+    settings = DevelopmentSettings.load(profile)
+    if (settings.state_root != registry.parent / "state"
+            or settings.policy_root != registry.parent / "policies"
+            or settings.source_roots != (registry.parent / "sources",)):
+        raise ContractError("Staged runtime profile belongs to different data paths")
+    expected = {
+        "eslint": (runtime / "eslint/node_modules/eslint/bin/eslint.js",
+                   runtime / "profiles/base-eslint.cjs", runtime / "node/node.exe"),
+        "semgrep": (runtime / "python/python.exe", runtime / "profiles/base-semgrep.json", None),
+    }
+    if {tool.kind for tool in settings.tools} != set(expected):
+        raise ContractError("Staged runtime must contain both analyzers")
+    for tool in settings.tools:
+        if (tool.executable, tool.config, tool.node) != expected[tool.kind]:
+            raise ContractError("Staged analyzer paths do not belong to this runtime")
+        tool.validate()  # Verify stored pins; never re-pin a partial installation.
+    if (runtime / "python/python313._pth").read_text(encoding="utf-8").splitlines() != isolated_python_paths():
+        raise ContractError("Staged runtime uses different Python/source paths")
+    python = runtime / "python/python.exe"
+    print("Validating existing runtime: " + str(runtime), flush=True)
+    subprocess.run([str(python), "-I", "-S", "-B", "-c",
+        "from pathlib import Path; from checker.source_bootstrap import validate_runtime; "
+        "validate_runtime(Path(" + repr(str(profile)) + "))"],
+        cwd=runtime, env=environment, check=True)
+    pointer = registry.parent / "source-runtime.json"
+    staged = registry.parent / (".source-runtime-" + uuid.uuid4().hex + ".json")
+    try:
         staged.write_text(json.dumps(dict(schema_version=1, source_root=str(SOURCE_ROOT),
                               runtime_root=str(runtime)), ensure_ascii=False, indent=2), encoding="utf-8")
         os.replace(staged, pointer)
-        print("Ready. Launch the same command without --prepare-source-runtime.\nProfile: " + str(profile), flush=True)
-        return runtime
+    finally:
+        staged.unlink(missing_ok=True)
+    print("Ready. Launch checker.gui with --registry only.\nProfile: " + str(profile), flush=True)
+    return runtime
+
+
+def resume_runtime(registry, runtime):
+    """Owner explicitly retries only validation; no installers or dependency changes."""
+    from .working import require_windows_owner
+    require_windows_owner()
+    if not registry.is_absolute():
+        raise ContractError("Absolute registry path required")
+    lock = registry.parent / ".source-runtime-setup.lock"
+    try:
+        handle = lock.open("x")
+    except FileExistsError as exc:
+        raise ContractError("Another setup is running or was interrupted; inspect " + str(lock)) from exc
+    try:
+        handle.close()
+        environment = {k: v for k, v in os.environ.items()
+                       if k.upper() not in {"NODE_OPTIONS", "NODE_PATH", "PYTHONPATH", "PYTHONHOME"}}
+        return finish_runtime(runtime, registry, environment)
     finally:
         lock.unlink(missing_ok=True)
 
@@ -254,7 +312,7 @@ def validate_runtime(profile):
     settings.state_root.mkdir(parents=True, exist_ok=True)
     captured = capture_pack_values((PolicyStore(settings.policy_root).load("starter"),))
     with tempfile.TemporaryDirectory(prefix="setup-validation-", dir=settings.state_root) as tmp:
-        prepare_effective_policy(captured, settings.tools, Path(tmp), control=RunControl(180))
+        prepare_effective_policy(captured, settings.tools, Path(tmp) / "effective", control=RunControl(180))
     print("Actual ESLint/Semgrep configuration validation completed", flush=True)
 
 

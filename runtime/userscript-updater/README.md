@@ -58,6 +58,20 @@ npm ci с integrity и реальные проверки конфигураци�
 При ошибке прежний готовый runtime/реестр не заменяется; путь незавершённой
 версии виден в выводе подготовки. Не удаляйте существующий реестр для повтора.
 
+Если зависимости уже установлены и сбой произошёл на финальной проверке
+после появления source-profile.json, продолжите её без переустановки. Укажите
+существующий каталог из строки Preparing runtime (замените ID):
+
+```powershell
+py -3 -m checker.gui --resume-source-runtime "$env:LOCALAPPDATA\ProjectChecker-Test\runtimes\ID" --registry "$env:LOCALAPPDATA\ProjectChecker-Test\projects.json"
+```
+
+Resume проверяет принадлежность профиля этому каталогу/реестру, сохранённые
+хеши tool/config и isolated Python paths; затем повторяет реальную валидацию
+и только при успехе сохраняет указатель готового runtime. Install/pip/npm
+повторно не запускаются; profile/registry/policies не перезаписываются.
+При повторном FAIL прежний ready pointer сохраняется.
+
 Обычный запуск из той же папки:
 
 ```powershell

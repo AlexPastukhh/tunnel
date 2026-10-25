@@ -1,5 +1,44 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026 — owner setup validation failure and continuation without reinstall
+
+Owner manually ran the Windows bootstrap: npm installed 77 packages, then
+validate_runtime failed with FileExistsError / WinError 183 in
+prepare_effective_policy. The temporary directory already existed, while the
+effective-policy builder deliberately requires a fresh output directory.
+This is a shared-code defect, not a Windows-only failure. Prior bootstrap
+subprocess mocks did not execute validate_runtime and therefore missed it.
+
+Reproduced the same exception in Docker through the actual validate_runtime
+entry with real profile loading/tools and only the unavailable Tk import
+substituted. Reproduction log:
+/workspace/repo/project-checker-devtools/v1-setup-validation-reproduction.log.
+Fixed the call to create a fresh effective child beneath the temporary parent;
+the builder's exclusive-creation contract remains unchanged.
+
+Added owner-only --resume-source-runtime for this post-install failure stage.
+It reuses the explicitly named runtime under this registry's runtimes directory,
+checks profile/data/tool/source-path bindings and saved tool/config pins, then
+runs the same isolated validator and atomically publishes readiness only on
+success. It does not run installers/pip/npm, refresh pins or replace existing
+profile/registry/policies. Failed retry preserves any previous ready pointer.
+Added CLI routing, no-reinstall, wrong-path/pin/._pth/data binding, failure and
+cleanup regressions; real analyzer regression now executes validate_runtime
+rather than mocking its subprocess result.
+
+Verification: **33/33 targeted tests PASS, zero skips**, 78.579 seconds, actual
+ESLint/Semgrep enabled. Includes working bootstrap/resume, actual setup validator,
+GUI model/import boundary, all effective-policy compiler regressions and release
+entry/boundary tests. Log:
+/workspace/repo/project-checker-devtools/v1-setup-validation-fix-tests.log.
+Python AST parse, changed-document links and git diff --check PASS.
+No claim that mocked Windows installers/resume subprocesses ran natively.
+
+Windows evidence remains the owner's supplied FAIL. The correction/resume
+command is prepared in Repo; no Windows operation was executed by the agent.
+Native successful validation and GUI/update walkthrough are still pending.
+Runtime README owns the continuation command; PLAN owns the remaining gate.
+
 ## 25 October 2026 — ordinary Windows working-folder launcher and package catalogue
 
 Owner screenshots established native GUI startup (Tk 9.0.4 reported) and saved

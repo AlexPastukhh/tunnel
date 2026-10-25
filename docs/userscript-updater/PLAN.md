@@ -117,7 +117,8 @@ backup/write-ahead journal/readback, полный target preview и GUI восс
 
 ## 6. Как вести работу и следующий gate
 
-1. Передать владельцу команды однократной offline подготовки и обычного
+1. Владелец продолжает финальную проверку уже подготовленного Windows runtime
+   через --resume-source-runtime (команда в runtime README), затем обычный
    source-run из рабочей Windows-папки. Проверить вручную сохранённый реестр,
    каталог starter и безопасный пример: Check→preview→consent→update→history/rollback.
    Зафиксировать native ошибки и исправить их в Repo, без Docker transport/backend.

@@ -710,8 +710,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model-smoke", action="store_true")
     parser.add_argument("--registry", type=Path, help="absolute registry JSON path")
     parser.add_argument("--development-settings", type=Path, help="explicit check-only development profile")
-    parser.add_argument("--prepare-source-runtime", action="store_true", help="owner: prepare offline Windows analyzers once")
-    parser.add_argument("--source-profile", type=Path, help=argparse.SUPPRESS)
+    setup = parser.add_mutually_exclusive_group()
+    setup.add_argument("--prepare-source-runtime", action="store_true", help="owner: prepare offline Windows analyzers once")
+    setup.add_argument("--resume-source-runtime", type=Path, help="owner: validate an already prepared runtime without reinstalling")
+    setup.add_argument("--source-profile", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     if args.model_smoke:
         presenter = ReviewPresenter()
@@ -723,9 +725,9 @@ def main(argv: list[str] | None = None) -> int:
     policy_root = None
     startup_status = ""
     try:
-        if args.prepare_source_runtime or args.source_profile or (platform.system() == "Windows" and not args.development_settings):
+        if args.prepare_source_runtime or args.resume_source_runtime or args.source_profile or (platform.system() == "Windows" and not args.development_settings):
             from .source_bootstrap import (default_registry, seed_policies, runtime_for, prepare_runtime,
-                                           launch_runtime, load_context, SETUP_HINT)
+                                           launch_runtime, load_context, resume_runtime, SETUP_HINT)
             args.registry = args.registry or default_registry()
             if not args.registry.is_absolute():
                 raise ValueError("Use an absolute --registry path")
@@ -734,6 +736,9 @@ def main(argv: list[str] | None = None) -> int:
             policy_root = seed_policies(args.registry.parent / "policies")
             if args.prepare_source_runtime:
                 prepare_runtime(args.registry)
+                return 0
+            if args.resume_source_runtime:
+                resume_runtime(args.registry, args.resume_source_runtime)
                 return 0
             if args.source_profile:
                 working = load_context(args.source_profile, args.registry)

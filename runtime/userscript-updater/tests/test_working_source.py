@@ -6,7 +6,7 @@ import tempfile
 import time
 import unittest
 import zipfile
-from dataclasses import replace
+from dataclasses import asdict, replace
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -86,7 +86,7 @@ class BootstrapTests(unittest.TestCase):
 
     def test_owner_bootstrap_offline_commands_profile_and_failure_keep_existing_state(self):
         import subprocess
-        from checker.source_bootstrap import launch_runtime
+        from checker.source_bootstrap import launch_runtime, resume_runtime
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             registry = root / "projects.json"
@@ -141,6 +141,49 @@ class BootstrapTests(unittest.TestCase):
                     self.assertEqual(argv[:5], [str(runtime / "python/python.exe"), "-I", "-S", "-B", "-m"])
                     self.assertIn("--source-profile", argv)
                 previous = (root / "source-runtime.json").read_bytes()
+                # Installation has finished but validation/ready publication may need retry.
+                (root / "source-runtime.json").unlink()
+                before = len(calls)
+                profile_bytes = (runtime / "source-profile.json").read_bytes()
+                self.assertEqual(resume_runtime(registry, runtime), runtime)
+                self.assertEqual(len(calls) - before, 1)
+                self.assertIn("validate_runtime", " ".join(calls[-1]))
+                self.assertEqual((runtime / "source-profile.json").read_bytes(), profile_bytes)
+                self.assertEqual((root / "source-runtime.json").read_bytes(), previous)
+                with patch("checker.source_bootstrap.subprocess.run",
+                           side_effect=subprocess.CalledProcessError(1, "validation failed")):
+                    with self.assertRaises(subprocess.CalledProcessError):
+                        resume_runtime(registry, runtime)
+                self.assertEqual((root / "source-runtime.json").read_bytes(), previous)
+                with patch("checker.source_bootstrap.subprocess.run") as child:
+                    with self.assertRaises(ContractError):
+                        resume_runtime(registry, root / "other-runtime")
+                    config = runtime / "profiles/base-semgrep.json"
+                    original = config.read_bytes()
+                    config.write_bytes(b"changed without a pin update")
+                    try:
+                        with self.assertRaisesRegex(ValueError, "pin"):
+                            resume_runtime(registry, runtime)
+                    finally:
+                        config.write_bytes(original)
+                    pth = runtime / "python/python313._pth"
+                    original = pth.read_bytes()
+                    pth.write_text("import site")
+                    try:
+                        with self.assertRaisesRegex(ContractError, "Python/source paths"):
+                            resume_runtime(registry, runtime)
+                    finally:
+                        pth.write_bytes(original)
+                    changed = json.loads(profile_bytes)
+                    changed["state_root"] = str(root / "unrelated-state")
+                    (runtime / "source-profile.json").write_text(json.dumps(changed))
+                    try:
+                        with self.assertRaisesRegex(ContractError, "different data paths"):
+                            resume_runtime(registry, runtime)
+                    finally:
+                        (runtime / "source-profile.json").write_bytes(profile_bytes)
+                    child.assert_not_called()
+                self.assertEqual((root / "source-runtime.json").read_bytes(), previous)
                 with patch("checker.source_bootstrap.subprocess.run",
                            side_effect=subprocess.CalledProcessError(1, "fixture failed")):
                     with self.assertRaises(subprocess.CalledProcessError):
@@ -148,6 +191,26 @@ class BootstrapTests(unittest.TestCase):
                 self.assertEqual((root / "source-runtime.json").read_bytes(), previous)
                 self.assertEqual(registry.read_bytes(), b"existing owner registry")
                 self.assertFalse((root / ".source-runtime-setup.lock").exists())
+
+    def test_resume_cli_routes_without_tk_or_installers_and_requires_windows(self):
+        from checker.gui import main
+        from checker.source_bootstrap import resume_runtime
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            registry = root / "projects.json"
+            runtime = root / "runtimes/existing"
+            with patch("checker.source_bootstrap.resume_runtime") as resume, \
+                    patch("checker.source_bootstrap.prepare_runtime") as install:
+                self.assertEqual(main(["--registry", str(registry),
+                                       "--resume-source-runtime", str(runtime)]), 0)
+                resume.assert_called_once_with(registry, runtime)
+                install.assert_not_called()
+            with patch("checker.working.platform.system", return_value="Linux"), \
+                    patch("checker.source_bootstrap.subprocess.run") as execute:
+                with self.assertRaisesRegex(ContractError, "Windows"):
+                    resume_runtime(registry, runtime)
+                execute.assert_not_called()
+            self.assertFalse((root / ".source-runtime-setup.lock").exists())
 
     def test_unknown_policy_id_cannot_be_saved(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -228,6 +291,30 @@ class WorkingScopeTests(unittest.TestCase):
 @unittest.skipUnless(os.environ.get("UPDATER_DEV_ESLINT") and os.environ.get("UPDATER_DEV_SEMGREP"),
                      "Both actual Docker CLIs required")
 class WorkingActualIntegration(unittest.TestCase):
+    def test_bootstrap_validation_uses_new_effective_directory_with_real_compilers(self):
+        import sys
+        from checker.source_bootstrap import validate_runtime
+        with tempfile.TemporaryDirectory(prefix="checker-setup-validation-test-") as temporary:
+            root = Path(temporary)
+            seed_policies(root / "policies")
+            tools = []
+            for kind in ("eslint", "semgrep"):
+                exe = Path(os.environ[f"UPDATER_DEV_{kind.upper()}"])
+                cfg = Path(os.environ[f"UPDATER_DEV_{kind.upper()}_CONFIG"])
+                tools.append(EngineConfig(kind, exe, file_hash(exe), cfg, file_hash(cfg),
+                             Path("/usr/local/bin/node") if kind == "eslint" else None))
+            settings = DevelopmentSettings(root / "state", root / "policies", (root / "source",),
+                tuple(tools), {".js": ("eslint", "semgrep"), ".py": ("semgrep",)}, 90)
+            profile = root / "source-profile.json"
+            profile.write_text(json.dumps(dict(schema_version=1, **asdict(settings)), default=str))
+            starter = (root / "policies/starter.json").read_bytes()
+            # Headless Docker has no Tk. The import alone is replaced; real config
+            # loading, tempfile lifecycle, compilers and safe analyzer fixtures run.
+            with patch.dict(sys.modules, {"tkinter": Mock()}):
+                validate_runtime(profile)
+            self.assertEqual(list(settings.state_root.iterdir()), [])
+            self.assertEqual((root / "policies/starter.json").read_bytes(), starter)
+
     def test_saved_project_real_analyzers_working_settings_and_native_adapter_contract(self):
         # Only the Win32 syscall layer is replaced by an existing named-temp test adapter.
         with tempfile.TemporaryDirectory(prefix="checker-promotion-test-") as temporary:
