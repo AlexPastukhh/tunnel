@@ -1,15 +1,17 @@
-# Runtime source copies — current AFTER и исторические BEFORE
+# Runtime source map
 
-Копии не деплоятся автоматически. Repo E38 current AFTER Windows
-[run](host-g2/runtime-api-migration/repo-run-tunnel.ps1) и
-[control](host-g2/runtime-api-migration/repo-control.ps1).
-Старые repo-mode/run-tunnel.ps1 и repo-mode/control.ps1 — BEFORE, не current deployed.
-[Bridge source](repo-mode/fortis-mcp-bridge.mjs) совпал hash с live volume в E44,
-но source edit не меняет live /workspace/repo/.fortis.
-G2 [entry](host-g2/runtime-api-migration/start-g2-guest-session.ps1),
-[gate](host-g2/g2-stdio-gate.py), [ACL source](host-g2/protect-shared-runtime.ps1).
-Owner HOST retired E43, recovery intentional only. Dockerfile не задаёт actual mounts/flags.
-[Итог/source map](../docs/ISOLATION_GUIDE.md).
+`runtime/` содержит исходники-копии; изменение Git source не обновляет Windows, Docker volume или Site автоматически. Доставку и факт установки различать по [INSTRUCTIONS](../docs/INSTRUCTIONS.md); installed paths/fingerprints Repo принадлежат [security-реестру](../docs/agent-workflow/TUNNEL_SECURITY_ISOLATION.md).
+
+| Компонент | Source / владелец |
+| --- | --- |
+| Repo1 Direct launcher PR-A-15 | [two-profile/reboot candidate](host-g2/runtime-api-migration/repo-run-tunnel-two-profile-reboot.candidate.ps1); статус установки — security V-07 |
+| Repo1 control | [control source](host-g2/runtime-api-migration/repo-control.ps1) |
+| Repo2 Direct guard | [guard candidate](host-g2/runtime-api-migration/repo2-direct-guard.candidate.ps1); launcher/installed evidence — security V-08 |
+| G2 | [guest entry](host-g2/runtime-api-migration/start-g2-guest-session.ps1), [gate](host-g2/g2-stdio-gate.py), [G2 plan](../docs/G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md) |
+| Project Checker | [source README](userscript-updater/README.md) |
+| Broker | [runbook](broker/README.md) |
+
+E38 `repo-run-tunnel.ps1`, старые `repo-mode/run/control`, Bridge и `probe.mjs` — предыдущие этапы; не считать их текущей Direct цепочкой и не запускать как fallback. Dockerfile/source config не доказывают actual mounts/flags. Ни один source-файл сам по себе не разрешает Windows install/restart.
 
 ## Старый текст README (исторический)
 

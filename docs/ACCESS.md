@@ -2,9 +2,9 @@
 
 Маршруты и границы доверия — в [ARCHITECTURE](ARCHITECTURE.md); аудит вызовов и будущий Policy Gate — в [AUDIT](AUDIT.md). Настоящий документ отвечает за источники **действующих полномочий**, а не за систему логирования.
 
-## Актуальное уточнение Fortis Repo / Tunnel — 25.10.2026 (WF-048)
+## Текущий реестр Repo/Tunnel
 
-Два Repo из разных браузерных профилей теперь используют **Direct Linux Desktop Commander** в одном контейнере, 0 активных Bridge в последнем read-only срезе. Не использовать сохранённые ниже исторические описания `probe.mjs`/старого Bridge как команду для текущего запуска или как доказательство полной защиты. [Текущая security/изоляционная карта](agent-workflow/TUNNEL_SECURITY_ISOLATION.md) — V-01–V-15, F-R и P-01–P-12. В частности, `C:\Tools` Windows binaries имеют **Authenticated Users: Modify** (FortisHostG1-specific Deny наблюдён, полный effective access не установлен), второй Tunnel key/profile ACL ещё OPEN, Docker host/LAN API policy OPEN. **Не менять** ни ключи, ACL, Docker mounts, ни установку только ради этой документальной корректировки.
+Границы и датированные результаты Windows/Docker, installed fingerprints, ACL/key/network gaps принадлежат [security-реестру](agent-workflow/TUNNEL_SECURITY_ISOLATION.md). Ниже — модель полномочий; она не заменяет live-проверку. Не менять ключи, ACL, mounts или установку ради обновления документации.
 
 ## Дополнительный проектный scope — 24.10.2026
 
@@ -42,15 +42,9 @@ G2 использует отдельную auth/profile и свой key workflow
 
 Сеть fortis-repo-egress разрешает исходящие соединения; ports не опубликованы. Это не утверждение, что контейнер не может обратиться к HOST по сети. Git credentials Windows не наследуются.
 
-workspace-config.json + probe.mjs описывают и проверяют **фактический** контейнер. Изменение JSON само не меняет mounts/network Docker. При добавлении папки или изменении сети:
-1. Определить нужный host каталог и доступ read-only/read-write.
-2. Проверить, что в mounts не попадут весь home, ключи, Docker socket или лишние credentials.
-3. Подготовить контейнер с ожидаемой конфигурацией, сохранить прежний контейнер/volume для отката.
-4. Сверить новый immutable container ID, mounts, network и ограничения; лишь затем обновить gate config.
-5. Проверить доступ, отказ вне разрешённых папок, интернет при необходимости и оба направления записи собственным marker.
-6. Удалить marker, перезапустить Repo Tunnel и обновить текущие документы.
+Изменение JSON/source не меняет actual Docker mounts/network. `probe.mjs` относится к прежнему Bridge startup и не является текущим Direct preflight; не запускать его для изменения среды или read-only проверки. Текущие Direct guards и их ограничения описаны в security-реестре.
 
-Не отключать probe ради обхода несоответствия. StopAccess — отзыв доступа ChatGPT; StopContainer — также прекращение вычислений. Не публиковать native health UI наружу.
+Будущая смена mounts/network требует отдельного owner plan: определить точный host resource и RO/RW scope, исключить лишние credentials/control paths, подготовить independent rollback, сверить actual container identity/security/mounts и необходимые исключения. После согласованного применения проверить positive/negative controls и только затронутые подключения. Порядок доставки — [INSTRUCTIONS](INSTRUCTIONS.md), эксплуатация — [OPERATIONS](OPERATIONS.md). Непубликация container ports не запрещает исходящий доступ к host/LAN.
 
 ## Предложение о рабочих и закрытых областях, 2026-10-13
 

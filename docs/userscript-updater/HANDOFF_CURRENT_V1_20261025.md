@@ -99,7 +99,7 @@ V1-3 ещё не DONE; portable tests не равны Windows acceptance.
 
 ## 6. Что сохранить при завершении нового чата
 
-- Обновить docs/userscript-updater/PLAN.md (точный gate/status), IMPLEMENTATION_LOG.md (что было действительно запущено, platform/results), README.md, HANDOFF_CURRENT_V1_20261025.md при изменении следующих шагов; синхронизировать docs/CURRENT_STATE.md и docs/INSTRUCTIONS.md по AGENTS.
+- Следовать единому [протоколу документации](../agent-workflow/README.md): gate/следующий шаг — PLAN, выполненные тесты/платформа/evidence — IMPLEMENTATION_LOG. README и handoff менять при изменении маршрута запуска/чтения или контекста передачи. Общие CURRENT_STATE/INSTRUCTIONS обновлять только при изменении указателя/процедуры, без копирования milestone и числа тестов; неизменившиеся документы не переписывать.
 - Раздельно отмечать source/DOCKER_TESTED и реальный WINDOWS_GUI_TESTED/HOST_BOUNDARY_VERIFIED/OWNER_ACCEPTED. Никогда не называть синтетические tests доказательством защищённой Windows среды.
 - Не загружать секреты и не создавать/обновлять реальные внешние копии, пока owner-run native gate не завершён.
 - Git status/index перед commit; не touch/commit чужие dirty files, no push без поручения. Чистое дерево после чужой работы нельзя предполагать.
