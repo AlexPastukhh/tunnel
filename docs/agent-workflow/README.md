@@ -9,6 +9,7 @@
 
 | Документ | Назначение |
 | --- | --- |
+| [TUNNEL_SECURITY_ISOLATION.md](TUNNEL_SECURITY_ISOLATION.md) | **Единый актуальный обзор безопасности двух Fortis Repo/Tunnel:** проверенные факты, открытые риски, Docker↔Windows граница, приёмочные тесты будущего локального updater/promotion app |
 | [REQUIREMENTS.md](REQUIREMENTS.md) | Пользовательские сценарии, инварианты и принятые предпочтения |
 | [STATE.md](STATE.md) | Последний проверенный срез, ограничения и следующие действия |
 | [JOURNAL.md](JOURNAL.md) | Последовательность решений, действий, проверок и откатов |
