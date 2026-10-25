@@ -1,5 +1,10 @@
 # Обновление инструкций после изменений
 
+## 25.10.2026 — Project Checker: точка передачи новому чату
+
+Читайте [HANDOFF_CURRENT_V1_20261025.md](userscript-updater/HANDOFF_CURRENT_V1_20261025.md) → [PLAN.md](userscript-updater/PLAN.md) → [A4/v4 candidate reading copy](userscript-updater/CANDIDATE_PREWORK_V4_READING_COPY.md), затем IMPLEMENTATION_LOG и source. В Repo локальная разработка разрешена, Windows native install/ACL/Loader/Approved не разрешены автоматически. Новый чат начинает V1-1 с воспроизведённых ошибок, перед работой проверяет git status/index. В этом цикле кода/Windows установки не меняли; Docker fixtures 95/95 PASS с двумя CLI, Windows GUI NOT_RUN.
+
+
 ## 25.10.2026 — Project Checker: новая очередность полного личного V1
 
 Актуальный [PLAN.md](userscript-updater/PLAN.md) заменяет старую узкую userscript execution sequence; исторический план сохранён в [PLAN_LEGACY_USERSCRIPTS_20261025.md](userscript-updater/PLAN_LEGACY_USERSCRIPTS_20261025.md). Ближайшая задача разработки — V1-1: устранение cross-project preview binding, полное представление бинарных sizes/hash и реальная валидация effective ESLint/Semgrep configs. Следом V1-2 — рабочая check-only GUI-цепочка, затем V1-3 exact promotion, V1-4 owner-run host acceptance. Нет новой установленной версии, окон Windows, CLI scan owner-проектов, изменения Loader/политик/ACL или внешних файлов; этот шаг только планирование. Актуальное evidence — [IMPLEMENTATION_LOG](userscript-updater/IMPLEMENTATION_LOG.md).

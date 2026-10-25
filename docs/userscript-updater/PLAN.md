@@ -1,6 +1,6 @@
 # Project Checker — актуальный план личной V1
 
-**Обновлено 25.10.2026 по просьбе пользователя.** Это рабочий маршрут разработки в Fortis Repo, а не завершённое приложение, подтверждённый Windows PASS или формальный semantic commit всех technical proposals A4. Обновлён **порядок**, а не набор выбранных потребностей. Полный источник направления: приложенный CPW-PC-20261025/v4 (A4). Прежний узкий план userscripts сохранён побайтно в [историческом файле](PLAN_LEGACY_USERSCRIPTS_20261025.md).
+**Обновлено 25.10.2026 по просьбе пользователя.** Это рабочий маршрут разработки в Fortis Repo, а не завершённое приложение, подтверждённый Windows PASS или формальный semantic commit всех technical proposals A4. Обновлён **порядок**, а не набор выбранных потребностей. Полный источник направления: [сохранённая в Repo reading copy CPW-PC-20261025/v4](CANDIDATE_PREWORK_V4_READING_COPY.md) (A4; historical candidate, не committed baseline). **A4 = основной кандидат A2 + PR-13D**, реализующий полный просмотр create/modify/delete относительно actual target без обязательного переключателя режима для каждой регистрации. Следующая точка входа для другого чата — [актуальный самостоятельный хендофф](HANDOFF_CURRENT_V1_20261025.md). Прежний узкий план userscripts сохранён побайтно в [историческом файле](PLAN_LEGACY_USERSCRIPTS_20261025.md).
 
 Актуальные факты: [журнал](IMPLEMENTATION_LOG.md); [исходники](../../runtime/userscript-updater/README.md); [граница Windows](WINDOWS_TRUST_BOUNDARY.md); сохранённые [требования userscripts](REQUIREMENTS.md).
 

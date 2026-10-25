@@ -17,7 +17,7 @@
 | Как запустить, остановить или восстановить туннель? | [OPERATIONS](OPERATIONS.md) | [ACCESS](ACCESS.md) |
 | Какие файлы, процессы и сети доступны чату? | [ACCESS](ACCESS.md) | [ARCHITECTURE](ARCHITECTURE.md) |
 | Где история вызовов, как блокировать нежелательные операции? | [AUDIT](AUDIT.md) | [ACCESS](ACCESS.md) |
-| Как проверять файлы/папки из Repo и вручную допускать независимые внешние копии (в том числе Tampermonkey)? | [Project Checker / userscript-updater](userscript-updater/README.md) | [Актуальный план V1](userscript-updater/PLAN.md), [требования](userscript-updater/REQUIREMENTS.md), [Windows trust boundary](userscript-updater/WINDOWS_TRUST_BOUNDARY.md) |
+| Как проверять файлы/папки из Repo и вручную допускать независимые внешние копии (в том числе Tampermonkey)? | [Project Checker / handoff V1](userscript-updater/HANDOFF_CURRENT_V1_20261025.md) | [Актуальный план V1](userscript-updater/PLAN.md), [A4/v4 reading copy](userscript-updater/CANDIDATE_PREWORK_V4_READING_COPY.md), [Windows trust boundary](userscript-updater/WINDOWS_TRUST_BOUNDARY.md) |
 | Как подключать/архивировать сессии и отправлять команды без Observatory UI? | [Observatory V1](../observatory/v1/README.md) | [Windows setup](../observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md) |
 | Есть ли монитор и GUI? | [OBSERVABILITY](OBSERVABILITY.md) | [AUDIT](AUDIT.md) |
 | Как создать новый hosted MCP-плагин? | [WORKFLOW](WORKFLOW.md) | [SITES](SITES.md) |

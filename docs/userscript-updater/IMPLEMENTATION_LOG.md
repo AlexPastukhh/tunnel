@@ -1,5 +1,11 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026 — independent next-chat handoff verification (docs only)
+
+Reviewed new personal V1 plan against source-state/AGENTS and original user-uploaded full A4/v4. Saved the original A4/v4 **reading-copy text** as CANDIDATE_PREWORK_V4_READING_COPY.md (648 lines, 126082 UTF-8 bytes), still explicitly not canonical/BASELINE COMMITTED. Added HANDOFF_CURRENT_V1_20261025.md with user decisions, authority, file map, exact tests, defects, next V1-1 step and safety limits; legacy HANDOFF and narrow PLAN are preserved as provenance. Reran actual Docker fixtures on the current source state: ESLint 10.13.0, Semgrep CE 1.182.1, 95/95 Python tests PASS no skips; GUI model reports PROMOTION DISABLED; Windows visual/native ACL tests NOT_RUN. This was **documentation and read-only verification only**, not coding/apply/install/ACL/Loader/external target update. Parallel agent-workflow changes observed in live Git and deliberately excluded. The current PLAN remains the governing execution order; V1-1 bug fixes have not been implemented here.
+
+---
+
 ## 25 October 2026 — planning-only re-sequencing for personal V1
 
 User requested to update the implementation plan while preserving the original direction. The current [PLAN.md](PLAN.md) now prioritizes a complete Check GUI and reproducible local personal workflow before further generic transaction/security framework expansion. Full A4 scope remains: shared mutable packs, file/files/folder/mixed, check-only, accurate scanner coverage, explicit all-effect preview, separate confirmation, exact bytes, recovery, and independently owner-installed Windows trust chain. The previous narrow userscript plan was preserved byte-for-byte as [PLAN_LEGACY_USERSCRIPTS_20261025.md](PLAN_LEGACY_USERSCRIPTS_20261025.md). Known review issues are scheduled V1-1, not silently marked corrected: cross-project preview can be displayed with same target; schema validation is not effective engine-rule validation; binary sizes not represented in GUI. No source/runtime code, Windows install, ACL/mount, Loader or external target was modified during this planning update. Previously observed 95/95 Docker tests are evidence of an older code state only; this plan does not add acceptance evidence.

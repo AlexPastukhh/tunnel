@@ -1,5 +1,7 @@
 # Хендофф: защищённое обновление Tampermonkey userscripts
 
+**Этот документ — исторический. Для нового чата использовать [полный текущий хендофф V1](HANDOFF_CURRENT_V1_20261025.md), [рабочий PLAN](PLAN.md) и [A4/v4 reading copy в Repo](CANDIDATE_PREWORK_V4_READING_COPY.md).** Историческая точка остановки «до разработки» не относится к текущему заданию.
+
 **Продолжать сейчас по [PLAN.md](PLAN.md), не по исторической остановке ниже.** По поручению пользователя это актуальный рабочий маршрут полной личной V1 Project Checker в рамках A4: V1-1 (исправить preview/report/policy), V1-2 (завершить Check, persistence, shared packs и GUI), V1-3 (точный preview/confirmation/update/recovery), V1-4 (ручная Windows-установка и приёмка). Старый узкий [план](PLAN_LEGACY_USERSCRIPTS_20261025.md) и этот хендофф сохранены как provenance; source/интеграция ещё не эквивалентны доверенной Windows-установке. Актуальные факты: [IMPLEMENTATION_LOG.md](IMPLEMENTATION_LOG.md).
 
 **Обновление после исторического хендоффа, 25.10.2026:** отдельным поручением пользователь разрешил разработку и установку зависимостей внутри Fortis Repo Docker. Исходники и тесты: [runtime/userscript-updater](../../runtime/userscript-updater/README.md); фактические проверки и остающиеся условия — [IMPLEMENTATION_LOG.md](IMPLEMENTATION_LOG.md). Это НЕ защищённая Windows-установка и НЕ перенос наружу. Фразы ниже «создаются только документы» отражают предыдущий момент подготовки плана.

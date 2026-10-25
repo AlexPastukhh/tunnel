@@ -1,5 +1,10 @@
 # Текущее состояние — датированный срез
 
+## 25.10.2026 — Project Checker: проверен хендофф для нового чата
+
+Сверены актуальный [PLAN V1](userscript-updater/PLAN.md), [текущий хендофф](userscript-updater/HANDOFF_CURRENT_V1_20261025.md), полная [A4/v4 reading copy](userscript-updater/CANDIDATE_PREWORK_V4_READING_COPY.md) и исходники. A4/v4 сохранён как historical candidate, не объявлен принятым baseline; предыдущие узкие userscript документы не используются как текущий маршрут. Повторно пройдено 95/95 Python tests с ESLint 10.13.0 и Semgrep CE 1.182.1 в Docker, GUI model PROMOTION DISABLED. Следующая задача V1-1 — исправить три известные ошибки; Windows native/ACL/GUI/Approved NOT_RUN. Только docs/read-only verification, другие workstreams не изменялись.
+
+
 ## 25.10.2026 — Project Checker: актуализирована последовательность V1
 
 По прямому запросу пользователя обновлён [рабочий план личной V1](userscript-updater/PLAN.md), сохранены полный scope и security invariants A4. Приоритет: подтверждённые дефекты preview/policy, затем законченное Check workflow (registry, mutable packs, real CLI, GUI), затем controlled Update и native Windows owner acceptance. Исторический [узкий план userscripts](userscript-updater/PLAN_LEGACY_USERSCRIPTS_20261025.md) сохранён побайтно. На этом шаге **только документы**, без кодовых исправлений, Windows установок, ACL, Loader или внешнего переноса. Последнее проверенное программное evidence — Docker 95/95 tests, Tkinter Windows NOT_RUN; не выводить из изменения плана новый PASS.
