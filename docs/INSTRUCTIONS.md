@@ -868,3 +868,9 @@ file:///C:/Users/alexa/Repos/tabnotifier-fileautosend-autochat/chatgpt-tab-notif
 Keep GM_listValues grant. A fresh require URL selects the exact reviewed
 bundle. No second enabled Notifier, no GM cleanup, no runtime restart by
 this preparation. Actual browser installation/version remains unverified.
+
+### Fortis Repo Direct MCP после reboot — PR-A-14 source-only, не установлен (2026-10-25)
+
+После перезапуска первого Repo в `/home/node` tmpfs исчезают settings DC и `/home/node/.gitconfig`. Текущий Windows installed direct launcher с pin `4fdc681b...` справедливо отказывается запускаться при сбросе DC. User manually restored config и Direct снова доступен, но при новом container restart дефект повторится.
+
+Подготовлен только source-кандидат `runtime/host-g2/runtime-api-migration/repo-run-tunnel-reboot-safe.candidate.ps1` SHA256 `7488b87355cdcaa86fdb9bcf143e0b09f2d6bd46769ba80a3e8857c412beae77`, CRLF. Владелец должен сначала проверить Windows hash/AST/read-only Preview, затем отдельно сделать backup *старого direct launcher*, pinned StopAccess/Install/Start и actual-client проверку. `Preview` не восстанавливает settings; `Run` после container/module/security guards и отсутствия запущенных MCP допускает только точный stock/missing tmpfs reset, иначе fail closed. Восстанавливаются pinned DC три поля + при отсутствии local Git config scoped safe.directory для `/workspace/repos/tunnel` и autocrlf; старый mutating probe не запускается. Установленный `control.ps1` и ярлык не меняются. Не запускать Bootstrap напрямую из writable Git source, не перезаписывать Windows trust files без hashes; полный план/ограничения — `docs/agent-workflow/reviews/permanent-direct-mcp-rollout-20261025.md`. Контейнер по-прежнему должен быть running до старта ярлыком; самостоятельный Windows Docker autostart не исправлен этим source.
