@@ -29,8 +29,8 @@
 
 ## Текущее source-only состояние
 
-checker/gui.py: вкладки проектов, привязок правил, проверок, target preview, layout; JSON import только данные; кнопки «Проверить» и «Обновить» выключены. Tkinter runtime в Docker отсутствует, визуальная Windows проверка NOT_RUN. checker/ui_model.py — presentation state и invalidation при изменении общего пакета. checker/windows_layout.py — string-only structural gate. checker/preview.py — только расчёт эффектов. devtools/fixture_transactions.py — синтетическая лаборатория, не подключённая к app и исключаемая из production install.
+checker/gui.py: вкладки проектов, привязок правил, проверок, target preview, layout; JSON import только данные; registry.py/registration_editor.py добавляют versioned JSON persistence и chooser/editor, пока без Windows visual/ACL evidence; кнопки «Проверить» и «Обновить» выключены. Tkinter runtime в Docker отсутствует, визуальная Windows проверка NOT_RUN. checker/ui_model.py — presentation state и invalidation при изменении общего пакета. checker/windows_layout.py — string-only structural gate. checker/preview.py — только расчёт эффектов. devtools/fixture_transactions.py — синтетическая лаборатория, не подключённая к app и исключаемая из production install.
 
-Следующий шаг — native Windows handle/ACL/protected dependency design and tests, затем полноценное подключение GUI к защищённым backend workflows и owner-controlled approval.
+Следующий этап по актуальному PLAN — V1-2 shared-pack UI и реальный Check worker; native Windows handle/ACL/protected dependency design остаётся обязательным перед trusted approval. Persistence/picker/editor — только source/DOCKER_TESTED.
 
 **Никакого реального PASS/внешнего обновления эта документация не разрешает.**

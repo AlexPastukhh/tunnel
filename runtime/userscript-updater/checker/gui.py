@@ -1,6 +1,6 @@
 """View-only Windows Tkinter desktop GUI source (NOT a trusted release).
 
-Pure presentation: JSON data import, project browsing, policy binding display,
+Registration editor/pickers and atomic versioned JSON persistence, policy binding display,
 scan/preview panes, planned installation-path diagnostics. There is deliberately
 NO scanner execution, owner approval, or write-target/update action in this UI.
 Tkinter is loaded lazily, allowing headless backend tests inside Fortis Repo.
@@ -10,6 +10,9 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from .model import Registration
+from .registry import RegistrySession, RegistryStore
+from .registration_editor import RegistrationEditor
 from .ui_model import BLOCK_REASON, DisplayTable, ReviewPresenter
 from .windows_layout import RootSpec, review_windows_layout
 
@@ -17,7 +20,7 @@ MAX_REGISTRATION_JSON = 256 * 1024
 
 
 class DesktopApp:
-    def __init__(self, tk, ttk, filedialog, messagebox) -> None:
+    def __init__(self, tk, ttk, filedialog, messagebox, registry_path: Path | None = None) -> None:
         self.tk = tk
         self.ttk = ttk
         self.filedialog = filedialog
@@ -28,6 +31,14 @@ class DesktopApp:
         self.root.title("Project Checker — UI prototype, NO APPROVAL")
         self.root.geometry("1130x720")
         self.root.minsize(850, 550)
+        self.registry_error = ""
+        try:
+            self.registry = RegistrySession(self.presenter, RegistryStore(registry_path) if registry_path else None)
+        except (OSError, ValueError, TypeError) as exc:
+            self.registry = RegistrySession(self.presenter)
+            self.registry_error = str(exc)
+            messagebox.showerror("Реестр не загружен; исходный файл сохранён", self.registry_error)
+        self.selected = self.registry.document.last_selected or ""
         self.tables = {}
         self.row_details = {}
         self.detail_panes = {}
@@ -55,7 +66,9 @@ class DesktopApp:
         project_frame = self.tabs.nametowidget(self.tabs.tabs()[0])
         control = t.Frame(project_frame)
         control.pack(side="bottom", fill="x", pady=5)
-        t.Button(control, text="Добавить JSON-регистрацию", command=self._import_registration).pack(side="left", padx=3)
+        t.Button(control, text="Новый проект", command=lambda: RegistrationEditor(self)).pack(side="left", padx=3)
+        t.Button(control, text="Изменить", command=self._edit_project).pack(side="left", padx=3)
+        t.Button(control, text="Импорт JSON", command=self._import_registration).pack(side="left", padx=3)
         t.Button(control, text="Удалить из списка", command=self._remove).pack(side="left", padx=3)
         t.Button(control, text="Обновить вид", command=self.refresh).pack(side="left", padx=3)
         policies_frame = self.tabs.nametowidget(self.tabs.tabs()[1])
@@ -172,8 +185,14 @@ class DesktopApp:
         ))
         self._show_table("Установка / доверие",
                          self.presenter.layout_table(self.layout_review))
-        self.status.set(BLOCK_REASON)
-        self.tables["Проекты"][0].bind("<<TreeviewSelect>>", self._on_selected)
+        storage = self.registry_error or ("Реестр сохраняется в JSON." if self.registry.store else "Реестр в памяти; для сохранения укажите --registry.")
+        self.status.set(BLOCK_REASON + " " + storage)
+        tree = self.tables["Проекты"][0]
+        tree.bind("<<TreeviewSelect>>", self._on_selected)
+        for iid in tree.get_children():
+            if tree.item(iid, "values")[0] == self.selected:
+                tree.selection_set(iid)
+                break
 
     def _on_selected(self, _event=None) -> None:
         tree = self.tables["Проекты"][0]
@@ -182,6 +201,13 @@ class DesktopApp:
             return
         columns = tree.item(selected[0], "values")
         if columns:
+            try:
+                if self.registry_error:
+                    return
+                self.registry.select(str(columns[0]))
+            except (OSError, ValueError) as exc:
+                self.messagebox.showerror("Не удалось сохранить выбор", str(exc))
+                return
             self.selected = str(columns[0])
             # Rebuild selected tabs only to avoid selection-change recursion.
             self._show_table("Проверка", self.presenter.scan_table(self.selected))
@@ -198,18 +224,40 @@ class DesktopApp:
             candidate = Path(path)
             if candidate.stat().st_size > MAX_REGISTRATION_JSON:
                 raise ValueError("Файл JSON превышает установленный предел размера")
-            project = self.presenter.register_json(candidate.read_text(encoding="utf-8"))
+            project = Registration.from_json(candidate.read_text(encoding="utf-8"))
         except (OSError, ValueError, TypeError, KeyError) as exc:
             self.messagebox.showerror("Некорректная регистрация", str(exc))
             return
+        self._save_project(project)
+
+    def _edit_project(self) -> None:
+        project = self.presenter.registrations.get(self.selected)
+        if project:
+            RegistrationEditor(self, project)
+
+    def _save_project(self, project: Registration) -> bool:
+        try:
+            if self.registry_error:
+                raise ValueError("Сохранение заблокировано: реестр не был корректно загружен. " + self.registry_error)
+            self.registry.put(project)
+        except (OSError, ValueError, TypeError) as exc:
+            self.messagebox.showerror("Не удалось сохранить регистрацию", str(exc))
+            return False
         self.selected = project.registration_id
         self.refresh()
+        return True
 
     def _remove(self) -> None:
         if not self.selected:
             return
-        self.presenter.remove(self.selected)
-        self.selected = ""
+        try:
+            if self.registry_error:
+                raise ValueError(self.registry_error)
+            self.registry.remove(self.selected)
+        except (OSError, ValueError) as exc:
+            self.messagebox.showerror("Не удалось удалить регистрацию", str(exc))
+            return
+        self.selected = self.registry.document.last_selected or ""
         self.refresh()
 
     def _inspect_layout(self) -> None:
@@ -231,6 +279,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Untrusted Project Checker UI prototype")
     parser.add_argument("--model-smoke", action="store_true",
                         help="run a pure presentation check without Tk or display")
+    parser.add_argument("--registry", type=Path, help="absolute versioned local registry JSON path")
     args = parser.parse_args(argv)
     if args.model_smoke:
         presenter = ReviewPresenter()
@@ -247,7 +296,7 @@ def main(argv: list[str] | None = None) -> int:
             "Only run the graphical demo on an independent Windows test installation. "
             "This does not mean a trusted installer is ready."
         ) from exc
-    DesktopApp(tk, ttk, filedialog, messagebox).run()
+    DesktopApp(tk, ttk, filedialog, messagebox, args.registry).run()
     return 0
 
 

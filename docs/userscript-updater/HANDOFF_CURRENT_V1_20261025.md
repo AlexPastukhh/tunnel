@@ -40,7 +40,7 @@
 - checker/coverage.py — пофайловое покрытие, требуемые engines/unsupported;
 - checker/preview.py — **read-only** план целевого дерева, manifest и fingerprint;
 - checker/review.py — immutable job/project/snapshot/policy/tool/target/managed-set binding; checker/policy_validation.py — real effective-config compilation/validation, deterministic shared-pack composition;
-- checker/ui_model.py и gui.py — view-only state и исходник Tkinter, обе кнопки Check/Update отключены;
+- checker/ui_model.py и gui.py — state и исходник Tkinter, обе кнопки Check/Update отключены; checker/registry.py и registration_editor.py — versioned JSON persistence/last selection и file/files/folder/mixed chooser/editor; --registry включает сохранение; corrupt config не заменяется пустым;
 - checker/windows_layout.py — только проверка строк путей; без реального Windows ACL/reparse evidence;
 - devtools/fixture_transactions.py — **отдельная СИНТЕТИЧЕСКАЯ лаборатория записи/backup/journal/rollback**. Не импортировать как trusted updater;
 - tests/ — синтетические отрицательные и реальные CLI fixture tests;
@@ -48,7 +48,7 @@
 
 **Текущий агрегированный результат scanner reports — NOT_AUTHORIZED**, даже если один CLI возвращает structural clear. Ни JSON анализатора, ни sandbox fixture не разрешают owner target writes.
 
-**Фактическая проверка этого хендоффа:** заново запущено 115/115 Python unittest с обоими настоящими CLI (ESLint 10.13.0; Semgrep CE 1.182.1) в Docker: PASS без skips. Проверка GUI-модели печатает PROMOTION DISABLED. Нет теста Windows/Tkinter rendering, host boundary/ACL, настоящего owner target или installed source→PASS→approved chain.
+**Фактическая проверка этого хендоффа:** заново запущено 123/123 Python unittest с обоими настоящими CLI (ESLint 10.13.0; Semgrep CE 1.182.1) в Docker: PASS без skips. Проверка GUI-модели печатает PROMOTION DISABLED. Нет теста Windows/Tkinter rendering, host boundary/ACL, настоящего owner target или installed source→PASS→approved chain.
 
 Для воспроизведения в текущем Docker:
 ~~~bash
@@ -75,7 +75,7 @@ PolicyPack.validate остаётся schema-проверкой. Отдельны
 ## 4. Точный следующий исполнительный шаг: V1-2
 
 1. Проверить Git/index; сохранять чужую работу, особенно docs/agent-workflow, launcher, Observatory, Notifier/Helper. Не откатывать HEAD к старому срезу.
-2. Реализовать persistent versioned JSON registry и picker/editor для file/files/folder/mixed/check-only; save→restart без потери Unicode или данных при corrupt config.
+2. Persistence/last selection и picker/editor уже реализованы в source: 123/123 Docker tests. Native visual QA остаётся NOT_RUN. Следом реализовать shared-pack editor/copy/bind/rebind с реальной валидацией до сохранения; затем Check worker.
 3. Подключить shared policy edit/copy/bind/rebind и effective validation, затем real Check worker с progress/cancel/timeout и stale callback protection.
 4. Показать per-file/per-rule coverage/findings и source/policy/tool fingerprints. Сохранить aggregate NOT_AUTHORIZED до Windows host acceptance.
 5. Обновлять plan/log/docs после значимых результатов и делать scoped local commits. Windows install/ACL/Loader/реальные внешние copies вручную выполняет владелец.
@@ -99,4 +99,4 @@ V1-1 DONE относится только к Docker/source. Не включат�
 
 ## 7. Короткая команда новому чату
 
-> Продолжай Project Checker через подключённый Fortis Repo. Прочитай AGENTS.md, docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md, актуальный PLAN.md, источник CANDIDATE_PREWORK_V4_READING_COPY.md и журнал; затем проверь live Git/status и текущие Docker tests. Пользователь разрешил разработку и установку зависимостей в Repo; Windows install/ACL/Loader/Approved target выполняются отдельно вручную владельцем. Не спрашивай снова F-U-01–F-U-05, не сокращай полный scope A4, но оптимизируй порядок под личную V1. V1-1 исправлен и проверен (115/115). Продолжай V1-2: persistence/pickers/shared packs и реальный Check worker, затем обнови docs и сделай scoped local commit. Не включай update/owner PASS и не трогай другие workstreams.
+> Продолжай Project Checker через подключённый Fortis Repo. Прочитай AGENTS.md, docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md, актуальный PLAN.md, источник CANDIDATE_PREWORK_V4_READING_COPY.md и журнал; затем проверь live Git/status и текущие Docker tests. Пользователь разрешил разработку и установку зависимостей в Repo; Windows install/ACL/Loader/Approved target выполняются отдельно вручную владельцем. Не спрашивай снова F-U-01–F-U-05, не сокращай полный scope A4, но оптимизируй порядок под личную V1. V1-1 исправлен; V1-2 persistence/pickers source добавлены (123/123). Продолжай V1-2: shared packs и реальный Check worker, затем обнови docs и сделай scoped local commit. Не включай update/owner PASS и не трогай другие workstreams.

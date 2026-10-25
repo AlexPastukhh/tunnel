@@ -1,12 +1,12 @@
 # Project Checker — development source, NOT a trusted Windows installation
 
-**Current execution plan:** [docs/userscript-updater/PLAN.md](../../docs/userscript-updater/PLAN.md). Personal V1 remains a full local Windows app, not a demo; work proceeds as bug fixes → working Check UI/persistence/shared rules → reviewed promotion and recovery → owner-run trusted Windows acceptance. V1-1 fixes are source/DOCKER_TESTED; V1-2 Check workflow is next.
+**Current execution plan:** [docs/userscript-updater/PLAN.md](../../docs/userscript-updater/PLAN.md). Personal V1 remains a full local Windows app, not a demo; work proceeds as bug fixes → working Check UI/persistence/shared rules → reviewed promotion and recovery → owner-run trusted Windows acceptance. V1-1 fixes are source/DOCKER_TESTED; V1-2 has persisted registrations/picker-editor source; shared-pack UI and real Check jobs are next.
 
 Scope: full Windows checker and controlled external promotion per CPW-PC-20261025/v4 (A4). All current code is agent-writeable and development-only. User will later manually install independent verified app, rules, tools and targets outside agent-write routes.
 
 ## Implemented, source-only
 
-- File/directory/mixed registration, check-only and target mappings, conservative path validation.
+- File/directory/mixed registration, check-only and target mappings, conservative path validation. Tk editor supports multiple-file, folder and target pickers with explicit relative mappings. Versioned local JSON registry persists registrations and last selection (optional --registry absolute-path), atomically saves, rejects corrupt/unknown schema or concurrent edits without overwriting prior state. Picker Cancel leaves persisted data unchanged.
 - Fail-closed source inventory, hardlink/reparse refusal, size/count bounds, SHA-256, source rehash/re-enumeration, extension-preserving snapshot.
 - Mutable shared policy packs, clone/independent copy, content hashing and captured pack fingerprints. Separate actual effective-config validator compiles real ESLint/Semgrep rules on safe fixtures, checks loaded/enabled required IDs, rejects invalid/disabled/missing/conflicting configurations before development scan. Validation is not semantic policy acceptance.
 - Immutable ReviewBinding binds presenter callbacks to project, registration, snapshot manifest, captured policy, tools/config/Node references, target and managed set plus unique job; edit/cancel/new job invalidates it. UI shows binary old/new byte sizes, hashes and text diffs.
@@ -16,8 +16,8 @@ Scope: full Windows checker and controlled external promotion per CPW-PC-2026102
 - Read-only target preview builder (synthetic trees only): create/modify/delete/unchanged, UTF-8 text diffs, binary hashes/sizes, preserved unmanaged files/empty directories, target inventory fingerprint AND previously-managed-scope fingerprint, collision refusal.
 - A SEPARATE TEST-ONLY LAB under devtools/fixture_transactions.py (NOT the checker installable package). It requires a temporary canary-marked fixture directory and simulates reviewed-plan fingerprint matching, fresh source/pack/target checks, exact checked-byte staging, backups, durable JSON journal, idempotent status, injected failure/crash, selective rollback, manual recovery, and explicit residual-drift status when unrelated owner files changed. This is a synthetic, nonsecure model, not an approving/updating Windows API.
 - Windows structural deployment preflight (checker/windows_layout.py): checks for obvious trusted-root/agent-write/source overlap, rejects ambiguous string paths, and ALWAYS returns NEEDS_NATIVE_WINDOWS_VERIFICATION even with separated paths. It never claims OS ACL/alias verification.
-- Presentation state (checker/ui_model.py) and Tkinter Windows desktop prototype (checker/gui.py) with project registration JSON import, project/rule listings, report and preview views, file-level diff details, preserved external data and installation-layout diagnostics. **Both Check and Update are disabled** pending independent trusted Windows backend. GUI has not been visually run on Windows; Docker Python lacks Tkinter.
-- 115 Python tests including actual ESLint 10.13.0 and Semgrep CE 1.182.1 integration against isolated synthetic JS/Python. Clean inputs -> STRUCTURAL_CLEAR; eval examples -> FINDINGS. Aggregate clean status is always NOT_AUTHORIZED.
+- Presentation state (checker/ui_model.py) and Tkinter Windows desktop prototype (checker/gui.py) with persisted registration editor/pickers, JSON data import, project/rule listings, report and preview views, file-level diff details, preserved external data and installation-layout diagnostics. **Both Check and Update are disabled** pending independent trusted Windows backend. GUI has not been visually run on Windows; Docker Python lacks Tkinter.
+- 123 Python tests including actual ESLint 10.13.0 and Semgrep CE 1.182.1 integration against isolated synthetic JS/Python. Clean inputs -> STRUCTURAL_CLEAR; eval examples -> FINDINGS. Aggregate clean status is always NOT_AUTHORIZED.
 
 Dependency: PyYAML==6.0.3 (requirements.txt), installed in the existing Docker Semgrep venv. No Windows dependency install has been done.
 
@@ -42,7 +42,7 @@ ESLint 10.13.0 was installed with npm --ignore-scripts. Semgrep CE 1.182.1 was i
 
 Copy the two development demo configs from policies/demo/ to $DEV/eslint.config.cjs and $DEV/semgrep-rules.yaml and verify hashes. Both copies are already present and checked in the active Docker volume.
 
-To run all 115 tests, configure the installed Docker CLI paths (unset env vars result in explicit integration-test skips):
+To run all 123 tests, configure the installed Docker CLI paths (unset env vars result in explicit integration-test skips):
 
     export UPDATER_DEV_ESLINT=/workspace/repo/project-checker-devtools/node_modules/eslint/bin/eslint.js
     export UPDATER_DEV_ESLINT_CONFIG=/workspace/repo/project-checker-devtools/eslint.config.cjs
@@ -61,6 +61,8 @@ The preview and devtools/fixture_transactions.py are **strictly for SYNTHETIC de
 The pure presentation smoke can run inside Fortis Repo Docker without Tkinter:
 
     PYTHONDONTWRITEBYTECODE=1 python3 -m checker.gui --model-smoke
+
+For persisted registrations, pass --registry followed by an absolute JSON path; omitting it explicitly selects an in-memory session. An unreadable/corrupt registry blocks saving, and an interrupted-save .lock requires review. These are source features, not protected Windows state.
 
 On a future controlled native Windows test environment with Tkinter, checker.gui is intended to render five tabs and show imported registration JSON as **data**. That Windows visual test is NOT RUN. The two action buttons are intentionally disabled; no source code scanning or external promotion is available in this view-only GUI.
 

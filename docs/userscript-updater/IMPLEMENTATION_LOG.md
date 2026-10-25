@@ -1,5 +1,15 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026 — V1-2 started: persisted registrations and picker/editor source
+
+After completing V1-1 in 30d18b5, implemented checker/registry.py and registration_editor.py and connected them to the desktop GUI. Registry schema_version=1 stores all registrations/mappings and last selection, preserving Unicode and check-only. New/edit controls use file-multiple/directory/target pickers and explicit per-selection relative mappings; picker/editor Cancel never saves partial data. Optional --registry absolute-path enables persistence; without it the UI clearly labels the in-memory session. Invalid/corrupt/version-mismatched JSON is reported and write actions are blocked, preserving the original file. Atomic temp+fsync+replace, optimistic content token and exclusive save lock reject stale concurrent editors; failed saves keep both prior disk and presentation state. An interrupted-save lock requires explicit review; no claim of Windows crash durability/ACL/secure handles.
+
+Evidence: 123/123 Python tests PASS without skips with actual Docker ESLint 10.13.0 and Semgrep CE 1.182.1, including 8 new registry roundtrip/corrupt/conflict/disk-failure/cancel/mixed tests, plus checker AST and GUI-model smoke. Full log: /workspace/repo/project-checker-devtools/v1-2-registry-tests.log. Tkinter/native Windows visual picker QA NOT_RUN. The two main Check/Update buttons remain disabled; this is a completed source slice of V1-2, not its full gate.
+
+Next V1-2 slice: shared pack editor/copy/bind UI with real validation and invalidation, followed by bounded asynchronous real Check worker, progress/cancel/stale protection, detailed file/rule findings/evidence. No more transaction-lab work before this user path. Full A4 scope retained; no Windows install/ACL/Loader/actual external target, other workstream or push changes.
+
+---
+
 ## 25 October 2026 — V1-1 regression fixes (Docker only)
 
 Baseline Git/index were clean at a44c31d; 95/95 tests passed with real ESLint 10.13.0 and Semgrep CE 1.182.1. Two newly added regressions failed before changes: same-target cross-project preview accepted and missing binary sizes. Fixed via immutable ReviewBinding (project/registration, snapshot+manifest, captured policy, tool/config/Node references, target and managed set, unique job ID). Presenter requires an active matching context, invalidates it on edit/cancel/restart, rejects stale callbacks and validates a combined callback before caching either result. Preview fingerprints include the binding. Binary old/new byte sizes are columns, with zero distinct from absent, alongside hashes/diff/preserved files.

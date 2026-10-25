@@ -4,7 +4,7 @@
 
 **Текущий рабочий маршрут личной V1:** [актуальный PLAN.md](PLAN.md) — универсальный Project Checker для файлов, папок и смешанных составов, а не только двух userscripts. План пересмотрен по просьбе пользователя: сначала исправление известных дефектов, затем полноценная Check-цепочка/GUI, далее preview и контролируемое Update, затем ручная Windows-приёмка. Без потери требований A4 к разделению от ИИ, полноте анализа, подтверждению и восстановлению. Старый узкий [план сохранён отдельно](PLAN_LEGACY_USERSCRIPTS_20261025.md); текст ниже — исторический срез на момент первоначального хендоффа.
 
-**V1-1 завершён (source/DOCKER_TESTED):** исправлены привязка preview, бинарные размеры и effective-config validation; 115/115 tests с реальными ESLint/Semgrep, без skips. Следующий этап — V1-2, persistence и полноценный Check workflow.
+**V1-1 завершён (source/DOCKER_TESTED):** исправлены привязка preview, бинарные размеры и effective-config validation; 123/123 tests с реальными ESLint/Semgrep, без skips. V1-2 начат: persistence/last selection и picker/editor в source; дальше shared-pack UI и полноценный Check workflow.
 
 **Текущая разработка:** [Windows boundary и GUI/installation gate](WINDOWS_TRUST_BOUNDARY.md); [source-only implementation evidence](IMPLEMENTATION_LOG.md). Реальное использование внешних копий остаётся запрещено до независимого Windows-теста.
 

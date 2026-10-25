@@ -1,5 +1,10 @@
 # Обновление инструкций после изменений
 
+## 25.10.2026 — Project Checker V1-2: сохранение регистраций и редактор source
+
+После V1-1 добавлены versioned JSON registry/last selection и GUI source editor/pickers для файла/файлов/папки/mixed/check-only с явными mappings. Cancel не сохраняет полуготовую регистрацию; corrupt JSON, конфликт с другим редактором и ошибка replace сохраняют прежние данные. 123/123 Docker tests PASS без skips с реальными CLI; Tkinter/Windows visual NOT_RUN, Check/Update всё ещё отключены. V1-2 продолжается с shared-pack UI и real Check worker, полный gate не закрыт. [Журнал](userscript-updater/IMPLEMENTATION_LOG.md), [план](userscript-updater/PLAN.md). Windows/runtime/ACL/Loader/внешние копии не менялись; push не было.
+
+
 ## 25.10.2026 — Project Checker V1-1: три дефекта исправлены в Docker
 
 Review binding теперь связывает GUI reports/preview с project/registration/snapshot/manifest/policy/tool/target/managed-set и job ID; чужие и устаревшие callbacks отклоняются. В GUI-model добавлены old/new byte sizes, а реальный effective-config validator ESLint/Semgrep блокирует неверные/отключённые обязательные правила, конфликты, missing tools и skips. 115/115 Docker tests PASS без skips с ESLint 10.13.0, Semgrep CE 1.182.1 и новой PyYAML 6.0.3 в dev venv. Актуальные запуск/ограничения — [source README](../runtime/userscript-updater/README.md), [журнал](userscript-updater/IMPLEMENTATION_LOG.md), [план](userscript-updater/PLAN.md). Следующий этап V1-2: persistence/pickers/Check. Windows GUI/ACL/installation/Approved NOT_RUN; обе основные кнопки ещё отключены, runtime не применялся, внешние копии не менялись. Push не выполнялся.

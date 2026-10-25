@@ -12,9 +12,11 @@
 
 ## 2. Наблюдаемое состояние на дату обновления
 
-Исходники в Fortis Repo уже содержат модели регистраций и shared packs, SHA-256 snapshots, ESLint/Semgrep JSON adapters и per-file coverage, read-only preview, **отдельную синтетическую** transaction laboratory, view-only Tkinter GUI и строковую проверку Windows layout. В Docker фактически протестированы ESLint 10.13.0 и Semgrep CE 1.182.1 на синтетических JS/Python; последний полный прогон — 115/115 Python tests без skips с обоими CLI. V1-1 исправлен: review binding, бинарные размеры и отдельная реальная effective-config validation. Коммит source-only GUI: 4a832b8; HEAD перед любой новой работой проверять, поскольку есть соседняя работа в том же repo.
+Исходники в Fortis Repo уже содержат модели регистраций и shared packs, SHA-256 snapshots, ESLint/Semgrep JSON adapters и per-file coverage, read-only preview, **отдельную синтетическую** transaction laboratory, view-only Tkinter GUI и строковую проверку Windows layout. В Docker фактически протестированы ESLint 10.13.0 и Semgrep CE 1.182.1 на синтетических JS/Python; последний полный прогон — 123/123 Python tests без skips с обоими CLI. V1-1 исправлен: review binding, бинарные размеры и отдельная реальная effective-config validation. Коммит source-only GUI: 4a832b8; HEAD перед любой новой работой проверять, поскольку есть соседняя работа в том же repo.
 
-**НЕ готово:** persistence/edit/pickers, реальный job/progress/cancel/кнопка Check, полноценный Windows GUI test, защищённый установленный toolchain с ACL/handles/route-evidence, production approval/promotion и реальная внешняя приёмка. Scan aggregate в коде остаётся NOT_AUTHORIZED, обе основные GUI-кнопки отключены. Транзакционная лаборатория не является production writer.
+**V1-2 начат:** versioned JSON persistence/last selection и source/editor/pickers реализованы в исходниках и тестах; native Windows visual QA ещё NOT_RUN.
+
+**НЕ готово:** shared-pack edit UI, реальный job/progress/cancel/кнопка Check, полноценный Windows GUI test, защищённый установленный toolchain с ACL/handles/route-evidence, production approval/promotion и реальная внешняя приёмка. Scan aggregate в коде остаётся NOT_AUTHORIZED, обе основные GUI-кнопки отключены. Транзакционная лаборатория не является production writer.
 
 ## 3. Неизменные требования A4: даже для личного использования
 
@@ -38,9 +40,9 @@
 
 **Gate выполнен в Docker (115/115):** кросс-проектный preview отвергнут; у пользователя в UI виден полный эффект; неправильные effective rules/config блокируют проверку. Docker regressions PASS; permission на реальный перенос всё ещё отсутствует.
 
-### V1-2 — следующий рабочий этап: закончить Check в одном окне (основной E-02, DS-01–03)
+### V1-2 — IN_PROGRESS: закончить Check в одном окне (основной E-02, DS-01–03)
 
-- Локальные versioned JSON-профили для личного применения (никакая БД не нужна): add/edit/remove регистрации, выбор/сохранение последней, Unicode, chooser source/target, one/many/folder/mixed, check-only, atomic save и понятная ошибка при corrupt config/отмене.
+- **SOURCE/DOCKER_TESTED (123/123):** локальные versioned JSON-профили для личного применения (никакая БД не нужна): add/edit/remove регистрации, выбор/сохранение последней, Unicode, chooser source/target, one/many/folder/mixed, check-only, atomic save и понятная ошибка при corrupt config/отмене.
 - Общие rule packs: create/copy/direct edit/link/unlink/rebind, стабильный captured config при job, effective rules с конфликтами, инвалидировать все зависимые проверки после редактирования.
 - Реальная кнопка **«Проверить»** запускает локальные доверенные CLI и даёт file/rule coverage, raw evidence и причины ERROR/INCOMPLETE/FINDINGS. Никакой загрузки проекта как модуля, Repo config/scripts/plugins, autofix, скрытого bypass или auto-update.
 - Job не замораживает GUI; есть status, cancel/timeout, повторный запуск и защита от устаревшего callback. Тесты clean/violation/skip/missing engine, source edit, два проекта с одним pack.
@@ -84,7 +86,7 @@
 
 - V1-1 завершён; следующий coding шаг — **V1-2**. Не тратить следующий цикл на новый большой synthetic transaction framework, пока Check как пользовательский путь не завершён.
 - Перед записью — AGENTS, git status/index; изменять только свои файлы, не захватывать чужой staged work. Локальные коммиты отдельны от push/Windows install.
-- Различать SOURCE_READY, DOCKER_TESTED, WINDOWS_PREREQS_CHECKED, WINDOWS_GUI_TESTED, HOST_BOUNDARY_VERIFIED, OWNER_ACCEPTED. Не выводить из 95 тестов статус Windows-установки.
+- Различать SOURCE_READY, DOCKER_TESTED, WINDOWS_PREREQS_CHECKED, WINDOWS_GUI_TESTED, HOST_BOUNDARY_VERIFIED, OWNER_ACCEPTED. Не выводить из Docker tests статус Windows-установки.
 - Все Windows-модификации, Loader, браузер/GM/secrets и использование реальных пользовательских target **вне текущего поручения обновить план**.
 - [IMPLEMENTATION_LOG.md](IMPLEMENTATION_LOG.md) — проверенные факты; [WINDOWS_TRUST_BOUNDARY.md](WINDOWS_TRUST_BOUNDARY.md) — условия доверенной установки; [HANDOFF.md](HANDOFF.md) — исходный исторический контекст, не текущий маршрут; [REQUIREMENTS.md](REQUIREMENTS.md) — ранее сформулированные userscript constraints.
 
