@@ -8,7 +8,7 @@
 
 **F-R-13 уточнён:** pids.current54/max256, pids.events max316; memory.current622964736/max1073741824, memory.events max2933, oom/oom_kill0, CPU200000/100000. PID-limit events подтверждены, причина/actor/связь с WF-049 OPEN. Следующий ресурсный probe — только read-only дельты в спокойный момент, без stress/kill/restart.
 
-**Checker опережает docs140/8:** в незавершённом V1-3 есть review/confirmation/transaction/recovery и новые GUI previews. Сохранённые logs показывают 160 Python/10 Tk PASS, но не повторены здесь и не являются native receipts. GUI без mutation backend, native_update_available=False, Update disabled. Текущий settings coverage только JS/CJS/MJS/Python: PS1/EXE/deps Tunnel пока не имеют подтверждённого полного review route. Чужие Checker docs/source не менялись.
+**Project Checker:** актуальные этапы и результаты тестов принадлежат его [PLAN](../userscript-updater/PLAN.md) и [IMPLEMENTATION_LOG](../userscript-updater/IMPLEMENTATION_LOG.md); здесь не дублировать меняющиеся номера тестов и source milestone. Исторический checkpoint WF-050 сохранён в журнале/отчёте. Для Tunnel обязательны отдельная Windows trust-boundary приёмка и полный review/provenance поставки — см. F-R-12/P-01–P-12 в [security](TUNNEL_SECURITY_ISOLATION.md). Указатель исправлен при QA документации WF-051.
 
 **F-R-14 / evidence integrity OPEN:** QA обнаружил NUL-only suffix1257 и отсутствие WF-049 в Git HEAD49b2e40 JOURNAL при наличии WF-049 в рабочем тексте; Git path hash этого файла расходится с Python/read→stdin hash при одинаковом size. Причина неизвестна. Сохранить исторический текст и сверить staged/committed bytes напрямую; status/названия коммитов недостаточно. Подробнее L-07/D-07 в отчёте. ОС/cache/mount не менялись.
 
