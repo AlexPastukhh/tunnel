@@ -15,7 +15,7 @@ from .coverage import build_coverage_matrix
 from .inventory import digest, read_stable_file, unchanged_since_snapshot, under
 from .model import ContractError, relative_target
 from .policies import PolicyStore
-from .preview import TargetPreview, _read_tree, build_target_preview
+from .preview import TargetPreview, _read_tree, _change, build_target_preview, inventory_fingerprint
 from .promotion_state import ManagedStore, atomic_bytes, encoded, load_json, token
 from .reports import summarize
 from .review import ReviewBinding
@@ -23,15 +23,19 @@ from .review import ReviewBinding
 TERMINAL = {"COMPLETED", "ABORTED", "ROLLED_BACK", "ROLLED_BACK_WITH_EXTERNAL_DRIFT"}
 
 
+def _target_key(value):
+    return Path(value).as_posix().casefold().rstrip("/")
+
+
 def _entry(document, project, target):
     return next((copy.deepcopy(e) for e in document["entries"]
-                 if e["project_id"] == project and e["target_root"] == target), None)
+                 if e["project_id"] == project and _target_key(e["target_root"]) == _target_key(target)), None)
 
 
 def _with_entry(document, project, target, entry):
     result = copy.deepcopy(document)
     result["entries"] = [e for e in result["entries"]
-                         if (e["project_id"], e["target_root"]) != (project, target)]
+                         if (e["project_id"], _target_key(e["target_root"])) != (project, _target_key(target))]
     if entry is not None:
         result["entries"].append(copy.deepcopy(entry))
     result["entries"].sort(key=lambda e: (e["project_id"], e["target_root"]))
@@ -40,12 +44,12 @@ def _with_entry(document, project, target, entry):
 
 
 def _claims(document, project, target, paths):
-    wanted = [str(Path(target) / relative_target(p)).casefold() for p in paths]
+    wanted = [(Path(target) / relative_target(p)).as_posix().casefold() for p in paths]
     for e in document["entries"]:
-        if (e["project_id"], e["target_root"]) == (project, target):
+        if (e["project_id"], _target_key(e["target_root"])) == (project, _target_key(target)):
             continue
         for rel in e["files"]:
-            other = str(Path(e["target_root"]) / relative_target(rel)).casefold()
+            other = (Path(e["target_root"]) / relative_target(rel)).as_posix().casefold()
             if any(p == other or p.startswith(other + "/") or other.startswith(p + "/") for p in wanted):
                 raise ContractError("Destination is managed by another project")
 
@@ -80,6 +84,27 @@ class TransactionOutcome:
     detail: str
 
 
+@dataclass(frozen=True)
+class TransactionInfo:
+    operation_id: str
+    project_id: str
+    target_root: str
+    state: str
+    scope: str
+
+
+@dataclass(frozen=True)
+class RestorationReview:
+    operation_id: str
+    target_root: str
+    state: str
+    fingerprint: str
+    changes: tuple
+    created_directories: tuple[str, ...]
+    recovery: bool
+    observed_conflicts: tuple[tuple[str, str | None, int | None], ...] = ()
+
+
 class PromotionService:
     def __init__(self, settings, backend=None):
         self.settings = settings
@@ -88,11 +113,13 @@ class PromotionService:
         self.reviews = {}
         self.confirmations = {}
         self.rollback_reviews = {}
+        self.recovery_reviews = {}
 
     @property
     def native_update_available(self):
-        # No installer/OS-boundary issuer exists in V1-3; a flag/profile cannot enable Windows Update.
-        return False
+        # A development profile, parsed scanner report or injected fixture never activates the native UI.
+        from .installed import WindowsTarget
+        return type(self.backend) is WindowsTarget and self.backend.available
 
     def invalidate(self, project_id=None):
         if project_id is None:
@@ -115,7 +142,7 @@ class PromotionService:
         if not Path(current.target_root).exists() and not Path(current.target_root).parent.is_dir():
             raise ContractError("Target parent must exist; no hidden ancestor creation")
         if (check.scan.status != "NOT_AUTHORIZED" or check.coverage.status != "NOT_AUTHORIZED"
-                or not check.scan.reports or any(r.status != "STRUCTURAL_CLEAR" for r in check.scan.reports)
+                or any(r.status != "STRUCTURAL_CLEAR" for r in check.scan.reports)
                 or summarize(check.snapshot, check.captured.combined_sha256, check.scan.reports).status != "NOT_AUTHORIZED"
                 or build_coverage_matrix(check.snapshot, check.scan.reports, self.settings.required_for_suffix).status != "NOT_AUTHORIZED"):
             raise ContractError("Check has findings/errors/unsupported/incomplete coverage")
@@ -267,7 +294,9 @@ class PromotionService:
                     control.check()
                 doc["state"] = "APPLYING"
                 self._save(op, doc)
-                parents = {""} if not doc["root_existed"] else set()
+                parents = set(review.preview.created_directories)
+                if not doc["root_existed"]:
+                    parents.add("")
                 for item in records:
                     if item["kind"] in ("create", "modify"):
                         parent = Path(item["path"]).parent
@@ -294,7 +323,7 @@ class PromotionService:
                     item["intent"] = True
                     self._save(op, doc)  # write-ahead intent survives replace -> journal crash gap
                     if item["kind"] == "delete":
-                        backend.remove(Path(current.target_root), item["path"], expected_sha256=item["before"])
+                        backend.remove(Path(current.target_root), item["path"], expected_sha256=item["before"], expected_metadata=item["metadata"])
                         expected.pop(item["path"], None)
                     else:
                         backend.replace(Path(current.target_root), item["path"],
@@ -383,7 +412,7 @@ class PromotionService:
         self._verify_blobs(op, doc)
         return op, doc
 
-    def _restore(self, op, doc, reason):
+    def _restore(self, op, doc, reason, *, observed_conflicts=()):
         backend = self._authority(doc["target_root"])
         root = Path(doc["target_root"])
         try:
@@ -395,11 +424,20 @@ class PromotionService:
             _claims(value, doc["project_id"], doc["target_root"],
                     tuple(doc["previous_entry"]["files"] if doc["previous_entry"] else ()) +
                     tuple(item["path"] for item in doc["operations"] if item["intent"]))
-            for item in doc["operations"]:
+            approved_conflicts = {path: (sha, size) for path, sha, size in observed_conflicts}
+            for index, item in enumerate(doc["operations"]):
                 if item["intent"]:
                     raw = backend.read(root, item["path"])
-                    if (digest(raw) if raw is not None else None) not in (item["before"], item["after"]):
-                        raise ContractError("Third-party edit of touched target; recovery blocked")
+                    current = digest(raw) if raw is not None else None
+                    if current not in (item["before"], item["after"]):
+                        if approved_conflicts.get(item["path"]) != (current, len(raw) if raw is not None else None):
+                            raise ContractError("Third-party edit of touched target; recovery blocked")
+                        # Preserve exactly the separately reviewed foreign/partial bytes before restoration.
+                        saved = f"conflict-{uuid.uuid4().hex}.bin" if raw is not None else None
+                        if raw is not None:
+                            atomic_bytes(op / saved, raw)
+                        doc.setdefault("preserved_conflicts", []).append(dict(path=item["path"],
+                            blob=saved, sha256=current, size=len(raw) if raw is not None else None))
             doc["state"] = "ROLLING_BACK"
             self._save(op, doc)
             for index in reversed(range(len(doc["operations"]))):
@@ -447,12 +485,58 @@ class PromotionService:
                 return TransactionOutcome(operation_id, "ABORTED", doc["scope"], "Prepared-only transaction has no target intent")
             return self._restore(op, doc, "Interrupted transaction recovery")
 
+    def history(self):
+        return tuple(TransactionInfo(key, doc["project_id"], doc["target_root"], doc["state"], doc["scope"])
+                     for key, doc in sorted(self._operations(), reverse=True))
+
+    def restoration_review(self, operation_id, *, recovery=False, include_conflicts=False):
+        op, doc = self._load(operation_id)
+        if include_conflicts and not recovery:
+            raise ContractError("Conflict restoration is available only for interrupted recovery")
+        if (recovery and doc["state"] in TERMINAL) or (not recovery and doc["state"] != "COMPLETED"):
+            raise ContractError("Choose an interrupted transaction for recovery or a completed one for rollback")
+        actual, _ = _read_tree(Path(doc["target_root"]))
+        changes, conflicts = [], []
+        for index, item in enumerate(doc["operations"]):
+            if not item["intent"]:
+                continue
+            before = actual.get(item["path"])
+            if (digest(before) if before is not None else None) not in (item["before"], item["after"]):
+                if not include_conflicts:
+                    raise ContractError("Third-party/partial bytes require a separate conflict recovery preview")
+                conflicts.append((item["path"], digest(before) if before is not None else None,
+                                  len(before) if before is not None else None))
+            after = self._blob(op, "before", index, item) if item["before"] is not None else None
+            kind = "unchanged" if before == after else ("delete" if after is None else
+                    ("create" if before is None else "modify"))
+            changes.append(_change(kind, item["path"], before, after))
+        _, state_token = self.store.read()
+        fingerprint = token([doc, inventory_fingerprint(Path(doc["target_root"])), state_token])
+        (self.recovery_reviews if recovery else self.rollback_reviews)[operation_id] = fingerprint
+        return RestorationReview(operation_id, doc["target_root"], doc["state"], fingerprint,
+                                 tuple(changes), tuple(sorted(doc["created_dirs"])), recovery, tuple(conflicts))
+
+    def recover_reviewed(self, review):
+        if not review.recovery or self.recovery_reviews.pop(review.operation_id, None) != review.fingerprint:
+            raise ContractError("Missing/consumed exact recovery preview")
+        with self.store.lock():
+            op, doc = self._load(review.operation_id)
+            _, state_token = self.store.read()
+            if token([doc, inventory_fingerprint(Path(doc["target_root"])), state_token]) != review.fingerprint:
+                raise ContractError("Recovery target/state changed; review again")
+            self._authority(doc["target_root"])
+            if doc["state"] in ("PREPARING", "PREPARED"):
+                doc["state"] = "ABORTED"
+                self._save(op, doc)
+                return TransactionOutcome(review.operation_id, "ABORTED", doc["scope"], "No target intent")
+            return self._restore(op, doc, "Explicit reviewed recovery", observed_conflicts=review.observed_conflicts)
+
     def review_rollback(self, operation_id):
         op, doc = self._load(operation_id)
         if doc["state"] != "COMPLETED":
             raise ContractError("Explicit rollback requires a completed transaction")
         current, state_token = self.store.read()
-        fingerprint = token([doc, _tree(Path(doc["target_root"])), state_token])
+        fingerprint = token([doc, inventory_fingerprint(Path(doc["target_root"])), state_token])
         self.rollback_reviews[operation_id] = fingerprint
         return fingerprint
 
@@ -462,6 +546,6 @@ class PromotionService:
         with self.store.lock():
             op, doc = self._load(operation_id)
             _, state_token = self.store.read()
-            if token([doc, _tree(Path(doc["target_root"])), state_token]) != fingerprint:
+            if token([doc, inventory_fingerprint(Path(doc["target_root"])), state_token]) != fingerprint:
                 raise ContractError("Rollback target/state changed; review again")
             return self._restore(op, doc, "Explicit reviewed rollback")

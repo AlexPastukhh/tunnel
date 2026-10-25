@@ -91,12 +91,10 @@ class RunControl:
         gate = Path(__file__).with_name("process_gate.py").resolve()
         job = None
         process = None
-        with tempfile.TemporaryFile() as out, tempfile.TemporaryFile() as err:
+        with tempfile.TemporaryFile(dir=cwd) as out, tempfile.TemporaryFile(dir=cwd) as err:
             try:
                 gate_env = dict(env)
-                if os.name == "nt":
-                    gate_env["SystemRoot"] = os.environ["SystemRoot"]
-                process = subprocess.Popen([sys.executable, "-I", "-B", str(gate)],
+                process = subprocess.Popen([sys.executable, "-I", "-B", "-S", str(gate)],
                     stdin=subprocess.PIPE, stdout=out, stderr=err, cwd=cwd, env=gate_env,
                     shell=False, start_new_session=os.name == "posix")
                 if os.name == "nt":
@@ -139,4 +137,6 @@ class RunControl:
 
 
 def execute(argv, *, control: RunControl | None = None, **kwargs):
+    if kwargs.get("text"):
+        kwargs.setdefault("encoding", "utf-8")
     return control.run(argv, **kwargs) if control else subprocess.run(argv, **kwargs)

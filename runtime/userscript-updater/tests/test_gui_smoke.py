@@ -10,17 +10,14 @@ class GuiSourceTests(unittest.TestCase):
         from checker.gui import main
         self.assertEqual(main(["--model-smoke"]), 0)
 
-    def test_no_active_promoter_button_or_fixture_lab_import(self):
-        source = (Path(__file__).resolve().parent.parent / "checker" / "gui.py").read_text()
-        self.assertIn('state="disabled"', source)
-        self.assertIn("Обновить (недоступно)", source)
-        self.assertIn("Проверить (тестовая среда)", source)
-        self.assertIn("--development-settings", source)
-        self.assertIn("def _poll_jobs", source)
-        self.assertNotIn("devtools", source)
-        for node in ast.walk(ast.parse(source)):
-            if isinstance(node, ast.ImportFrom):
-                self.assertFalse(node.module and node.module.startswith("devtools"))
+    def test_application_cannot_import_fixture_writers(self):
+        root = Path(__file__).resolve().parent.parent / "checker"
+        for file in root.glob("*.py"):
+            for node in ast.walk(ast.parse(file.read_text())):
+                modules = ([node.module] if isinstance(node, ast.ImportFrom) else
+                           [n.name for n in node.names] if isinstance(node, ast.Import) else [])
+                self.assertFalse(any(m and m.split(".")[0] in
+                    ("devtools", "tests", "promotion_support", "native_acceptance") for m in modules), str(file))
 
     def test_import_model_does_not_require_tkinter(self):
         import checker.ui_model

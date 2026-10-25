@@ -162,7 +162,7 @@ class RegistrationDraft:
 
     def build(self, name: str, pack_ids: tuple[str, ...], target_root: str | None) -> Registration:
         project = Registration(self.project_id, name,
-            tuple(Selection(e.kind, e.source, (e.target or Path(e.source).name) if target_root else None)
-                  for e in self.selections), pack_ids, target_root)
+            tuple(Selection(e.kind, e.source, (e.target or Path(e.source).name) if target_root else None,
+                            e.content, e.excluded_paths) for e in self.selections), pack_ids, target_root)
         project.validate()
         return project

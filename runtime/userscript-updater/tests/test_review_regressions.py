@@ -58,10 +58,12 @@ class RegressionTests(unittest.TestCase):
             with self.assertRaisesRegex(ContractError, "Cannot enumerate"):
                 list(selected_files(self.reg, (self.root,)))
 
-    def test_empty_nested_directory_requires_explicit_support(self):
+    def test_empty_nested_directory_is_captured_and_binds_freshness(self):
         (self.src / "empty").mkdir()
-        with self.assertRaisesRegex(ContractError, "Empty subdirectories"):
-            self.snapshot()
+        snapshot = self.snapshot()
+        self.assertTrue(any(d.source_relative == "empty" for d in snapshot.directories))
+        (self.src / "empty" / "nested").mkdir()
+        self.assertFalse(unchanged_since_snapshot(self.reg, (self.root,), snapshot))
 
     def test_hardlink_rejected(self):
         other = self.src / "b.js"

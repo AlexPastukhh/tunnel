@@ -44,10 +44,9 @@ const { builtinRules } = require(path.join(pkg, 'lib/unsupported-api.js'));
 """
 
 
-def _environment(root: Path) -> dict[str, str]:
-    return {"PATH": "/usr/local/bin:/usr/bin:/bin", "LC_ALL": "C.UTF-8",
-            "NODE_OPTIONS": "", "PYTHONDONTWRITEBYTECODE": "1", "HOME": str(root), "SEMGREP_SEND_METRICS": "off",
-            "SEMGREP_ENABLE_VERSION_CHECK": "false"}
+def _environment(root: Path, config=None) -> dict[str, str]:
+    from .environment import analyzer_environment
+    return analyzer_environment(root, config)
 
 
 def _yaml_rules(text: str) -> list[dict]:
@@ -96,14 +95,14 @@ class EnginePolicyValidation:
 
 
 def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, ...] = (),
-                           timeout: int = 30, control: RunControl | None = None) -> EnginePolicyValidation:
+                           timeout: int = 30, control: RunControl | None = None, workspace: Path | None = None) -> EnginePolicyValidation:
     """Load actual pinned config in real engine; all errors block development scan."""
     try:
         config.validate()
         identity = config.fingerprint()
-        with tempfile.TemporaryDirectory(prefix="checker-policy-") as temporary:
+        with tempfile.TemporaryDirectory(prefix="checker-policy-", dir=workspace) as temporary:
             root = Path(temporary)
-            env = _environment(root)
+            env = _environment(root, config)
             if config.kind == "eslint":
                 for suffix in ("js", "cjs", "mjs"):
                     (root / f"fixture.{suffix}").write_text("const answer = 42;\n", encoding="utf-8")
@@ -250,7 +249,7 @@ def prepare_effective_policy(captured: CapturedPolicies, tools: tuple[EngineConf
             path.write_text(json.dumps({"rules": semgrep}, ensure_ascii=False), encoding="utf-8")
             required = tuple(sorted(set(requirements.get(kind, ())) | ids))
         config = replace(by_kind[kind], config=path, config_sha256=digest(path.read_bytes()))
-        validation = validate_engine_config(config, required_rules=required, timeout=timeout, control=control)
+        validation = validate_engine_config(config, required_rules=required, timeout=timeout, control=control, workspace=directory)
         if validation.status != "VALIDATED_DEVELOPMENT":
             raise ContractError(f"{kind} effective policy invalid: {validation.detail}")
         configs.append(config)

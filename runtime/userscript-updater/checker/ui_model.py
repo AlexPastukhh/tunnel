@@ -235,11 +235,21 @@ class ReviewPresenter:
         rows += tuple(DisplayRow(("preserve-dir", path, "—", "—", "—", "—"),
                                  "Существующий каталог сохраняется.")
                       for path in preview.preserved_directories)
+        rows += tuple(DisplayRow(("create-dir", path, "—", "—", "—", "—"),
+                                 "Создать каталог, включая пустой. Откат убирает только созданный пустой каталог.")
+                      for path in preview.created_directories)
+        rows += tuple(DisplayRow(("exclude", path, "—", "—", "—", "—"), reason)
+                      for path, reason in preview.excluded_scope)
+        rows += tuple(DisplayRow(("source-absent", target or source, "—", "—", "—", "—"),
+            f"Источник отсутствует: {source}. Удаление возможно только для прежнего managed path "
+            "и показано отдельной строкой delete. Чужие target files сохраняются.")
+                      for source, target in preview.missing_sources)
         return DisplayTable("Просмотр (НЕ РАЗРЕШЕНИЕ)",
                             ("Эффект", "Путь", "До SHA-256", "После SHA-256", "До, байт", "После, байт"), rows,
                             f"План: {preview.fingerprint}. Вне состава: "
                             f"{len(preview.preserved)} файлов и "
                             f"{len(preview.preserved_directories)} каталогов. "
+                            f"Создать каталогов: {len(preview.created_directories)}. "
                             f"Первый импорт: {len(preview.adopted_existing)} явно сопоставленных файлов. "
                             f"Корень назначения: {'существует' if preview.target_root_exists else 'будет создан'}.")
 

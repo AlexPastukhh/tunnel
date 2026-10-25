@@ -38,5 +38,38 @@ class ESLintIntegration(unittest.TestCase):
                         self.assertEqual(summarize(snap, cfg.name, (report,)).status, "NOT_AUTHORIZED")
 
 
+@unittest.skipUnless(os.environ.get("UPDATER_DEV_ESLINT") and os.environ.get("UPDATER_DEV_SEMGREP"),
+                     "Both actual CLIs required for batching integration")
+class BatchIntegration(unittest.TestCase):
+    def test_real_batches_cover_all_files_and_preserve_late_finding(self):
+        import subprocess
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory(prefix="checker-batch-test-") as temporary:
+            root = Path(temporary)
+            source = root / "source";source.mkdir()
+            for index in range(4):
+                (source / f"{index}.js").write_text("eval('1');" if index == 3 else "const answer = 42;")
+            project = Registration("batch", "Batch", (Selection("directory", str(source)),), ("rules",))
+            snapshot = make_snapshot(project, (source,), root / "snapshots")
+            files = tuple(snapshot.root / r.snapshot_relative for r in snapshot.records)
+            for kind in ("eslint", "semgrep"):
+                with self.subTest(engine=kind):
+                    cli = Path(os.environ[f"UPDATER_DEV_{kind.upper()}"])
+                    cfg = Path(os.environ[f"UPDATER_DEV_{kind.upper()}_CONFIG"])
+                    config = EngineConfig(kind, cli, digest(cli.read_bytes()), cfg, digest(cfg.read_bytes()),
+                                          Path("/usr/local/bin/node") if kind == "eslint" else None)
+                    maximum = len(subprocess.list2cmdline(build_argv(config, files[:2])).encode("utf-16-le")) // 2 - 1
+                    evidence = root / kind
+                    with patch("checker.engines.MAX_ARG_CHARS", maximum):
+                        report = run_dev_engine(snapshot, config, evidence_dir=evidence)
+                    self.assertEqual(report.status, "FINDINGS", report.detail)
+                    self.assertEqual(len(report.expected), 4)
+                    self.assertEqual(len(report.scanned), 4)
+                    self.assertEqual(len(set(report.scanned)), 4)
+                    self.assertIn("batches=4", report.detail)
+                    self.assertTrue((evidence / (kind + "-batches.json")).exists())
+                    self.assertEqual(len(report.issues), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

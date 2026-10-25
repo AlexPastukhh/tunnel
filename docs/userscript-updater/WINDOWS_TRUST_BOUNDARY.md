@@ -27,15 +27,37 @@
 
 Эти пункты — будущие gates. ACL, Windows GUI, настоящие внешние paths, Browser/Tampermonkey, нетронутые данные и native source handles в этом чате не проверялись и не изменялись.
 
-## Текущее source-only состояние
+## Текущий source candidate и ручная процедура
 
-checker/gui.py: вкладки проектов, привязок правил, проверок, target preview, layout; JSON import только данные; registry.py/registration_editor.py добавляют versioned JSON persistence и chooser/editor, пока без Windows visual/ACL evidence; «Проверить» включается только с явным development-профилем и всегда выдаёт NOT_AUTHORIZED либо non-clear; «Обновить» выключена. Base Python Docker без Tkinter; в отдельном QA tree Tk 8.6/Xvfb пройдены 8/8 actual widget scenarios. Windows visual/Job Object/handles проверка NOT_RUN. checker/ui_model.py — presentation state и invalidation при изменении общего пакета. checker/windows_layout.py — string-only structural gate. checker/preview.py — только расчёт эффектов. devtools/fixture_transactions.py — синтетическая лаборатория, не подключённая к app и исключаемая из production install.
+checker/windows_io.py реализует Windows held-handle source/snapshot/target I/O,
+final path/identity/reparse/hardlink/ADS refusal, sharing/CAS, file security и
+timestamps/attributes. checker/installed.py — normal-owner installed context:
+полный closure/ACL/receipt/profile/approved-root checks перед native writer.
+Development-профиль/JSON scan/exit0 такой контекст не создают.
 
-V1-2 shared-pack UI и background Check worker проверены в Docker; следующий coding этап V1-3 exact promotion, native Windows handle/ACL/protected dependency design остаётся обязательным перед trusted approval. Check/packs/persistence/picker/editor — source/DOCKER_TESTED и Linux widget-tested; ни один из этих статусов не равен native Windows verification.
+Installed Python запускается из отдельного launcher с -I -S и фиксированным
+._pth без site/.pth/usercustomize, CLI — с явным безопасным environment/cwd.
+App/tool closure защищён для SYSTEM/Administrators; mutable owner state/policies
+и approved roots должны оставаться вне agent write routes.
 
-**Никакого реального PASS/внешнего обновления эта документация не разрешает.**
+Код и подготовленные native probes — **SOURCE_CANDIDATE / WINDOWS_NOT_RUN**.
+Конкретные offline install, native/GUI/marker probes, acceptance и rollback
+описаны [рядом с пакетом](../../runtime/userscript-updater/release/WINDOWS_ACCEPTANCE.md).
+Результаты выполненных проверок — [журнал](IMPLEMENTATION_LOG.md), этап — [PLAN](PLAN.md).
 
+Owner receipts фиксируют наблюдённые write routes и отрицательные markers.
+Программа проверяет declared paths/ACL/неизменность challenges, но не может
+обнаружить скрытый внешний сервис. Одинаковая owner/agent identity с широким
+native write API требует реального ограничения маршрута/другой identity,
+а не выдуманного DENIED. Probe matrix охватывает app, data/state/policies и
+каждый approved root. Пробы только на специально подготовленных markers.
 
-## V1-3 core не выдаёт OS-полномочий
+Existing native files записываются через тот же held handle; это journaled
+write, не atomic replace. Неизвестные partial/foreign bytes автоматически не
+затираются: отдельный conflict preview/consent сначала сохраняет их backup.
+NTFS/local fixed-volume, поддерживаемые metadata/owner и настоящие Windows
+lock/race/recovery/Job Object tests обязательны. Подробный контракт:
+[PROMOTION_CORE](PROMOTION_CORE.md).
 
-promotion.py/promotion_state.py содержат review/confirmation/managed entries/staged bytes/journal/recovery, но native backend/issuer отсутствуют. Default service не пишет target даже с confirmation; native_update_available=False. Adapter находится только в tests и ограничен private TemporaryDirectory. Read-only preview/first-import не разрешают запись. [Контракт](PROMOTION_CORE.md).
+Никаких host install/ACL/mount/GUI/Loader/actual external writes агент не
+выполнял. До native/route/installed walkthrough нет OWNER_ACCEPTED.

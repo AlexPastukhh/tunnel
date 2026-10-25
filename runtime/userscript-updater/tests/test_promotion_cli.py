@@ -25,6 +25,7 @@ class ActualPromotionIntegration(unittest.TestCase):
             source = root / "source"
             folder = source / "project"
             folder.mkdir(parents=True)
+            (folder / "empty").mkdir()
             a, b, extra = folder / "a.js", folder / "b.py", source / "extra.js"
             a.write_text("const a = 1;\n")
             b.write_text("answer = 1\n")
@@ -81,4 +82,25 @@ class ActualPromotionIntegration(unittest.TestCase):
             self.assertEqual(service.rollback(result.operation_id, review).state, "ROLLED_BACK")
             self.assertEqual((target / "app/a.js").read_text(), "const a = 1;\n")
             self.assertEqual((target / "app/b.py").read_text(), "answer = 1\n")
+            self.assertTrue((target / "app/empty").is_dir())
+            # A resource-only/delete-only continuation still validates both real configs,
+            # makes no claim of code analysis for the resource, and deletes only prior managed code.
+            logo = source / "logo.png"
+            logo.write_bytes(b"\x89PNG\r\nfixture")
+            project = replace(project, selections=(Selection("directory", str(folder), "app"),
+                Selection("file", str(logo), "logo.png", "resource")))
+            third = service.review(check(), project)
+            outcome = service.apply(service.confirm(third.review_id, third.fingerprint, project), project)
+            self.assertEqual(outcome.state, "COMPLETED")
+            b.unlink()
+            resource_only = check()
+            self.assertEqual(resource_only.scan.reports, ())
+            self.assertEqual(resource_only.coverage.files[0].required_engines, ())
+            final = service.review(resource_only, project)
+            self.assertIn(("delete", "app/b.py"), [(c.kind, c.relative_path) for c in final.preview.changes])
+            outcome = service.apply(service.confirm(final.review_id, final.fingerprint, project), project)
+            self.assertEqual(outcome.state, "COMPLETED")
+            self.assertEqual((target / "logo.png").read_bytes(), logo.read_bytes())
+            self.assertEqual((target / "owner.bin").read_bytes(), b"\x00owner data")
+            self.assertFalse((target / "app/b.py").exists())
             self.assertFalse(service.native_update_available)

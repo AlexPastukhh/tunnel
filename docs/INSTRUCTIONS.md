@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | Два native Repo Tunnel | [Runtime source map](../runtime/README.md), [security-реестр](agent-workflow/TUNNEL_SECURITY_ISOLATION.md) | Installed Windows launcher/control/guard/Client/Runtime и Linux Direct DC — разные звенья; Windows cutover только по отдельному owner plan |
 | G2 | [Guest entry source](../runtime/host-g2/runtime-api-migration/start-g2-guest-session.ps1), [gate](../runtime/host-g2/g2-stdio-gate.py) | [G2 plan](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md) и [E42 runbook](G3_G2_INITIAL_SCOPE_AND_RUNBOOK_2026-10-16.md) |
-| Project Checker | [Source README](../runtime/userscript-updater/README.md) | Его [PLAN](userscript-updater/PLAN.md), [implementation log](userscript-updater/IMPLEMENTATION_LOG.md), [native Windows gate](userscript-updater/WINDOWS_TRUST_BOUNDARY.md) |
+| Project Checker | [Source README](../runtime/userscript-updater/README.md); reviewed offline package и [ручная установка/приёмка/откат](../runtime/userscript-updater/release/WINDOWS_ACCEPTANCE.md) | [PLAN](userscript-updater/PLAN.md), [implementation log](userscript-updater/IMPLEMENTATION_LOG.md), [native Windows gate](userscript-updater/WINDOWS_TRUST_BOUNDARY.md); агент выполняет только Repo/Docker, Windows — владелец |
 | Observatory / Notifier / Viewer | [README V1](../observatory/v1/README.md) | Отдельно Docker, Windows Viewer и каждый browser profile; [Windows setup](../observatory/v1/OWNER_VIEWER_MANUAL_SETUP.md) |
 | Hosted Site | Собственный source/deployment в Sites Git; [SITES](SITES.md) | Точный source commit и опубликованная Site version; native Tunnel не меняется |
 | Plugin-owned skills/metadata | Актуальный update-plugin workflow конкретного plugin | Поддерживаемый package/release; не через произвольную Site страницу |

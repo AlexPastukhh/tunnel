@@ -1,0 +1,14 @@
+[
+  {
+    "file": "python-3.13.17-amd64.exe",
+    "url": "https://www.python.org/ftp/python/3.13.17/python-3.13.17-amd64.exe",
+    "sha256": "5da012101ba2e17113a9a1cd901e9ce1441086f2b7ecb5de06ec94163899a190",
+    "size": 29941280
+  },
+  {
+    "file": "node-v22.23.3-win-x64.zip",
+    "url": "https://nodejs.org/dist/v22.23.3/node-v22.23.3-win-x64.zip",
+    "sha256": "2b0ff57b049cda1bbcea2240eec20467018713c1efe1f7360c2681859b90ed71",
+    "size": 35574076
+  }
+]

@@ -1,5 +1,102 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026 — personal V1 source candidate, complete GUI and offline Windows package
+
+User asked to finish the developer's part, then resumed after a disconnected
+session. Completed source scope: empty directories; explicit
+code/dependency/resource/data/exclusions; resource-only and delete-only checks;
+missing selected file/folder tombstones, while unavailable source roots/access
+errors remain errors. Missing source never adopts/deletes unmanaged target
+files; reappearance invalidates review. Old target directories stay explicitly
+preserved; created empty dirs have identity-checked rollback.
+
+GUI now provides exact confirmation/apply worker, result, transaction history,
+inverse hashes/sizes/diff, reviewed rollback and interrupted recovery. Default
+unknown/partial bytes block recovery. A separate conflict preview/consent binds
+observed bytes and preserves them as an additional checked backup before restore.
+Input/identity/metadata drift and consumed confirmations refuse. Analyzer
+commands are bounded in UTF-16 batches for Windows command-line limits; all
+expected/scanned files and late findings are merged, without weakening coverage.
+
+Native source candidate: Windows pinned ancestors/final paths/file IDs,
+single-link/reparse/ADS refusal, held-handle source/snapshot reads and target
+CAS/write/delete, recoverable file security/timestamps/attributes, pinned state
+parents. Existing writes preserve object identity and DACL; they are journaled
+writes, not atomic file replacement. Native race/sharing/metadata and power-loss
+behaviour are NOT established by Docker tests.
+
+Installed context candidate verifies isolated interpreter/._pth, normal owner
+SID, protected full application/tool/module closure, ACLs, immutable native/GUI
+receipts, declared route/probe matrix, unchanged markers and approved roots.
+Declared writable Windows system-dependency routes also refuse. This is owner
+attestation of observed external routes, not discovery of omitted services.
+Development JSON/exit0/report cannot construct the native writer. QA writers
+remain outside checker/import path and private-fixture-only.
+
+Prepared offline side-by-side install, owner native probes (handles,
+junction/hardlink/ADS, sharing, metadata, real clean/violation analyzers, startup/
+config canaries, transaction/interruption and Job Object cleanup), interactive
+native GUI fixture with actual event receipt, elevated acceptance and installation
+rollback. These scripts were NOT run on Windows. No installed receipt was issued.
+
+Executed Docker evidence:
+- Full suite: **184/184 PASS, zero skips**, actual ESLint 10.13.0 and Semgrep CE
+  1.182.1 enabled; /workspace/repo/project-checker-devtools/v1-release-tests.log.
+  Includes actual batched scans in both engines with the finding in the last
+  batch, actual Semgrep console-entry clean/violation checks, mixed promotion/
+  rollback and resource-only/delete-only continuation in private fixtures.
+- Actual Linux Tk/Xvfb: **12/12 PASS**;
+  /workspace/repo/project-checker-devtools/v1-release-gui.log. Real widgets/CLI,
+  consent cancel/apply/readback/result/history/inverse-preview/rollback.
+  Chooser/message boxes injected; Windows rendering/dialogs/native writer NOT_RUN.
+- Both PowerShell scripts: PARSE PASS with official PowerShell 7.4.6 parser in
+  isolated Docker directory; /workspace/repo/project-checker-devtools/v1-release-powershell.log.
+  No script execution/Windows ACL/install is inferred from parse. Parser tarball
+  matched upstream hashes.sha256; extraction handled old Python's missing filter,
+  and invariant globalization avoided a missing ICU dependency. No OS install.
+- Downloaded complete **68-wheel Windows CPython 3.13 closure**, Python 3.13.17
+  x64 installer with Tk, Node 22.23.3 x64; uv hash lock, selected-artifact SHA-256,
+  wheel internal RECORD and exact package-set validation. Node archive matched
+  official SHASUMS256.txt. Python Authenticode verification is prepared for owner
+  Windows install, not claimed executed here. ESLint npm closure/package-lock is
+  included. Committed binary/npm locks now bind the exact artifacts. Fresh
+  npm ci installed 77 packages with scripts/audit/fund disabled; a second empty
+  directory successfully replayed the canonical tarballs offline
+  (/workspace/repo/project-checker-devtools/v1-npm-closure.log). The installer
+  repeats this integrity-checked offline replay, rather than copying a mutable
+  expanded Docker tree. Separate empty user/global npm configs fixed the first
+  helper's double-loading rejection.
+- One parallel package attempt produced no completion receipt under Docker's
+  1 GiB limit. Builder now streams wheel member hashes and ZIP contents.
+  Serialized full validation passed, including all wheel RECORDs and the
+  canonical npm cache; /workspace/repo/project-checker-devtools/v1-final-package-validation.log.
+  That validation archive is not the final delivery: rebuild from the scoped
+  source commit follows below.
+- Final native-only refinements pin the Windows child's pywin32 DLL directory,
+  sanitize/pin Tcl/Tk startup before GUI imports, verify the installed context
+  before loading tkinter, and read back the restored security descriptor.
+  These branches remain WINDOWS_NOT_RUN. Re-ran six release/console/batch
+  regressions on Linux after the console bridge change: PASS.
+
+Observed failures kept in history: first expanded suite 167 tests had two old
+empty-directory assertions; next 172 had incomplete fake-widget setup and an
+obsolete source-label assertion; 178 had a doubly escaped binary fixture
+expectation. Corrected tests/fixtures and strengthened behaviour checks. Actual
+Semgrep wheel inspection found python -m semgrep exits 2; switched to its official
+console entry point, then exercised it on safe real scans. Initial pip cache ran
+out of its filesystem space; used existing authorized internal-volume cache.
+No foreign files/processes were removed. Connection timeouts/session termination
+were followed by read-back; the installer write had not landed and was then
+performed once after reconnect.
+
+Native/route/installed walkthrough/consumer acceptance remains pending. No real
+Windows copy/ACL/mount/Loader/host runtime was changed, no Tunnel restart, no push.
+Parallel documentation commits were preserved; current AGENTS/DRY protocol was
+re-read. Procedure changed only in the existing INSTRUCTIONS pointer. Exact
+milestones remain here, not replicated into common status pages.
+
+---
+
 ## 25 October 2026 — V1-3 portable transaction core and actual-target preview
 
 Implemented checker/promotion.py and promotion_state.py independently of the old devtools laboratory. Review binds an in-memory CheckResult to current registration/snapshot/source bytes, captured mutable packs, full tool/config/Node hashes, managed-state token, actual target inventory and exact full plan. Confirmations are one-shot and invalidated by new review/input drift. Default service has no mutation backend and refuses apply even with a valid acknowledgement; GUI Update/native_update_available remain disabled.

@@ -26,6 +26,10 @@ def is_reparse(meta: os.stat_result) -> bool:
 
 
 def check_plain_chain(path: Path) -> None:
+    if os.name == "nt":
+        from .windows_io import native_io
+        native_io().validate(path)
+        return
     if not path.is_absolute() or ".." in path.parts:
         raise ContractError("Paths must be absolute and have no traversal components")
     for ancestor in [*reversed(path.parents), path]:
@@ -56,15 +60,70 @@ def _same_or_child(a: str, b: str) -> bool:
     return a == b or a.startswith(b + "/") or b.startswith(a + "/")
 
 
-def selected_files(reg: Registration, source_roots: tuple[Path, ...]):
-    """Resolve full planned file inventory or fail. Caller must use trusted roots."""
+RESOURCE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".bmp",
+                     ".woff", ".woff2", ".ttf", ".txt", ".md", ".csv"}
+
+
+@dataclass(frozen=True)
+class DirectoryRecord:
+    selection_index: int
+    source_path: str
+    source_relative: str
+    target_relative: str | None
+
+
+@dataclass(frozen=True)
+class ExcludedRecord:
+    selection_index: int
+    source_path: str
+    target_relative: str | None
+    reason: str
+
+
+@dataclass(frozen=True)
+class MissingRecord:
+    selection_index: int
+    source_path: str
+    target_relative: str | None
+    kind: str
+
+
+def selected_inventory(reg: Registration, source_roots: tuple[Path, ...]):
+    """Inventory explicit owner selections, including empty dirs and exclusions."""
     reg.validate()
-    candidates: list[tuple[int, Path, str, str | None]] = []
-    seen_sources: set[str] = set()
-    target_keys: list[str] = []
+    candidates, directories, exclusions, missing = [], [], [], []
+    seen_sources, target_keys, directory_keys = set(), [], set()
     for i, entry in enumerate(reg.selections):
         source = Path(entry.source)
+        try:
+            source.lstat()
+        except FileNotFoundError:
+            roots = [root for root in source_roots if under(source, root)]
+            if not roots:
+                raise ContractError("Missing source is outside declared source roots")
+            for root in roots:
+                check_plain_chain(root)  # A missing/unavailable whole source root is an error.
+            ancestor = source.parent
+            while True:
+                try:
+                    ancestor.lstat()
+                    break
+                except FileNotFoundError:
+                    ancestor = ancestor.parent
+            validate_source(ancestor, source_roots)
+            if entry.content == "data":
+                exclusions.append(ExcludedRecord(i, str(source), entry.target, "declared data; never copied/deleted"))
+            else:
+                missing.append(MissingRecord(i, str(source), entry.target, entry.kind))
+            continue
         validate_source(source, source_roots)
+        if entry.content == "data":
+            exclusions.append(ExcludedRecord(i, str(source), entry.target, "declared data; never copied/deleted"))
+            continue
+        exclusions.extend(ExcludedRecord(i, str(source / rel),
+            f"{entry.target}/{rel}" if reg.target_root else None, "explicit owner exclusion")
+            for rel in entry.excluded_paths)
+        source_files = []
         if entry.kind == "file":
             if not source.is_file():
                 raise ContractError(f"Selected file not regular: {source}")
@@ -72,49 +131,74 @@ def selected_files(reg: Registration, source_roots: tuple[Path, ...]):
         else:
             if not source.is_dir():
                 raise ContractError(f"Selected directory not a directory: {source}")
-            source_files = []
 
-            def walk_error(exc: OSError) -> None:
+            def walk_error(exc):
                 raise ContractError(f"Cannot enumerate {exc.filename}: {exc}") from exc
 
             for base, dirs, files in os.walk(source, topdown=True, followlinks=False, onerror=walk_error):
                 base_path = Path(base)
                 check_plain_chain(base_path)
-                if not dirs and not files:
-                    raise ContractError(f"Empty subdirectories unsupported in this prototype: {base_path}")
-                for name in sorted(dirs):
-                    check_plain_chain(base_path / name)
-                for name in sorted(files):
-                    file_path = base_path / name
-                    source_files.append((file_path, file_path.relative_to(source).as_posix()))
-        if not source_files:
-            raise ContractError(f"Empty selection: {source}")
+                relative_dir = base_path.relative_to(source).as_posix()
+                mapped_dir = (entry.target if relative_dir == "." else f"{entry.target}/{relative_dir}") if reg.target_root else None
+                key = os.path.normcase(str(base_path))
+                if key in directory_keys:
+                    raise ContractError(f"Overlapping selected directories: {base_path}")
+                directory_keys.add(key)
+                directories.append(DirectoryRecord(i, str(base_path), relative_dir, mapped_dir))
+                if len(directories) + len(candidates) > MAX_FILES:
+                    raise ContractError("Selection exceeds explicit entry-count limit")
+                for name in sorted([*dirs, *files]):
+                    path = base_path / name
+                    relative = path.relative_to(source).as_posix()
+                    if relative in entry.excluded_paths:
+                        # The omission is explicit and fingerprinted, never treated as scanned.
+                        if name in dirs:
+                            dirs.remove(name)
+                        continue
+                    check_plain_chain(path)
+                    if name in files:
+                        source_files.append((path, relative))
         for path, relative in sorted(source_files, key=lambda item: str(item[0])):
             check_plain_chain(path)
             info = path.lstat()
             if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1:
                 raise ContractError(f"Non-regular file or hardlink refused: {path}")
+            if entry.content == "resource" and path.suffix.lower() not in RESOURCE_SUFFIXES:
+                raise ContractError(f"Resource type is not in the inert-resource profile: {path}")
             key_source = os.path.normcase(str(path))
             if key_source in seen_sources:
                 raise ContractError(f"Overlapping selections: {path}")
             seen_sources.add(key_source)
             target = None
             if reg.target_root is not None:
-                target = relative_target(
-                    entry.target if entry.kind == "file" else f"{entry.target}/{relative}"
-                )
+                target = relative_target(entry.target if entry.kind == "file" else f"{entry.target}/{relative}")
                 key_target = target.casefold()
                 if any(_same_or_child(key_target, previous) for previous in target_keys):
                     raise ContractError(f"Target collision/ancestor conflict: {target}")
                 target_keys.append(key_target)
             candidates.append((i, path, relative, target))
-            if len(candidates) > MAX_FILES:
-                raise ContractError("Selection exceeds explicit file-count limit")
-    yield from candidates
+            if len(candidates) + len(directories) > MAX_FILES:
+                raise ContractError("Selection exceeds explicit entry-count limit")
+        if len(directories) > MAX_FILES:
+            raise ContractError("Selection exceeds explicit directory-count limit")
+    mapped_dirs = [relative_target(d.target_relative) for d in directories if d.target_relative]
+    if len({d.casefold() for d in mapped_dirs}) != len(mapped_dirs):
+        raise ContractError("Duplicate mapped directory")
+    for d in mapped_dirs:
+        if any(d.casefold() == f or d.casefold().startswith(f + "/") for f in target_keys):
+            raise ContractError("Mapped directory collides with a target file")
+    return candidates, tuple(directories), tuple(exclusions), tuple(missing)
+
+
+def selected_files(reg: Registration, source_roots: tuple[Path, ...]):
+    yield from selected_inventory(reg, source_roots)[0]
 
 
 def read_stable_file(path: Path) -> bytes:
     """No-follow where OS supports it; inode + metadata check; not an OS-level race guarantee."""
+    if os.name == "nt":
+        from .windows_io import native_io
+        return native_io().read(path)
     check_plain_chain(path)
     before = path.lstat()
     if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
@@ -152,6 +236,7 @@ class FileRecord:
     sha256: str
     size: int
     snapshot_relative: str
+    content: str = "code"
 
 
 @dataclass(frozen=True)
@@ -160,9 +245,15 @@ class Snapshot:
     root: Path
     registration_sha256: str
     records: tuple[FileRecord, ...]
+    directories: tuple[DirectoryRecord, ...] = ()
+    exclusions: tuple[ExcludedRecord, ...] = ()
+    missing: tuple[MissingRecord, ...] = ()
 
     def manifest(self) -> list[dict]:
-        return [asdict(record) for record in self.records]
+        return ([asdict(record) for record in self.records]
+                + [dict(entry_type="directory", **asdict(d)) for d in self.directories]
+                + [dict(entry_type="excluded", **asdict(e)) for e in self.exclusions]
+                + [dict(entry_type="missing", **asdict(m)) for m in self.missing])
 
 
 def source_records(reg: Registration, source_roots: tuple[Path, ...]):
@@ -189,6 +280,7 @@ def make_snapshot(reg: Registration, source_roots: tuple[Path, ...], review_dir:
     destination = review_dir / uid
     destination.mkdir(mode=0o700, exist_ok=False)
     records: list[FileRecord] = []
+    _, directories, exclusions, missing = selected_inventory(reg, source_roots)
     try:
         total = 0
         for i, path, relative, target, data in source_records(reg, source_roots):
@@ -204,11 +296,11 @@ def make_snapshot(reg: Registration, source_roots: tuple[Path, ...], review_dir:
                 stream.write(data)
             if digest((destination / saved).read_bytes()) != digest(data):
                 raise ContractError("Snapshot readback mismatch")
-            records.append(FileRecord(i, str(path), relative, target, digest(data), len(data), saved))
-        manifest_bytes = json.dumps([asdict(r) for r in records], sort_keys=True, ensure_ascii=False).encode()
+            records.append(FileRecord(i, str(path), relative, target, digest(data), len(data), saved, reg.selections[i].content))
+        snap = Snapshot(uid, destination, reg.fingerprint(), tuple(records), directories, exclusions, missing)
+        manifest_bytes = json.dumps(snap.manifest(), sort_keys=True, ensure_ascii=False).encode()
         with (destination / "manifest.json").open("xb") as stream:
             stream.write(manifest_bytes)
-        snap = Snapshot(uid, destination, reg.fingerprint(), tuple(records))
         # Changes during enumeration/copy invalidate snapshot, not silently PASS.
         if not unchanged_since_snapshot(reg, source_roots, snap):
             raise ContractError("Source inventory changed during snapshot")
@@ -220,11 +312,15 @@ def make_snapshot(reg: Registration, source_roots: tuple[Path, ...], review_dir:
 
 
 def manifest_current(reg: Registration, source_roots: tuple[Path, ...]) -> list[dict]:
-    return [
+    files = [
         dict(selection_index=i, source_path=str(path), source_relative=rel,
-             target_relative=target, sha256=digest(data), size=len(data))
+             target_relative=target, sha256=digest(data), size=len(data), content=reg.selections[i].content)
         for i, path, rel, target, data in source_records(reg, source_roots)
     ]
+    _, directories, exclusions, missing = selected_inventory(reg, source_roots)
+    return (files + [dict(entry_type="directory", **asdict(d)) for d in directories]
+            + [dict(entry_type="excluded", **asdict(e)) for e in exclusions]
+            + [dict(entry_type="missing", **asdict(m)) for m in missing])
 
 
 def unchanged_since_snapshot(reg: Registration, source_roots: tuple[Path, ...], snap: Snapshot) -> bool:
@@ -232,7 +328,7 @@ def unchanged_since_snapshot(reg: Registration, source_roots: tuple[Path, ...], 
         return False
     try:
         current = manifest_current(reg, source_roots)
-        stored = [{k: v for k, v in asdict(r).items() if k != "snapshot_relative"} for r in snap.records]
+        stored = [{k: v for k, v in row.items() if k != "snapshot_relative"} for row in snap.manifest()]
         return current == stored
     except (OSError, ContractError):
         return False

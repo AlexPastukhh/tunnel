@@ -66,16 +66,18 @@ def build_coverage_matrix(
     rows = []
     for record in snapshot.records:
         suffix = Path(record.source_path).suffix.lower()
-        needed = required_for_suffix.get(suffix, ())
+        needed = required_for_suffix.get(suffix, ()) if record.content in ("code", "dependency") else ()
         filename = str((snapshot.root / record.snapshot_relative).absolute())
         scanned_by = tuple(sorted(
             report.engine for report in reports if filename in report.scanned
         ))
         states: list[Status] = []
         reason = []
-        if not needed:
+        if not needed and record.content != "resource":
             states.append("UNSUPPORTED")
             reason.append("No trusted analyzer applicability declared for this file suffix")
+        if record.content == "resource":
+            reason.append("Declared resource: bytes/hash inventoried; no code analysis claimed")
         for engine in needed:
             if engine not in SUPPORTED or engine in duplicates:
                 states.append("ERROR")
@@ -114,6 +116,6 @@ def build_coverage_matrix(
                                  record.snapshot_relative, needed, scanned_by,
                                  status, "; ".join(reason)))
     final_status = _aggregate([row.status for row in rows])
-    if duplicates or extra or not rows:
+    if duplicates or extra or (not rows and not snapshot.directories and not snapshot.exclusions and not snapshot.missing):
         final_status = "ERROR"
     return CoverageMatrix(final_status, tuple(rows), tuple(sorted(extra)))

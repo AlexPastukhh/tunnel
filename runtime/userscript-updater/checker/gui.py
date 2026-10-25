@@ -2,7 +2,8 @@
 
 Registration editor/pickers and atomic versioned JSON persistence, policy binding display,
 scan/preview panes, planned installation-path diagnostics. An explicit development profile enables background static Check and shared-pack editing.
-There is NO owner approval or write-target/update action in this UI.
+Development profiles cannot update. An independently accepted Windows context
+enables exact confirmation, transaction results and reviewed recovery.
 Tkinter is loaded lazily, allowing headless backend tests inside Fortis Repo.
 """
 from __future__ import annotations
@@ -21,14 +22,15 @@ from pathlib import Path
 from .model import Registration
 from .registry import RegistrySession, RegistryStore
 from .registration_editor import RegistrationEditor
-from .ui_model import BLOCK_REASON, DisplayTable, ReviewPresenter
+from .ui_model import BLOCK_REASON, DisplayRow, DisplayTable, ReviewPresenter
 from .windows_layout import RootSpec, review_windows_layout
 
 MAX_REGISTRATION_JSON = 256 * 1024
 
 
 class DesktopApp:
-    def __init__(self, tk, ttk, filedialog, messagebox, registry_path: Path | None = None, settings_path: Path | None = None) -> None:
+    def __init__(self, tk, ttk, filedialog, messagebox, registry_path: Path | None = None, settings_path: Path | None = None, *, installed_context=None) -> None:
+        self.installed_context = installed_context
         self.tk = tk
         self.ttk = ttk
         self.filedialog = filedialog
@@ -58,9 +60,19 @@ class DesktopApp:
             except (OSError, ValueError, TypeError, KeyError) as exc:
                 messagebox.showerror("Тестовый профиль не загружен", str(exc))
                 self.job_status = "Check отключён: неверный тестовый профиль."
-        self.promotion = PromotionService(self.jobs.settings) if self.jobs else None
+        if installed_context is not None:
+            from .installed import InstalledAuthority, InstalledSettings, WindowsTarget
+            if type(installed_context) is not InstalledAuthority:
+                raise ValueError("Invalid installed context")
+            self.jobs = CheckJobs(InstalledSettings(installed_context))
+            self.promotion = PromotionService(self.jobs.settings, WindowsTarget(installed_context))
+            self.root.title("Project Checker — личная Windows V1")
+        else:
+            self.promotion = PromotionService(self.jobs.settings) if self.jobs else None
         self.check_results = {}
         self.active_review = None
+        self.restoration = None
+        self.history_rows = ()
         self.tables = {}
         self.row_details = {}
         self.detail_panes = {}
@@ -76,13 +88,15 @@ class DesktopApp:
         top.pack(fill="x")
         t.Label(top, text="Project Checker",
                 font=("Segoe UI", 15, "bold")).pack(anchor="w")
-        t.Label(top, text="Исходники в Fortis Repo НЕ доверенные. "
-                "Результаты тестовой проверки не разрешают обновление. Windows-допуск ещё не подтверждён.",
+        intro = ("Проверьте проект, просмотрите полный план и отдельно подтвердите обновление."
+                 if self.installed_context else "Исходники в Fortis Repo НЕ доверенные. "
+                 "Результаты тестовой проверки не разрешают обновление. Windows-допуск ещё не подтверждён.")
+        t.Label(top, text=intro,
                 wraplength=1050).pack(anchor="w", pady=(4, 2))
         self.tabs = t.Notebook(self.root)
         self.tabs.pack(fill="both", expand=True, padx=12, pady=8)
         names = ("Проекты", "Правила", "Проверка", "Просмотр обновления",
-                 "Установка / доверие", "Покрытие файлов", "Действующие правила")
+                 "Установка / доверие", "Покрытие файлов", "Действующие правила", "Восстановление")
         for name in names:
             frame = t.Frame(self.tabs, padding=6)
             self.tabs.add(frame, text=name)
@@ -104,18 +118,37 @@ class DesktopApp:
         self.preview_button.pack(side="left")
         self.import_button = t.Button(controls, text="Просмотр первого импорта", command=lambda: self._review(first_import=True), state="disabled")
         self.import_button.pack(side="left", padx=5)
-        t.Label(controls, text="Подтверждение и запись ждут проверенной Windows-установки.").pack(side="left", padx=5)
+        t.Label(controls, text="Обновление требует подтверждения точного плана." if self.installed_context else "Подтверждение и запись ждут проверенной Windows-установки.").pack(side="left", padx=5)
         install_frame = self.tabs.nametowidget(self.tabs.tabs()[4])
-        self._layout_controls(install_frame)
+        self.layout_review = None
+        if self.installed_context is None:
+            self._layout_controls(install_frame)
+        restore_frame = self.tabs.nametowidget(self.tabs.tabs()[7])
+        restore_controls = t.Frame(restore_frame)
+        restore_controls.pack(side="bottom", fill="x", pady=4)
+        self.history_button = t.Button(restore_controls, text="Обновить журнал", command=self._history)
+        self.history_button.pack(side="left")
+        self.rollback_preview_button = t.Button(restore_controls, text="Просмотр отката",
+                                                command=lambda: self._restoration_review(False))
+        self.rollback_preview_button.pack(side="left", padx=4)
+        self.recovery_preview_button = t.Button(restore_controls, text="Просмотр восстановления",
+                                                command=lambda: self._restoration_review(True))
+        self.recovery_preview_button.pack(side="left", padx=4)
+        self.conflict_preview_button = t.Button(restore_controls, text="Просмотр конфликтов",
+                command=lambda: self._restoration_review(True, True))
+        self.conflict_preview_button.pack(side="left", padx=4)
+        self.restore_button = t.Button(restore_controls, text="Подтвердить восстановление",
+                                      command=self._restore, state="disabled")
+        self.restore_button.pack(side="right")
         self.tabs.bind("<<NotebookTabChanged>>", lambda _: self.refresh())
         footer = t.Frame(self.root, padding=(12, 0, 12, 9))
         footer.pack(fill="x")
         t.Label(footer, textvariable=self.status, wraplength=900).pack(side="left", fill="x", expand=True)
-        self.check_button = t.Button(footer, text="Проверить (тестовая среда)", command=self._check, state="disabled")
+        self.check_button = t.Button(footer, text="Проверить" if self.installed_context else "Проверить (тестовая среда)", command=self._check, state="disabled")
         self.check_button.pack(side="right", padx=5)
         self.cancel_button = t.Button(footer, text="Отмена проверки", command=self._cancel_job, state="disabled")
         self.cancel_button.pack(side="right", padx=5)
-        self.update_button = t.Button(footer, text="Обновить (недоступно)", state="disabled")
+        self.update_button = t.Button(footer, text="Обновить", command=self._update, state="disabled")
         self.update_button.pack(side="right", padx=5)
 
     def _new_table(self, frame):
@@ -216,8 +249,20 @@ class DesktopApp:
             "Привязанные политики", ("Тип", "Исходник", "Назначение"),
             table.rows, (", ".join(reg.policy_pack_ids) if reg else "Выберите регистрацию.")
         ))
-        self._show_table("Установка / доверие",
-                         self.presenter.layout_table(self.layout_review))
+        layout = self.presenter.layout_table(self.layout_review)
+        if self.installed_context is not None:
+            authority = self.installed_context
+            cert = authority.certificate
+            rows = (DisplayRow(("Установка", str(authority.root))),
+                    DisplayRow(("Владелец SID", authority.owner_sid)),
+                    DisplayRow(("Manifest SHA-256", cert["manifest_sha256"])),
+                    DisplayRow(("Profile SHA-256", cert["profile_sha256"])),
+                    DisplayRow(("Native QA SHA-256", cert["native_qa_sha256"])),
+                    DisplayRow(("GUI QA SHA-256", cert["manual_gui_receipt"])))
+            rows += tuple(DisplayRow(("Разрешённое назначение", str(p))) for p in authority.approved_roots)
+            layout = DisplayTable("Защищённая установка", ("Свойство", "Значение"), rows,
+                "Owner receipt загружен. Состав, ACL и заявленные маршруты повторно проверяются перед операцией.")
+        self._show_table("Установка / доверие", layout)
         storage = self.registry_error or ("Реестр сохраняется в JSON." if self.registry.store else "Реестр в памяти; для сохранения укажите --registry.")
         self.status.set((self.job_status or BLOCK_REASON) + " " + storage)
         self._show_table("Покрытие файлов", self.presenter.coverage_table(self.selected))
@@ -356,6 +401,13 @@ class DesktopApp:
                           and selected_project is not None and selected_project.target_root is not None)
         self.preview_button.configure(state="normal" if review_enabled else "disabled")
         self.import_button.configure(state="normal" if review_enabled else "disabled")
+        native = bool(enabled and self.promotion and self.promotion.native_update_available)
+        current_review = (self.active_review is not None and selected_project is not None
+                          and self.active_review.check.project == selected_project)
+        self.update_button.configure(state="normal" if native and current_review else "disabled")
+        self.restore_button.configure(state="normal" if native and self.restoration else "disabled")
+        for button in (self.history_button, self.rollback_preview_button, self.recovery_preview_button, self.conflict_preview_button):
+            button.configure(state="normal" if enabled else "disabled")
         for button in self.policy_buttons:
             button.configure(state="normal" if enabled else "disabled")
 
@@ -421,7 +473,7 @@ class DesktopApp:
             self.active_ticket = self.jobs.start(project)
             self.active_check_project = project.registration_id
             self.presenter.cancel_review(project.registration_id)
-            self.job_status = "Проверка выполняется в тестовой среде; файлы назначения не меняются."
+            self.job_status = "Проверка выполняется; файлы назначения не меняются."
             self.refresh()
         except (ValueError, OSError) as exc:
             self.messagebox.showerror("Проверка не начата", str(exc))
@@ -441,6 +493,58 @@ class DesktopApp:
             self.refresh()
         except (ValueError, OSError) as exc:
             self.messagebox.showerror("Просмотр не сформирован", str(exc))
+
+    def _update(self):
+        review = self.active_review
+        project = self.presenter.registrations.get(self.selected)
+        if (not self.jobs or self.jobs.busy or review is None or project is None
+                or review.check.project != project or not self.promotion.native_update_available):
+            return
+        counts = {kind: sum(c.kind == kind for c in review.preview.changes)
+                  for kind in ("create", "modify", "delete", "unchanged")}
+        text = (f"Назначение: {review.preview.target_root}\n"
+                f"Файлы: {counts}\nСоздать каталогов: {len(review.preview.created_directories)}\n"
+                f"План: {review.fingerprint}\n\n"
+                "Применить этот просмотр? Изменения source, правил или назначения отменят подтверждение.")
+        if not self.messagebox.askyesno("Подтвердить точное обновление", text, parent=self.root):
+            return
+        try:
+            self.active_ticket = self.jobs.start_transaction(self.promotion, "apply", review, project)
+            self.active_review = None
+            self.active_check_project = project.registration_id
+            self._refresh_job_buttons()
+        except (ValueError, OSError) as exc:
+            self.messagebox.showerror("Обновление не начато", str(exc))
+
+    def _history(self):
+        if self.jobs and not self.jobs.busy:
+            self.restoration = None
+            self.active_ticket = self.jobs.start_transaction(self.promotion, "history")
+            self._refresh_job_buttons()
+
+    def _selected_operation(self):
+        tree = self.tables["Восстановление"][0]
+        selected = tree.selection()
+        return str(tree.item(selected[0], "values")[0]) if selected else None
+
+    def _restoration_review(self, recovery, include_conflicts=False):
+        key = self._selected_operation()
+        if key and self.jobs and not self.jobs.busy:
+            self.restoration = None
+            self.active_ticket = self.jobs.start_transaction(self.promotion, "restoration_review", key, recovery, include_conflicts)
+            self._refresh_job_buttons()
+
+    def _restore(self):
+        review = self.restoration
+        if (not review or not self.jobs or self.jobs.busy or not self.promotion.native_update_available):
+            return
+        if self.messagebox.askyesno("Подтвердить просмотр восстановления",
+                f"{review.target_root}\nОперация: {review.operation_id}\nПлан: {review.fingerprint}\n"
+                f"Конфликтных файлов: {len(review.observed_conflicts)}. Их текущие bytes будут сохранены отдельно.\n"
+                "Восстановить показанные файлы из проверенных backup?", parent=self.root):
+            self.active_ticket = self.jobs.start_transaction(self.promotion, "restore", review)
+            self.restoration = None
+            self._refresh_job_buttons()
 
     def _cancel_job(self):
         if self.jobs:
@@ -480,7 +584,10 @@ class DesktopApp:
                             self.presenter.set_reports(event.project_id, scan=replace(result.scan, binding=binding))
                             self.presenter.set_check_details(event.project_id, result.snapshot, result.coverage,
                                                             result.effective.validations, result.evidence_dir)
-                            self.job_status = "Проверка: " + result.scan.status + ". Это НЕ ДОПУСК."
+                            self.job_status = ("Обязательные проверки выполнены. Сформируйте просмотр обновления."
+                                if self.installed_context and result.scan.status == "NOT_AUTHORIZED" and
+                                any(r.content in ("code", "dependency") for r in result.snapshot.records) else
+                                "Проверка: " + result.scan.status + ". Это НЕ ДОПУСК.")
                         else:
                             self.job_status = "STALE: регистрация, правила или инструменты изменились. Повторите Проверить."
                     elif event.phase == "REVIEW_READY":
@@ -489,10 +596,47 @@ class DesktopApp:
                             self.presenter.attach_promotion_preview(review.preview)
                             self.active_review = review
                             self.tabs.select(self.tabs.tabs()[3])
-                            self.job_status = "Просмотр готов: " + review.fingerprint + ". Запись заблокирована."
+                            self.job_status = ("Просмотр готов: " + review.fingerprint +
+                                (". Для применения нажмите Обновить." if self.promotion.native_update_available
+                                 else ". Запись заблокирована до Windows-приёмки."))
                         else:
                             self.promotion.invalidate(event.project_id)
                             self.job_status = "STALE: выполните новую проверку."
+                    elif event.phase == "TRANSACTIONS":
+                        self.history_rows = event.result
+                        self._show_table("Восстановление", DisplayTable("Журнал",
+                            ("Операция", "Состояние", "Проект", "Назначение", "Контур"),
+                            tuple(DisplayRow((r.operation_id, r.state, r.project_id, r.target_root, r.scope))
+                                  for r in self.history_rows),
+                            "Выберите операцию и сформируйте отдельный просмотр."))
+                        self.tabs.select(self.tabs.tabs()[7])
+                    elif event.phase == "RESTORATION_READY":
+                        self.restoration = event.result
+                        plan = self.restoration
+                        rows = tuple(DisplayRow((c.kind, c.relative_path,
+                            c.before_sha256 or "—", c.after_sha256 or "—",
+                            str(c.before_size) if c.before_size is not None else "—",
+                            str(c.after_size) if c.after_size is not None else "—"),
+                            c.text_diff or c.diff_note or "") for c in plan.changes)
+                        rows += tuple(DisplayRow(("remove-if-empty", d, "—", "—", "—", "—"),
+                            "Убрать только если каталог создан этой операцией и до сих пор пуст.")
+                                      for d in plan.created_directories)
+                        self._show_table("Восстановление", DisplayTable("Просмотр восстановления",
+                            ("Эффект", "Путь", "До SHA-256", "После SHA-256", "До, байт", "После, байт"), rows,
+                            f"{plan.target_root}. Конфликтов: {len(plan.observed_conflicts)}. План: {plan.fingerprint}"))
+                    elif event.phase == "TRANSACTION_RESULT":
+                        outcome = event.result
+                        self.active_review = None
+                        self.restoration = None
+                        self.check_results.clear()
+                        for key in tuple(self.presenter.registrations):
+                            self.presenter.cancel_review(key)
+                        self.job_status = f"{outcome.state}: {outcome.detail}. Операция: {outcome.operation_id}"
+                        self._show_table("Восстановление", DisplayTable("Результат",
+                            ("Операция", "Состояние", "Контур"),
+                            (DisplayRow((outcome.operation_id, outcome.state, outcome.scope), outcome.detail),),
+                            outcome.detail))
+                        self.tabs.select(self.tabs.tabs()[7])
                     elif self.policy_editor is not None:
                         self.policy_editor.notice.set(self.job_status)
                         self.policy_editor.save_button.configure(state="normal")
@@ -505,7 +649,7 @@ class DesktopApp:
     def _close(self):
         if self.jobs and self.jobs.busy:
             self.jobs.cancel()
-            self.status.set("Остановка анализаторов перед закрытием…")
+            self.status.set("Ожидание безопасного завершения операции…")
             self.root.after(100, self._close)
         else:
             self.root.after_cancel(self.poll_timer)

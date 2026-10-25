@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "routes": [
+    {
+      "name": "REPLACE_WITH_ACTUAL_DOCKER_ROUTE",
+      "kind": "docker-mount",
+      "writable_windows_roots": ["D:\\REPLACE_WITH_ACTUAL_BIND_SOURCE"]
+    }
+  ],
+  "evidence": [
+    {
+      "route": "REPLACE_WITH_ACTUAL_DOCKER_ROUTE",
+      "marker": "C:\\REPLACE_WITH_PROTECTED_ROOT\\.checker-boundary-marker",
+      "challenge": "REPLACE_WITH_ORIGINAL_RANDOM_MARKER_CONTENT_32_OR_MORE_CHARS",
+      "result": "PENDING",
+      "receipt_sha256": "REPLACE_WITH_SHA256_OF_THE_ACTUAL_DENIED_PROBE_TRANSCRIPT"
+    }
+  ]
+}

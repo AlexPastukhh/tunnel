@@ -10,13 +10,26 @@
 
 ИИ продолжает писать/собирать/тестировать в Docker. После ручной установки пользователь запускает **только независимые внешние копии**, не рабочий Repo. App, анализаторы/зависимости, policies, state/snapshots/backups и approved copies не должны быть доступны ИИ на запись через выданные маршруты, включая alias/Junction/import. Не строим системный запрет всех возможных запусков Repo. Даже удачный статический анализ подтверждает только выполненные правила, не абсолютную безопасность.
 
-## 2. Наблюдаемое состояние на дату обновления
+## 2. Наблюдаемое состояние
 
-Исходники в Fortis Repo уже содержат модели регистраций и shared packs, SHA-256 snapshots, ESLint/Semgrep JSON adapters и per-file coverage, read-only preview, **отдельную синтетическую** transaction laboratory, development Tkinter Check GUI и строковую проверку Windows layout. В Docker фактически протестированы ESLint 10.13.0 и Semgrep CE 1.182.1 на синтетических JS/Python; последний полный прогон — 161/161 Python tests без skips с обоими CLI. V1-1 исправлен: review binding, бинарные размеры и отдельная реальная effective-config validation. Коммит source-only GUI: 4a832b8; HEAD перед любой новой работой проверять, поскольку есть соседняя работа в том же repo.
+V1-1 и development Check V1-2 завершены в исходниках/Docker. V1-3 теперь включает
+полный GUI confirmation/apply/result/history/recovery, source empty directories,
+delete-only и явный состав code/dependency/resource/data с исключениями.
+Windows handle I/O, scoped writer, installed closure/ACL/route verifier и issuer
+реализованы как **SOURCE_CANDIDATE / WINDOWS_NOT_RUN**. Development-профиль
+по-прежнему не включает запись. Нативный контекст требует независимой ручной
+установки и защищённых owner receipts; чужой report/exit0/JSON flag его не создаёт.
 
-**V1-2 source Check реализован:** persistence/pickers, shared-pack create/edit/copy/bind/rebind/delete, real async CLI jobs/progress/cancel/timeout, file/rule reports и evidence. Реальные Tk widgets: 8/8 Docker/Xvfb scenarios PASS; native Windows GUI/Job Object/ACL всё ещё NOT_RUN. [Рабочий путь](DEVELOPMENT_CHECK_WORKFLOW.md).
+V1-4: подготовлены offline Windows dependencies, установочные/acceptance/rollback
+скрипты и builder с проверкой полного wheel closure/RECORD/хешей. Финальные
+проверки и сборка кандидата продолжаются; точные выполненные прогоны, ошибки и
+артефакт — только в [журнале](IMPLEMENTATION_LOG.md).
 
-**НЕ готово:** native Windows Check/tool/environment acceptance, полноценный Windows GUI test, защищённый установленный toolchain с ACL/handles/route-evidence, production approval/promotion и реальная внешняя приёмка. Scan aggregate в коде остаётся NOT_AUTHORIZED, Check доступен только с явным development-профилем; Update всегда отключён. Транзакционная лаборатория не является production writer.
+**Не подтверждены:** native Win32/Job Object/ACL/race/metadata и GUI/chooser,
+все фактические agent write routes, installed безопасный walkthrough и реальные
+consumer/Loader. Windows install и эти проверки выполняет владелец по
+[подготовленной процедуре](../../runtime/userscript-updater/release/WINDOWS_ACCEPTANCE.md).
+До них нет OWNER_ACCEPTED и никаких реальных external writes из Repo.
 
 ## 3. Неизменные требования A4: даже для личного использования
 
@@ -52,7 +65,10 @@
 
 ### V1-3 — IN_PROGRESS: завершить preview → confirmation → controlled promotion (E-03, E-04)
 
-**Первый source slice реализован (161/161 Python + 10/10 Tk):** независимый promotion core, managed-state, одноразовые confirmations, staging/backups/write-ahead journal/readback/recovery и explicit rollback. GUI строит полный read-only preview после Check и показывает явный первый импорт. Мутации проверены только в private Docker fixtures через adapter вне checker. Native backend/issuer и настоящий Update отсутствуют. [Контракт и оставшийся scope](PROMOTION_CORE.md).
+**SOURCE_CANDIDATE:** exact managed scope, одноразовый confirmation, staging,
+backup/write-ahead journal/readback, полный target preview и GUI восстановления.
+Добавлены native handle/ACL/dependency/receipt компоненты, но их native
+совместимость ещё не проверена. [Контракт](PROMOTION_CORE.md).
 
 - Собрать полноценную цепочку для file/multiple/mixed/folder: scan evidence относится к snapshot, actual target inventory и управляемому previous set; перед применением repeat source/policy/tool/target checks.
 - Пользователь видит **полный эффект** относительно фактической внешней копии, включая текстовый diff, бинарные размеры/hashes, удаления ранее управляемого и сохранившиеся unmanaged files/data. Первый импорт existing target не затирает чужие данные без явного включения scope.
@@ -84,22 +100,24 @@
 
 Это **не сокращение полного V1**: сохранены register file/files/folder/mixed, shared editable packs, check-only, полный create/modify/delete preview, controlled update и owner-use acceptance.
 
-## 6. Как вести работу и подтверждать результаты
+## 6. Как вести работу и следующий gate
 
-- V1-1 завершён; основной V1-2 Check workflow реализован и проверен в Docker. Продолжается **V1-3**: portable core/preview реализованы; дальше native source/state/target backend/issuer и оставшиеся folder/resource/recovery UI contracts, с V1-4 owner gate. Не тратить следующий цикл на новый большой synthetic transaction framework, пока Check как пользовательский путь не завершён.
-- Перед записью — AGENTS, git status/index; изменять только свои файлы, не захватывать чужой staged work. Локальные коммиты отдельны от push/Windows install.
-- Различать SOURCE_READY, DOCKER_TESTED, WINDOWS_PREREQS_CHECKED, WINDOWS_GUI_TESTED, HOST_BOUNDARY_VERIFIED, OWNER_ACCEPTED. Не выводить из Docker tests статус Windows-установки.
-- Все Windows-модификации, Loader, браузер/GM/secrets и использование реальных пользовательских target **вне текущего поручения обновить план**.
-- [IMPLEMENTATION_LOG.md](IMPLEMENTATION_LOG.md) — проверенные факты; [WINDOWS_TRUST_BOUNDARY.md](WINDOWS_TRUST_BOUNDARY.md) — условия доверенной установки; [HANDOFF.md](HANDOFF.md) — исходный исторический контекст, не текущий маршрут; [REQUIREMENTS.md](REQUIREMENTS.md) — ранее сформулированные userscript constraints.
+1. Закончить текущую проверку source candidate: полный suite с настоящими
+   анализаторами, actual Tk workflows, упаковка/manifest, проверка установочных
+   скриптов и документации. Исправить обнаруженные ошибки, сохранить только свои
+   файлы осмысленным локальным коммитом. Источник результатов — журнал.
+2. Передать конкретный пакет и owner-run команды. Не просить владельца вручную
+   доделывать backend/GUI/dependency closure. Native FAIL возвращается в разработку,
+   а не превращается в PASS редактированием receipt.
+3. После ручного native/GUI/route gate проверить установленную цепочку сначала
+   на независимых безопасных файле и folder/mixed, включая pending recovery и
+   конфликтные bytes. Только затем consumer/Loader по отдельному разрешению.
+4. V1-3/V1-4 не объявлять Windows DONE до наблюдаемых native результатов.
+   Single-root registration поддерживает много mappings; независимые roots имеют
+   отдельные регистрации/подтверждения. Global atomicity через roots/volumes нет;
+   эта граница видна в процедуре и не заменяет проверяемое восстановление.
 
-## Сохранение направления A4
-
-| A4 / основание | Сохранено в V1 |
-| --- | --- |
-| FR-01, FR-08; PR-06/07/12/13D | Separate Check/Update, полный exact preview, byte-bound approval, backup/recovery |
-| FR-02/05; PR-03/08 | Независимый Windows install вне AI-write, owner-run native gate |
-| FR-03/07; PR-01/02/04B/11 | Лёгкий GUI, registry/mixed, mutable shared packs, готовые анализаторы |
-| FR-04/06; PR-05/09 | Docker dev; правдивые scan results и использование только внешних копий |
-| WR-01–27, DS-01–04, EA-01–10 | Сохраняются как карта критериев при V1-1…4, **не объявляются выполненными** по названию этапа |
-
-**Смысл обновления плана:** закончить личную рабочую программу раньше расширения второстепенной инфраструктуры, **не ослабляя исходную главную границу доверия**.
+Разрешения и F-U-01–05 сохраняются. Параллельные workstreams, Windows host,
+реальные внешние копии, Loader и push не затрагивать. Документация следует
+[единому протоколу](../agent-workflow/README.md): PLAN — gate/next, журнал —
+evidence, runtime README — запуск, handoff — контекст/ссылки.

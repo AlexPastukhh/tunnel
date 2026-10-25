@@ -1,0 +1,29 @@
+{
+  "rules": [
+    {
+      "id": "checker-js-eval",
+      "languages": [
+        "javascript"
+      ],
+      "severity": "ERROR",
+      "message": "Dynamic JavaScript evaluation",
+      "pattern": "eval(...)"
+    },
+    {
+      "id": "checker-python-eval",
+      "languages": [
+        "python"
+      ],
+      "severity": "ERROR",
+      "message": "Dynamic Python evaluation",
+      "pattern-either": [
+        {
+          "pattern": "eval(...)"
+        },
+        {
+          "pattern": "exec(...)"
+        }
+      ]
+    }
+  ]
+}

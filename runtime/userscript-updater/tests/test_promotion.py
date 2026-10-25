@@ -71,6 +71,95 @@ class PromotionTests(unittest.TestCase):
         review = self.service.review(self.check(project), project, **kwargs)
         return review, self.service.confirm(review.review_id, review.fingerprint, project)
 
+    def test_empty_source_directories_apply_and_exact_rollback(self):
+        empty = self.source / "folder" / "empty" / "nested"
+        empty.mkdir(parents=True)
+        project = replace(self.project, selections=(Selection("directory", str(empty.parent), "empty"),))
+        review, confirmation = self.ready(project)
+        self.assertEqual(set(review.preview.created_directories), {"empty", "empty/nested"})
+        outcome = self.service.apply(confirmation, project)
+        self.assertEqual(outcome.state, "COMPLETED")
+        self.assertTrue((self.target / "empty/nested").is_dir())
+        inverse = self.service.restoration_review(outcome.operation_id)
+        self.assertFalse(inverse.changes)
+        self.assertEqual(self.service.rollback(outcome.operation_id, inverse.fingerprint).state, "ROLLED_BACK")
+        self.assertFalse((self.target / "empty").exists())
+
+    def test_delete_only_after_last_source_file_removed(self):
+        folder = self.source / "folder"
+        folder.mkdir()
+        (folder / "last.js").write_text("const value = 1;")
+        project = replace(self.project, selections=(Selection("directory", str(folder), "app"),))
+        _, confirmation = self.ready(project)
+        self.assertEqual(self.service.apply(confirmation, project).state, "COMPLETED")
+        (folder / "last.js").unlink()
+        review, confirmation = self.ready(project)
+        self.assertEqual([(c.kind, c.relative_path) for c in review.preview.changes], [("delete", "app/last.js")])
+        outcome = self.service.apply(confirmation, project)
+        self.assertEqual(outcome.state, "COMPLETED")
+        self.assertFalse((self.target / "app/last.js").exists())
+        self.assertTrue((self.target / "app").is_dir())
+
+    def test_reviewed_restoration_is_exact_and_one_shot(self):
+        _, confirmation = self.ready()
+        outcome = self.service.apply(confirmation, self.project)
+        inverse = self.service.restoration_review(outcome.operation_id)
+        self.assertEqual(inverse.changes[0].kind, "delete")
+        (self.target / "owner.txt").write_text("new")
+        with self.assertRaisesRegex(ContractError, "changed"):
+            self.service.rollback(outcome.operation_id, inverse.fingerprint)
+        self.assertTrue((self.target / "пример.js").exists())
+        history = self.service.history()
+        self.assertEqual(history[0].operation_id, outcome.operation_id)
+
+    def test_explicit_partial_recovery_preserves_conflicting_bytes(self):
+        (self.target / "пример.js").write_text("old external")
+        review, confirmation = self.ready(adopted_existing=("пример.js",))
+        def partial(kind, target, relative):
+            if kind == "replace":
+                (target / relative).write_bytes(b"partial or owner edit")
+                raise Interrupted()
+        self.backend.hook = partial
+        with self.assertRaises(Interrupted):
+            self.service.apply(confirmation, self.project)
+        self.backend.hook = None
+        key = self.service.pending()[0][0]
+        self.assertEqual(self.service.recover(key).state, "RECOVERY_BLOCKED")
+        with self.assertRaisesRegex(ContractError, "separate conflict"):
+            self.service.restoration_review(key, recovery=True)
+        plan = self.service.restoration_review(key, recovery=True, include_conflicts=True)
+        self.assertEqual(len(plan.observed_conflicts), 1)
+        self.assertEqual(self.service.recover_reviewed(plan).state, "ROLLED_BACK")
+        self.assertEqual((self.target / "пример.js").read_text(), "old external")
+        doc = load_json(self.service._op(key) / "journal.json")
+        kept = doc["preserved_conflicts"][0]
+        self.assertEqual((self.service._op(key) / kept["blob"]).read_bytes(), b"partial or owner edit")
+        with self.assertRaises(ContractError):
+            self.service.recover_reviewed(plan)
+
+    def test_same_byte_target_replacement_stales_exact_preview(self):
+        (self.target / "пример.js").write_text("old external")
+        review = self.service.review(self.check(), self.project, adopted_existing=("пример.js",))
+        replacement = self.target / "replacement"
+        replacement.write_text("old external")
+        replacement.replace(self.target / "пример.js")
+        with self.assertRaisesRegex(ContractError, "Target"):
+            self.service.confirm(review.review_id, review.fingerprint, self.project)
+
+    def test_missing_last_selected_file_can_delete_only_its_previous_managed_target(self):
+        _, confirmation = self.ready()
+        self.assertEqual(self.service.apply(confirmation, self.project).state, "COMPLETED")
+        self.js.unlink()
+        review, confirmation = self.ready()
+        self.assertEqual(review.preview.changes[0].kind, "delete")
+        self.assertEqual(len(review.preview.missing_sources), 1)
+        outcome = self.service.apply(confirmation, self.project)
+        self.assertEqual(outcome.state, "COMPLETED")
+        self.assertFalse((self.target / "пример.js").exists())
+        plan = self.service.restoration_review(outcome.operation_id)
+        self.assertEqual(self.service.rollback(outcome.operation_id, plan.fingerprint).state, "ROLLED_BACK")
+        self.assertEqual((self.target / "пример.js").read_text(), "const value = 1;\n")
+
     def test_default_service_cannot_write_even_with_confirmation(self):
         service = PromotionService(self.settings)
         review = service.review(self.check(), self.project)

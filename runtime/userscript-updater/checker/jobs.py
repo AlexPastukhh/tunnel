@@ -122,6 +122,42 @@ class CheckJobs:
         except Exception as exc:
             self.events.put(JobEvent(ticket, current.registration_id, "ERROR", str(exc), terminal=True))
 
+    def start_transaction(self, service, action, *args):
+        if self.busy:
+            raise ContractError("Another operation is running")
+        if action not in ("apply", "history", "restoration_review", "restore"):
+            raise ContractError("Unknown transaction action")
+        self.job_id = str(uuid.uuid4())
+        self.control = RunControl(self.settings.timeout_seconds)
+        self.thread = threading.Thread(target=self._transaction_worker,
+            args=(self.job_id, service, action, args, self.control), daemon=True)
+        self.thread.start()
+        return self.job_id
+
+    def _transaction_worker(self, ticket, service, action, args, control):
+        try:
+            control.check()
+            self.events.put(JobEvent(ticket, "", "transaction", action))
+            if action == "apply":
+                review, project = args
+                confirmation = service.confirm(review.review_id, review.fingerprint, project)
+                result = service.apply(confirmation, project, control=control)
+                phase = "TRANSACTION_RESULT"
+            elif action == "history":
+                result, phase = service.history(), "TRANSACTIONS"
+            elif action == "restoration_review":
+                result = service.restoration_review(args[0], recovery=args[1], include_conflicts=args[2] if len(args) > 2 else False)
+                phase = "RESTORATION_READY"
+            else:
+                review, = args
+                result = (service.recover_reviewed(review) if review.recovery else
+                          service.rollback(review.operation_id, review.fingerprint))
+                phase = "TRANSACTION_RESULT"
+            # A cancellation cannot hide a completed mutation or rollback outcome.
+            self.events.put(JobEvent(ticket, "", phase, "Операция завершена", result, True))
+        except Exception as exc:
+            self.events.put(JobEvent(ticket, "", "ERROR", str(exc), terminal=True))
+
     def start_policy_save(self, pack, expected_sha256, projects):
         if self.busy:
             raise ContractError("A job is already running")
@@ -170,7 +206,7 @@ class CheckJobs:
             evidence_dir = root / "evidence"
             for config in effective.configs:
                 applicable = {".js", ".cjs", ".mjs"} if config.kind == "eslint" else {".js", ".cjs", ".mjs", ".py"}
-                if not any(Path(r.source_path).suffix.lower() in applicable for r in snapshot.records):
+                if not any(r.content in ("code", "dependency") and Path(r.source_path).suffix.lower() in applicable for r in snapshot.records):
                     continue
                 progress(config.kind, "Статический анализ снимка")
                 reports.append(run_dev_engine(snapshot, config, required_rules=requirements[config.kind],

@@ -13,7 +13,7 @@ import stat
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from .inventory import Snapshot, check_plain_chain, digest, read_stable_file
+from .inventory import Snapshot, check_plain_chain, digest, read_stable_file, MAX_FILES, MAX_TOTAL_BYTES
 from .model import ContractError, relative_target
 from .review import ReviewBinding, managed_paths
 
@@ -45,6 +45,9 @@ class TargetPreview:
     binding: ReviewBinding | None = None
     adopted_existing: tuple[str, ...] = ()
     target_root_exists: bool = False
+    created_directories: tuple[str, ...] = ()
+    excluded_scope: tuple[tuple[str, str], ...] = ()
+    missing_sources: tuple[tuple[str, str | None], ...] = ()
     # A preview has NO approval power and cannot be passed to a promoter.
 
 
@@ -62,6 +65,7 @@ def _read_tree(root: Path) -> tuple[dict[str, bytes], tuple[str, ...]]:
         raise ContractError("Target root must be a directory")
     files: dict[str, bytes] = {}
     directories: list[str] = []
+    total = 0
 
     def onerror(exc: OSError) -> None:
         raise ContractError(f"Target listing failed: {exc}") from exc
@@ -75,6 +79,8 @@ def _read_tree(root: Path) -> tuple[dict[str, bytes], tuple[str, ...]]:
             if any(existing.casefold() == relative_dir.casefold() for existing in directories):
                 raise ContractError("Case-folded target directory collision")
             directories.append(relative_dir)
+            if len(directories) + len(files) > MAX_FILES:
+                raise ContractError("Target exceeds explicit inventory entry limit")
         for name in names:
             file = current / name
             check_plain_chain(file)
@@ -85,8 +91,33 @@ def _read_tree(root: Path) -> tuple[dict[str, bytes], tuple[str, ...]]:
             key = rel.casefold()
             if any(old.casefold() == key for old in files):
                 raise ContractError("Case-folded target path collision")
-            files[rel] = read_stable_file(file)
+            raw = read_stable_file(file)
+            total += len(raw)
+            if total > MAX_TOTAL_BYTES or len(directories) + len(files) + 1 > MAX_FILES:
+                raise ContractError("Target exceeds explicit inventory size/entry limit")
+            files[rel] = raw
     return files, tuple(sorted(directories, key=str.casefold))
+
+
+def inventory_fingerprint(root, actual=None, directories=None):
+    if actual is None:
+        actual, directories = _read_tree(root)
+    def identity(path):
+        info = path.lstat()
+        result = (info.st_dev, info.st_ino, info.st_mtime_ns, info.st_ctime_ns,
+                  getattr(info, "st_file_attributes", 0))
+        if os.name == "nt":
+            from .windows_io import native_io
+            io = native_io()
+            with io.ancestors(path):
+                with io.open(path) as (handle, _):
+                    result += (io.security(handle),)
+        return result
+    manifest = [(name, digest(raw), len(raw), identity(root / name))
+                for name, raw in sorted(actual.items(), key=lambda e: e[0].casefold())]
+    dirs = [(d, identity(root / d)) for d in directories]
+    return digest(json.dumps([manifest, dirs, root.exists(), identity(root) if root.exists() else None],
+                             sort_keys=True, ensure_ascii=False).encode())
 
 
 def _text_diff(relative_path: str, old: bytes | None, new: bytes | None) -> tuple[str | None, str | None]:
@@ -128,6 +159,7 @@ def build_target_preview(
         if binding.target_root != str(target_root) or binding.previously_managed != earlier:
             raise ContractError("Review binding destination/managed set differs")
     adopted = managed_paths(adopted_existing)
+    missing_sources = tuple((m.source_path, m.target_relative) for m in snapshot.missing)
     root_exists = target_root.exists()
     actual, actual_dirs = _read_tree(target_root)
     keys = {name.casefold(): name for name in actual}
@@ -149,6 +181,28 @@ def build_target_preview(
         raise ContractError("Adoption must name current explicit source destinations")
     if any(name.casefold() not in keys for name in adopted):
         raise ContractError("Adoption refers to missing existing destination")
+    excluded_scope = tuple((e.target_relative, e.reason) for e in snapshot.exclusions if e.target_relative)
+    for path in desired:
+        if any((path.casefold() == e.casefold() or path.casefold().startswith(e.casefold() + "/"))
+               and reason.startswith("declared data") for e, reason in excluded_scope):
+            raise ContractError("A data destination cannot also be copied by another selection")
+    # An explicit exclusion/data mapping relinquishes deletion authority, never erases owner data.
+    earlier = tuple(p for p in earlier if not any(
+        p.casefold() == e.casefold() or p.casefold().startswith(e.casefold() + "/")
+        for e, _ in excluded_scope))
+    desired_dirs = {relative_target(d.target_relative) for d in snapshot.directories if d.target_relative}
+    for rel in desired:
+        parent = Path(rel).parent
+        while str(parent) != ".":
+            desired_dirs.add(parent.as_posix())
+            parent = parent.parent
+    for directory in desired_dirs:
+        if any(directory.casefold() == f.casefold() or directory.casefold().startswith(f.casefold() + "/")
+               for f in (*actual, *desired)):
+            raise ContractError("Desired directory/file overlap")
+        if any(directory.casefold() == d.casefold() and directory != d for d in actual_dirs):
+            raise ContractError("Case-only directory mapping requires migration")
+    created_dirs = tuple(sorted(desired_dirs - set(actual_dirs), key=lambda p: (p.count("/"), p)))
     old_managed = {name.casefold() for name in (*earlier, *adopted)}
     for path in desired:
         if path.casefold() in keys and keys[path.casefold()] != path:
@@ -186,10 +240,7 @@ def build_target_preview(
     managed_now = {name.casefold() for name in earlier} | {name.casefold() for name in desired}
     preserved = tuple(sorted((name for name in actual if name.casefold() not in managed_now),
                              key=str.casefold))
-    target_manifest = [(name, digest(content), len(content))
-                       for name, content in sorted(actual.items(), key=lambda entry: entry[0].casefold())]
-    # Empty directories are observable, preserved, and invalidate a reviewed plan.
-    target_digest = digest(json.dumps([target_manifest, actual_dirs], ensure_ascii=False, sort_keys=True).encode("utf-8"))
+    target_digest = inventory_fingerprint(target_root, actual, actual_dirs)
     action_fields = [
         (item.kind, item.relative_path, item.before_sha256, item.after_sha256, item.before_size, item.after_size)
         for item in changes
@@ -197,7 +248,7 @@ def build_target_preview(
     fingerprint = hashlib.sha256(json.dumps(
         [snapshot.snapshot_id, snapshot.registration_sha256, str(target_root),
          target_digest, sorted(earlier, key=str.casefold),
-         action_fields, preserved, actual_dirs, asdict(binding) if binding else None, adopted, root_exists], ensure_ascii=False,
+         action_fields, preserved, actual_dirs, asdict(binding) if binding else None, adopted, root_exists, created_dirs, excluded_scope, missing_sources], ensure_ascii=False,
         sort_keys=True).encode("utf-8")).hexdigest()
     return TargetPreview(str(target_root), tuple(changes), preserved, actual_dirs,
-                         target_digest, fingerprint, binding, adopted, root_exists)
+                         target_digest, fingerprint, binding, adopted, root_exists, created_dirs, excluded_scope, missing_sources)

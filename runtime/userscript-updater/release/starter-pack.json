@@ -1,0 +1,10 @@
+{
+  "pack_id": "starter",
+  "name": "Локальные правила: запрет dynamic eval",
+  "eslint_core_rules": {
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error"
+  },
+  "semgrep_rules_text": "{\"rules\": [{\"id\": \"checker-js-eval\", \"languages\": [\"javascript\"], \"severity\": \"ERROR\", \"message\": \"Dynamic JavaScript evaluation\", \"pattern\": \"eval(...)\"}, {\"id\": \"checker-python-eval\", \"languages\": [\"python\"], \"severity\": \"ERROR\", \"message\": \"Dynamic Python evaluation\", \"pattern-either\": [{\"pattern\": \"eval(...)\"}, {\"pattern\": \"exec(...)\"}]}]}"
+}

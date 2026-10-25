@@ -34,12 +34,20 @@ class FakeWidget:
 def present_event(jobs, event, presenter):
     app = DesktopApp.__new__(DesktopApp)
     app.jobs = jobs
+    app.installed_context = None
     app.presenter = presenter
     app.check_results = {}
     app.promotion = None
     app.active_review = None
     app.preview_button = FakeWidget()
     app.import_button = FakeWidget()
+    app.update_button = FakeWidget()
+    app.restore_button = FakeWidget()
+    app.history_button = FakeWidget()
+    app.rollback_preview_button = FakeWidget()
+    app.recovery_preview_button = FakeWidget()
+    app.conflict_preview_button = FakeWidget()
+    app.restoration = None
     app.active_ticket = event.job_id
     app.active_check_project = event.project_id
     app.policy_editor = None

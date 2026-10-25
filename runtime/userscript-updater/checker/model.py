@@ -24,7 +24,7 @@ def relative_target(raw: str) -> str:
     p = PurePosixPath(raw)
     if p.is_absolute() or any(part in (".", "..") for part in raw.split("/")):
         raise ContractError(f"Unsafe target path: {raw}")
-    if ":" in raw or raw.startswith("//"):
+    if any(ch in raw for ch in ':*?"<>|') or raw.startswith("//"):
         raise ContractError(f"Unsafe target path: {raw}")
     return p.as_posix()
 
@@ -35,12 +35,22 @@ class Selection:
     kind: str
     source: str
     target: str | None = None
+    content: str = "code"
+    excluded_paths: tuple[str, ...] = ()
 
     def validate(self) -> None:
         if self.kind not in ("file", "directory"):
             raise ContractError(f"Unknown selection kind: {self.kind}")
         if not isinstance(self.source, str) or ".." in self.source.replace("\\", "/").split("/") or not Path(self.source).is_absolute():
             raise ContractError("Source must be an absolute path")
+        if self.content not in ("code", "dependency", "resource", "data"):
+            raise ContractError("Unknown content classification")
+        if (not isinstance(self.excluded_paths, tuple) or any(not isinstance(p, str) for p in self.excluded_paths)
+                or (self.excluded_paths and self.kind != "directory")
+                or len(set(self.excluded_paths)) != len(self.excluded_paths)):
+            raise ContractError("Exclusions must be unique directory-relative paths")
+        for excluded in self.excluded_paths:
+            relative_target(excluded)
         if self.target is not None:
             relative_target(self.target)
 
@@ -86,14 +96,18 @@ class Registration:
         if set(value) != {"registration_id", "name", "selections", "policy_pack_ids", "target_root"}:
             raise ContractError("Unexpected registration schema")
         if not isinstance(value["selections"], list) or any(
-            not isinstance(item, dict) or set(item) != {"kind", "source", "target"} for item in value["selections"]
+            not isinstance(item, dict) or not {"kind", "source", "target"} <= set(item)
+            or set(item) - {"kind", "source", "target", "content", "excluded_paths"}
+            or ("excluded_paths" in item and not isinstance(item["excluded_paths"], list))
+            for item in value["selections"]
         ):
             raise ContractError("Unexpected selection schema")
         if not isinstance(value["policy_pack_ids"], list):
             raise ContractError("Policy pack IDs must be a list")
         registration = cls(
             registration_id=value["registration_id"], name=value["name"],
-            selections=tuple(Selection(**s) for s in value["selections"]),
+            selections=tuple(Selection(**{**s, "excluded_paths": tuple(s.get("excluded_paths", ()))})
+                             for s in value["selections"]),
             policy_pack_ids=tuple(value["policy_pack_ids"]),
             target_root=value["target_root"],
         )

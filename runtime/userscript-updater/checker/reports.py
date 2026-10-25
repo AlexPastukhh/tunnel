@@ -157,7 +157,7 @@ def summarize(snapshot: Snapshot, policy_sha256: str,
         binding.validate_snapshot(snapshot)
         if binding.policy_sha256 != policy_sha256:
             raise ValueError("Report policy differs from review binding")
-    expected = {str((snapshot.root / item.snapshot_relative).absolute()) for item in snapshot.records}
+    expected = {str((snapshot.root / item.snapshot_relative).absolute()) for item in snapshot.records if item.content in ("code", "dependency")}
     covered = set()
     damaged = []
     for item in snapshot.records:
@@ -176,7 +176,7 @@ def summarize(snapshot: Snapshot, policy_sha256: str,
     uncovered = tuple(sorted(expected - covered))
     if damaged or invalid_reports or any(r.status == "ERROR" for r in reports) or not policy_sha256:
         status = "ERROR"
-    elif uncovered or not reports or any(r.status in ("UNSUPPORTED", "INCOMPLETE") for r in reports):
+    elif uncovered or (expected and not reports) or any(r.status in ("UNSUPPORTED", "INCOMPLETE") for r in reports):
         status = "INCOMPLETE" if reports else "UNSUPPORTED"
     elif any(r.status == "FINDINGS" for r in reports):
         status = "FINDINGS"
@@ -184,4 +184,4 @@ def summarize(snapshot: Snapshot, policy_sha256: str,
         # Parser output alone is not evidence of an approved installed scanner.
         status = "NOT_AUTHORIZED"
     return ScanReport(status, snapshot.registration_sha256, snapshot.snapshot_id,
-                      policy_sha256, len(expected), reports, uncovered, binding)
+                      policy_sha256, len(snapshot.records), reports, uncovered, binding)

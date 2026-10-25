@@ -22,3 +22,6 @@ __pycache__/
 
 # Historical launcher backup retained locally; source and chronology are in Git
 /runtime/host-g2/runtime-api-migration/*.before-*.ps1.bak
+
+# Local reviewed Project Checker bundles; source/receipts documented separately
+/runtime/userscript-updater/.artifacts/

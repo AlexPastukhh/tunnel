@@ -22,6 +22,7 @@ class Dialogs:
     files = ()
     directory = ""
     errors = []
+    answer = True
 
     def askopenfilenames(self, **_kwargs):
         return self.files
@@ -36,7 +37,7 @@ class Dialogs:
         self.errors.append((title, message))
 
     def askyesno(self, *_args, **_kwargs):
-        return True
+        return self.answer
 
 
 def pump(app, condition, timeout=90):
@@ -51,7 +52,7 @@ def pump(app, condition, timeout=90):
 
 
 def main():
-    with tempfile.TemporaryDirectory(prefix="checker-tk-synthetic-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="checker-promotion-test-") as tmp:
         root = Path(tmp)
         source = root / "source"
         source.mkdir()
@@ -77,7 +78,7 @@ def main():
         dialogs = Dialogs()
         app = DesktopApp(tk, ttk, dialogs, dialogs, registry, profile)
         app.root.update()
-        assert len(app.tabs.tabs()) == 7
+        assert len(app.tabs.tabs()) == 8
         assert str(app.check_button["state"]) == "disabled"
         app._edit_policy(new=True)
         editor = app.policy_editor
@@ -209,9 +210,47 @@ def main():
         assert str(app.update_button["state"]) == "disabled"
         print("TK-10 PASS: explicit first-import preview, exact adoption scope, no target writes", flush=True)
         assert not app.presenter.can_apply(project_id)
+        # The private adapter and availability override exist ONLY in QA, never in checker/release.
+        import importlib.util
+        from checker.promotion import PromotionService
+        spec = importlib.util.spec_from_file_location("promotion_fixture",
+                    Path(__file__).resolve().parents[1] / "tests/promotion_support.py")
+        fixture = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(fixture)
+        class WidgetFixtureService(PromotionService):
+            @property
+            def native_update_available(self):
+                return True
+        app.promotion = WidgetFixtureService(app.jobs.settings, fixture.SyntheticTarget(root))
+        app.import_button.invoke()
+        pump(app, lambda: app.active_review is not None and not app.jobs.busy)
+        dialogs.answer = False
+        app.update_button.invoke()
+        assert not app.jobs.busy
+        assert (target / "пример.js").read_text() == "old external content"
+        dialogs.answer = True
+        app.update_button.invoke()
+        pump(app, lambda: app.job_status.startswith("COMPLETED") and not app.jobs.busy)
+        assert (target / "пример.js").read_bytes() == js.read_bytes()
+        assert (target / "owner.txt").read_text() == "preserved owner data"
+        assert app.active_review is None
+        assert str(app.update_button["state"]) == "disabled"
+        print("TK-11 PASS: cancel exact consent, then worker apply/readback/result; SYNTHETIC adapter", flush=True)
+        app.history_button.invoke()
+        pump(app, lambda: bool(app.history_rows) and not app.jobs.busy)
+        tree = app.tables["Восстановление"][0]
+        tree.selection_set(tree.get_children()[0])
+        app.rollback_preview_button.invoke()
+        pump(app, lambda: app.restoration is not None and not app.jobs.busy)
+        assert any(c.kind == "modify" for c in app.restoration.changes)
+        app.restore_button.invoke()
+        pump(app, lambda: app.job_status.startswith("ROLLED_BACK") and not app.jobs.busy)
+        assert (target / "пример.js").read_text() == "old external content"
+        assert (target / "owner.txt").read_text() == "preserved owner data"
+        print("TK-12 PASS: history -> inverse hashes/sizes/diff -> consent -> rollback/result", flush=True)
         assert not dialogs.errors, dialogs.errors
         app._close()
-        print("Tk widget smoke: 10/10 PASS. SYNTHETIC DOCKER ONLY; WINDOWS NOT TESTED.", flush=True)
+        print("Tk widget smoke: 12/12 PASS. SYNTHETIC DOCKER ONLY; WINDOWS NOT TESTED.", flush=True)
 
 
 if __name__ == "__main__":

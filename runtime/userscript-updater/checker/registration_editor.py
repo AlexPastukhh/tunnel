@@ -28,8 +28,8 @@ class RegistrationEditor:
         t.Button(fields, text="Выбрать назначение", command=self.choose_target).grid(row=3, column=1, sticky="e")
         t.Label(fields, text="Для каждого source задаётся путь внутри корня назначения. "
                 "При пустом корне перенос не настраивается.", wraplength=800).grid(row=4, column=0, columnspan=2, sticky="w")
-        self.tree = t.Treeview(self.window, columns=("kind", "source", "target"), show="headings")
-        for column, title in (("kind", "Тип"), ("source", "Источник"), ("target", "Относительное назначение")):
+        self.tree = t.Treeview(self.window, columns=("kind", "source", "target", "content"), show="headings")
+        for column, title in (("kind", "Тип"), ("source", "Источник"), ("target", "Относительное назначение"), ("content", "Состав")):
             self.tree.heading(column, text=title)
             self.tree.column(column, width=110 if column == "kind" else 330)
         self.tree.pack(fill="both", expand=True, padx=10, pady=8)
@@ -43,13 +43,25 @@ class RegistrationEditor:
         t.Button(controls, text="Задать mapping", command=self.set_mapping).pack(side="left")
         t.Button(controls, text="Отмена", command=self.window.destroy).pack(side="right")
         t.Button(controls, text="Сохранить", command=self.save).pack(side="right", padx=4)
+        scope = t.Frame(self.window, padding=10)
+        scope.pack(fill="x")
+        self.content = self.tk.StringVar(value="code")
+        t.Combobox(scope, textvariable=self.content, state="readonly",
+                   values=("code", "dependency", "resource", "data"), width=13).pack(side="left")
+        self.exclusions = self.tk.StringVar()
+        t.Label(scope, text="Исключения папки (пути через ;)").pack(side="left", padx=5)
+        t.Entry(scope, textvariable=self.exclusions, width=42).pack(side="left")
+        t.Button(scope, text="Задать состав", command=self.set_scope).pack(side="left", padx=5)
+        t.Label(self.window, text="code/dependency: обязателен анализ. resource: только профиль ресурсов; "
+                "data: сохранять, не переносить. Исключения явные, без масок.",
+                wraplength=850).pack(fill="x", padx=10)
         self.tree.bind("<<TreeviewSelect>>", self.on_selected)
         self.refresh()
 
     def refresh(self):
         self.tree.delete(*self.tree.get_children())
         for index, entry in enumerate(self.draft.selections):
-            self.tree.insert("", "end", iid=str(index), values=(entry.kind, entry.source, entry.target or ""))
+            self.tree.insert("", "end", iid=str(index), values=(entry.kind, entry.source, entry.target or "", entry.content))
 
     def choose_target(self):
         path = self.app.filedialog.askdirectory(parent=self.window, title="Корень внешнего назначения")
@@ -80,7 +92,23 @@ class RegistrationEditor:
     def on_selected(self, _event=None):
         selected = self.tree.selection()
         if selected:
-            self.mapping.set(self.draft.selections[int(selected[0])].target or "")
+            entry = self.draft.selections[int(selected[0])]
+            self.mapping.set(entry.target or "")
+            self.content.set(entry.content)
+            self.exclusions.set("; ".join(entry.excluded_paths))
+
+    def set_scope(self):
+        selected = self.tree.selection()
+        if selected:
+            index = int(selected[0])
+            candidate = replace(self.draft.selections[index], content=self.content.get(),
+                excluded_paths=tuple(p.strip() for p in self.exclusions.get().split(";") if p.strip()))
+            try:
+                candidate.validate()
+                self.draft.selections[index] = candidate
+                self.refresh()
+            except ValueError as exc:
+                self.app.messagebox.showerror("Неверный состав", str(exc), parent=self.window)
 
     def set_mapping(self):
         selected = self.tree.selection()

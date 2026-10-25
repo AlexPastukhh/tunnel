@@ -49,14 +49,42 @@ def build_argv(config: EngineConfig, files: tuple[Path, ...]) -> list[str]:
             "--config", str(config.config), "--", *(str(file) for file in files),
         ]
     if config.kind == "semgrep":
+        prefix = ([str(config.executable), "-I", "-S", "-B", "-c",
+                   "import os,sys; from pathlib import Path; "
+                   "_dll=os.add_dll_directory(str(Path(sys.executable).parent.parent/'pydeps/pywin32_system32')) if os.name=='nt' else None; "
+                   "from semgrep.console_scripts.entrypoint import main; sys.argv[0]='semgrep'; main()"]
+                  if config.executable.name.casefold() in ("python.exe", "pythonw.exe")
+                  else [str(config.executable)])
         return [
-            str(config.executable), "scan", "--config", str(config.config),
+            *prefix, "scan", "--config", str(config.config),
             "--json", "--error", "--strict", "--metrics=off", "--no-git-ignore",
             "--disable-nosem", "--disable-version-check", "--no-autofix",
             "--oss-only", "--max-target-bytes=0", "--",
             *(str(file) for file in files),
         ]
     raise ValueError("Unknown engine")
+
+
+MAX_ARG_CHARS = 24000  # Below CreateProcessW's UTF-16 command-line limit, including quoting.
+
+
+def command_batches(config, files):
+    batches, current = [], []
+    for path in files:
+        proposed = (*current, path)
+        units = len(subprocess.list2cmdline(build_argv(config, proposed)).encode("utf-16-le")) // 2
+        if units > MAX_ARG_CHARS:
+            if not current:
+                raise ValueError("One analyzer command exceeds the explicit argument limit")
+            batches.append(tuple(current))
+            current = [path]
+            if len(subprocess.list2cmdline(build_argv(config, tuple(current))).encode("utf-16-le")) // 2 > MAX_ARG_CHARS:
+                raise ValueError("One analyzer path exceeds the argument limit")
+        else:
+            current.append(path)
+    if current:
+        batches.append(tuple(current))
+    return tuple(batches)
 
 
 def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 30,
@@ -66,7 +94,7 @@ def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 3
     extensions = {".js", ".mjs", ".cjs"} if config.kind == "eslint" else {".js", ".mjs", ".cjs", ".py"}
     requested = tuple(
         snapshot.root / record.snapshot_relative
-        for record in snapshot.records if Path(record.source_path).suffix.lower() in extensions
+        for record in snapshot.records if record.content in ("code", "dependency") and Path(record.source_path).suffix.lower() in extensions
     )
     if not requested:
         return EngineReport(config.kind, "UNSUPPORTED", (), (), 0, "No applicable files")
@@ -83,26 +111,38 @@ def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 3
             path = snapshot.root / record.snapshot_relative
             if not path.is_file() or digest(path.read_bytes()) != record.sha256:
                 raise ValueError("Snapshot changed after capture")
-        env = {
-            "PATH": "/usr/local/bin:/usr/bin:/bin",
-            "LC_ALL": "C.UTF-8",
-            "NODE_OPTIONS": "",
-            "PYTHONDONTWRITEBYTECODE": "1",
-            "SEMGREP_SEND_METRICS": "off",
-            "SEMGREP_ENABLE_VERSION_CHECK": "false",
-            "HOME": str(snapshot.root), # prototype only; installed tool needs separate trusted state
-        }
-        process = execute(
-            build_argv(config, requested), shell=False, cwd=snapshot.root,
-            capture_output=True, text=True, errors="replace",
-            timeout=timeout, env=env, check=False, control=control,
-        )
-        if evidence_dir is not None:
-            evidence_dir.mkdir(parents=True, exist_ok=True)
-            (evidence_dir / (config.kind + ".json")).write_text(process.stdout, encoding="utf-8")
-            (evidence_dir / (config.kind + ".stderr.txt")).write_text(process.stderr, encoding="utf-8")
+        from .environment import analyzer_environment
+        env = analyzer_environment(snapshot.root, config)
+        batches = command_batches(config, requested)
+        results = []
         parser = parse_eslint if config.kind == "eslint" else parse_semgrep
-        result = parser(process.stdout, process.returncode, requested, snapshot.root)
+        for index, batch in enumerate(batches):
+            process = execute(
+                build_argv(config, batch), shell=False, cwd=snapshot.root,
+                capture_output=True, text=True, errors="replace",
+                timeout=timeout, env=env, check=False, control=control,
+            )
+            if evidence_dir is not None:
+                evidence_dir.mkdir(parents=True, exist_ok=True)
+                stem = config.kind if len(batches) == 1 else f"{config.kind}-{index:04d}"
+                (evidence_dir / (stem + ".json")).write_text(process.stdout, encoding="utf-8")
+                (evidence_dir / (stem + ".stderr.txt")).write_text(process.stderr, encoding="utf-8")
+            results.append(parser(process.stdout, process.returncode, batch, snapshot.root))
+        if len(results) == 1:
+            result = results[0]
+        else:
+            status = next((state for state in ("ERROR", "INCOMPLETE", "UNSUPPORTED", "FINDINGS")
+                           if any(report.status == state for report in results)), "STRUCTURAL_CLEAR")
+            result = EngineReport(config.kind, status,
+                tuple(p for report in results for p in report.expected),
+                tuple(p for report in results for p in report.scanned),
+                sum(report.findings for report in results),
+                f"batches={len(results)}; " + "; ".join(report.detail for report in results),
+                tuple(issue for report in results for issue in report.issues))
+            if evidence_dir is not None:
+                (evidence_dir / (config.kind + "-batches.json")).write_text(json.dumps({
+                    "batches": [[str(p) for p in batch] for batch in batches],
+                    "status": result.status}, ensure_ascii=False, indent=2), encoding="utf-8")
         # File input is checked again; changed scanner input invalidates the evidence.
         for record in snapshot.records:
             path = snapshot.root / record.snapshot_relative

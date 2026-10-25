@@ -46,7 +46,7 @@ def sync_directory(path):
             os.close(fd)
 
 
-def atomic_bytes(path, raw):
+def _atomic_bytes(path, raw):
     parent = path.parent
     ancestor = parent
     while not ancestor.exists():
@@ -66,6 +66,20 @@ def atomic_bytes(path, raw):
         sync_directory(parent)
     finally:
         temporary.unlink(missing_ok=True)
+
+
+def atomic_bytes(path, raw):
+    if os.name != "nt":
+        return _atomic_bytes(path, raw)
+    from .windows_io import native_io
+    ancestor = path.parent
+    while not ancestor.exists():
+        ancestor = ancestor.parent
+    io = native_io()
+    with io.ancestors(ancestor, include_leaf=True):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with io.ancestors(path.parent, include_leaf=True):
+            _atomic_bytes(path, raw)
 
 
 class ManagedStore:

@@ -67,7 +67,7 @@ class SyntheticTarget:
         if self.hook:
             self.hook("replace", target, relative)
 
-    def remove(self, target, relative, *, expected_sha256):
+    def remove(self, target, relative, *, expected_sha256, expected_metadata=None):
         old = self.read(target, relative)
         if (digest(old) if old is not None else None) != expected_sha256:
             raise ContractError("Delete compare-and-swap mismatch")

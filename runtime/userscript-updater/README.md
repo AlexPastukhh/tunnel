@@ -7,18 +7,35 @@ Current route: [personal V1 plan](../../docs/userscript-updater/PLAN.md), [curre
 - Persisted schema-versioned JSON registry: Unicode, last selection, file/files/folder/mixed, explicit relative mappings and check-only. Atomic save, corrupt-file preservation and concurrent editor refusal.
 - Tk registration editor/pickers and shared policy editor: create, direct edit, independent copy, link/unlink/rebind. Invalid effective configuration preserves the old pack. A successful shared edit invalidates every consumer report. Used packs must be unbound before deletion.
 - Actual ESLint/Semgrep config validation: built-in/enabled rule IDs, real compile/load, safe fixtures, duplicate/conflicting/disabled/missing rules and language coverage failures.
-- Explicit development-profile Check button: background snapshot -> captured effective policy -> real pinned CLI -> file/rule findings -> fresh source/policy/tool comparison -> local report. Target/state/policy/app/tool intersections are refused before Check starts, so evidence cannot alter a registered target tree. Default GUI has no enabled Check without a profile. **Update always remains disabled.**
+- Explicit development-profile Check button: background snapshot -> captured effective policy -> real pinned CLI -> file/rule findings -> fresh source/policy/tool comparison -> local report. Target/state/policy/app/tool intersections are refused before Check starts, so evidence cannot alter a registered target tree. Default GUI has no enabled Check without a profile. **Development profiles cannot enable Update.**
 - Progress, bounded job/analyzer timeout, cancel and child-tree cleanup; stale callbacks and double-starts refused. POSIX cleanup has actual child-process tests. Windows Job Object containment source has NOT been native-tested.
 - File findings include original source names, rule IDs and line/column. File coverage distinguishes clean files, findings, missing engines and unsupported material. Loaded-rule lists are separate and do not pretend to prove every rule ran on every file.
 - Raw CLI JSON/stderr, snapshot manifest, hashes and structured report are saved only in job-owned development state. They are historical evidence, not transferable authorization.
-- Read-only target preview: full create/modify/delete/unchanged/preserve, text diff, binary sizes/hashes, bound project/registration/snapshot/policy/tool/target/managed set and job identity. The new promotion core requires a separately verified mutation backend; none is supplied to the GUI.
+- Read-only target preview: full create/modify/delete/unchanged/preserve, text diff, binary sizes/hashes, bound project/registration/snapshot/policy/tool/target/managed set and job identity. Confirmation/apply/result/history/inverse-preview/recovery run through background workers.
+  Only an independently accepted installed Windows context supplies a native writer.
 - Windows structural path preflight always requires separate native final-path/ACL/route verification.
 
-V1-3 adds promotion.py/promotion_state.py: persistent managed ownership, exact one-shot confirmations, staged bytes/backups/write-ahead journal/readback/recovery and reviewed rollback. GUI preview/first-import stay read-only; no native mutation backend/issuer exists. [Contract and remaining scope](../../docs/userscript-updater/PROMOTION_CORE.md).
+V1-3 includes managed ownership, staged checked bytes, journal/readback, exact
+one-shot consent and reviewed rollback/conflict recovery.
+[Promotion contract](../../docs/userscript-updater/PROMOTION_CORE.md).
 
-A separate synthetic transaction lab under devtools/fixture_transactions.py is **not imported by the app** and is never an installed updater.
+Selections declare code/dependency/resource/data and exact directory-relative
+exclusions. Empty source directories are inventoried and created; missing selected
+files/folders become visible deletion candidates only for prior managed paths.
+Unavailable source roots and access errors remain errors. Resource bytes are
+hashed but never reported as analyzed code; unsupported code blocks updating.
 
-Latest verification: **161/161 Python tests, zero skips**, with both actual CLIs; separate actual Tk widget workflow **10/10 PASS**. Native Windows GUI/Job Object/ACL tests NOT_RUN.
+WindowsIO/InstalledAuthority/WindowsTarget are **source candidates, WINDOWS_NOT_RUN**.
+The development GUI has no native authority. Offline package contents, side-by-side
+installer, native probes, owner-operated GUI fixture and elevated acceptance/rollback
+are in [release/WINDOWS_ACCEPTANCE.md](release/WINDOWS_ACCEPTANCE.md). The normal
+launcher uses isolated Python/explicit ._pth, protected complete closure/receipts,
+normal owner identity, native ACL/final-path checks and approved roots.
+
+Exact executed tests, failures/fixes and package receipt belong only to the
+[implementation log](../../docs/userscript-updater/IMPLEMENTATION_LOG.md).
+Neither Docker tests nor ZIP hashes are Windows acceptance. The old devtools
+transaction lab is not imported or installed as a writer.
 
 ## Run in the authorized Docker environment
 
@@ -42,12 +59,23 @@ python -m checker.gui --registry /absolute/path/projects.json --development-sett
 
 Omitting --registry uses an explicitly labelled in-memory session. Omitting --development-settings disables scanner and policy-edit actions. A corrupt registry/profile is reported, not silently replaced. An interrupted-save .lock requires review.
 
-Baseline Docker Python still has no Tk. An isolated QA-only Debian Tk 8.6/Xvfb tree was extracted inside the internal volume to run devtools/gui_workflow_smoke.py. Ten actual widget scenarios passed, including real CLI jobs and save/restart. File chooser results/message boxes are injected; native Windows dialogs and visual appearance remain untested. No system Tk/Windows installation was performed.
+Baseline Docker Python still has no Tk. The existing isolated QA-only Debian
+Tk/Xvfb tree runs devtools/gui_workflow_smoke.py with real CLIs and widgets.
+Chooser/message-box results are injected; Windows dialogs/rendering and native
+writes require the separate owner-run probes. No system/Windows installation
+was performed by the agent.
 
-## Remaining release gates
+## Build the offline candidate inside Docker
 
-No owner PASS or native production promotion, protected Windows app, full pinned dependency closure or accepted production policy exists. Main entry-point/config/Node hashes do not pin transitive modules. Current validation fixtures cover ESLint JS/CJS/MJS and Semgrep JS/Python; unsupported required material is explicitly non-clear. Config validity is not semantic policy sufficiency.
+release/build_bundle.py requires the complete pinned Windows wheelhouse,
+download receipts for the official Python installer and Node archive, plus
+the installed ESLint npm closure/package-lock. It verifies wheel pins/internal
+RECORDs, exact lock completeness, archive paths and binary hashes. It copies
+checker into the application import path; QA fixture writers remain separate.
+See the implementation log for the current local bundle/summary paths.
 
-Linux path checks/O_NOFOLLOW and Windows Job Object source do not prove native secure handles, reparse/races, ACL/alternate write-route isolation, process/environment compatibility or crash durability. Portable managed-scope and staged-byte transaction/recovery now exist. Native source/state/target handles/issuer, empty-folder/delete-only/resource/data/dependency contracts, confirmation/recovery UI and Windows GUI/consumer acceptance remain V1-3/V1-4 work. [Windows trust boundary](../../docs/userscript-updater/WINDOWS_TRUST_BOUNDARY.md).
-
-The external Update button is disabled for every status. Neither scanner exit0, VALIDATED_DEVELOPMENT, NOT_AUTHORIZED, JSON evidence, metadata freshness nor test fixture results can enable it. Cheap metadata checks only prevent late presentation of changed tool inputs; a future promotion must independently rehash and validate the entire protected chain.
+The owner manually installs a reviewed candidate outside all agent write routes
+and executes the prepared native/GUI/marker probes before accepting it.
+[Windows boundary](../../docs/userscript-updater/WINDOWS_TRUST_BOUNDARY.md).
+Current capability/scale/metadata/root limitations are explicit in the release
+procedure; no silent skip or global atomicity claim is made.
