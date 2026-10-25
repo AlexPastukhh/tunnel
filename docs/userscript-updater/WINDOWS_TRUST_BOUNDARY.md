@@ -10,6 +10,23 @@
 
 Внешние user-consumed copies также располагаются вне agent-write routes и не должны быть junction/symlink/hardlink на исходники. Source изменения не влияют на эти копии до нового approved review.
 
+## Функциональная проверка рабочей копии до независимой установки
+
+Владелец может вручную запустить Windows-процесс Checker из общей рабочей
+папки и проверить цепочку на отдельных тестовых назначениях. Этот working
+context не является InstalledAuthority: результат помечен WINDOWS_WORKING_COPY_TEST,
+current Repo sources остаются исполняемым источником приложения, OWNER_ACCEPTED
+не выдаётся. Подготовка зависимостей и все Windows-записи выполняются владельцем.
+Docker backend/transport для такого запуска не нужен.
+
+Функциональный writer использует тот же Win32 I/O/transaction core, отдельное
+точное подтверждение, свежие checked bytes, backup/readback/recovery. Допускаются
+только сохранённые target roots без пересечения с любым зарегистрированным
+источником/app/tools/state/policies. Команды находятся в
+[runtime README](../../runtime/userscript-updater/README.md).
+Для пользовательских доверенных копий остаются все условия независимой
+установки ниже; source-run не служит доказательством их выполнения.
+
 ## Structural preflight
 
 Модуль checker/windows_layout.py принимает описания app, tools, policies, state, approved, source, agent_write. Проверяет литеральные абсолютные Windows drive-пути, запрещает неоднозначные UNC/device/extended/relative paths и пересечения доверенных roots с источником или записью ИИ. Это **только строковая проверка**, не финальный Windows path/ACL probe. Даже без коллизий возвращается NEEDS_NATIVE_WINDOWS_VERIFICATION, а не PASS.

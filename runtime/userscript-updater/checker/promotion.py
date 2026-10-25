@@ -121,6 +121,11 @@ class PromotionService:
         from .installed import WindowsTarget
         return type(self.backend) is WindowsTarget and self.backend.available
 
+    @property
+    def update_available(self):
+        from .working import WorkingWindowsTarget
+        return self.native_update_available or (type(self.backend) is WorkingWindowsTarget and self.backend.available)
+
     def invalidate(self, project_id=None):
         if project_id is None:
             self.reviews.clear()
@@ -131,13 +136,17 @@ class PromotionService:
 
     def _valid_check(self, check, current):
         self.settings.check_storage_paths()
+        if hasattr(self.settings, "prepare_project") and current is not None:
+            self.settings.prepare_project(current)
+        elif hasattr(self.settings, "check_registration") and current is not None:
+            self.settings.check_registration(current)
         if current is None or current.fingerprint() != check.project.fingerprint():
             raise ContractError("Registration changed; run Check again")
         if not current.target_root:
             raise ContractError("Check-only registration has no target")
         self.settings.check_target_isolation(current.target_root)
         if any(under(Path(current.target_root), r) or under(r, Path(current.target_root))
-               for r in self.settings.source_roots):
+               for r in getattr(self.settings, "source_overlap_roots", self.settings.source_roots)):
             raise ContractError("Promotion source and target roots must be separate")
         if not Path(current.target_root).exists() and not Path(current.target_root).parent.is_dir():
             raise ContractError("Target parent must exist; no hidden ancestor creation")
@@ -209,7 +218,7 @@ class PromotionService:
         if self.backend is None:
             raise ContractError("No verified native mutation backend; Windows Update is disabled")
         self.settings.check_target_isolation(str(target))
-        if any(under(Path(target), r) or under(r, Path(target)) for r in self.settings.source_roots):
+        if any(under(Path(target), r) or under(r, Path(target)) for r in getattr(self.settings, "source_overlap_roots", self.settings.source_roots)):
             raise ContractError("Mutation target overlaps a source root")
         self.backend.authorize(Path(target), self.settings)
         return self.backend

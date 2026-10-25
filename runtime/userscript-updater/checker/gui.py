@@ -2,8 +2,8 @@
 
 Registration editor/pickers and atomic versioned JSON persistence, policy binding display,
 scan/preview panes, planned installation-path diagnostics. An explicit development profile enables background static Check and shared-pack editing.
-Development profiles cannot update. An independently accepted Windows context
-enables exact confirmation, transaction results and reviewed recovery.
+Development profiles cannot update. A Windows working context enables functional
+tests; an independently accepted Windows context enables exact confirmation, transaction results and reviewed recovery.
 Tkinter is loaded lazily, allowing headless backend tests inside Fortis Repo.
 """
 from __future__ import annotations
@@ -29,8 +29,12 @@ MAX_REGISTRATION_JSON = 256 * 1024
 
 
 class DesktopApp:
-    def __init__(self, tk, ttk, filedialog, messagebox, registry_path: Path | None = None, settings_path: Path | None = None, *, installed_context=None) -> None:
+    def __init__(self, tk, ttk, filedialog, messagebox, registry_path: Path | None = None, settings_path: Path | None = None, *, installed_context=None, working_context=None, policy_root=None, startup_status="") -> None:
         self.installed_context = installed_context
+        self.working_context = working_context
+        self.policy_root = policy_root
+        if installed_context is not None and working_context is not None:
+            raise ValueError("Choose one runtime context")
         self.tk = tk
         self.ttk = ttk
         self.filedialog = filedialog
@@ -50,7 +54,7 @@ class DesktopApp:
             messagebox.showerror("Реестр не загружен; исходный файл сохранён", self.registry_error)
         self.selected = self.registry.document.last_selected or ""
         self.jobs = None
-        self.job_status = ""
+        self.job_status = startup_status
         self.policy_editor = None
         self.active_check_project = None
         self.active_ticket = None
@@ -67,8 +71,17 @@ class DesktopApp:
             self.jobs = CheckJobs(InstalledSettings(installed_context))
             self.promotion = PromotionService(self.jobs.settings, WindowsTarget(installed_context))
             self.root.title("Project Checker — личная Windows V1")
+        elif working_context is not None:
+            from .working import WorkingContext, WorkingWindowsTarget
+            if type(working_context) is not WorkingContext:
+                raise ValueError("Invalid working context")
+            self.jobs = CheckJobs(working_context.settings)
+            self.promotion = PromotionService(self.jobs.settings, WorkingWindowsTarget(working_context))
+            self.root.title("Project Checker — проверка рабочей копии Windows")
         else:
             self.promotion = PromotionService(self.jobs.settings) if self.jobs else None
+        if self.jobs:
+            self.policy_root = self.jobs.settings.policy_root
         self.check_results = {}
         self.active_review = None
         self.restoration = None
@@ -89,8 +102,11 @@ class DesktopApp:
         t.Label(top, text="Project Checker",
                 font=("Segoe UI", 15, "bold")).pack(anchor="w")
         intro = ("Проверьте проект, просмотрите полный план и отдельно подтвердите обновление."
-                 if self.installed_context else "Исходники в Fortis Repo НЕ доверенные. "
-                 "Результаты тестовой проверки не разрешают обновление. Windows-допуск ещё не подтверждён.")
+                 if self.installed_context else
+                 "Рабочая копия Windows: выберите источники, пакеты правил и назначение. "
+                 "После проверки просмотрите план и отдельно подтвердите запись. Защищённая установка ещё не принята."
+                 if self.working_context else
+                 "Выберите источники, пакеты правил и назначение. Для проверки подготовьте анализаторы.")
         t.Label(top, text=intro,
                 wraplength=1050).pack(anchor="w", pady=(4, 2))
         self.tabs = t.Notebook(self.root)
@@ -118,7 +134,7 @@ class DesktopApp:
         self.preview_button.pack(side="left")
         self.import_button = t.Button(controls, text="Просмотр первого импорта", command=lambda: self._review(first_import=True), state="disabled")
         self.import_button.pack(side="left", padx=5)
-        t.Label(controls, text="Обновление требует подтверждения точного плана." if self.installed_context else "Подтверждение и запись ждут проверенной Windows-установки.").pack(side="left", padx=5)
+        t.Label(controls, text="Обновление требует подтверждения точного плана." if (self.installed_context or self.working_context) else "Для рабочего Windows-запуска сначала подготовьте анализаторы.").pack(side="left", padx=5)
         install_frame = self.tabs.nametowidget(self.tabs.tabs()[4])
         self.layout_review = None
         if self.installed_context is None:
@@ -144,7 +160,7 @@ class DesktopApp:
         footer = t.Frame(self.root, padding=(12, 0, 12, 9))
         footer.pack(fill="x")
         t.Label(footer, textvariable=self.status, wraplength=900).pack(side="left", fill="x", expand=True)
-        self.check_button = t.Button(footer, text="Проверить" if self.installed_context else "Проверить (тестовая среда)", command=self._check, state="disabled")
+        self.check_button = t.Button(footer, text="Проверить" if (self.installed_context or self.working_context) else "Проверить (тестовая среда)", command=self._check, state="disabled")
         self.check_button.pack(side="right", padx=5)
         self.cancel_button = t.Button(footer, text="Отмена проверки", command=self._cancel_job, state="disabled")
         self.cancel_button.pack(side="right", padx=5)
@@ -262,6 +278,14 @@ class DesktopApp:
             rows += tuple(DisplayRow(("Разрешённое назначение", str(p))) for p in authority.approved_roots)
             layout = DisplayTable("Защищённая установка", ("Свойство", "Значение"), rows,
                 "Owner receipt загружен. Состав, ACL и заявленные маршруты повторно проверяются перед операцией.")
+        if self.working_context is not None:
+            layout = DisplayTable("Рабочий запуск Windows", ("Свойство", "Значение"), (
+                DisplayRow(("Режим", "Проверка и обновление тестовых копий")),
+                DisplayRow(("Исходники приложения", str(Path(__file__).resolve().parent.parent))),
+                DisplayRow(("Анализаторы", str(self.working_context.runtime_root))),
+                DisplayRow(("Реестр", str(self.working_context.registry_path))),
+                DisplayRow(("Пакеты", str(self.policy_root))),
+            ), "Функциональная проверка. Для независимого допуска позже нужна отдельная защищённая установка.")
         self._show_table("Установка / доверие", layout)
         storage = self.registry_error or ("Реестр сохраняется в JSON." if self.registry.store else "Реестр в памяти; для сохранения укажите --registry.")
         self.status.set((self.job_status or BLOCK_REASON) + " " + storage)
@@ -328,6 +352,12 @@ class DesktopApp:
                 raise ValueError("Сохранение заблокировано: реестр не был корректно загружен. " + self.registry_error)
             if self.jobs and self.jobs.busy:
                 raise ValueError("Дождитесь завершения или отмены текущей операции")
+            if self.policy_root is not None:
+                for pack_id in project.policy_pack_ids:
+                    try:
+                        PolicyStore(self.policy_root).load(pack_id)
+                    except FileNotFoundError as exc:
+                        raise ValueError(f"Пакет {pack_id!r} отсутствует. Выберите ID из каталога на вкладке «Правила».") from exc
             self.registry.put(project)
             self.check_results.pop(project.registration_id, None)
             if self.promotion:
@@ -373,15 +403,16 @@ class DesktopApp:
             button = t.Button(controls, text=text, command=command)
             button.pack(side="left", padx=2)
             self.policy_buttons.append(button)
+        self.binding_buttons = self.policy_buttons[-3:]
         t.Label(frame, text="Общие пакеты: сохранение влияет на всех потребителей. "
-                "Редактирование и Check требуют явного --development-settings; обновление всегда заблокировано.",
+                "Выберите пакет из каталога и привяжите его к проекту. Сохранение правил проверяется анализаторами.",
                 wraplength=1000).pack(side="bottom", fill="x")
 
     def _refresh_pack_selector(self):
-        if not self.jobs:
+        if self.policy_root is None:
             return
         try:
-            packs = PolicyStore(self.jobs.settings.policy_root).list_packs()
+            packs = PolicyStore(self.policy_root).list_packs()
             values = tuple(p.pack_id for p in packs)
             self.pack_selector.configure(values=values)
             if self.pack_choice.get() not in values:
@@ -401,7 +432,7 @@ class DesktopApp:
                           and selected_project is not None and selected_project.target_root is not None)
         self.preview_button.configure(state="normal" if review_enabled else "disabled")
         self.import_button.configure(state="normal" if review_enabled else "disabled")
-        native = bool(enabled and self.promotion and self.promotion.native_update_available)
+        native = bool(enabled and self.promotion and self.promotion.update_available)
         current_review = (self.active_review is not None and selected_project is not None
                           and self.active_review.check.project == selected_project)
         self.update_button.configure(state="normal" if native and current_review else "disabled")
@@ -409,7 +440,9 @@ class DesktopApp:
         for button in (self.history_button, self.rollback_preview_button, self.recovery_preview_button, self.conflict_preview_button):
             button.configure(state="normal" if enabled else "disabled")
         for button in self.policy_buttons:
-            button.configure(state="normal" if enabled else "disabled")
+            binding = button in getattr(self, "binding_buttons", ())
+            catalog_enabled = self.policy_root is not None and not busy and not self.registry_error
+            button.configure(state="normal" if enabled or (binding and catalog_enabled) else "disabled")
 
     def _edit_policy(self, new=False, copy=False):
         if not self.jobs or self.jobs.busy:
@@ -444,11 +477,11 @@ class DesktopApp:
 
     def _bind_policy(self, mode):
         project = self.presenter.registrations.get(self.selected)
-        if not project or not self.jobs or self.jobs.busy:
+        if not project or self.policy_root is None or (self.jobs and self.jobs.busy):
             return
         try:
             key = self.pack_choice.get()
-            PolicyStore(self.jobs.settings.policy_root).load(key)
+            PolicyStore(self.policy_root).load(key)
             if mode == "replace":
                 keys = (key,)
             elif mode == "remove":
@@ -498,7 +531,7 @@ class DesktopApp:
         review = self.active_review
         project = self.presenter.registrations.get(self.selected)
         if (not self.jobs or self.jobs.busy or review is None or project is None
-                or review.check.project != project or not self.promotion.native_update_available):
+                or review.check.project != project or not self.promotion.update_available):
             return
         counts = {kind: sum(c.kind == kind for c in review.preview.changes)
                   for kind in ("create", "modify", "delete", "unchanged")}
@@ -536,7 +569,7 @@ class DesktopApp:
 
     def _restore(self):
         review = self.restoration
-        if (not review or not self.jobs or self.jobs.busy or not self.promotion.native_update_available):
+        if (not review or not self.jobs or self.jobs.busy or not self.promotion.update_available):
             return
         if self.messagebox.askyesno("Подтвердить просмотр восстановления",
                 f"{review.target_root}\nОперация: {review.operation_id}\nПлан: {review.fingerprint}\n"
@@ -597,7 +630,7 @@ class DesktopApp:
                             self.active_review = review
                             self.tabs.select(self.tabs.tabs()[3])
                             self.job_status = ("Просмотр готов: " + review.fingerprint +
-                                (". Для применения нажмите Обновить." if self.promotion.native_update_available
+                                (". Для применения нажмите Обновить." if self.promotion.update_available
                                  else ". Запись заблокирована до Windows-приёмки."))
                         else:
                             self.promotion.invalidate(event.project_id)
@@ -671,11 +704,14 @@ class DesktopApp:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Development Project Checker; no external update authority")
-    parser.add_argument("--model-smoke", action="store_true",
-                        help="run a pure presentation check without Tk or display")
-    parser.add_argument("--registry", type=Path, help="absolute versioned local registry JSON path")
-    parser.add_argument("--development-settings", type=Path, help="explicit test-only tool/coverage/state JSON profile")
+    import platform
+    import subprocess
+    parser = argparse.ArgumentParser(description="Project Checker")
+    parser.add_argument("--model-smoke", action="store_true")
+    parser.add_argument("--registry", type=Path, help="absolute registry JSON path")
+    parser.add_argument("--development-settings", type=Path, help="explicit check-only development profile")
+    parser.add_argument("--prepare-source-runtime", action="store_true", help="owner: prepare offline Windows analyzers once")
+    parser.add_argument("--source-profile", type=Path, help=argparse.SUPPRESS)
     args = parser.parse_args(argv)
     if args.model_smoke:
         presenter = ReviewPresenter()
@@ -683,15 +719,41 @@ def main(argv: list[str] | None = None) -> int:
             raise RuntimeError("Unsafe presenter unexpectedly enabled")
         print("GUI model ready. PROMOTION DISABLED. Windows visual QA NOT RUN.")
         return 0
+    working = None
+    policy_root = None
+    startup_status = ""
+    try:
+        if args.prepare_source_runtime or args.source_profile or (platform.system() == "Windows" and not args.development_settings):
+            from .source_bootstrap import (default_registry, seed_policies, runtime_for, prepare_runtime,
+                                           launch_runtime, load_context, SETUP_HINT)
+            args.registry = args.registry or default_registry()
+            if not args.registry.is_absolute():
+                raise ValueError("Use an absolute --registry path")
+            if args.development_settings:
+                raise ValueError("Source runtime and development profile are separate modes")
+            policy_root = seed_policies(args.registry.parent / "policies")
+            if args.prepare_source_runtime:
+                prepare_runtime(args.registry)
+                return 0
+            if args.source_profile:
+                working = load_context(args.source_profile, args.registry)
+                from .environment import configure_gui_environment
+                configure_gui_environment(working.runtime_root)
+                startup_status = "Рабочая копия Windows. Назначение меняется только после отдельного подтверждения."
+            else:
+                runtime = runtime_for(args.registry)
+                if runtime is not None:
+                    return launch_runtime(runtime, args.registry)
+                startup_status = SETUP_HINT + ' --registry "' + str(args.registry) + '"'
+    except (OSError, ValueError, TypeError, subprocess.CalledProcessError) as exc:
+        raise SystemExit("Project Checker: " + str(exc)) from exc
     try:
         import tkinter as tk
         from tkinter import ttk, filedialog, messagebox
     except ImportError as exc:
-        raise SystemExit(
-            "Tkinter is unavailable. Use --model-smoke or an explicitly prepared "
-            "test installation and display. No trusted Windows installation is implied."
-        ) from exc
-    DesktopApp(tk, ttk, filedialog, messagebox, args.registry, args.development_settings).run()
+        raise SystemExit("Tkinter is unavailable. Prepare the Windows runtime with --prepare-source-runtime.") from exc
+    DesktopApp(tk, ttk, filedialog, messagebox, args.registry, args.development_settings,
+               working_context=working, policy_root=policy_root, startup_status=startup_status).run()
     return 0
 
 

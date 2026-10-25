@@ -15,7 +15,16 @@ class RegistrationEditor:
         self.window.transient(app.root)
         self.window.grab_set()
         self.name = self.tk.StringVar(value=project.name if project else "")
-        self.packs = self.tk.StringVar(value=", ".join(project.policy_pack_ids) if project else "")
+        from .policies import PolicyStore
+        catalog = ()
+        if getattr(app, "policy_root", None) is not None:
+            try:
+                catalog = PolicyStore(app.policy_root).list_packs()
+            except (OSError, ValueError):
+                pass
+        available = tuple(p.pack_id for p in catalog)
+        initial = ", ".join(project.policy_pack_ids) if project else ("starter" if "starter" in available else "")
+        self.packs = self.tk.StringVar(value=initial)
         self.target = self.tk.StringVar(value=(project.target_root or "") if project else "")
         fields = t.Frame(self.window, padding=10)
         fields.pack(fill="x")
@@ -23,11 +32,15 @@ class RegistrationEditor:
                 ("Пакеты (ID через запятую)", self.packs),
                 ("Корень назначения (пусто = только проверка)", self.target))):
             t.Label(fields, text=label).grid(row=row, column=0, sticky="w", pady=3)
-            t.Entry(fields, textvariable=variable, width=65).grid(row=row, column=1, sticky="ew")
+            widget = (t.Combobox(fields, textvariable=variable, values=available, width=65)
+                      if variable is self.packs else t.Entry(fields, textvariable=variable, width=65))
+            widget.grid(row=row, column=1, sticky="ew")
         fields.columnconfigure(1, weight=1)
         t.Button(fields, text="Выбрать назначение", command=self.choose_target).grid(row=3, column=1, sticky="e")
         t.Label(fields, text="Для каждого source задаётся путь внутри корня назначения. "
                 "При пустом корне перенос не настраивается.", wraplength=800).grid(row=4, column=0, columnspan=2, sticky="w")
+        t.Label(fields, text="Доступные пакеты: " + ("; ".join(p.pack_id + " — " + p.name for p in catalog)
+                or "каталог пока пуст"), wraplength=800).grid(row=5, column=0, columnspan=2, sticky="w")
         self.tree = t.Treeview(self.window, columns=("kind", "source", "target", "content"), show="headings")
         for column, title in (("kind", "Тип"), ("source", "Источник"), ("target", "Относительное назначение"), ("content", "Состав")):
             self.tree.heading(column, text=title)

@@ -51,7 +51,81 @@ def pump(app, condition, timeout=90):
     raise AssertionError("GUI operation did not finish: " + app.status.get())
 
 
+def catalog_smoke():
+    from checker.source_bootstrap import seed_policies
+    with tempfile.TemporaryDirectory(prefix="checker-catalog-test-") as temporary:
+        root = Path(temporary)
+        policies = seed_policies(root / "policies")
+        dialogs = Dialogs()
+        dialogs.errors = []
+        app = DesktopApp(tk, ttk, dialogs, dialogs, root / "projects.json",
+                         policy_root=policies, startup_status="Prepare analyzers")
+        app.root.update()
+        assert app.jobs is None
+        assert tuple(app.pack_selector["values"]) == ("starter",)
+        assert str(app.check_button["state"]) == "disabled"
+        editor = RegistrationEditor(app)
+        assert editor.packs.get() == "starter"
+        editor.name.set("Windows registration")
+        js = root / "hello.js"
+        js.write_text("const answer = 42;" + chr(10))
+        dialogs.files = (str(js),)
+        editor.choose_files()
+        editor.packs.set("unknown")
+        editor.save()
+        assert dialogs.errors and "unknown" in str(dialogs.errors[-1])
+        assert not app.presenter.registrations
+        dialogs.errors.clear()
+        editor.packs.set("starter")
+        editor.save()
+        assert len(app.presenter.registrations) == 1
+        assert str(app.check_button["state"]) == "disabled"
+        app._close()
+        print("TK-13 PASS: first-run catalogue/default starter; unknown ID refused; registration preserved", flush=True)
+
+        from unittest.mock import patch
+        from checker.engines import EngineConfig
+        from checker.settings import DevelopmentSettings
+        from checker.source_bootstrap import file_hash
+        from checker.working import WorkingContext
+        tools = []
+        for kind in ("eslint", "semgrep"):
+            exe = Path(os.environ[f"UPDATER_DEV_{kind.upper()}"])
+            cfg = Path(os.environ[f"UPDATER_DEV_{kind.upper()}_CONFIG"])
+            tools.append(EngineConfig(kind, exe, file_hash(exe), cfg, file_hash(cfg),
+                                     Path("/usr/local/bin/node") if kind == "eslint" else None))
+        settings = DevelopmentSettings(root / "state", policies, (root / "placeholder",), tuple(tools),
+                                       {".js": ("eslint", "semgrep"), ".py": ("semgrep",)}, 90)
+        # Only Windows admission/syscalls are mocked: real Tk, persisted project,
+        # actual working-context constructor, analyzers, preview and consent button.
+        with patch("checker.working.require_windows_owner"), patch("checker.working.native_io"), \
+                patch("checker.working.platform.system", return_value="Windows"):
+            context = WorkingContext(settings, root / "projects.json", root / "runtime")
+            app = DesktopApp(tk, ttk, dialogs, dialogs, root / "projects.json", working_context=context)
+            app.root.update()
+            project = app.presenter.registrations[app.selected]
+            project = replace(project, target_root=str(root / "target"),
+                              selections=tuple(replace(sel, target=js.name) for sel in project.selections))
+            assert app._save_project(project)
+            assert "рабочей копии Windows" in app.root.title()
+            assert str(app.check_button["state"]) == "normal"
+            app.check_button.invoke()
+            pump(app, lambda: project.registration_id in app.check_results and not app.jobs.busy)
+            app.preview_button.invoke()
+            pump(app, lambda: app.active_review is not None and not app.jobs.busy)
+            assert str(app.update_button["state"]) == "normal"
+            assert not app.promotion.native_update_available
+            dialogs.answer = False
+            app.update_button.invoke()
+            assert not app.jobs.busy
+            assert not (root / "target").exists()
+            app._close()
+        assert not dialogs.errors, dialogs.errors
+        print("TK-14 PASS: working constructor -> real Check -> preview -> enabled Update -> cancel consent; no writes", flush=True)
+
+
 def main():
+    catalog_smoke()
     with tempfile.TemporaryDirectory(prefix="checker-promotion-test-") as tmp:
         root = Path(tmp)
         source = root / "source"
@@ -250,7 +324,7 @@ def main():
         print("TK-12 PASS: history -> inverse hashes/sizes/diff -> consent -> rollback/result", flush=True)
         assert not dialogs.errors, dialogs.errors
         app._close()
-        print("Tk widget smoke: 12/12 PASS. SYNTHETIC DOCKER ONLY; WINDOWS NOT TESTED.", flush=True)
+        print("Tk widget smoke: 14/14 PASS. SYNTHETIC DOCKER ONLY; WINDOWS NOT TESTED.", flush=True)
 
 
 if __name__ == "__main__":

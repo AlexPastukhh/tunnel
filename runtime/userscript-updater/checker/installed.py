@@ -18,6 +18,7 @@ from .model import ContractError, relative_target
 from .promotion_state import load_json, token
 from .settings import DevelopmentSettings
 from .windows_io import native_io
+from .windows_target import WindowsFileOperations
 
 SYSTEM = "S-1-5-18"
 ADMINS = "S-1-5-32-544"
@@ -228,7 +229,7 @@ class InstalledSettings(DevelopmentSettings):
         self._authority.verify(self)
 
 
-class WindowsTarget:
+class WindowsTarget(WindowsFileOperations):
     scope = "OWNER_INSTALLED_WINDOWS"
 
     def __init__(self, authority):
@@ -247,14 +248,6 @@ class WindowsTarget:
         self.authority.assert_target(root)
         return root / relative_target(relative) if relative else root
 
-    def read(self, root, relative):
-        try:
-            return self.io.read(self.path(root, relative))
-        except OSError as exc:
-            if exc.errno in (2, 3):
-                return None
-            raise
-
     def metadata(self, root, relative):
         import base64
         import win32security as security
@@ -263,15 +256,3 @@ class WindowsTarget:
         if security.ConvertSidToStringSid(descriptor.GetSecurityDescriptorOwner()) != self.authority.owner_sid:
             raise ContractError("Target file owner cannot be restored by the normal owner; explicit migration required")
         return value
-
-    def replace(self, root, relative, data, metadata, *, expected_sha256):
-        self.io.write(self.path(root, relative), data, metadata, expected_sha256)
-
-    def remove(self, root, relative, *, expected_sha256, expected_metadata=None):
-        self.io.remove(self.path(root, relative), expected_sha256, expected_metadata)
-
-    def mkdir(self, root, relative):
-        return self.io.mkdir(self.path(root, relative))
-
-    def rmdir_if_owned_empty(self, root, relative, identity):
-        self.io.rmdir_if_owned_empty(self.path(root, relative), identity)

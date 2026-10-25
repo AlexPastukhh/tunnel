@@ -1,8 +1,9 @@
 # V1-3: ядро точного переноса и восстановления
 
 Срез 25.10.2026. Реализованы transaction core, полный GUI review/confirmation/result/recovery и
-native Windows I/O/installed-context candidate. **Windows NOT_RUN; development
-Update заблокирован.** Приёмка Windows остаётся gate, см. [PLAN](PLAN.md);
+native Windows I/O/installed-context candidate. **Native acceptance pending;
+development profile не включает Update.** Windows working context предназначен
+для отдельной функциональной проверки владельцем из рабочей папки. Приёмка Windows остаётся gate, см. [PLAN](PLAN.md);
 выполненные прогоны — [журнал](IMPLEMENTATION_LOG.md).
 
 ## Цепочка
@@ -53,6 +54,17 @@ scanner report его не создают. Полная проверка пов�
 DesktopApp получает native context только из отдельного installed launcher.
 QA fixture writer лежит вне checker/import path и ограничен новой временной
 папкой; он не является accepted installed writer.
+
+WorkingContext/WorkingWindowsTarget — отдельный внутренний путь обычного
+Windows-запуска из рабочей папки. Регистрация сверяется с сохранённым реестром;
+точный выбранный source не смешивается с его широким parent. Writer принимает
+только зарегистрированные назначения и отказывает при пересечении с любым
+зарегистрированным source. Все review/consent/freshness/stage/backup/readback/
+recovery контракты выше сохраняются. Общие файловые операции вынесены в
+WindowsFileOperations; installed owner/receipt/closure guard не ослаблен.
+Working результат имеет scope WINDOWS_WORKING_COPY_TEST и не становится
+OWNER_INSTALLED_WINDOWS или OWNER_ACCEPTED.
+[Запуск и подготовка](../../runtime/userscript-updater/README.md).
 
 Existing Windows file обновляется через тот же эксклюзивно открытый handle:
 CAS по ожидаемым bytes, DACL/identity сохраняются, timestamps/attributes

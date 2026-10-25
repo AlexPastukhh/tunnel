@@ -80,6 +80,10 @@ class CheckJobs:
         if self.busy:
             raise ContractError("A Check job is already running")
         project.validate()
+        if hasattr(self.settings, "prepare_project"):
+            self.settings.prepare_project(project)
+        elif hasattr(self.settings, "check_registration"):
+            self.settings.check_registration(project)
         self.settings.check_target_isolation(project.target_root)
         for selection in project.selections:
             if selection.kind == "directory" and any(under(root, Path(selection.source)) for root in

@@ -12,6 +12,20 @@
 
 ## 2. Наблюдаемое состояние
 
+**Windows working-folder путь реализован в source; owner walkthrough pending.**
+При первом ручном запуске владелец сохранил регистрацию tunnel/source/target/starter,
+но Check/Update были отключены: отсутствовали policy store/tool profile,
+а writer существовал только для accepted installation. Это выявленный
+пользовательский gap, исправленный отдельным рабочим launcher.
+
+Checker запускается обычным Windows-процессом из общей папки; Docker служит
+средой разработки. Теперь доступны starter/catalog, явная однократная offline
+подготовка Windows runtime/profile и scoped functional Check→review→update/recovery.
+Пользовательский реестр сохраняется. Функциональный writer работает только с
+сохранёнными назначениями, сохраняет consent/freshness/backup/readback и помечает
+результат WINDOWS_WORKING_COPY_TEST. Команды — в runtime README.
+Это не OWNER_ACCEPTED; изоляция независимой установки остаётся поздним gate.
+
 V1-1 и development Check V1-2 завершены в исходниках/Docker. V1-3 теперь включает
 полный GUI confirmation/apply/result/history/recovery, source empty directories,
 delete-only и явный состав code/dependency/resource/data с исключениями.
@@ -29,7 +43,8 @@ V1-4: подготовлены offline Windows dependencies, установоч�
 все фактические agent write routes, installed безопасный walkthrough и реальные
 consumer/Loader. Windows install и эти проверки выполняет владелец по
 [подготовленной процедуре](../../runtime/userscript-updater/release/WINDOWS_ACCEPTANCE.md).
-До них нет OWNER_ACCEPTED и никаких реальных external writes из Repo.
+До них нет OWNER_ACCEPTED. Функциональную запись тестовых копий из рабочего
+Windows-процесса выполняет владелец вручную; агент Windows targets не меняет.
 
 ## 3. Неизменные требования A4: даже для личного использования
 
@@ -102,13 +117,14 @@ backup/write-ahead journal/readback, полный target preview и GUI восс
 
 ## 6. Как вести работу и следующий gate
 
-1. Source/Docker/package gate текущего кандидата выполнен; source commit,
-   archive/SHA и проверочные receipts записаны в журнале. Не повторять завершённую
-   разработку/эксперименты без изменения кода или нового FAIL.
-2. Следующий gate — владелец копирует reviewed ZIP вне agent routes и вручную
-   выполняет подготовленную Windows-процедуру. Не просить владельца доделывать
-   backend/GUI/dependency closure. Native FAIL возвращается в разработку,
-   а не превращается в PASS редактированием receipt.
+1. Передать владельцу команды однократной offline подготовки и обычного
+   source-run из рабочей Windows-папки. Проверить вручную сохранённый реестр,
+   каталог starter и безопасный пример: Check→preview→consent→update→history/rollback.
+   Зафиксировать native ошибки и исправить их в Repo, без Docker transport/backend.
+2. После функционального owner walkthrough собрать новый независимый кандидат
+   из актуального source commit и пройти установку/route acceptance.
+   Старый frozen bundle используется source-run только для зависимостей;
+   его старое app не является текущей версией исходников.
 3. После ручного native/GUI/route gate проверить установленную цепочку сначала
    на независимых безопасных файле и folder/mixed, включая pending recovery и
    конфликтные bytes. Только затем consumer/Loader по отдельному разрешению.

@@ -1,4 +1,4 @@
-# Project Checker — development source, not a trusted Windows installation
+# Project Checker — Windows working copy and independent installation
 
 Current route: [personal V1 plan](../../docs/userscript-updater/PLAN.md), [current handoff](../../docs/userscript-updater/HANDOFF_CURRENT_V1_20261025.md), [implementation evidence](../../docs/userscript-updater/IMPLEMENTATION_LOG.md). Full A4 scope remains. Source/Docker checks never grant owner PASS or external update authority.
 
@@ -7,12 +7,12 @@ Current route: [personal V1 plan](../../docs/userscript-updater/PLAN.md), [curre
 - Persisted schema-versioned JSON registry: Unicode, last selection, file/files/folder/mixed, explicit relative mappings and check-only. Atomic save, corrupt-file preservation and concurrent editor refusal.
 - Tk registration editor/pickers and shared policy editor: create, direct edit, independent copy, link/unlink/rebind. Invalid effective configuration preserves the old pack. A successful shared edit invalidates every consumer report. Used packs must be unbound before deletion.
 - Actual ESLint/Semgrep config validation: built-in/enabled rule IDs, real compile/load, safe fixtures, duplicate/conflicting/disabled/missing rules and language coverage failures.
-- Explicit development-profile Check button: background snapshot -> captured effective policy -> real pinned CLI -> file/rule findings -> fresh source/policy/tool comparison -> local report. Target/state/policy/app/tool intersections are refused before Check starts, so evidence cannot alter a registered target tree. Default GUI has no enabled Check without a profile. **Development profiles cannot enable Update.**
+- Explicit development-profile Check button: background snapshot -> captured effective policy -> real pinned CLI -> file/rule findings -> fresh source/policy/tool comparison -> local report. Target/state/policy/app/tool intersections are refused before Check starts, so evidence cannot alter a registered target tree. The Docker development GUI requires an explicit profile; the Windows working launcher prepares its own profile. **Development profiles cannot enable Update.**
 - Progress, bounded job/analyzer timeout, cancel and child-tree cleanup; stale callbacks and double-starts refused. POSIX cleanup has actual child-process tests. Windows Job Object containment source has NOT been native-tested.
 - File findings include original source names, rule IDs and line/column. File coverage distinguishes clean files, findings, missing engines and unsupported material. Loaded-rule lists are separate and do not pretend to prove every rule ran on every file.
 - Raw CLI JSON/stderr, snapshot manifest, hashes and structured report are saved only in job-owned development state. They are historical evidence, not transferable authorization.
 - Read-only target preview: full create/modify/delete/unchanged/preserve, text diff, binary sizes/hashes, bound project/registration/snapshot/policy/tool/target/managed set and job identity. Confirmation/apply/result/history/inverse-preview/recovery run through background workers.
-  Only an independently accepted installed Windows context supplies a native writer.
+  The Windows working context supplies a registered-target functional writer; independent owner acceptance uses a separate installed context.
 - Windows structural path preflight always requires separate native final-path/ACL/route verification.
 
 V1-3 includes managed ownership, staged checked bytes, journal/readback, exact
@@ -37,6 +37,59 @@ Exact executed tests, failures/fixes and package receipt belong only to the
 Neither Docker tests nor ZIP hashes are Windows acceptance. The old devtools
 transaction lab is not imported or installed as a writer.
 
+## Запуск рабочей копии в Windows
+
+Checker запускается процессом Windows из обычной папки репозитория. Docker
+используется для разработки; отдельного Docker backend/transport нет.
+
+Из корня Windows-репозитория один раз выполните в **обычном PowerShell**:
+
+```powershell
+Set-Location .\runtime\userscript-updater
+py -3 -m checker.gui --prepare-source-runtime --registry "$env:LOCALAPPDATA\ProjectChecker-Test\projects.json"
+```
+
+Это явная ручная подготовка владельцем: проверенный offline ZIP из .artifacts
+используется только как источник зависимостей. Создаются отдельный Python 3.13
+с Tk, Windows Semgrep/PyYAML и Node/ESLint в новой версии каталога
+%LOCALAPPDATA%\ProjectChecker-Test\runtimes. Выполняются offline pip с hashes,
+npm ci с integrity и реальные проверки конфигураций на безопасных JS/Python.
+Инсталлятор Python проверяется через Authenticode. Права ACL не меняются.
+При ошибке прежний готовый runtime/реестр не заменяется; путь незавершённой
+версии виден в выводе подготовки. Не удаляйте существующий реестр для повтора.
+
+Обычный запуск из той же папки:
+
+```powershell
+py -3 -m checker.gui --registry "$env:LOCALAPPDATA\ProjectChecker-Test\projects.json"
+```
+
+Launcher сам запускает подготовленный isolated Python с текущими исходниками
+из рабочей папки. Запуск после изменения кода берёт этот код без переустановки
+зависимостей. До подготовки GUI показывает каталог и точную команду, а Check
+остаётся отключён. Tk установленного системного Python не обязателен после
+подготовки. Если папку приложения переместили, подготовьте runtime для нового
+пути. Архив зависимостей и его frozen receipt не перезаписываются этим процессом.
+
+starter добавляется только при отсутствии; пользовательские правки пакетов
+и регистраций сохраняются. Доступные ID и названия видны в редакторе проекта.
+После Check выберите полный просмотр (или явный первый импорт existing files),
+проверьте строки/diff/размеры и отдельно подтвердите «Обновить».
+Файлы меняются только внутри сохранённого target. Есть журнал и просмотр
+отката/восстановления. Check-only не требует target.
+
+Первый проход делайте на отдельном небольшом примере JS/Python с отдельным
+пустым назначением. starter проверяет JS/Python на dynamic eval/exec; это не
+универсальная политика всех языков. При выборе всего tunnel неизвестные типы,
+dependencies, .git, archives и явно не исключённые материалы остаются в scope:
+unsupported/coverage/size ошибки блокируют перенос, не превращаются в PASS.
+Не добавляются скрытые исключения.
+
+Режим помечен WINDOWS_WORKING_COPY_TEST. Защищённая независимая установка,
+проверка agent write routes и OWNER_ACCEPTED остаются отдельным поздним шагом
+по [процедуре](release/WINDOWS_ACCEPTANCE.md). Docker тесты не доказывают
+совместимость Windows installer/Win32/Job Object/native chooser.
+
 ## Run in the authorized Docker environment
 
 Python 3.11 + pinned PyYAML 6.0.3 from requirements.txt. Existing tools: ESLint 10.13.0 and Semgrep CE 1.182.1 under /workspace/repo/project-checker-devtools. Use the existing venv Python, which includes PyYAML:
@@ -57,7 +110,7 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m checker.gui --model-smoke
 python -m checker.gui --registry /absolute/path/projects.json --development-settings /absolute/path/development.json
 ```
 
-Omitting --registry uses an explicitly labelled in-memory session. Omitting --development-settings disables scanner and policy-edit actions. A corrupt registry/profile is reported, not silently replaced. An interrupted-save .lock requires review.
+On Linux, omitting --registry uses an explicitly labelled in-memory session; omitting --development-settings disables scanner and policy-edit actions. A corrupt registry/profile is reported, not silently replaced. An interrupted-save .lock requires review.
 
 Baseline Docker Python still has no Tk. The existing isolated QA-only Debian
 Tk/Xvfb tree runs devtools/gui_workflow_smoke.py with real CLIs and widgets.

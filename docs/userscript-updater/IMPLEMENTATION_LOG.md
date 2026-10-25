@@ -1,5 +1,77 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026 — ordinary Windows working-folder launcher and package catalogue
+
+Owner screenshots established native GUI startup (Tk 9.0.4 reported) and saved
+registration "туннель": source C:/Users/alexa/Repos/tunnel, target root
+C:/Users/alexa/ReposChecked with tunnel mapping, pack ID starter. This is basic
+owner-reported GUI/registration evidence, not analyzer/update/native acceptance.
+Check/Update were gray because the ordinary source command opened a registration
+shell without a policy store/tool profile; previously only accepted installed
+context supplied a writer. Earlier candidate readiness did not cover this path.
+
+Implemented explicit owner command --prepare-source-runtime and normal Windows
+launcher, preserving the existing registry. Preparation verifies the frozen
+offline archive and complete manifest closure by bounded streaming, validates
+Python Authenticode, uses offline hash-pinned pip and integrity-checked npm ci
+without scripts, creates isolated Python search paths pointing at current Repo
+sources and runs actual ESLint/Semgrep configuration validation on safe fixtures
+before atomically publishing the runtime pointer. Failed preparation preserves
+previous runtime pointer/registry and retains the new runtime path for inspection.
+This command was prepared/tested in Docker; the agent did not run a Windows
+installer or change host ACLs.
+
+starter is seeded only if absent; owner edits/unfinished invalid packs are not
+overwritten. Catalogue is visible before analyzers are ready. Registration editor
+offers existing IDs/names, defaults new projects to starter, and refuses missing
+pack IDs before saving. Existing registrations/schema remain intact.
+
+A separate internal WorkingContext/WorkingWindowsTarget uses the same native
+file operations and promotion/backup/readback/recovery engine, with explicit
+WINDOWS_WORKING_COPY_TEST result scope. It reads only exact saved selections,
+accepts registered targets, rejects overlap with every registered source and
+retains project/snapshot/policy/tool/target freshness and one-shot consent.
+Sibling target/runtime paths no longer collide merely because a selected source
+file has a broad parent. This is not a Docker backend and cannot construct
+InstalledAuthority or report OWNER_INSTALLED_WINDOWS. Independent protected
+installation/route acceptance remains a later owner gate.
+
+Development/debug evidence:
+- First GUI run caught incomplete initialization of new context fields; fixed.
+  Initial traceback retained in /workspace/repo/project-checker-devtools/v1-working-gui.log.
+- Initial full suite: 194 tests, two new fixture errors because a synthetic tool
+  path made its configured installation root equal the entire fixture root.
+  Corrected fixture layout (tools/bin); no isolation rule relaxed.
+  /workspace/repo/project-checker-devtools/v1-working-tests.log.
+- New focused suite: 11/11 PASS, actual CLI integration enabled;
+  /workspace/repo/project-checker-devtools/v1-working-focused.log.
+  Bootstrap subprocesses were mocked on Linux; actual Windows installation is
+  not inferred. Actual analyzers ran for saved-project Check→review→apply→rollback
+  and findings refusal, replacing only the Win32 syscall layer by the existing
+  private temporary adapter.
+- Actual Linux Tk/Xvfb: 14/14 PASS;
+  /workspace/repo/project-checker-devtools/v1-working-gui-final.log.
+  Adds first-run catalogue/unknown-ID regression and working constructor→real
+  Check→preview→enabled Update→declined consent/no writes. Existing consent/
+  synthetic apply/history/recovery workflows pass. Chooser/dialogs and native
+  syscalls are injected; not Windows visual/native acceptance.
+- Frozen dependency archive verified and streamed through every manifest member;
+  /workspace/repo/project-checker-devtools/v1-working-archive.log. The previous
+  6192660 bundle/receipt is unchanged and used only for dependencies. Its old app
+  is not installed over the new working source.
+
+Final full suite: **195/195 PASS, zero skips**, actual ESLint/Semgrep enabled;
+302.049 seconds, /workspace/repo/project-checker-devtools/v1-working-tests-final.log.
+All existing V1-1 binding/size/config regressions, full promotion/recovery, resource/
+deletion cases and new working-launcher tests passed. Final UI instruction wording
+clarifies preparation rather than suggesting that every working run requires an
+accepted independent installation. Python AST parsing and changed-document relative
+links passed; git diff --check passed.
+
+Runtime launch instructions are maintained in runtime/userscript-updater/README.md;
+PLAN owns the next owner walkthrough and later independent-candidate rebuild.
+No push, Windows install/ACL/Loader changes or actual owner target writes by agent.
+
 ## 25 October 2026 — personal V1 source candidate, complete GUI and offline Windows package
 
 User asked to finish the developer's part, then resumed after a disconnected

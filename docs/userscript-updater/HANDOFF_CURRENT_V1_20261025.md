@@ -49,9 +49,15 @@ resource/data contracts, native handle I/O, installed closure/ACL/receipt verifi
 и отдельный issuer. Development profile по-прежнему не даёт права записи;
 QA writers ограничены новой temporary fixture и отсутствуют в app import path.
 
-Текущий source/Docker/offline candidate уже зафиксирован и собран; точный
-receipt — в журнале. Следовать PLAN: ближайший gate — ручная Windows-приёмка
-владельца. Не повторять завершённую разработку без новых изменений/FAIL.
+После первого ручного запуска владелец обнаружил gap обычной рабочей папки:
+GUI сохранял ссылку starter, но не подключал каталог/analyzers. Сейчас есть
+отдельный Windows working launcher: starter/catalog, явная offline подготовка
+runtime и функциональный writer только для зарегистрированных назначений.
+Это процесс Windows из общей папки, не Linux GUI и не Docker backend.
+Source-run не выдаёт OWNER_ACCEPTED и не ослабляет InstalledAuthority.
+Команды — в runtime README; текущие gate/next — в PLAN, evidence — в журнале.
+Frozen bundle предыдущего source commit остаётся источником зависимостей;
+текущий source-run использует новые исходники Repo, а не старое app из ZIP.
 Не объявлять source implementation доказательством native совместимости,
 изоляции write routes, power-loss durability или OWNER_ACCEPTED.
 

@@ -35,6 +35,8 @@ def present_event(jobs, event, presenter):
     app = DesktopApp.__new__(DesktopApp)
     app.jobs = jobs
     app.installed_context = None
+    app.working_context = None
+    app.policy_root = jobs.settings.policy_root
     app.presenter = presenter
     app.check_results = {}
     app.promotion = None
