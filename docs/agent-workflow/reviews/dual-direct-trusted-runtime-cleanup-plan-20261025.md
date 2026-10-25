@@ -1,6 +1,16 @@
 # Trusted Tunnel/Bridge cleanup — owner decision, 2026-10-25
 
-**План, не выполненная очистка.** Владелец просит после полного аудита убрать доверенные исполняемые и чувствительные компоненты Tunnel/старого Bridge из каталогов, доступных агентам, сохранив два работающих Direct Repo. Никаких удалений, переносов, остановок или Docker restart до отдельного owner-approved изменения.
+**Решение владельца (уточнение WF-046): не выполнять ручной перенос Tunnel сейчас.** Владелец разрабатывает отдельное локальное приложение для регистрации соответствия `Docker development source ↔ trusted Windows production installation`, запуска lint/tests/security review и явного одобрения ревизии с криптографическими хешами, а затем контролируемого копирования/установки на хосте из одобренной версии. Docker — недоверенная среда агентов; Windows-приложения запускаются только из проверенной копии вне agent-writable mounts. До готовности этого механизма **не переносить**, **не удалять**, **не останавливать** работающие Direct Repo; будущая очистка legacy Bridge является отдельным этапом после регистрации и безопасного восстановления.
+
+## WF-046 — trust boundary для будущего локального promotion app
+
+- Подход: source/test в Docker (без production key); доверенный Windows runner/updater, approved manifest/hash store, production files, runtime profiles и secrets — за пределами Docker, с Windows ACL, не доступными агентам на запись. Агент может **предложить**, но не может самостоятельно утвердить/запустить release или изменить approved manifest; проверки lint/tests не заменяют review злоумышленного кода.
+- Проверять хеши всего релизного набора/зависимостей и файлов после export/copy/staging **на стороне доверенного хоста**; учитывать symlink/junction/hardlink/TOCTOU, manifest/approval независимо от agent-controlled volume, identity approver и safe rollback. Production promotion допускается только явным согласием владельца или доверенной отдельной политикой, не исходя из результатов, которые может подменить агент в Docker.
+- Важно: исходник в Docker может тестово исполняться, но должен быть **неспособен получить настоящую рабочую identity/credentials, изменить хостовые production файлы или неавторизованно вызвать update API**. Просто не класть `runtime.key` в Docker полезно, но **недостаточно**, если host management/runtime endpoint доступен без аутентификации; F-R-06 network audit остаётся.
+- **Текущий Tunnel частично уже соответствует**: Windows trusted startup scripts первого и второго вне обычных Docker mounts, Windows EXE вне Repos/Workfiles, первый `runtime.key` имеет защищённую Windows DACL для alexa; второй KeyFile/profile и все indirect aliases требуют read-only проверки. Linux Direct DC внутри Docker — **не production Windows Tunnel copy**, а необходимый MCP backend; не делать его «неработающим» просто ради этой модели. Legacy Bridge лежит в Docker RW, но не исполняется двумя действующими Direct.
+- **Непокрытый риск:** Windows `C:\Tools` имеет Authenticated Users Modify; для G1 есть Deny, CodexSandbox accounts существуют, эффективные права разных токенов не доказаны. Конечная интеграция с promotion app должна обеспечить неподменяемый production path/loader/ACL и сохранение maintenance прав alexa. До регистрации и готового безопасного rollback ничего не переносить.
+
+
 
 ## Зафиксированные факты
 
