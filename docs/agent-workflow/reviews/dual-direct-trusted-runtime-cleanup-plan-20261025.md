@@ -1,0 +1,21 @@
+# Trusted Tunnel/Bridge cleanup — owner decision, 2026-10-25
+
+**План, не выполненная очистка.** Владелец просит после полного аудита убрать доверенные исполняемые и чувствительные компоненты Tunnel/старого Bridge из каталогов, доступных агентам, сохранив два работающих Direct Repo. Никаких удалений, переносов, остановок или Docker restart до отдельного owner-approved изменения.
+
+## Зафиксированные факты
+
+- Первичный F-R-05: `/workspace/repo/.fortis/mcp-bridge.mjs` принадлежит root, но его родители writable UID1000. Старый Bridge launcher запускал mutable path. Переход двух runtime на Direct `/opt/dc/node_modules/@wonderwhy-er/desktop-commander/dist/index.js` исключает его из текущей цепочки; live 2 Direct, 0 Bridge. Legacy Bridge файл **всё ещё на диске**, опасность вернётся при возвращении к нему.
+- Repo2 installed launcher SHA `13C1956DA1E7B7405F50B495A40225D51E42E568965A68AAFFBE404616093CDB`, guard SHA `88D5BE54F5E651BBD658BD9F84751511F9D178061EFACF4AA0F2507827CC8533`. Owner Windows read-only: hashes PASS, launcher SDDL=backup SDDL, guard SDDL=launcher SDDL, reparse по прямой цепочке родителей=0. Этого не достаточно для effective ACL всех principals и aliases из других корней.
+- Последний read-only AST owner: Repo2 `$Client` строка 21 и `$Runtime` строка 22 — строковые назначения, не динамические пути. `Get-FileHash` найден только для `$Runtime`. Защита/путь/хеш `$Client` требует отдельной проверки. Доверенные Windows `C:\Tools` ранее имели условный F-R-07 с Modify для некоторых principals.
+- Writable Docker roots: `/workspace/repos`, `/workspace/files`, `/workspace/repo`; shared UID1000/сеть/конфигурация DC; другой браузерный профиль не создаёт OS isolation.
+
+## Порядок проверки и безопасной очистки
+
+1. **Проверить всю цепочку исполнения и доверия**: Windows launcher/control/guard, `$Client` и `$Runtime`, `docker.exe` PATH, Linux node/DC, разрешения файлов и их предков, effective Windows ACL, junction aliases. Проверка только безопасной метаинформации без вывода профилей/ключей.
+2. **Проверить профили/автозапуск без утечки секретов**: какие сохранённые MCP commands используют Direct или Bridge; найти оставшиеся legacy references (Bridge/probe) и их consumers, отличая исполняемый runtime от копий исходников/документации в Git. Trusted launchers/keys и исполняемые зависимости должны быть ВНЕ agent-writable paths.
+3. **Выбрать достаточную модель угроз**: защита от случайных/злонамеренных изменений UID1000, других Windows учёток, сетевых сервисов; закрыть или явно принять F-R-06 network, F-R-07 Windows path ACL и RW shared-config. Для независимости профилей потребуется раздельный container/UID/volume/mounts.
+4. **Проверить безопасный reboot/rollback** до любой очистки: после сброса tmpfs restore pinned DC/Git, запуск каждого профиля, совместная работа 2 Direct, 0 Bridge, возможная гонка одновременного холодного старта и повторный запуск fail-closed. Создать восстановление Direct БЕЗ зависимости от Bridge из RW каталога; ключи/восстановление хранить в доверенном месте.
+5. **Согласованный адресный вывод legacy**: список exact paths + consumers/ownership/backups; архив вне agent-writable locations с SHA/ACL; затем разрешённое владельцем удаление `/workspace/repo/.fortis/mcp-bridge.mjs` и иных точно идентифицированных ненужных runtime-копий. Не делать слепое `rm -rf` или удаление всей `.fortis`/Git worktree: возможно присутствие иных consumers/данных. Источники в Git можно оставить для разработки лишь если они не исполняются доверенной цепочкой; владелец может предпочесть их отдельный архив вне доступных roots.
+6. **Повторный приемочный аудит**: Windows installed hashes+effective ACL, отсутствие startup refs на legacy Bridge, live process census, exact RW path check, оба actual-client smoke, controlled reboot, rollback без Bridge, документированный список остаточных рисков.
+
+**Статус:** пока только план; два Direct MCP продолжают работать. Полной / абсолютной гарантии безопасности нет. Критерий достаточности — в согласованной модели угроз trusted startup/keys не достижимы UID1000 на запись, нет зависимостей от legacy Bridge, recovery Direct независим, документированы принятия для общего доступа/сети.
