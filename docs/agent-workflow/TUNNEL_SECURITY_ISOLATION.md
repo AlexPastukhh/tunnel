@@ -4,9 +4,27 @@
 
 **Главное решение владельца:** **не переносить сейчас Tunnel вручную, не менять ACL вслепую, не останавливать работающие Repo и не удалять Bridge.** Готовится отдельное доверенное локальное приложение для регистрации и контролируемого обновления проверенных Windows-копий приложений на основе исходников в Docker, ревью и хешей. Сначала встроить Tunnel в его pipeline, проверить изоляцию и восстановление; только потом адресно вывести из использования legacy-компоненты. История этого решения: [WF-046](JOURNAL.md), [план будущей очистки](reviews/dual-direct-trusted-runtime-cleanup-plan-20261025.md).
 
+## 0. Краткий хендофф для нового чата — актуальная точка на 25.10.2026
+
+**Поручение:** поддерживать защищённый Fortis Repo/Tunnel и готовить проверку полной цепочки `Docker-dev source → Project Checker/review/approval → Windows trusted installed copy` после готовности отдельного приложения. **Не начинать заново из старой Bridge-инструкции.** Сначала [AGENTS](../../AGENTS.md) → эта страница → [STATE](STATE.md) → последние [JOURNAL](JOURNAL.md), затем относящиеся [audits](reviews/dual-direct-postinstall-audit-20261025.md).
+
+**Живой Linux read-only контроль WF-048 (25.10):** из первого Fortis Repo `get_config` возвратил DC v0.2.52, `/bin/bash`, telemetry false, три оговорённых roots; `/proc` обнаружил **2 Direct DC, 0 legacy Bridge**, SHA Linux DC module `a4145198dc75cd34e7c7452c2054b4cc0d29e199ae1459961a17e4da25a13500`. Права Windows/runtime2 при этом **не перепроверялись**. Параллельные профили остаются в **одном** контейнере `fortis-repo-test`, не изолированы друг от друга. Сохранить working sessions.
+
+**Windows installed-компоненты, owner-reported metadata (НЕ обращаться к секретам):**
+
+| Маршрут | Trusted installed Windows entry | Контрольный SHA-256 owner snapshot | Профиль/ограничение |
+| --- | --- | --- | --- |
+| Repo1 | `C:\Users\alexa\chatgpt-repo-mode\run-tunnel.ps1` через `control.ps1` | launcher `9F3F3BAD533415A21121E1F33F7F844D7D7D7A5640C6711326F4916679907483`, control `605F9D54A0A35FF3011DC44356A733F975A8993F1225FF53378A6B7880A193C5` | `repo-mode`; runtime key на Windows с ранее защищённым ACL |
+| Repo2 | `C:\Users\alexa\AppData\Local\FortisRepoPlus2\FortisRepo2.ps1` + `Repo2DirectGuard.ps1` | launcher `13C1956DA1E7B7405F50B495A40225D51E42E568965A68AAFFBE404616093CDB`, guard `88D5BE54F5E651BBD658BD9F84751511F9D178061EFACF4AA0F2507827CC8533` | `repo-mode-plus2`, **свой** Tunnel ID; key/profile ACL/location ещё OPEN |
+| Общий Windows Client / Runtime | `C:\Tools\tunnel-client\tunnel-client.exe`, `C:\Tools\tunnel-client\runtime\v0.0.15\tunnel-client-runtime.exe` | в таблице V-09 | `Authenticated Users: Modify` на этих путях **OPEN**, оба EXE `NotSigned` |
+
+**Ближайший безопасный порядок:** не изменяя работающие Tunnel, сначала перепроверить требования/ограничения нового [Project Checker](../userscript-updater/README.md) и [Windows trust boundary](../userscript-updater/WINDOWS_TRUST_BOUNDARY.md). Его актуальный status **V1-2 source/DOCKER-TESTED (140/140 Python и 8/8 Tk/Xvfb по собственному отчёту), Update disabled, native Windows trust/install NOT_RUN**: **не путать с готовым установленным updater**. Далее, когда owner подтвердит готовность, выполнить P-01 регистрацию Tunnel **без обновления**, P-02–P-09 canary/security gates; после подготовки независимого восстановления P-10 controlled reboot/two-profile; потом отдельное разрешение на P-11 cleanup старого Bridge. Параллельно OPEN F-R-06/07/08/09/10 не становится PASS.
+
+**Запрещённые преждевременные действия:** не запускать старый Bridge, не переносить Tunnel вручную, не удалять файлы/volume, не делать blanket ACL-reset `C:\Tools`, не трогать G1/Codex accounts, не перезапускать общий Docker/оба Repo. Никогда не выводить runtime keys, saved profiles/IDs с секретами, runtime URL или сырые журналы. Для Windows операций — отдельный owner-approved план, проверка/откат.
+
 ## 1. Где истина и как читать результаты
 
-- **Текущий workflow и следующий шаг:** [STATE.md](STATE.md). Хронология, источники, конкретные ручные отчёты: [JOURNAL.md](JOURNAL.md), WF-020–WF-046.
+- **Текущий workflow и следующий шаг:** [STATE.md](STATE.md). Хронология, источники и ручные отчёты: [JOURNAL.md](JOURNAL.md), WF-020–WF-048 и новые. **Новая запись не переопределяет результат старого live-среза задним числом**; актуальность определяется последней проверкой.
 - **Доказательства:** [аудит Docker/Windows](reviews/repo-protection-20261025.md), [аудит двух Direct после установки](reviews/dual-direct-postinstall-audit-20261025.md), [миграция/rollback Direct](reviews/permanent-direct-mcp-rollout-20261025.md), [сеть и роль Bridge](reviews/repo-network-and-mcp-bridge-20261025.md).
 - **Общая G2 Windows-изоляция:** [ISOLATION_GUIDE](../ISOLATION_GUIDE.md). Старые фразы в датированных источниках про «Bridge в serving chain», «второй Repo не переведён» и «ACL ещё не проверены» — исторический статус до WF-036/046, **не актуальный срез**.
 - **Источник в Git ≠ работающая установленная версия.** Документированный SHA — контрольный отпечаток конкретных bytes, а не доказательство авторства поставщика или невозможности будущей замены. Не загружать в Git ключи, токены, полные saved profiles, приватные Tunnel URL, дампы конфигураций с секретами и ACL backups.
@@ -62,7 +80,7 @@ Docker: общий fortis-repo-test, два Direct MCP DC
 | V-07 | Первый Windows installed launcher/control; WF-030–035 | **OWNER-REPORTED PASS**: штатный запуск Direct после pin/Preview и отдельного восстановления tmpfs/DC/Git; первый профиль `repo-mode` | Полный холодный старт обоих профилей в произвольном порядке, постоянная защита всех предков Windows paths |
 | V-08 | Второй Windows launcher/guard; WF-035/038 | **OWNER-REPORTED PASS**: SHA installed launcher/guard и backup; ACL SDDL launcher=старому backup, guard=launcher; 0 reparse на проверенной прямой цепочке путей | Равенство ACL ≠ безопасные эффективные права; не доказана недоступность через иные junction aliases |
 | V-09 | Windows Client/Runtime identity; WF-040/041 | **OWNER-REPORTED PASS по внутренним эталонам**: Client SHA `1946DE55A038313A9B9B2458D05FE1719FA9CF1F20A94DD5F38FC26A98BFDD42`; Runtime SHA `A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A`. Оба вне обычных Repos/Workfiles, не reparse на проверенных путях | Оба EXE Windows Authenticode=`NotSigned`: исторические SHA не подтверждают происхождение от вендора; второй launcher pin-at-start Runtime есть, Client в Start **не закреплён** |
-| V-10 | Windows `C:\Tools` ACL; WF-041/042 | **OPEN, реальное evidence**: `Authenticated Users` имеет наследуемый `Modify` на Client/Runtime и родителях. Для `FortisHostG1` применим Deny Write/Delete/DeleteChild/ACL/Owner. SYSTEM/Admin Allow, у `alexa` нет отдельного Allow Write, вероятно использует широкую группу | Не установлен effective write другого конкретного token; нельзя удалять broad Allow вслепую (сломается обновление `alexa`) |
+| V-10 | Windows `C:\Tools` ACL; WF-041/042 | **OPEN, реальное evidence**: `Authenticated Users` имеет наследуемый `Modify` на Client/Runtime и родителях. Для `FortisHostG1` отдельные применимые к объектам ACE Deny включают Write/Delete/DeleteChild/ChangePermissions/TakeOwnership; это **не** полный эффективный тест токена. SYSTEM/Admin Allow, у `alexa` нет отдельного Allow Write, вероятно использует широкую группу | Не установлен effective write другого конкретного token; нельзя удалять broad Allow вслепую (можно сломать обновление `alexa`) |
 | V-11 | Состав локальных Windows пользователей; WF-043/044 | **OWNER-REPORTED PASS(scope)**: включены `alexa`, `FortisHostG1`, `CodexSandboxOffline`, `CodexSandboxOnline`. Оба Codex включены в `CodexSandboxUsers`, не прямые Administrators | Restricted token/эффективный доступ песочницы не проверялся; наличие Codex не является доказанным успешным доступом к EXE |
 | V-12 | Windows roots владельца; WF-045 | **OWNER-REPORTED PASS(scope)**: профиль `C:\Users\alexa` имеет защищённое наследование и Allow Write alexa без broad Allow; обе директории установленных launcher имеют OwnerIsAlexa=true, AlexaWriteAllow=true, BroadWriteAllow=false | Вся цепочка `AppData/Local`, effective ACL, `docker.exe` и возможные aliases остаются без полной проверки |
 | V-13 | Credentials первого Tunnel; WF-020/репо-защита | **OWNER-REPORTED PASS(scope)**: Windows `runtime.key` ACL protected, только `alexa FullControl`; содержимое ключа не читалось | Все копии credentials, ключ/профиль второго Tunnel, передача ключей в процесс/сеть, отсутствие secrets внутри Docker |
@@ -78,7 +96,7 @@ Docker: общий fortis-repo-test, два Direct MCP DC
 | F-R-05 residual | Старый Bridge остаётся по подменяемому пути внутри Docker RW | Не должно быть возвращения к небезопасному startup при recovery | Inventory всех профилей/fallback references; убрать только после независимого Direct rollback |
 | F-R-06 **OPEN** | Docker → host/LAN и управляющие API изучены не полностью | Обход внешнего updater даже без Windows shell через host service/API | Read-only inventory/listeners/firewall/auth, затем отдельно санкционированный отрицательный API-test |
 | F-R-07 **OPEN** | Broad Windows ACL `C:\Tools`, неаттестованное происхождение EXE, в Repo2 Client без startup pin | Путь к рабочему EXE может быть заменён при недостаточной защите; это отдельный риск от Docker | Windows DACL/effective target principals/parent delete, build provenance, разработка узкой trusted install policy через promotion app |
-| F-R-08 **OPEN** | Не проверены все reparse/junction и фактическое покрытие RW mounts | «Вне Repos» не исключает альтернативный путь | Адресная карта Windows alias **без** рекурсивного обхода незнакомых targets |
+| F-R-08 / прежний F-R-02 **OPEN** | Не проверены все reparse/junction и фактическое покрытие RW mounts; F-R-08 — новый tracking ID дополнительной alias-проверки к исходному F-R-02 | «Вне Repos» не исключает альтернативный путь | Адресная карта Windows alias **без** рекурсивного обхода незнакомых targets |
 | F-R-09 **OPEN** | Второй runtime key/profile, возможные copies/secret exposure | Dev-код без ключа не должен получить production identity | Owner-only read-only location/ACL/mount-reference inventory; **без** вывода secret |
 | F-R-10 **OPEN** | Shared DC config/UID/Git/two profiles | Изоляции одного Repo от второго **нет** | Явно принять общий контейнер либо отдельно проектировать два контейнера |
 | F-R-11 **OPEN** | Холодный reboot обоих Repo, restore, order/race, Bridge-free rollback | Fail-closed может прервать работу, а старый fallback небезопасен | Owner-controlled test window после защиты восстановления и бэкапов |
@@ -133,7 +151,7 @@ Windows installed application (trusted path) + keys/profiles outside Docker
 | P-03 Review freeze | Candidate фиксируется с независимым SHA manifest и связывается с результатами lint/tests/review | Агент меняет dev файл **после** approve, повторный install отклонён | Host-side re-hash reject и audit receipt |
 | P-04 Approval integrity | Только доверенный approver/политика выпускает release | Агент меняет локальный Docker manifest, approvals, registry/config, команду запуска | Утверждённый host approval не изменился, попытка отклонена |
 | P-05 Secure staging | Защищённое host staging, повторная проверка каждого файла/зависимости до замены | Подмена staging bytes, symlink/junction/path traversal, non-approved dependency | Отказ до установки; production hash прежний |
-| P-06 Atomic deploy / rollback | Одобренная версия устанавливается с read-back SHA и независимым backup | Прерывание/сбой во время install, несовпадение хеша после копирования | Нет partial live install; рабочая версия восстановлена |
+| P-06 Deploy / rollback | Одобренная версия устанавливается с read-back SHA и независимым backup; атомарность **только где технически достижима** | Прерывание/сбой во время install, несовпадение хеша после копирования, частичная многофайловая запись | Нет невосстановленного partial live install; подтверждённый rollback/дозавершение. Не обещать глобальную атомарность между томами и многими файлами |
 | P-07 Windows execution gate | Одобренная установленная версия штатно запускается | Проверенный и безопасный тест альтернативного host runner/API/автозапуска и ситуации, когда Windows пытается исполнять dev-script из mount | Нет подтверждённого обхода, либо он явно устранён/принят до PASS |
 | P-08 Windows ACL/copy | Рабочие launchers, bins, manifests доступны нужным владельцам/SYSTEM; trusted path защищён | У контролируемого тестового principal/контролируемого synthetic path нет Modify/Delete/DeleteChild/ChangePermissions, нельзя переименовать parent | Effective rights + backup/restore проверены, `alexa` не потерял обслуживание |
 | P-09 API/network | Из Docker доступны только согласованные функции | Проверить доступность управляющего/update/start API без credentials/role, включая host.docker.internal и LAN | Negative controls без изменения prod; egress/auth policy документирована |
@@ -149,7 +167,17 @@ Windows installed application (trusted path) + keys/profiles outside Docker
 - Негативный контроль на synthetic/test артефактах; независимый read-back целевого installed места, откат с подтверждением.
 - Различать: авторский отчёт, журнал инструмента, файлы текущего runtime, реальные функциональные smoke и фактическое восстановление после reboot.
 
-## 7. Что делать до готовности приложения и что делать после
+## 7. Обязательное сопровождение документации при дальнейшей работе
+
+**Эта страница — живой контрольный реестр, а не одноразовый отчёт.** После **каждой** проверки/изменения/FAIL, затрагивающих Tunnel, trusted Windows files, Docker mounts/UID/config, network, secrets, native launcher, Project Checker approval/Updater, изменённую оценку риска или fallback, **в рамках того же шага**:
+
+1. Обновить соответствующую строку V- (что реально видели), F-R- (риск/решение/следующий gate), P- (PENDING/PASS/FAIL только по реальному приёмочному тесту); указывать дату, инструмент, идентичность среды, подтверждающую запись и предел вывода. Если результат неизвестен — **OPEN**, а не «вероятно PASS». Для нового риска дать стабильный ID, старый не переиспользовать.
+2. Обновить верхний актуальный блок [STATE](STATE.md), RP-05/RP-06 и одну следующую безопасную задачу. Добавить хронологическую запись [JOURNAL](JOURNAL.md): что проверено/изменено, кто это сделал, источник evidence, FAIL/rollback, что осталось.
+3. Если тест/код относится к Project Checker, обновить также [его собственные README, implementation log и handoff](../userscript-updater/README.md). Его workflow source-only и Docker PASS **не обновляют** автоматически Windows security evidence.
+4. Проверить, не устарели ли действующие указатели в [ARCHITECTURE](../ARCHITECTURE.md), [OPERATIONS](../OPERATIONS.md), [ISOLATION_GUIDE](../ISOLATION_GUIDE.md), [root README](../../README.md) и [AGENTS](../../AGENTS.md). Старый датированный этап сохранять, но явно маркировать историческим; в текущем runbook legacy Bridge не должен становиться fallback.
+5. Проверить ссылки, diff, исключить credentials/приватные URL/сырые логи/ACL backup, зафиксировать только релевантные файлы отдельным **локальным** Git-коммитом, без push/установки runtime. Если источника не хватает — записать Evidence Gap, а не додумывать.
+
+## 8. Что делать до готовности приложения и что делать после
 
 **Сейчас (без изменения runtime):**
 
@@ -165,7 +193,7 @@ Windows installed application (trusted path) + keys/profiles outside Docker
 3. После реальной приёмки и независимого rollback провести P-11 cleanup Bridge, затем повторить audit P-12.
 4. Обновить этот документ, [STATE](STATE.md) и [JOURNAL](JOURNAL.md) реальными receipts; **не** проставлять PASS заранее.
 
-## 8. Ограничения и запрещённые преждевременные действия
+## 9. Ограничения и запрещённые преждевременные действия
 
 - Текущие два Tunnel Direct — **функционально PASS(scope)**; это не доказательство непроницаемости Docker или всего host.
 - Не сканировать чужие пути за пределами согласованных roots и не следовать автоматически по reparse targets; не запускать разрушительные ACL/marker-тесты на рабочих EXE, не kill текущие PID, не чистить `/workspace/repo/.fortis` рекурсивно.
@@ -173,3 +201,11 @@ Windows installed application (trusted path) + keys/profiles outside Docker
 - Git-коммит этого документа **не меняет** host ACL, Tunnel installs, Docker, сеть, автозапуск и не выполняет release. Отдельный owner-approved deployment обязателен.
 
 **Краткий итог:** защищённость от прежнего **исполняемого** Bridge-path substitution обеспечена для двух проверенных Direct chains; полноценная Docker ↔ Windows trust boundary и гарантированный promotion-only release пока **OPEN**. Следующий крупный рубеж — **реальная приёмка будущего локального updater/promotion app по P-01–P-12**, а не перенос файлов до готовности этого механизма.
+
+## 10. Аудит точности документации и передачи — WF-048
+
+**Проверено по первичным файлам репозитория:** [AGENTS](../../AGENTS.md), [workflow README](README.md), [STATE](STATE.md), [JOURNAL](JOURNAL.md) WF-020–047, [исходный security audit](reviews/repo-protection-20261025.md), [postinstall audit](reviews/dual-direct-postinstall-audit-20261025.md), [план cleanup](reviews/dual-direct-trusted-runtime-cleanup-plan-20261025.md), [PR-A-13–15](reviews/permanent-direct-mcp-rollout-20261025.md), [Checker README](../userscript-updater/README.md), [Checker Windows boundary](../userscript-updater/WINDOWS_TRUST_BOUNDARY.md), [Checker handoff](../userscript-updater/HANDOFF_CURRENT_V1_20261025.md). Проведён отдельный **read-only** Linux MCP config/process/module check WF-048; Windows host не опрашивался заново.
+
+**Исправленные расхождения:** до этого аудита начало STATE называло второй Repo закрытым, а ARCHITECTURE и OPERATIONS описывали Bridge как действующую цепочку; ISOLATION_GUIDE E44 и старые INSTRUCTIONS не предупреждали достаточно явно, что это прежние этапы. Текущие указатели заменены/помечены историческими, сами исходные записи не удалены. Новый чат должен считать **текущими** только последние датированные live/owner observations и центральную security-карту, а не более ранний NEXT.
+
+**Предел аудита:** сверка Markdown и один scoped Linux read-only probe — **не аудит файлов Windows на байтовую целостность, не проверка второго ключа, network effective policy, Codex restricted tokens, других aliases, всех сохранённых профилей, reboot или installed Project Checker**. Даже результат `2 Direct / 0 Bridge` — snapshot. При несовпадении live-состояния с описанием ставить статус **DRIFT/OPEN**, прекратить mutation и зафиксировать фактические метаданные без секретов. После каждого последующего шага применять раздел 7 этой страницы.

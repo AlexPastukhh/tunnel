@@ -2,6 +2,10 @@
 
 Маршруты и границы доверия — в [ARCHITECTURE](ARCHITECTURE.md); аудит вызовов и будущий Policy Gate — в [AUDIT](AUDIT.md). Настоящий документ отвечает за источники **действующих полномочий**, а не за систему логирования.
 
+## Актуальное уточнение Fortis Repo / Tunnel — 25.10.2026 (WF-048)
+
+Два Repo из разных браузерных профилей теперь используют **Direct Linux Desktop Commander** в одном контейнере, 0 активных Bridge в последнем read-only срезе. Не использовать сохранённые ниже исторические описания `probe.mjs`/старого Bridge как команду для текущего запуска или как доказательство полной защиты. [Текущая security/изоляционная карта](agent-workflow/TUNNEL_SECURITY_ISOLATION.md) — V-01–V-15, F-R и P-01–P-12. В частности, `C:\Tools` Windows binaries имеют **Authenticated Users: Modify** (FortisHostG1-specific Deny наблюдён, полный effective access не установлен), второй Tunnel key/profile ACL ещё OPEN, Docker host/LAN API policy OPEN. **Не менять** ни ключи, ACL, Docker mounts, ни установку только ради этой документальной корректировки.
+
 ## Дополнительный проектный scope — 24.10.2026
 
 Отдельное вручную применённое разрешение G2 на один Godot-проект, реальные Repos/Workfiles mounts и пределы последующей проверки поддерживаются в [agent-workflow/STATE](agent-workflow/STATE.md); источник решения, backup reference и откат — в [JOURNAL](agent-workflow/JOURNAL.md). Этот scoped результат не расширяет начальный scope на весь Repos/owner-профиль и не является новым полным security PASS.

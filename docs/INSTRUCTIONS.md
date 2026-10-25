@@ -1,5 +1,9 @@
 # Обновление инструкций после изменений
 
+## 25.10.2026 — Примечание к живой установке двух Repo (WF-048)
+
+Два Windows Fortis Repo уже используют **Direct MCP** (`/opt/dc/.../dist/index.js`), а не старый Bridge по `/workspace/repo/.fortis/mcp-bridge.mjs`. Последний read-only snapshot: **2 Direct, 0 Bridge**. Все более ранние в этом длинном файле candidate/source/Bridge/Stop/Install команды считать **датированной историей**, а не предложением для повторного исполнения. Проверять [актуальную security карту](agent-workflow/TUNNEL_SECURITY_ISOLATION.md), [STATE](agent-workflow/STATE.md), [операции с предупреждениями](OPERATIONS.md); **не переносить вручную Tunnel**, не трогать ACL/ключи/reboot и legacy Bridge до owner-approved gate будущего trusted promotion app. Документацию обновлять после каждого значимого шага в рамках [протокола](agent-workflow/README.md).
+
 ## 25.10.2026 — Project Checker V1-2: действующий development Check и общие пакеты
 
 GUI source с явным development-профилем выполняет background Check настоящими ESLint/Semgrep: snapshot, captured effective policy, progress/cancel/timeout/child cleanup, file/rule/location reports и raw local evidence. Общие пакеты create/edit/copy/bind/rebind/delete-unused валидируются до записи; shared edit инвалидирует всех потребителей. Полный Python suite **140/140 PASS без skips**, отдельные реальные Tk widgets в Docker/Xvfb **8/8 PASS**, включая save→restart→check→report. [Рабочий путь](userscript-updater/DEVELOPMENT_CHECK_WORKFLOW.md), [журнал](userscript-updater/IMPLEMENTATION_LOG.md), [план](userscript-updater/PLAN.md). Default GUI без профиля не запускает Check, Update всегда disabled. Windows native GUI/Job Object/ACL/install/consumer NOT_RUN; owner PASS нет. Следующий coding этап V1-3; Windows/Loader/внешние копии не менялись, push/runtime deployment не было.

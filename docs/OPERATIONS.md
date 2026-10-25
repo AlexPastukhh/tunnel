@@ -1,5 +1,9 @@
 # Запуск, панели, остановка
 
+## Важно: нынешние два Fortis Repo — Direct, legacy Bridge не запускать (WF-036–048, 25.10.2026)
+
+После миграции **первый `repo-mode` и второй `repo-mode-plus2` работают через Direct MCP** (`docker exec` → закреплённый `/opt/dc/.../dist/index.js`), а не через `/workspace/repo/.fortis/mcp-bridge.mjs`. Read-only повтор 25 октября показал **2 Direct, 0 legacy Bridge**; это point-in-time, не cold-reboot acceptance. Для проверки/восстановления **сначала** читать [единую security карту](agent-workflow/TUNNEL_SECURITY_ISOLATION.md) и [актуальный STATE](agent-workflow/STATE.md). Ниже сохранены старые команды, меню и исторические этапы; **не выполнять legacy Bridge command, StopContainer, fallback/восстановление, новый Windows install или перезапуск двух Repo только по этой странице**. Изменения/остановка Windows runtime требуют отдельного owner-controlled плана. Второй launcher установлен в профиле alexa (`AppData\Local\FortisRepoPlus2\FortisRepo2.ps1`); его отдельный Tunnel identity не заменять первым.
+
 ## Scope принят, прежний owner HOST остановлен — E43, 2026-10-16
 
 [E43](G3_G2_SCOPE_ACCEPTANCE_AND_HOST_RETIREMENT_2026-10-16.md): пользователь принял E42/P01
@@ -49,18 +53,19 @@ $control = 'C:\Users\alexa\chatgpt-repo-mode\control.ps1'
 & $control -Action OpenPanel
 # Для отключения ChatGPT:
 & $control -Action StopAccess
-# Для остановки также вычислений контейнера:
-& $control -Action StopContainer
+# ОПАСНО: следующий пример сохранён для истории; общий Docker двух Repo НЕ останавливать без отдельного owner-approved плана:
+# & $control -Action StopContainer
 ```
 
-Start запускает run-tunnel.ps1: проверка контейнера, восстановление временной MCP/Git конфигурации, проверка bridge, doctor профиля, затем tunnel-client run. Ключ берётся из уже сохранённого файла. Повторно вводить его при обычном запуске не нужно.
+В действующей установке первого Repo `Start` вызывает закреплённый `run-tunnel.ps1` PR-A-15: проверка Docker/container и pinned Direct DC, guarded восстановление tmpfs-конфигураций DC/Git при допустимых условиях, запуск отдельного сохранённого профиля. Это **не** проверка/запуск legacy Bridge. Второй Repo использует отдельный `FortisRepo2.ps1` и Direct guard; штатный автозапуск обоих после reboot не был проверен. Рабочий ключ остаётся на Windows; не переносить в Docker/Git.
 
 Repo listener выбирает свободный loopback port (127.0.0.1:0). После [E38](G3_REPO_RUNTIME_CUTOVER_2026-10-16.md) установленный control находит full/runtime EXE по точному Repo Tunnel ID в metrics; OpenPanel выбирает /health. Полной /ui у Repo runtime нет. Постоянный адрес не задан; PID24720/port65202 — датированный срез, не команда для будущего stop.
 
-Native MCP command:
+**Актуальный MCP target** (описание установленного Direct entry; не команда для ручного интерактивного запуска):
 ```text
-docker exec -i fortis-repo-test node /workspace/repo/.fortis/mcp-bridge.mjs
+docker exec -i fortis-repo-test /usr/local/bin/node /opt/dc/node_modules/@wonderwhy-er/desktop-commander/dist/index.js
 ```
+**Исторический Bridge** `/workspace/repo/.fortis/mcp-bridge.mjs` в UID1000-writable родителе; **не запускать его и не использовать в recovery**. Оба Windows launcher находятся вне обычных Docker mounts, но полная проверка Windows ACL/aliases и host network ещё OPEN — см. [аудит](agent-workflow/TUNNEL_SECURITY_ISOLATION.md).
 
 StopAccess отключает Repo Tunnel; фоновые команды/контейнер могут продолжить работу. StopContainer также останавливает проверенный контейнер. Ни одна команда не удаляет host-файлы или volume и не останавливает HOST Tunnel.
 

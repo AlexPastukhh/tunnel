@@ -55,9 +55,9 @@ MCP chain принят; конечный runtime в отдельной guest Win
 
 #### Native Fortis Repo
 
-Профиль `repo-mode` запускает `docker exec -i fortis-repo-test node /workspace/repo/.fortis/mcp-bridge.mjs`. Установленный MCP Bridge запускает Linux Desktop Commander; файловые операции с bind mounts изменяют соответствующие Windows-файлы. `/workspace/repo` — отдельный volume, **не** синоним `/workspace/repos`.
+**Актуально после WF-036–048 (25.10.2026):** два независимо идентифицированных Windows Repo Tunnel (`repo-mode` и `repo-mode-plus2`) идут через `docker exec` сразу в **Direct Linux Desktop Commander** `/opt/dc/node_modules/@wonderwhy-er/desktop-commander/dist/index.js` внутри `fortis-repo-test`. В read-only `/proc` последнего аудита — **2 Direct, 0 активных legacy Bridge**. Второй профиль браузера **не** означает второй контейнер или изоляцию UID/файлов. Docker bind mounts дают доступ к тем же Windows-файлам; `/workspace/repo` — отдельный writable Docker volume, **не** синоним `/workspace/repos`. Актуальная схема, доказательства и остаточные риски — [TUNNEL_SECURITY_ISOLATION](agent-workflow/TUNNEL_SECURITY_ISOLATION.md).
 
-В датированной копии [fortis-mcp-bridge.mjs](../runtime/repo-mode/fortis-mcp-bridge.mjs) Bridge изменяет `initialize`/`tools/list` presentation, убирает legacy UI-ресурсы и передаёт остальные запросы upstream. Это **не подтверждает** наличие полноценной политики разрешений или аудита на каждый `tools/call`. Копия в Git не равна установленной версии: перед изменениями сравнить с live и применить по [INSTRUCTIONS](INSTRUCTIONS.md).
+**Исторически (до двух Direct)** профиль `repo-mode` запускал `docker exec -i fortis-repo-test node /workspace/repo/.fortis/mcp-bridge.mjs`. Этот **legacy** Bridge всё ещё лежит в writable-parent каталоге и может быть подменён, поэтому **НЕ использовать эту команду как fallback/runbook**. Датированная [source-копия](../runtime/repo-mode/fortis-mcp-bridge.mjs) меняла `initialize`/`tools/list` presentation; это не гарантия политики `tools/call`, и Git source ≠ установленный runtime. Удаление только после независимого Direct recovery, под контролем владельца.
 
 Для Repo реальные нижние границы доступа задаются Docker mounts, user/permissions и сетью. Ограничение `allowedDirectories` отдельных MCP file tools не ограничивает автоматически shell-процессы. Подробности — [ACCESS](ACCESS.md).
 
@@ -71,7 +71,7 @@ Site — отдельный размещённый MCP proxy с диагност
 
 1. ChatGPT получает описание инструментов через `initialize` и `tools/list` (в зависимости от маршрута и жизненного цикла клиента).
 2. ChatGPT вызывает инструмент через `tools/call` и аргументы передаются соответствующему пути.
-3. Native HOST исполняет вызов на Windows; native Repo — в Docker через Bridge; Site передаёт вызов своему upstream **только при настроенном пути**.
+3. Native HOST исполняет вызов на Windows; **текущий native Repo — в Linux Docker через Direct DC (без Bridge)**, прежний Bridge — исторический маршрут; Site передаёт вызов своему upstream **только при настроенном пути**.
 4. Успех/ошибка возвращается по тому же MCP-маршруту. При timeout результат мутации может быть неизвестен: **сначала проверить результат, не повторять слепо**.
 
 `tools/list` показывает объявленный контракт, но не подтверждает доступность upstream, реальные OS-права или отсутствие альтернативного пути исполнения. Сама диагностическая страница /ui не является точкой авторизации.
@@ -91,7 +91,7 @@ Site — отдельный размещённый MCP proxy с диагност
 
 ## Кто владеет изменениями
 
-- Фактические профили, контейнер, Bridge и Windows launcher: [INSTRUCTIONS](INSTRUCTIONS.md), [runtime](../runtime/README.md).
+- Фактические два Direct Repo, legacy Bridge и Windows launcher: [текущая security карта](agent-workflow/TUNNEL_SECURITY_ISOLATION.md), [INSTRUCTIONS](INSTRUCTIONS.md), [runtime](../runtime/README.md).
 - Hosted Site source, version, tool schemas и deployment: [SITES](SITES.md), [WORKFLOW](WORKFLOW.md).
 - Живые полномочия, ключи и сеть: [ACCESS](ACCESS.md).
 - Дата/доказательства текущего состояния: [CURRENT_STATE](CURRENT_STATE.md).
