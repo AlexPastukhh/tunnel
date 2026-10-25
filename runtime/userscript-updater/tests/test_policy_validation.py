@@ -55,6 +55,17 @@ class EffectivePolicyTests(unittest.TestCase):
         original = next(c for c in self.tools if c.kind == kind)
         return replace(original, config=file, config_sha256=digest(file.read_bytes()))
 
+    def test_semgrep_deadline_reports_engine_and_preserves_captured_output(self):
+        from checker.processes import DeadlineExceeded
+        failure = DeadlineExceeded("Analyzer deadline exceeded")
+        failure.stderr = "native core has not returned"
+        with patch("checker.policy_validation.execute", side_effect=failure):
+            with self.assertRaises(DeadlineExceeded) as raised:
+                validate_engine_config(self.tools[1])
+        self.assertIs(raised.exception, failure)
+        self.assertEqual(failure.engine, "semgrep")
+        self.assertEqual(failure.stderr, "native core has not returned")
+
     def test_schema_accepts_unknown_rule_but_real_engine_and_scan_refuse(self):
         PolicyPack("bad", "Bad", {"not-a-real-rule": "error"}).validate()
         cfg = self.config("eslint", 'module.exports = [{rules: {"not-a-real-rule": "error"}}];')

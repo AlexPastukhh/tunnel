@@ -311,8 +311,41 @@ def validate_runtime(profile):
     settings.check_storage_paths()
     settings.state_root.mkdir(parents=True, exist_ok=True)
     captured = capture_pack_values((PolicyStore(settings.policy_root).load("starter"),))
-    with tempfile.TemporaryDirectory(prefix="setup-validation-", dir=settings.state_root) as tmp:
-        prepare_effective_policy(captured, settings.tools, Path(tmp) / "effective", control=RunControl(180))
+    import time
+    started = time.monotonic()
+    command_timeout, job_timeout = 30, 180
+    report = dict(schema_version=1, scope="SOURCE_RUNTIME_DIAGNOSTIC", status="ERROR", phases=[],
+                  command_timeout_seconds=command_timeout, job_timeout_seconds=job_timeout)
+    def progress(kind, phase):
+        report["phases"].append(dict(engine=kind, phase=phase, elapsed_seconds=round(time.monotonic() - started, 3)))
+        print("Config validation: " + kind + " " + phase, flush=True)
+    try:
+        with tempfile.TemporaryDirectory(prefix="setup-validation-", dir=settings.state_root) as tmp:
+            prepare_effective_policy(captured, settings.tools, Path(tmp) / "effective",
+                                     timeout=command_timeout, control=RunControl(job_timeout),
+                                     diagnostics=True, progress=progress)
+        report["status"] = "VALIDATED"
+    except Exception as exc:
+        report["error"] = dict(type=type(exc).__name__, message=str(exc),
+                              engine=getattr(exc, "engine", ""),
+                              stdout_tail=getattr(exc, "stdout", "")[-8192:],
+                              stderr_tail=getattr(exc, "stderr", "")[-8192:])
+        raise
+    finally:
+        report["elapsed_seconds"] = round(time.monotonic() - started, 3)
+        path = settings.state_root / "setup-validation-report.json"
+        staged = settings.state_root / (".setup-report-" + uuid.uuid4().hex)
+        try:
+            staged.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
+            os.replace(staged, path)
+            print("Diagnostic report: " + str(path), flush=True)
+        except OSError as exc:
+            print("Cannot save setup diagnostic report: " + str(exc), flush=True)
+        finally:
+            try:
+                staged.unlink(missing_ok=True)
+            except OSError:
+                pass
     print("Actual ESLint/Semgrep configuration validation completed", flush=True)
 
 

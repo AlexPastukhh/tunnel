@@ -95,7 +95,8 @@ class EnginePolicyValidation:
 
 
 def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, ...] = (),
-                           timeout: int = 30, control: RunControl | None = None, workspace: Path | None = None) -> EnginePolicyValidation:
+                           timeout: int = 30, control: RunControl | None = None, workspace: Path | None = None,
+                           diagnostics: bool = False) -> EnginePolicyValidation:
     """Load actual pinned config in real engine; all errors block development scan."""
     try:
         config.validate()
@@ -156,6 +157,8 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
                     files.append(path)
                 argv = build_argv(config, tuple(files))
                 argv[argv.index("--"):argv.index("--")] = ["--time", "--no-rewrite-rule-ids"]
+                if diagnostics:
+                    argv.insert(argv.index("--"), "--debug")
                 process = execute(argv, cwd=root, env=env, shell=False,
                     capture_output=True, text=True, errors="replace", timeout=timeout, check=False, control=control)
                 report = parse_semgrep(process.stdout, process.returncode, tuple(files), root)
@@ -172,7 +175,10 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
             raise ContractError("Tool/config changed during policy validation")
         return EnginePolicyValidation(config.kind, "VALIDATED_DEVELOPMENT", active, identity,
             f"{version}; actual config loaded on safe fixtures; semantic effectiveness NOT proven")
-    except (Cancelled, DeadlineExceeded):
+    except DeadlineExceeded as exc:
+        exc.engine = config.kind
+        raise
+    except Cancelled:
         raise
     except Exception as exc:
         # Malformed YAML/JSON, missing dependency/tool, timeout, unsupported API/version.
@@ -195,7 +201,8 @@ class EffectivePolicy:
 def prepare_effective_policy(captured: CapturedPolicies, tools: tuple[EngineConfig, ...],
                              directory: Path, *,
                              required_rules: tuple[tuple[str, tuple[str, ...]], ...] = (),
-                             timeout: int = 30, control: RunControl | None = None) -> EffectivePolicy:
+                             timeout: int = 30, control: RunControl | None = None,
+                             diagnostics: bool = False, progress=lambda _kind, _phase: None) -> EffectivePolicy:
     """Compose captured shared packs, reject conflicts, compile real configs or raise.
 
     directory must be new job-owned development storage, never a source directory.
@@ -249,9 +256,14 @@ def prepare_effective_policy(captured: CapturedPolicies, tools: tuple[EngineConf
             path.write_text(json.dumps({"rules": semgrep}, ensure_ascii=False), encoding="utf-8")
             required = tuple(sorted(set(requirements.get(kind, ())) | ids))
         config = replace(by_kind[kind], config=path, config_sha256=digest(path.read_bytes()))
-        validation = validate_engine_config(config, required_rules=required, timeout=timeout, control=control, workspace=directory)
+        progress(kind, "START")
+        validation = validate_engine_config(config, required_rules=required, timeout=timeout,
+                                            control=control, workspace=directory, diagnostics=diagnostics)
         if validation.status != "VALIDATED_DEVELOPMENT":
-            raise ContractError(f"{kind} effective policy invalid: {validation.detail}")
+            error = ContractError(f"{kind} effective policy invalid: {validation.detail}")
+            error.engine = kind
+            raise error
+        progress(kind, "COMPLETE")
         configs.append(config)
         validations.append(validation)
         all_required.append((kind, required))

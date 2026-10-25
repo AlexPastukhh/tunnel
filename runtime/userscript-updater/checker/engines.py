@@ -56,7 +56,9 @@ def build_argv(config: EngineConfig, files: tuple[Path, ...]) -> list[str]:
                   if config.executable.name.casefold() in ("python.exe", "pythonw.exe")
                   else [str(config.executable)])
         return [
-            *prefix, "scan", "--config", str(config.config),
+            # Select the pinned Python CLI explicitly; its default native frontend
+            # may re-enter Python through external launchers on Windows.
+            *prefix, "scan", "--legacy", "--jobs=1", "--config", str(config.config),
             "--json", "--error", "--strict", "--metrics=off", "--no-git-ignore",
             "--disable-nosem", "--disable-version-check", "--no-autofix",
             "--oss-only", "--max-target-bytes=0", "--",

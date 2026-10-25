@@ -119,7 +119,9 @@ backup/write-ahead journal/readback, полный target preview и GUI восс
 
 1. Владелец продолжает финальную проверку уже подготовленного Windows runtime
    через --resume-source-runtime (команда в runtime README), затем обычный
-   source-run из рабочей Windows-папки. Проверить вручную сохранённый реестр,
+   source-run из рабочей Windows-папки. Native Semgrep timeout остаётся открытым
+   до успешного повтора; при FAIL использовать setup-validation-report.json,
+   не увеличивать лимиты вместо диагностики. Проверить вручную сохранённый реестр,
    каталог starter и безопасный пример: Check→preview→consent→update→history/rollback.
    Зафиксировать native ошибки и исправить их в Repo, без Docker transport/backend.
 2. После функционального owner walkthrough собрать новый независимый кандидат

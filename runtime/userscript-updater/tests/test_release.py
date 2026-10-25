@@ -31,6 +31,8 @@ class ReleaseTests(unittest.TestCase):
         self.assertIn("-I", argv)
         self.assertIn("-S", argv)
         self.assertNotIn("-m", argv)
+        self.assertIn("--legacy", argv)
+        self.assertIn("--jobs=1", argv)
         self.assertIn("semgrep.console_scripts.entrypoint", argv[argv.index("-c") + 1])
         self.assertEqual(argv[-2:], ["--", "/snapshot/a.js"])
 

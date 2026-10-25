@@ -24,6 +24,20 @@ class ProcessControlTests(unittest.TestCase):
             RunControl(0.15).run([sys.executable, "-c", "import time; time.sleep(20)"],
                                  cwd=self.root, env=self.env)
 
+    def test_deadline_keeps_bounded_output_after_cleanup(self):
+        code = ("import sys,time; "
+                "print('x'*12000+'stdout-ready',flush=True); "
+                "print('y'*12000+'stderr-ready',file=sys.stderr,flush=True); time.sleep(20)")
+        argv = [sys.executable, "-c", code]
+        with self.assertRaises(DeadlineExceeded) as raised:
+            RunControl(10).run(argv, cwd=self.root, env=self.env, timeout=0.6)
+        error = raised.exception
+        self.assertEqual(error.command, tuple(argv))
+        self.assertLessEqual(len(error.stdout.encode("utf-8")), 8192)
+        self.assertLessEqual(len(error.stderr.encode("utf-8")), 8192)
+        self.assertIn("stdout-ready", error.stdout)
+        self.assertIn("stderr-ready", error.stderr)
+
     @unittest.skipUnless(os.name == "posix", "POSIX tree proof; Windows Job Object needs native QA")
     def test_cancel_kills_actual_child_tree(self):
         marker = self.root / "child-pid"

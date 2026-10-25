@@ -72,6 +72,23 @@ Resume проверяет принадлежность профиля этому
 повторно не запускаются; profile/registry/policies не перезаписываются.
 При повторном FAIL прежний ready pointer сохраняется.
 
+Во время финальной проверки выводятся фазы ESLint/Semgrep START/COMPLETE.
+Проверяется явный Python CLI Semgrep (--legacy), с одним worker; все файлы/правила
+по-прежнему обязательны. Deadline не увеличен: 30 секунд на команду, 180 на
+подготовку конфигураций. Последний результат сохраняется в
+%LOCALAPPDATA%\ProjectChecker-Test\state\setup-validation-report.json
+(для собственного --registry используется его соседний state).
+
+Если Resume снова завершился ERROR/тайм-аутом, покажите этот отчёт:
+
+```powershell
+Get-Content "$env:LOCALAPPDATA\ProjectChecker-Test\state\setup-validation-report.json" -Raw -Encoding UTF8
+```
+
+Отчёт содержит фазу, время, ошибку и ограниченные хвосты stdout/stderr безопасной
+проверки. Он не является owner acceptance receipt. При тайм-ауте готовность
+runtime не публикуется; длительность не заменяет реальную проверку.
+
 Обычный запуск из той же папки:
 
 ```powershell

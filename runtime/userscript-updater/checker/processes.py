@@ -21,7 +21,11 @@ class Cancelled(RuntimeError):
 
 
 class DeadlineExceeded(RuntimeError):
-    pass
+    # Bounded output is attached after child-tree cleanup, before temp files close.
+    stdout = ""
+    stderr = ""
+    command = ()
+    engine = ""
 
 
 class _WindowsJob:
@@ -91,6 +95,7 @@ class RunControl:
         gate = Path(__file__).with_name("process_gate.py").resolve()
         job = None
         process = None
+        failure = None
         with tempfile.TemporaryFile(dir=cwd) as out, tempfile.TemporaryFile(dir=cwd) as err:
             try:
                 gate_env = dict(env)
@@ -119,6 +124,9 @@ class RunControl:
                 err.seek(0)
                 return subprocess.CompletedProcess(argv, process.returncode,
                     out.read().decode("utf-8", errors="replace"), err.read().decode("utf-8", errors="replace"))
+            except DeadlineExceeded as exc:
+                failure = exc
+                raise
             finally:
                 # Kill children even if the leader has already exited, so a leftover helper cannot survive.
                 if process is not None:
@@ -134,6 +142,15 @@ class RunControl:
                     if process.stdin and not process.stdin.closed:
                         process.stdin.close()
                     process.wait(timeout=5)
+                if failure is not None:
+                    failure.command = tuple(map(str, argv))
+                    for name, stream in (("stdout", out), ("stderr", err)):
+                        try:
+                            size = os.fstat(stream.fileno()).st_size
+                            stream.seek(max(0, size - 8192))
+                            setattr(failure, name, stream.read(8192).decode("utf-8", errors="replace"))
+                        except OSError:
+                            pass  # Preserve the original deadline failure.
 
 
 def execute(argv, *, control: RunControl | None = None, **kwargs):

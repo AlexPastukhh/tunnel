@@ -1,5 +1,50 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026 — native Semgrep timeout, explicit CLI path and retained diagnostics
+
+Owner retried the staged Windows runtime. Validation passed the ESLint branch
+and reached the Semgrep execute call, then raised Analyzer deadline exceeded.
+The supplied traceback proves the command deadline fired; it does not identify
+which Semgrep subprocess was blocked. The old runner discarded its temporary
+stdout/stderr on timeout, preventing that distinction.
+
+Inspected the shipped pinned Semgrep 1.182.1 source: console entrypoint.main
+defaults to exec_osemgrep, which can dispatch back through an external pysemgrep
+launcher. Its supported --legacy switch selects exec_pysemgrep directly.
+The checker now explicitly selects that Python CLI and --jobs=1 for deterministic
+bounded concurrency. The native analysis core is still used, with all strict
+config/rule/file coverage checks. This removes an unnecessary launcher dependency;
+the exact cause of the owner's native hang remains an inference until a rerun,
+not a claimed Windows fix/PASS.
+
+RunControl retains at most 8192 bytes per stdout/stderr tail on deadline, after
+contained child-tree cleanup. Original timeout exception type/result remains an
+error. Config validation annotates the engine; setup prints per-engine phases
+and enables Semgrep debug only for its safe fixtures. A local atomic
+setup-validation-report.json records phases/timing/status/error/tails on success
+or failure, so diagnostics survive temporary-directory cleanup. Diagnostic write
+failure cannot hide the original timeout. This report cannot issue installed
+authority or readiness; failed child validation still preserves the prior pointer.
+
+Limits are unchanged: 30 seconds per config command, 180 total. No missing rule,
+skip, config failure or timeout is accepted. Regressions exercise actual child
+output/kill/bounds, engine attribution, real setup config compilers and persistence
+of a deliberately timed-out child's stderr.
+
+Verification: **199/199 full-suite tests PASS, zero skips**, actual ESLint and
+Semgrep enabled, 286.691 seconds;
+/workspace/repo/project-checker-devtools/v1-semgrep-startup-tests.log.
+Latest bootstrap source (including explicit reported unchanged limits) rerun
+separately: real compilers complete, deliberate child deadline retains stderr
+and writes ERROR report;
+/workspace/repo/project-checker-devtools/v1-semgrep-startup-bootstrap-final.log.
+AST parsing, changed-document links and git diff --check PASS.
+Linux evidence does not prove that the owner's Windows timeout is resolved.
+
+No Windows process/installer/ACL/target operation was run by the agent. Native
+Semgrep completion remains owner-test pending. Runtime README owns the unchanged
+resume command and the diagnostic report command; PLAN owns the current gate.
+
 ## 25 October 2026 — owner setup validation failure and continuation without reinstall
 
 Owner manually ran the Windows bootstrap: npm installed 77 packages, then

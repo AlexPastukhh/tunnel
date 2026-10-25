@@ -312,8 +312,34 @@ class WorkingActualIntegration(unittest.TestCase):
             # loading, tempfile lifecycle, compilers and safe analyzer fixtures run.
             with patch.dict(sys.modules, {"tkinter": Mock()}):
                 validate_runtime(profile)
-            self.assertEqual(list(settings.state_root.iterdir()), [])
+            report_path = settings.state_root / "setup-validation-report.json"
+            report = json.loads(report_path.read_text())
+            self.assertEqual(report["status"], "VALIDATED")
+            self.assertEqual([(p["engine"], p["phase"]) for p in report["phases"]],
+                             [("eslint", "START"), ("eslint", "COMPLETE"),
+                              ("semgrep", "START"), ("semgrep", "COMPLETE")])
+            self.assertEqual(list(settings.state_root.iterdir()), [report_path])
             self.assertEqual((root / "policies/starter.json").read_bytes(), starter)
+            # A timed-out real child keeps diagnostic output after temp cleanup.
+            from checker.processes import DeadlineExceeded, RunControl
+            def fail(_captured, _tools, _directory, **kwargs):
+                kwargs["progress"]("semgrep", "START")
+                try:
+                    RunControl(10).run([sys.executable, "-c",
+                        "import sys,time; print('core-started',file=sys.stderr,flush=True); time.sleep(20)"],
+                        cwd=settings.state_root, env=dict(os.environ), timeout=0.6)
+                except DeadlineExceeded as error:
+                    error.engine = "semgrep"
+                    raise
+            with patch.dict(sys.modules, {"tkinter": Mock()}), \
+                    patch("checker.policy_validation.prepare_effective_policy", side_effect=fail):
+                with self.assertRaises(DeadlineExceeded):
+                    validate_runtime(profile)
+            report = json.loads(report_path.read_text())
+            self.assertEqual(report["status"], "ERROR")
+            self.assertEqual(report["error"]["engine"], "semgrep")
+            self.assertIn("core-started", report["error"]["stderr_tail"])
+            self.assertEqual(list(settings.state_root.iterdir()), [report_path])
 
     def test_saved_project_real_analyzers_working_settings_and_native_adapter_contract(self):
         # Only the Win32 syscall layer is replaced by an existing named-temp test adapter.
