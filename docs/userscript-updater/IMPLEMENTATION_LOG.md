@@ -1,5 +1,21 @@
 # Project Checker — implementation log and evidence
 
+## 25 October 2026: synthetic transaction and recovery laboratory (fourth slice)
+
+**Scope:** User continued A4 development in Fortis Repo. Added devtools/fixture_transactions.py, deliberately **outside the production checker package**, guarded to a Python TemporaryDirectory with a special synthetic-only marker. No production write/update API was created. Neither the marker nor the fingerprint equals owner authentication or scanner acceptance.
+
+**Observed implementation:** before any synthetic write, the experiment verifies an explicitly chosen preview fingerprint, fresh source hashes/full manifest, registration identity, shared mutable policy hash, source snapshot bytes and actual target inventory. Review fingerprint now also binds the explicitly managed prior set even if some paths no longer exist. Read-only preview includes external empty directories in target inventory; empty folders are preserved, file-at-directory path collisions refused.
+
+An operation staged reviewed snapshot bytes and preimages, checked hashes, fsynced staging/journal, and recorded PREPARED before changing any fixture target. The apply step marks APPLYING, uses staged bytes only, read-back checks, and compares the complete final destination inventory (including unmanaged files and directories). Unit tests exercise create/replace/delete/unchanged, exact backups, double apply denial, destination drift, source/policy drift, missing approval, symlink/fixture escape and tampered backup rejection. Simulated I/O failure and abrupt interruption between replacement and journal checkpoint are recovered from saved backups. An unexpected touched-file modification returns RECOVERY_BLOCKED without clobbering third-party content; a completed managed rollback with unrelated external drift returns ROLLED_BACK_WITH_EXTERNAL_DRIFT rather than claiming exact target restoration. A PREPARED-only transaction does not revert independently applied owner content.
+
+**Evidence:** Python 3.11, real Docker ESLint 10.13.0 and Semgrep CE 1.182.1 integration tests: 74/74 PASS, zero skips, including 25 new regression/transaction tests since prior 49. Git index and other current network work were not modified by this task. All writes in this stage targeted synthetic temporary paths or this project's source/docs; no actual external user-consumed Windows copy touched, no CLI run against real projects.
+
+**Important unresolved security gaps:** Synthetic fixture lab is not a production authorization mechanism; it does not derive any valid scanner PASS (current aggregate is always NOT_AUTHORIZED), validate host trust boundaries, prevent path TOCTOU on Windows, protect policy/rules/tools with Windows ACL, prove dependency closure, resolve target lock semantics, preserve NTFS ACL metadata, or offer owner GUI confirmation. Journal crash durability/multi-volume and external third-party concurrent writes are not solved by a Linux fixture. Real managed-set state must be independently protected, including approval staleness checks. Full planned A4 Windows application remains incomplete.
+
+**Next:** Implement actual Windows-safe trusted snapshot/target handle design and protected registration/policy/tool chain, plus view-only GUI; only after these can production promoter/approval and recovery be enabled with manual owner install and tests. Do not copy/run devtools/fixture_transactions.py as a Windows installer.
+
+---
+
 ## 25 October 2026: read-only external effect preview (third slice)
 
 Added a pure READ-ONLY target preview module; it takes previously captured source snapshot, an explicit previously-managed path set, and a synthetic destination root. No promotion/approval API exists. Previews specify file creates/modifications/deletions/unchanged, text unified diffs when bounded UTF-8 is available, binary hashes/sizes when not, and unmodified target-only paths. Previously managed paths removed from candidate are proposed for deletion and shown; target-only files are preserved. A new mapping colliding with existing unmanaged data is refused pending explicit first-import/adoption decision. It rejects target symlinks/hardlinks and file/directory collisions in this Linux prototype; actual Windows handle-based verification remains future work.

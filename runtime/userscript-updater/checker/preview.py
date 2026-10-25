@@ -38,12 +38,13 @@ class TargetPreview:
     target_root: str
     changes: tuple[Change, ...]
     preserved: tuple[str, ...]
+    preserved_directories: tuple[str, ...]
     target_inventory_sha256: str
     fingerprint: str
     # A preview has NO approval power and cannot be passed to a promoter.
 
 
-def _read_tree(root: Path) -> dict[str, bytes]:
+def _read_tree(root: Path) -> tuple[dict[str, bytes], tuple[str, ...]]:
     if not root.exists() and not root.is_symlink():
         parent = root.parent
         while not parent.exists():
@@ -51,11 +52,12 @@ def _read_tree(root: Path) -> dict[str, bytes]:
                 raise ContractError("No inspectable target root ancestor")
             parent = parent.parent
         check_plain_chain(parent)
-        return {}
+        return {}, ()
     check_plain_chain(root)
     if not root.is_dir():
         raise ContractError("Target root must be a directory")
     files: dict[str, bytes] = {}
+    directories: list[str] = []
 
     def onerror(exc: OSError) -> None:
         raise ContractError(f"Target listing failed: {exc}") from exc
@@ -65,6 +67,10 @@ def _read_tree(root: Path) -> dict[str, bytes]:
         check_plain_chain(current)
         for name in folders:
             check_plain_chain(current / name)
+            relative_dir = relative_target((current / name).relative_to(root).as_posix())
+            if any(existing.casefold() == relative_dir.casefold() for existing in directories):
+                raise ContractError("Case-folded target directory collision")
+            directories.append(relative_dir)
         for name in names:
             file = current / name
             check_plain_chain(file)
@@ -76,7 +82,7 @@ def _read_tree(root: Path) -> dict[str, bytes]:
             if any(old.casefold() == key for old in files):
                 raise ContractError("Case-folded target path collision")
             files[rel] = read_stable_file(file)
-    return files
+    return files, tuple(sorted(directories, key=str.casefold))
 
 
 def _text_diff(relative_path: str, old: bytes | None, new: bytes | None) -> tuple[str | None, str | None]:
@@ -114,7 +120,7 @@ def build_target_preview(
     earlier = [relative_target(path) for path in previously_managed]
     if len({name.casefold() for name in earlier}) != len(earlier):
         raise ContractError("Duplicate previously managed paths")
-    actual = _read_tree(target_root)
+    actual, actual_dirs = _read_tree(target_root)
     keys = {name.casefold(): name for name in actual}
     desired: dict[str, bytes] = {}
     for record in snapshot.records:
@@ -144,6 +150,13 @@ def build_target_preview(
             ):
                 raise ContractError(f"File/directory overlap in target plan: {path}, {other}")
 
+    for path in desired:
+        if any(path.casefold() == d.casefold() for d in actual_dirs):
+            raise ContractError(f"Target destination already occupied by directory: {path}")
+    for path in actual:
+        if any(path.casefold() == d.casefold() for d in actual_dirs):
+            raise ContractError(f"Target is both directory and file: {path}")
+
     changes: list[Change] = []
     for rel in sorted(desired, key=str.casefold):
         before = actual.get(keys[rel.casefold()]) if rel.casefold() in keys else None
@@ -160,13 +173,16 @@ def build_target_preview(
                              key=str.casefold))
     target_manifest = [(name, digest(content), len(content))
                        for name, content in sorted(actual.items(), key=lambda entry: entry[0].casefold())]
-    target_digest = digest(json.dumps(target_manifest, ensure_ascii=False, sort_keys=True).encode("utf-8"))
+    # Empty directories are observable, preserved, and invalidate a reviewed plan.
+    target_digest = digest(json.dumps([target_manifest, actual_dirs], ensure_ascii=False, sort_keys=True).encode("utf-8"))
     action_fields = [
         (item.kind, item.relative_path, item.before_sha256, item.after_sha256, item.before_size, item.after_size)
         for item in changes
     ]
     fingerprint = hashlib.sha256(json.dumps(
         [snapshot.snapshot_id, snapshot.registration_sha256, str(target_root),
-         target_digest, action_fields, preserved], ensure_ascii=False,
+         target_digest, sorted(earlier, key=str.casefold),
+         action_fields, preserved, actual_dirs], ensure_ascii=False,
         sort_keys=True).encode("utf-8")).hexdigest()
-    return TargetPreview(str(target_root), tuple(changes), preserved, target_digest, fingerprint)
+    return TargetPreview(str(target_root), tuple(changes), preserved, actual_dirs,
+                         target_digest, fingerprint)

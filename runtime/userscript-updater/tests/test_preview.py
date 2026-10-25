@@ -55,6 +55,13 @@ class PreviewTests(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "explicit adoption"):
             build_target_preview(self.snapshot(), self.out, ())
 
+    def test_prior_managed_scope_change_invalidates_approval_even_if_file_missing(self):
+        snap = self.snapshot()
+        no_history = build_target_preview(snap, self.out, ())
+        has_missing_history = build_target_preview(snap, self.out, ("previous-but-absent.js",))
+        self.assertEqual(no_history.changes, has_missing_history.changes)
+        self.assertNotEqual(no_history.fingerprint, has_missing_history.fingerprint)
+
     def test_target_change_invalidates_plan_fingerprint(self):
         target = self.out / "main.js"
         target.write_text("before")
@@ -89,6 +96,20 @@ class PreviewTests(unittest.TestCase):
         self.assertIsNone(preview.changes[0].text_diff)
         self.assertIsNotNone(preview.changes[0].diff_note)
         self.assertNotEqual(preview.changes[0].before_sha256, preview.changes[0].after_sha256)
+
+    def test_empty_external_directory_is_preserved_and_binds_plan(self):
+        snap = self.snapshot()
+        first = build_target_preview(snap, self.out, ())
+        (self.out / "owner-empty").mkdir()
+        second = build_target_preview(snap, self.out, ())
+        self.assertIn("owner-empty", second.preserved_directories)
+        self.assertNotEqual(first.target_inventory_sha256, second.target_inventory_sha256)
+        self.assertNotEqual(first.fingerprint, second.fingerprint)
+
+    def test_existing_empty_dir_cannot_be_target_file(self):
+        (self.out / "main.js").mkdir()
+        with self.assertRaisesRegex(ContractError, "occupied by directory"):
+            build_target_preview(self.snapshot(), self.out, ())
 
     def test_directory_over_file_refused(self):
         (self.out / "sub").write_text("owner note")
