@@ -640,3 +640,8 @@ Live Repo1: два последовательных echo PASS7.390/8.033с, chil
 Live dev Git восстановлен и синхронизирован: commit b5e0063062a8dcd1644bb4eed8eb17d14d1d157c, только девять собственных source/docs paths поверх c06f56a. Перед переносом проверены исходные SHA, после него — сохранённые, staged и committed bytes через явное чтение/stdin; собственные пути clean. Восемь чужих tracked dirty и их index/worktree bytes сохранены. В рабочем Docker Node22.23.3 все 10 tests PASS; новых OOM не наблюдалось в предшествующем snapshot. Push и Windows-installed writes ассистент не выполнял.
 
 Repo1 PASS ограничен этими routes в текущем side-by-side запуске. Новый file log ещё не экспортирован, Repo2/обычный Start/default/cold boot не исправлены; второй installed launcher сначала read-review по безопасным metadata. STATE/security/runtime map обновлены, чужой Checker source не тронут.
+
+
+## WF-059 — 2026-10-26: owner SHA/AST metadata установленного Repo2
+
+Owner выполнил read-only ParseFile на фактическом `FortisRepo2.ps1`: SHA прежний, единственный интерфейс `Action=Setup|Start|Status`, точных Direct string literals нет, AST binding/guard отмечает строки181/209/212. Это безопасные metadata, но не полный source review: команда может собираться динамически. Следующий gate — адресная редактированная AST-проекция строк и зависимых assignment, затем подготовка отдельного Repo2 quiet candidate. Никаких новых Windows changes/starts/stops, source patch для Repo2, push или перекрытия чужой dirty работы на этом этапе нет. Evidence — [раздел WF-059 в отчёте](reviews/repo-tunnel-outage-20261026.md#wf-059-repo2-owner-ast-metadata-read-only-26102026).

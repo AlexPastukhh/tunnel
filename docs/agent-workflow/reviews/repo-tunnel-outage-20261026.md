@@ -355,3 +355,9 @@ $rp2Calls = @($rp2Ast.FindAll({ param($n)
 ```
 
 Эти metadata нужны для следующего ограниченного patch-review; они не означают, что полное тело второго launcher уже проверено или обновлено.
+
+### WF-059: Repo2 owner AST metadata (read-only, 26.10.2026)
+
+Владелец выполнил WF-058 read-only PowerShell parser/metadata блок над фактическим installed `FortisRepo2.ps1`. Выход: SHA256=`13C1956DA1E7B7405F50B495A40225D51E42E568965A68AAFFBE404616093CDB` (предыдущий pin совпал), параметры: единственный `Action`, ValidateSet `Setup|Start|Status`; `DirectLiterals=[]`; `BindingOrGuardLines=[181,209,212]`. Блок не исполнял launcher, не читал ключи/профили и не останавливал процессы. Совпадение SHA относится к установленным bytes; пустой список точных literals не исключает динамическую сборку Direct-команды. Полный body всё ещё не прочитан.
+
+**Следующий gate:** адресный read-only AST projection только binding/guard и зависимых присваиваний с редактированием всех строковых literal values. До такого review не изготавливать предполагаемую замену для Repo2 и не запускать `-Action Start` / `Setup` ради диагностики. Repo1 quiet canary и общий Docker не трогать. Ни Repo2 patch/apply, ни полный smoke, ни default switch не выполнены.
