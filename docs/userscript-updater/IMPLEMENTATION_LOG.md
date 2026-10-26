@@ -1,5 +1,31 @@
 # Project Checker — implementation log and evidence
 
+## 26 October 2026 — owner Windows runtime resumed, actual compilers READY (scoped)
+
+Owner re-ran `py -3 -m checker.gui --resume-source-runtime` from
+`C:\\Users\\alexa\\Repos\\tunnel\\runtime\\userscript-updater` against the existing
+`ProjectChecker-Test` runtime `322517f4d8b84019a9982aaa572a3a25`.
+Provided native console output shows `eslint START`, `eslint COMPLETE`,
+`semgrep START`, `semgrep COMPLETE`, `Actual ESLint/Semgrep configuration
+validation completed`, and `Ready. Launch checker.gui with --registry only.`
+Profile reported under that unchanged runtime. There was no error/timeout in
+this run. This is **OWNER-REPORTED WINDOWS SOURCE-RUNTIME VALIDATION PASS
+(scope: safe actual ESLint/Semgrep config fixtures and ready pointer)**.
+We did not independently inspect the Windows machine, native diagnostic JSON
+or GUI, and do not attribute success to a particular source change without
+additional causal evidence. Previous native failures remain dated history.
+
+Next Windows owner gate: launch GUI with
+`py -3 -m checker.gui --registry "$env:LOCALAPPDATA\\ProjectChecker-Test\\projects.json"`
+from the same Repo folder. Verify saved registration/starter and Check behavior
+first, then use a **separate disposable JS/Python fixture and its own target**
+for the owner-observed Check → exact preview → consent → update/readback →
+history/rollback/recovery walkthrough. Do not write to the previously saved
+real tunnel target as a test. Native working-folder result scope remains
+`WINDOWS_WORKING_COPY_TEST`; protected installed authority, route isolation,
+release rebuild and `OWNER_ACCEPTED` remain pending. No Windows, Loader,
+Tunnel or target mutation was performed by the agent.
+
 ## 26 October 2026 — owner Semgrep deadline persists; bounded startup phase evidence
 
 Owner retried source-runtime resume after the short private TEMP commit `4f5fbbf`

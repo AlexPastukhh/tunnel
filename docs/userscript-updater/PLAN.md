@@ -117,25 +117,17 @@ backup/write-ahead journal/readback, полный target preview и GUI восс
 
 ## 6. Как вести работу и следующий gate
 
-1. Владелец продолжает финальную проверку уже подготовленного Windows runtime
-   через --resume-source-runtime (команда в runtime README), затем обычный
-   source-run из рабочей Windows-папки. После прежнего Semgrep timeout
-   owner report выявил Windows `semgrep-core.exe -rpc` / OCaml `socketpair`:
-   старый TEMP указывал на глубоко вложенный validation workspace и превышал
-   короткий UTF-8 лимит AF_UNIX socket path. Исправление использует приватный
-   короткий TEMP непосредственно под `settings.state_root` только для дочерних
-   команд и отказывает при превышении 80 UTF-8 байт самого каталога.
-   Системный TEMP и дедлайны не изменяются; Semgrep остаётся обязательным.
-   **Owner повторил resume после этого исправления: Semgrep снова достиг
-   30-секундного deadline с пустыми хвостами stderr/stdout**, без повторного
-   сообщения socketpair. Причина нового зависания не установлена. Следующий
-   source шаг — фазовые отметки только для безопасного bootstrap; владелец
-   повторяет тот же resume и передаёт parent_phase/phase_markers из
-   setup-validation-report.json. Пока это не успешный Windows PASS.
-   При FAIL не менять сетевые настройки и не увеличивать лимиты вместо
-   диагностики. После успешного resume проверить сохранённый реестр,
-   каталог starter и безопасный пример: Check→preview→consent→update→history/rollback.
-   Зафиксировать native ошибки и исправить их в Repo, без Docker transport/backend.
+1. **Owner Windows source-runtime validation PASS(scope):** 26.10 владелец
+   повторил --resume-source-runtime на существующем runtime без reinstall;
+   ESLint и Semgrep оба показали START→COMPLETE, затем `Ready`. Точный вывод,
+   старые timeout/socketpair FAIL и пределы доказательства — в implementation log.
+   **Следующий gate:** запустить обычный GUI через --registry (runtime README),
+   проверить сохранённые регистрацию и starter, затем выполнить Check на
+   отдельном небольшом JS/Python fixture. Для полного пути
+   Check→preview→consent→update→history/rollback использовать только новое
+   заведомо тестовое назначение, не прежний рабочий tunnel target.
+   Зафиксировать реальные GUI/Win32 ошибки и исправить их в Repo. Пока нет
+   native functional PASS, independent InstalledAuthority или OWNER_ACCEPTED.
 2. После функционального owner walkthrough собрать новый независимый кандидат
    из актуального source commit и пройти установку/route acceptance.
    Старый frozen bundle используется source-run только для зависимостей;
