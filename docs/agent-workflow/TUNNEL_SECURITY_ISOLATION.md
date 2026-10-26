@@ -1,12 +1,12 @@
 # Безопасность и изоляция Fortis Repo / Tunnel
 
-**Последняя точечная Linux-проверка:** 26.10.2026, WF-054 (confinement/права выбранных файлов); serving census и module SHA — WF-050; Windows owner-run база — 25.10.2026. Это разные scoped observations, не непрерывная аттестация.
+**Текущий функциональный инцидент:** 26.10.2026, WF-055–058 — Repo1 quiet canary прошёл ограниченный live smoke, Repo2 и постоянный default ещё не восстановлены; V-16/F-R-15. Последняя ассистентская Linux confinement-проверка — WF-054; owner проверил новый временный Direct MCP в WF-055. Это разные scoped observations, не непрерывная аттестация.
 
 ## 0. Назначение и действующее ограничение
 
 Это единственный текущий реестр границ Repo/Tunnel, доказательств V-, рисков F-R- и приёмки P-. Активные задачи и ближайший шаг — [STATE](STATE.md), хронология — [JOURNAL](JOURNAL.md). Source/test progress Checker ведётся в его [PLAN](../userscript-updater/PLAN.md) и [implementation log](../userscript-updater/IMPLEMENTATION_LOG.md), условия host-приёмки — в [Windows boundary](../userscript-updater/WINDOWS_TRUST_BOUNDARY.md).
 
-**Решение владельца:** сохранить оба работающих Direct Repo; не переносить Tunnel вручную, не запускать/удалять legacy Bridge, не менять ACL вслепую и не перезапускать общий Docker. Trusted promotion и независимое восстановление должны пройти приёмку раньше cleanup.
+**Решение владельца:** сохранить Direct topology двух Repo при восстановлении их доступности; не переносить Tunnel вручную, не запускать/удалять legacy Bridge, не менять ACL вслепую и не перезапускать общий Docker. Остановка любого Tunnel — отдельное согласование. Trusted promotion и независимое восстановление должны пройти приёмку раньше cleanup.
 
 ## 1. Источники и пределы доказательств
 
@@ -35,7 +35,7 @@ flowchart TD
 
 | ID | Проверка / источник | Результат | Что НЕ доказано |
 | --- | --- | --- | --- |
-| V-01 | Миграция двух Windows Tunnel на Direct MCP; WF-035–037, census/config повтор WF-050 | **PASS(scope)**: после owner install первое `get_config`/`read_file` успешно, второй чат подтвердил отдельное read-only чтение Git; Linux `/proc` видел **2 Direct DC, 0 Bridge** | Непрерывная работа, все MCP-команды, reconnect и cold reboot; отдельный smoke второго клиента в WF-050 не повторён |
+| V-01 | Миграция двух Windows Tunnel на Direct MCP; WF-035–037, census/config повтор WF-050 | **Исторический PASS(scope)**: после owner install `get_config`/`read_file` успешно, второй чат подтвердил read-only Git; census видел **2 Direct DC, 0 Bridge**. Текущие отказы — V-16 | Прежний smoke не доказывает нынешнюю доступность, непрерывную работу, все команды, reconnect или cold reboot |
 | V-02 | Direct DC module, предки пути; WF-037 | **PASS(scope)**: module SHA-256 `a4145198dc75cd34e7c7452c2054b4cc0d29e199ae1459961a17e4da25a13500`, protected root-owned `/opt/dc` path, не writable UID1000 | Не гарантирует целостность других файлов, всей supply chain или Windows start chain |
 | V-03 | Docker confinement; WF-020/037, Linux repeat WF-054 | **PASS(scope)**: UID/GID1000, RO rootfs, no Linux capabilities, `NoNewPrivs=1`, `Seccomp=2`, не найден стандартный docker.sock; ресурсы ограничены 1 GiB/2 CPU/256 pids | Нельзя исключить все Docker API/Windows network routes, контейнерные уязвимости или данные в RW mounts |
 | V-04 | Реальные mounts; WF-020/029/037 | **PASS(scope)**: `/workspace/repos` ↔ Windows Repos RW; `/workspace/files` ↔ Windows Workfiles RW; `/workspace/repo` — writable Docker volume | Не установлены все Windows junction/reparse aliases, цели и обходные пути |
@@ -50,6 +50,7 @@ flowchart TD
 | V-13 | Credentials первого Tunnel; WF-020/репо-защита | **OWNER-REPORTED PASS(scope)**: Windows `runtime.key` ACL protected, только `alexa FullControl`; содержимое ключа не читалось | Все копии credentials, ключ/профиль второго Tunnel, передача ключей в процесс/сеть, отсутствие secrets внутри Docker |
 | V-14 | Network/host diagnostics; WF-020/021/029 | **OPEN F-R-06**: из Docker был доступен узкий host loopback `/healthz` (200); выбранные admin GET давали 404 | Нельзя утверждать запрет других методов, host/LAN endpoints, unauthenticated launch/promotion APIs либо всего сетевого egress |
 | V-15 | Reboot и memory/tmpfs; WF-030/031/037 | **Частичный recovery PASS** одного Repo после сброса `/home/node` tmpfs и pinned восстановления DC/Git; два Direct совместно работали при pinned config. Ресурсные значения WF-037 — исторический snapshot; новое наблюдение ресурсов/ограничения вывода — F-R-13 | **OPEN:** холодный reboot с двумя профилями и racing first start, emergency rollback независимо от Bridge |
+| V-16 | Массовые отказы, owner health и stdio probe; [WF-055](reviews/repo-tunnel-outage-20261026.md) | **PARTIAL RECOVERY / OWNER + TOOL EVIDENCE**: отказы и notification flood зафиксированы; owner установил side-by-side quiet Repo1, Preview PASS и несколько последовательных command/file/output вызовов прошли. Child Node не наследует preload. Старый installed launcher подавляет runtime output; его обычный Start ещё не переключён | Типы/объёмы логовых уведомлений исходного сбоя подтверждены exporter; свежий quiet-log count, второй Runtime, default restart, cold boot и длительное восстановление не проверены. PASS относится к текущему Repo1 canary, не обоим подключениям |
 
 Значения SHA и пройденные проверки выше — **срез, а не инструкция автоматически доверять любому следующему файлу с похожим именем**. Фактическая установка/проверка актуального runtime всегда требует нового read-back.
 
@@ -75,8 +76,9 @@ WF-050 mountinfo различает `/Users/alexa/Repos` и `/Users/alexa/Workfi
 | F-R-10 **OPEN** | Shared DC config/UID/Git/two profiles | Изоляции одного Repo от второго **нет** | Явно принять общий контейнер либо отдельно проектировать два контейнера |
 | F-R-11 **OPEN** | Холодный reboot обоих Repo, restore, order/race, Bridge-free rollback | Fail-closed может прервать работу, а старый fallback небезопасен | Owner-controlled test window после защиты восстановления и бэкапов |
 | F-R-12 **DESIGN** | Windows trust boundary promotion-приложения не принята; реализация и тесты принадлежат документам Checker | Непроверенный Docker source не должен получить Windows production execution | Приёмка по разделу 6 и фиксация реальных receipt/логов тестов |
-| F-R-13 **OPEN, reliability** | WF-049: кратковременный cannot fork. WF-050 live: pids.current=54, max=256, **pids.events max=316**; memory.events max=2933, oom/oom_kill=0. PID-limit events подтверждены; причина, actor и связь с конкретным WF-049 **не установлены** | Может прерывать MCP shell-тесты, recovery и сборку; накопительные counters не показывают время/виновника и не доказывают OOM | В спокойный момент read-only сравнить дельты counters и scoped process/thread metadata; не проводить stress, не завершать чужие процессы и не restart Docker ради диагностики |
+| F-R-13 **OPEN, reliability** | WF-050: pids.events max=316, oom/oom_kill=0. Owner WF-055: **oom=15, oom_kill=1**, Docker OOM event 26.10 02:45:37 +07; более поздний замер pids.current=100/256, memory.current=634314752/1073741824, накопительные counters не выросли | Ресурсный отказ подтверждён исторически; жертва/причина и связь с нынешними таймаутами не установлены. Не считать каждое oom событием убийства или нынешний запас памяти восстановлением погибшего процесса | Спокойные дельты/metadata по [WF-055](reviews/repo-tunnel-outage-20261026.md); headroom перед новым MCP. Без stress, произвольного kill и общего restart |
 | F-R-14 **OPEN, evidence integrity** | WF-050 L-07: Git path hash JOURNAL расходится с Python read/`hash-object --stdin`; HEAD49b2e40 имеет NUL-only suffix1257 и не содержит WF-049, хотя рабочий текст её содержал | Git status/название коммита не доказывают сохранённые bytes; причина рассогласования не установлена, компрометация не доказана | Сверять собственные staged/committed blobs с явно прочитанными bytes; сохранить исторический текст/WF-049; не менять ОС/кеш/mount ради обхода |
+| F-R-15 **OPEN, current reliability/observability** | WF-055: несколько чатов/два профиля отказывают; живой Runtime имеет delivery/dispatcher timeouts при рабочем polling. PR-A-15 подавляет весь stdout/stderr. Owner exporter подтвердил сотни notifications/message перед конечными ответами; последовательные POST создают существенный риск задержки. Repo1 quiet canary прошёл ограниченный live smoke; второй и постоянный default ещё не приняты | Ready и принятые промежуточные отправки могут скрывать отсутствие конечного результата; отсутствие консольного вывода затрудняет диагностику | [Evidence и canary WF-055–058](reviews/repo-tunnel-outage-20261026.md): сначала metadata/read-review второго installed launcher и его эквивалент, затем owner verification обоих и постоянного default. Новый log первого ещё не экспортирован. Не менять протокол/сеть/версии вслепую; recovery обоих не подтверждён |
 
 ### Достаточность сетевой границы — F-R-06
 
@@ -148,7 +150,7 @@ Evidence приёмки должно связывать approved и installed di
 
 ## 9. Ограничения и запрещённые преждевременные действия
 
-- Текущие два Tunnel Direct — **функционально PASS(scope)**; это не доказательство непроницаемости Docker или всего host.
+- Миграция двух Direct имеет исторический PASS(scope); текущий функциональный сбой WF-055–058 закрыт только ограниченным Repo1 canary smoke. Ни прежний smoke, ни новый временный stdio probe не доказывают восстановление обоих Tunnel или непроницаемость Docker/host.
 - Не сканировать чужие пути за пределами согласованных roots и не следовать автоматически по reparse targets; не запускать разрушительные ACL/marker-тесты на рабочих EXE, не kill текущие PID, не чистить `/workspace/repo/.fortis` рекурсивно.
 - Не переносить Windows key/profile в Git/Docker, не публиковать raw Tunnel profile, credentials или лог с приватным URL. Не путать `NotSigned` с доказанной компрометацией.
 - Git-коммит этого документа **не меняет** host ACL, Tunnel installs, Docker, сеть, автозапуск и не выполняет release. Отдельный owner-approved deployment обязателен.

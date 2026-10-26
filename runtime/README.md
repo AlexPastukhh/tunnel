@@ -5,6 +5,7 @@
 | Компонент | Source / владелец |
 | --- | --- |
 | Repo1 Direct launcher PR-A-15 | [two-profile/reboot candidate](host-g2/runtime-api-migration/repo-run-tunnel-two-profile-reboot.candidate.ps1); статус установки — security V-07 |
+| Repo1 quiet-log canary PR-A-17 | [отдельный launcher](host-g2/runtime-api-migration/repo-run-tunnel-quiet-logs.candidate.ps1), [читаемый preload](repo-mode/quiet-log-preload.mjs), [тесты](repo-mode/test-quiet-log-preload.mjs); owner Repo1 canary smoke PASS(scope), default Preview, [приёмка/owner-план](../docs/agent-workflow/reviews/repo-tunnel-outage-20261026.md#проверочный-вариант-pr-a-17-source-only) |
 | Repo1 control | [control source](host-g2/runtime-api-migration/repo-control.ps1) |
 | Repo2 Direct guard | [guard candidate](host-g2/runtime-api-migration/repo2-direct-guard.candidate.ps1); launcher/installed evidence — security V-08 |
 | G2 | [guest entry](host-g2/runtime-api-migration/start-g2-guest-session.ps1), [gate](host-g2/g2-stdio-gate.py), [G2 plan](../docs/G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md) |
