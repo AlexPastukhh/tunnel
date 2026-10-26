@@ -317,4 +317,41 @@ Owner запустил -Mode Run без RestartRepo1; RunId **7027db02148f4c02a4
 
 Ресурсы последнего Linux snapshot: pids.current78/256, memory.current582598656/1073741824, memory.events max93894/oom15/oom_kill1 — не выросли. Это не установление жертвы прежнего OOM. Существующие другие Direct процессы не завершались ассистентом.
 
+Live source sync завершён в commit b5e0063062a8dcd1644bb4eed8eb17d14d1d157c: девять собственных source/docs paths, точные read/staged/committed bytes, восемь чужих tracked dirty и их index/worktree сохранены. В фактическом Docker Node22.23.3 полный набор из 10 tests PASS (0 fail/cancelled/skipped). Receipt metadata: sync7132231f49aa469490fa404c624f2ef1, phase=complete. Это перенос исходников в dev Git, без push и без обновления installed Windows launcher.
+
 **Предел PASS:** доступные command/file/output routes Repo1 в текущем canary. Новый Windows log ещё не экспортирован, поэтому фактический нулевой notification count отдельно не заявлен. Repo2 по-прежнему без quiet launcher; полного installed FortisRepo2.ps1 в архиве нет. Обычный control Start и старый shortcut ещё запускают прежний launcher; постоянный перенос требует отдельного owner шага после проверки второго. Cold boot/P-10 и security gates остаются OPEN/PENDING.
+
+
+### Следующий owner read-only шаг: metadata Repo2 launcher
+
+Выполнить в отдельном PowerShell, оставив текущий Repo1 canary открытым. Блок проверяет прежний SHA и разбирает AST установленного скрипта, не выполняя его. Вывод ограничен именами/ValidateSet параметров, номерами строк и точным известным Direct command literal; другие строковые значения, профили, ключи и private URL не выводятся. Изменение файлов, процессов и контейнера не требуется. Если старый SHA изменился или нужной статической команды нет, не применять автоматическую замену.
+
+```powershell
+$rp2 = Join-Path $env:LOCALAPPDATA 'FortisRepoPlus2\FortisRepo2.ps1'
+$rp2Hash = (Get-FileHash -LiteralPath $rp2 -Algorithm SHA256).Hash
+if ($rp2Hash -ne '13C1956DA1E7B7405F50B495A40225D51E42E568965A68AAFFBE404616093CDB') { throw 'Repo2 SHA changed; stop.' }
+$rp2Tokens = $null; $rp2Errors = $null
+$rp2Ast = [System.Management.Automation.Language.Parser]::ParseFile($rp2, [ref]$rp2Tokens, [ref]$rp2Errors)
+if ($rp2Errors.Count) { throw 'Repo2 parse failed; stop.' }
+$rp2Params = @($rp2Ast.ParamBlock.Parameters | ForEach-Object {
+    $rp2Param = $_
+    [pscustomobject]@{
+        Name = $rp2Param.Name.VariablePath.UserPath
+        Allowed = @($rp2Param.Attributes | Where-Object { $_.TypeName.Name -eq 'ValidateSet' } | ForEach-Object {
+            $_.PositionalArguments | ForEach-Object {
+                if ($_ -is [System.Management.Automation.Language.StringConstantExpressionAst] -and $_.Value -match '^[A-Za-z0-9_-]{1,40}$') { $_.Value } else { '<redacted>' }
+            }
+        })
+    }
+})
+$rp2Direct = 'command=docker exec -i fortis-repo-test /usr/local/bin/node /opt/dc/node_modules/@wonderwhy-er/desktop-commander/dist/index.js'
+$rp2Literals = @($rp2Ast.FindAll({ param($n)
+    $n -is [System.Management.Automation.Language.StringConstantExpressionAst] -and ($n.Value -eq $rp2Direct -or $n.Value -eq $rp2Direct.Substring(8))
+}, $true) | ForEach-Object { [pscustomobject]@{ Line = $_.Extent.StartLineNumber; Command = $_.Value } })
+$rp2Calls = @($rp2Ast.FindAll({ param($n)
+    $n -is [System.Management.Automation.Language.CommandAst] -and $n.Extent.Text -match '--mcp|Repo2DirectGuard'
+}, $true) | ForEach-Object { $_.Extent.StartLineNumber })
+[pscustomobject]@{ Sha256 = $rp2Hash; Parameters = $rp2Params; DirectLiterals = $rp2Literals; BindingOrGuardLines = $rp2Calls } | ConvertTo-Json -Depth 6
+```
+
+Эти metadata нужны для следующего ограниченного patch-review; они не означают, что полное тело второго launcher уже проверено или обновлено.
