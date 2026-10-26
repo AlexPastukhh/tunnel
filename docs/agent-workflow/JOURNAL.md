@@ -654,3 +654,8 @@ Pinned AST read-only: $Bridge line24 is Direct Docker exec/Node/DC, no legacy Br
 ## WF-061 — 2026-10-26: Repo2 Direct command positional mismatch isolated
 
 Owner read-only SHA-pinned projection of $Bridge line24: exactly 6 tokens docker exec -i fortis-repo-test <masked-executable> /opt/dc/node_modules/@wonderwhy-er/desktop-commander/dist/index.js; no quotes, unexpected whitespace or additional Docker flags. Therefore WF-060 Preview refusal is limited to executable token position4 vs expected /usr/local/bin/node. Next gate is read-only boolean equality check of a small Node executable allowlist without revealing unknown literal. No side-by-side candidate Stage/Start, runtime/profile modifications or Docker/Repo1 restarts. Evidence: [WF-060 review](reviews/repo-tunnel-outage-20261026.md#wf-060-repo2-quiet-preparer-source-only).
+
+
+## WF-062 — 2026-10-26: Repo2 executable alias node, preparer v2 source-only
+
+Owner confirmed token4 of installed $Bridge exactly node, with other 5 tokens pinned. The WF-060 v1 matcher required /usr/local/bin/node; its Preview failure was legitimate strict-allowlist refusal. New source-only v2 preparer allows only node OR /usr/local/bin/node in the existing anchored regex; all remaining source bytes equal v1 (one-line edit). SHA v2 243fe0cba346e0c26a3190e94a66ef68a8e2fc2c260e063cdc00579fffc51f18, 12,104 bytes. Container read-only node resolution showed /usr/local/bin/node, root0755. Static 4-positive/6-negative matcher checks PASS; v2 PowerShell parser/Preview/Stage/Run NOT_RUN. No installed Repo2, Docker, profiles, Repo1, foreign dirty changes or push by assistant. [WF-060 review](reviews/repo-tunnel-outage-20261026.md#wf-060-repo2-quiet-preparer-source-only).

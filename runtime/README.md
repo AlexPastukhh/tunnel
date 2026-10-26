@@ -8,7 +8,7 @@
 | Repo1 quiet-log canary PR-A-17 | [отдельный launcher](host-g2/runtime-api-migration/repo-run-tunnel-quiet-logs.candidate.ps1), [читаемый preload](repo-mode/quiet-log-preload.mjs), [тесты](repo-mode/test-quiet-log-preload.mjs); owner Repo1 canary smoke PASS(scope), default Preview, [приёмка/owner-план](../docs/agent-workflow/reviews/repo-tunnel-outage-20261026.md#проверочный-вариант-pr-a-17-source-only) |
 | Repo1 control | [control source](host-g2/runtime-api-migration/repo-control.ps1) |
 | Repo2 Direct guard | [guard candidate](host-g2/runtime-api-migration/repo2-direct-guard.candidate.ps1); launcher/installed evidence — security V-08 |
-| Repo2 quiet preparer WF-060 (SOURCE ONLY) | [side-by-side preparer](host-g2/runtime-api-migration/repo2-quiet-preparer.candidate.ps1) default Preview; original Windows launcher/guard unchanged; [review](../docs/agent-workflow/reviews/repo-tunnel-outage-20261026.md#wf-060-repo2-quiet-preparer-source-only); Windows parser/Preview/Stage/Run NOT_RUN |
+| Repo2 quiet preparer WF-060 (SOURCE ONLY) | [v1 fail-closed on executable token](host-g2/runtime-api-migration/repo2-quiet-preparer.candidate.ps1); [v2, allowing pinned node alias](host-g2/runtime-api-migration/repo2-quiet-preparer-v2.candidate.ps1), default Preview; original Windows launcher/guard unchanged; [review](../docs/agent-workflow/reviews/repo-tunnel-outage-20261026.md#wf-060-repo2-quiet-preparer-source-only); v2 Windows parser/Preview/Stage/Run NOT_RUN |
 | G2 | [guest entry](host-g2/runtime-api-migration/start-g2-guest-session.ps1), [gate](host-g2/g2-stdio-gate.py), [G2 plan](../docs/G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md) |
 | Project Checker | [source README](userscript-updater/README.md) |
 | Broker | [runbook](broker/README.md) |
