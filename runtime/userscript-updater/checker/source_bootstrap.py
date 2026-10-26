@@ -315,7 +315,8 @@ def validate_runtime(profile):
     started = time.monotonic()
     command_timeout, job_timeout = 30, 180
     report = dict(schema_version=1, scope="SOURCE_RUNTIME_DIAGNOSTIC", status="ERROR", phases=[],
-                  command_timeout_seconds=command_timeout, job_timeout_seconds=job_timeout)
+                  command_timeout_seconds=command_timeout, job_timeout_seconds=job_timeout,
+                  temporary_parent=str(settings.state_root))
     def progress(kind, phase):
         report["phases"].append(dict(engine=kind, phase=phase, elapsed_seconds=round(time.monotonic() - started, 3)))
         print("Config validation: " + kind + " " + phase, flush=True)
@@ -323,7 +324,8 @@ def validate_runtime(profile):
         with tempfile.TemporaryDirectory(prefix="setup-validation-", dir=settings.state_root) as tmp:
             prepare_effective_policy(captured, settings.tools, Path(tmp) / "effective",
                                      timeout=command_timeout, control=RunControl(job_timeout),
-                                     diagnostics=True, progress=progress)
+                                     diagnostics=True, progress=progress,
+                                     temporary_parent=settings.state_root)
         report["status"] = "VALIDATED"
     except Exception as exc:
         report["error"] = dict(type=type(exc).__name__, message=str(exc),

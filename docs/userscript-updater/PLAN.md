@@ -119,9 +119,16 @@ backup/write-ahead journal/readback, полный target preview и GUI восс
 
 1. Владелец продолжает финальную проверку уже подготовленного Windows runtime
    через --resume-source-runtime (команда в runtime README), затем обычный
-   source-run из рабочей Windows-папки. Native Semgrep timeout остаётся открытым
-   до успешного повтора; при FAIL использовать setup-validation-report.json,
-   не увеличивать лимиты вместо диагностики. Проверить вручную сохранённый реестр,
+   source-run из рабочей Windows-папки. После прежнего Semgrep timeout
+   owner report выявил Windows `semgrep-core.exe -rpc` / OCaml `socketpair`:
+   старый TEMP указывал на глубоко вложенный validation workspace и превышал
+   короткий UTF-8 лимит AF_UNIX socket path. Исправление использует приватный
+   короткий TEMP непосредственно под `settings.state_root` только для дочерних
+   команд и отказывает при превышении 80 UTF-8 байт самого каталога.
+   Системный TEMP и дедлайны не изменяются; Semgrep остаётся обязательным.
+   Успех Windows Semgrep/GUI по-прежнему ждёт ручного повтора владельца.
+   При FAIL смотреть setup-validation-report.json, не менять сетевые настройки
+   и не увеличивать лимиты вместо устранения причины. Проверить сохранённый реестр,
    каталог starter и безопасный пример: Check→preview→consent→update→history/rollback.
    Зафиксировать native ошибки и исправить их в Repo, без Docker transport/backend.
 2. После функционального owner walkthrough собрать новый независимый кандидат

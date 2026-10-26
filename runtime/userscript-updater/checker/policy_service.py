@@ -60,7 +60,7 @@ class PolicyService:
             for index, packs in enumerate(compositions):
                 progress("policy", f"Валидация пакета и привязок: {index + 1}/{len(compositions)}")
                 prepare_effective_policy(capture_pack_values(packs), self.settings.tools,
-                    Path(tmp) / str(index), control=control)
+                    Path(tmp) / str(index), control=control, temporary_parent=self.settings.state_root)
             if self.settings.tool_identities() != original_tools:
                 raise ContractError("Tools changed during policy edit")
             if any(self.store.load(p.pack_id).fingerprint() != p.fingerprint() for p in references):

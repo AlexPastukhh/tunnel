@@ -1,5 +1,57 @@
 # Project Checker — implementation log and evidence
 
+## 26 October 2026 — native Semgrep socketpair short private TEMP (Docker tested; Windows pending)
+
+Owner's latest Windows `--resume-source-runtime` report narrowed the earlier Semgrep
+deadline to a native startup failure before analysis:
+`semgrep-core.exe -rpc -debug -j 1` raised `Unix_error: ... socketpair`
+("data area ... too small").
+The previous analyzer TEMP/TMP was the deeply nested
+`state/setup-validation-*/effective/checker-policy-*`, 114 ASCII bytes before
+the socket name in the reported owner path. OCaml's Windows socketpair
+implementation writes a temporary UTF-8 pathname into the AF_UNIX `sun_path`
+field (108-byte limit). Source basis:
+[OCaml Windows socketpair](https://github.com/semgrep/ocaml/blob/9135c0c97c6060ef6feabffe024f7ff22fdff953/otherlibs/unix/socketpair_win32.c)
+and [Windows UNIX_PATH_MAX](https://go.dev/src/cmd/vendor/golang.org/x/sys/windows/types_windows.go).
+This is a cause-specific remediation, not a claim of native Windows success.
+
+`checker.processes.execute` now accepts `temporary_parent` and wraps each
+command in a separate `TemporaryDirectory(prefix="", dir=state_root)`. Only
+the child's environment copy receives TEMP/TMP/TMPDIR; system/parent environment,
+working directory, source and destination are unchanged. Native-path preflight
+rejects a temporary pathname over **80 UTF-8 bytes**, leaving room for the
+socket name and terminator within the 108-byte field. The parent must be
+absolute/plain with no traversal, and a failed budget does not launch the CLI
+or fall back to global TEMP. Scratch is removed after normal commands and
+RunControl deadline/cancel cleanup. The unchanged 30-second per-command and
+180-second setup limits still fail closed; Semgrep rules/coverage and output
+parsing are not bypassed.
+
+Propagated the explicit state-root parent through policy/config validation,
+CheckJobs, shared-pack PolicyService, Windows source bootstrap and native
+acceptance canaries. Existing transaction/freshness/consent/backup boundaries
+are unchanged. Regressions include actual AF_UNIX bind from a long cwd
+(previously reproduced `AF_UNIX path too long`), simulated Windows UTF-8
+byte-budget edges and prevention of child startup, and real deadline cleanup
+preserving an unrelated marker and the original environment. Windows simulation
+patches only `checker.processes._WINDOWS`, not global `os.name`.
+
+Evidence: **6/6 targeted process tests PASS**, zero skips,
+`/workspace/repo/project-checker-devtools/v1-socket-temp-process-tests.log`.
+**202/202 full suite PASS**, zero skips, real ESLint/Semgrep enabled,
+294.782 seconds, exit code 0,
+`/workspace/repo/project-checker-devtools/v1-socket-temp-tests.log`.
+Python AST (eight changed modules), changed-doc relative links and
+`git diff --check` PASS. The prior two interrupted log paths were absent at
+the live check; these are new completed runs, not retroactive claims.
+
+No Windows installer, ACL, network, Tunnel, target or Loader action was
+performed. Owner must resume the *already prepared* runtime without reinstall,
+then run the small JS/Python Check→preview→confirm Update→history/rollback
+walkthrough. Until real Windows Semgrep and GUI results return, this remains
+Docker-verified source, **WINDOWS_WORKING_COPY_TEST / owner native pending**,
+not independent InstalledAuthority or OWNER_ACCEPTED.
+
 ## 25 October 2026 — native Semgrep timeout, explicit CLI path and retained diagnostics
 
 Owner retried the staged Windows runtime. Validation passed the ESLint branch

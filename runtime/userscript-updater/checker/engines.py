@@ -91,7 +91,8 @@ def command_batches(config, files):
 
 def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 30,
                    required_rules: tuple[str, ...] = (), control: RunControl | None = None,
-                   validation=None, evidence_dir: Path | None = None) -> EngineReport:
+                   validation=None, evidence_dir: Path | None = None,
+                   temporary_parent: Path | None = None) -> EngineReport:
     """Development Check only; no protected dependency closure/Windows ACL authority."""
     extensions = {".js", ".mjs", ".cjs"} if config.kind == "eslint" else {".js", ".mjs", ".cjs", ".py"}
     requested = tuple(
@@ -104,7 +105,8 @@ def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 3
         config.validate()
         from .policy_validation import validate_engine_config
         validation = validation or validate_engine_config(config, required_rules=required_rules,
-                                                           timeout=timeout, control=control)
+                                                           timeout=timeout, control=control,
+                                                           temporary_parent=temporary_parent)
         if (validation.status != "VALIDATED_DEVELOPMENT"
                 or validation.tool_fingerprint != config.fingerprint()
                 or set(required_rules) - set(validation.effective_rules)):
@@ -123,6 +125,7 @@ def run_dev_engine(snapshot: Snapshot, config: EngineConfig, *, timeout: int = 3
                 build_argv(config, batch), shell=False, cwd=snapshot.root,
                 capture_output=True, text=True, errors="replace",
                 timeout=timeout, env=env, check=False, control=control,
+                temporary_parent=temporary_parent,
             )
             if evidence_dir is not None:
                 evidence_dir.mkdir(parents=True, exist_ok=True)

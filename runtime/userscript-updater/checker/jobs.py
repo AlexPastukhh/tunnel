@@ -203,7 +203,8 @@ class CheckJobs:
             progress("snapshot", "Инвентаризация и снимок выбранных байтов")
             snapshot = make_snapshot(project, settings.source_roots, root / "snapshots")
             progress("policy", "Компиляция действующих конфигураций")
-            effective = prepare_effective_policy(captured, settings.tools, root / "policy", control=control)
+            effective = prepare_effective_policy(captured, settings.tools, root / "policy", control=control,
+                                                  temporary_parent=settings.state_root)
             requirements = dict(effective.required_rules)
             validations = {v.engine: v for v in effective.validations}
             reports = []
@@ -214,7 +215,8 @@ class CheckJobs:
                     continue
                 progress(config.kind, "Статический анализ снимка")
                 reports.append(run_dev_engine(snapshot, config, required_rules=requirements[config.kind],
-                    control=control, validation=validations[config.kind], evidence_dir=evidence_dir))
+                    control=control, validation=validations[config.kind], evidence_dir=evidence_dir,
+                    temporary_parent=settings.state_root))
             progress("freshness", "Сверка source, правил и инструментов")
             scan = summarize(snapshot, captured.combined_sha256, tuple(reports))
             coverage = build_coverage_matrix(snapshot, tuple(reports), settings.required_for_suffix)

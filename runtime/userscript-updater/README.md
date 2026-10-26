@@ -79,6 +79,17 @@ Resume проверяет принадлежность профиля этому
 %LOCALAPPDATA%\ProjectChecker-Test\state\setup-validation-report.json
 (для собственного --registry используется его соседний state).
 
+После owner-диагностики Windows Semgrep был обнаружен отказ нативного OCaml
+`socketpair` ещё до анализа: прежний TEMP/TMP указывал на глубокий каталог
+`setup-validation-*/effective/checker-policy-*`; AF_UNIX socket path имеет
+ограничение 108 байт. Для каждого CLI теперь создаётся отдельный приватный
+временный каталог непосредственно внутри `state_root`; только его дочерний
+process environment получает TEMP/TMP/TMPDIR. Длина самого временного пути
+проверяется по UTF-8 (не символам): более 80 байт — явный отказ до запуска
+анализатора, без fallback на глобальный TEMP. Scratch удаляется после команды,
+включая deadline/cancel cleanup; source, target и app не перемещаются.
+Это исправление в исходниках не является подтверждённым Windows PASS.
+
 Если Resume снова завершился ERROR/тайм-аутом, покажите этот отчёт:
 
 ```powershell

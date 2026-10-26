@@ -241,10 +241,11 @@ def run(root, profile, report):
                 os.environ["PYTHONPATH"] = str(poison)
                 os.environ["NODE_OPTIONS"] = "--require=" + str(poison / "evil.cjs")
                 effective = prepare_effective_policy(PolicyStore(local.policy_root).capture(limited),
-                    local.tools, fixture / "canary-policy")
+                    local.tools, fixture / "canary-policy", temporary_parent=local.state_root)
                 for config in effective.configs:
                     report = run_dev_engine(snapshot, config,
-                        validation=next(v for v in effective.validations if v.engine == config.kind))
+                        validation=next(v for v in effective.validations if v.engine == config.kind),
+                        temporary_parent=local.state_root)
                     # Ignore/config canaries may make a tool refuse; they must never execute.
                     assert report.status in ("STRUCTURAL_CLEAR", "INCOMPLETE", "UNSUPPORTED", "ERROR"), report
                 assert not marker.exists(), "Candidate startup/config code executed"

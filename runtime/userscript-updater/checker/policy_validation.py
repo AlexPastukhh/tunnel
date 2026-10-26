@@ -96,7 +96,7 @@ class EnginePolicyValidation:
 
 def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, ...] = (),
                            timeout: int = 30, control: RunControl | None = None, workspace: Path | None = None,
-                           diagnostics: bool = False) -> EnginePolicyValidation:
+                           diagnostics: bool = False, temporary_parent: Path | None = None) -> EnginePolicyValidation:
     """Load actual pinned config in real engine; all errors block development scan."""
     try:
         config.validate()
@@ -110,7 +110,8 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
                 process = execute([str(config.node), "-e", ESLINT_PROBE,
                     str(config.executable.parent.parent), str(config.config), str(root)],
                     cwd=root, env=env, shell=False, capture_output=True, text=True,
-                    errors="replace", timeout=timeout, check=False, control=control)
+                    errors="replace", timeout=timeout, check=False, control=control,
+                    temporary_parent=temporary_parent)
                 if process.returncode:
                     raise ContractError(f"ESLint config load failed: {process.stderr[-2000:]}")
                 data = json.loads(process.stdout)
@@ -160,7 +161,8 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
                 if diagnostics:
                     argv.insert(argv.index("--"), "--debug")
                 process = execute(argv, cwd=root, env=env, shell=False,
-                    capture_output=True, text=True, errors="replace", timeout=timeout, check=False, control=control)
+                    capture_output=True, text=True, errors="replace", timeout=timeout, check=False, control=control,
+                    temporary_parent=temporary_parent)
                 report = parse_semgrep(process.stdout, process.returncode, tuple(files), root)
                 if report.status not in ("STRUCTURAL_CLEAR", "FINDINGS"):
                     raise ContractError(f"Semgrep config compile/fixture coverage failed: {report.detail}; {process.stderr[-1500:]}")
@@ -202,7 +204,8 @@ def prepare_effective_policy(captured: CapturedPolicies, tools: tuple[EngineConf
                              directory: Path, *,
                              required_rules: tuple[tuple[str, tuple[str, ...]], ...] = (),
                              timeout: int = 30, control: RunControl | None = None,
-                             diagnostics: bool = False, progress=lambda _kind, _phase: None) -> EffectivePolicy:
+                             diagnostics: bool = False, progress=lambda _kind, _phase: None,
+                             temporary_parent: Path | None = None) -> EffectivePolicy:
     """Compose captured shared packs, reject conflicts, compile real configs or raise.
 
     directory must be new job-owned development storage, never a source directory.
@@ -258,7 +261,8 @@ def prepare_effective_policy(captured: CapturedPolicies, tools: tuple[EngineConf
         config = replace(by_kind[kind], config=path, config_sha256=digest(path.read_bytes()))
         progress(kind, "START")
         validation = validate_engine_config(config, required_rules=required, timeout=timeout,
-                                            control=control, workspace=directory, diagnostics=diagnostics)
+                                            control=control, workspace=directory, diagnostics=diagnostics,
+                                            temporary_parent=temporary_parent)
         if validation.status != "VALIDATED_DEVELOPMENT":
             error = ContractError(f"{kind} effective policy invalid: {validation.detail}")
             error.engine = kind

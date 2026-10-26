@@ -14,6 +14,7 @@ import tempfile
 import threading
 import time
 from pathlib import Path
+from contextlib import contextmanager
 
 
 class Cancelled(RuntimeError):
@@ -153,7 +154,49 @@ class RunControl:
                             pass  # Preserve the original deadline failure.
 
 
-def execute(argv, *, control: RunControl | None = None, **kwargs):
+# OCaml's Windows socketpair uses a UTF-8 pathname in a 108-byte sun_path.
+# Leave room for the generated socket name, separator and terminator.
+WINDOWS_IPC_TEMP_MAX_BYTES = 80
+_WINDOWS = os.name == "nt"
+
+
+def check_windows_socket_temp(path):
+    size = len(str(path).encode("utf-8"))
+    if size > WINDOWS_IPC_TEMP_MAX_BYTES:
+        raise ValueError(
+            f"Windows analyzer TEMP is too long ({size} UTF-8 bytes; maximum "
+            f"{WINDOWS_IPC_TEMP_MAX_BYTES}). Choose a shorter protected state directory.")
+
+
+@contextmanager
+def command_environment(environment, temporary_parent):
+    """One private temporary directory per command, inside authorized state."""
+    if temporary_parent is None:
+        yield environment
+        return
+    if environment is None:
+        raise ValueError("An explicit analyzer environment is required")
+    parent = Path(temporary_parent)
+    if not parent.is_absolute() or ".." in parent.parts:
+        raise ValueError("Absolute temporary parent without traversal required")
+    from .inventory import check_plain_chain
+    ancestor = parent
+    while not ancestor.exists():
+        ancestor = ancestor.parent
+    check_plain_chain(ancestor)
+    parent.mkdir(parents=True, exist_ok=True)
+    check_plain_chain(parent)
+    with tempfile.TemporaryDirectory(prefix="", dir=parent) as temporary:
+        if _WINDOWS:
+            check_windows_socket_temp(temporary)
+        # Do not mutate parent/system environment or fall back to global TEMP.
+        child = dict(environment, TEMP=temporary, TMP=temporary, TMPDIR=temporary)
+        yield child
+
+
+def execute(argv, *, control: RunControl | None = None, temporary_parent: Path | None = None, **kwargs):
     if kwargs.get("text"):
         kwargs.setdefault("encoding", "utf-8")
-    return control.run(argv, **kwargs) if control else subprocess.run(argv, **kwargs)
+    with command_environment(kwargs.get("env"), temporary_parent) as environment:
+        kwargs["env"] = environment
+        return control.run(argv, **kwargs) if control else subprocess.run(argv, **kwargs)
