@@ -330,6 +330,8 @@ def validate_runtime(profile):
     except Exception as exc:
         report["error"] = dict(type=type(exc).__name__, message=str(exc),
                               engine=getattr(exc, "engine", ""),
+                              parent_phase=getattr(exc, "parent_phase", ""),
+                              phase_markers=list(getattr(exc, "phase_markers", ())),
                               stdout_tail=getattr(exc, "stdout", "")[-8192:],
                               stderr_tail=getattr(exc, "stderr", "")[-8192:])
         raise

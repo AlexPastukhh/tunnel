@@ -10,6 +10,8 @@ from unittest.mock import patch
 
 from checker.processes import (RunControl, Cancelled, DeadlineExceeded, execute,
                                check_windows_socket_temp, WINDOWS_IPC_TEMP_MAX_BYTES)
+from checker.engines import build_argv
+from types import SimpleNamespace
 
 
 class ProcessControlTests(unittest.TestCase):
@@ -89,6 +91,40 @@ class ProcessControlTests(unittest.TestCase):
         self.assertEqual(list(state.iterdir()), [marker])
         self.assertEqual(marker.read_text(encoding="utf-8"), "do not delete")
         self.assertEqual(env, original)
+
+    def test_diagnostic_gate_traces_only_fixed_markers(self):
+        result = execute([sys.executable, "-c", "print('safe-fixture')"],
+                         control=RunControl(10), cwd=self.root, env=self.env,
+                         timeout=5, trace_phases=True)
+        self.assertEqual(result.stdout.strip(), "safe-fixture")
+        self.assertIn("checker-gate:request_received", result.stderr)
+        self.assertIn("checker-gate:child_launch", result.stderr)
+        self.assertNotIn(str(self.root), result.stderr)
+        untraced = execute([sys.executable, "-c", "print('safe-fixture')"],
+                           control=RunControl(10), cwd=self.root, env=self.env)
+        self.assertNotIn("checker-gate:", untraced.stderr)
+
+    def test_diagnostic_deadline_retains_parent_and_gate_phase(self):
+        with self.assertRaises(DeadlineExceeded) as raised:
+            execute([sys.executable, "-c", "import time; time.sleep(20)"],
+                    control=RunControl(10), cwd=self.root, env=self.env,
+                    timeout=0.7, trace_phases=True)
+        error = raised.exception
+        self.assertEqual(error.parent_phase, "request_sent")
+        self.assertIn("checker-gate:request_received", error.phase_markers)
+        self.assertIn("checker-gate:child_launch", error.phase_markers)
+        self.assertNotIn("checker-gate:child_exited", error.phase_markers)
+
+    def test_semgrep_python_setup_markers_are_diagnostics_only(self):
+        config = SimpleNamespace(kind="semgrep", executable=Path("/tmp/python.exe"),
+                                 config=Path("/tmp/policy.yaml"))
+        diagnostic = build_argv(config, (Path("/tmp/fixture.py"),), diagnostics=True)
+        standard = build_argv(config, (Path("/tmp/fixture.py"),))
+        self.assertIn("checker-semgrep:import_start", diagnostic[5])
+        self.assertIn("checker-semgrep:cli_start", diagnostic[5])
+        self.assertNotIn("checker-semgrep:", standard[5])
+        self.assertEqual(diagnostic[6:], standard[6:])
+        compile(diagnostic[5], "<semgrep-startup>", "exec")
 
     def test_deadline_keeps_bounded_output_after_cleanup(self):
         code = ("import sys,time; "

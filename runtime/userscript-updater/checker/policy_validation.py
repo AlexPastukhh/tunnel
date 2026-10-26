@@ -111,7 +111,7 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
                     str(config.executable.parent.parent), str(config.config), str(root)],
                     cwd=root, env=env, shell=False, capture_output=True, text=True,
                     errors="replace", timeout=timeout, check=False, control=control,
-                    temporary_parent=temporary_parent)
+                    temporary_parent=temporary_parent, trace_phases=diagnostics)
                 if process.returncode:
                     raise ContractError(f"ESLint config load failed: {process.stderr[-2000:]}")
                 data = json.loads(process.stdout)
@@ -156,13 +156,13 @@ def validate_engine_config(config: EngineConfig, *, required_rules: tuple[str, .
                     path = root / f"fixture.{suffix}"
                     path.write_text(code, encoding="utf-8")
                     files.append(path)
-                argv = build_argv(config, tuple(files))
+                argv = build_argv(config, tuple(files), diagnostics=diagnostics)
                 argv[argv.index("--"):argv.index("--")] = ["--time", "--no-rewrite-rule-ids"]
                 if diagnostics:
                     argv.insert(argv.index("--"), "--debug")
                 process = execute(argv, cwd=root, env=env, shell=False,
                     capture_output=True, text=True, errors="replace", timeout=timeout, check=False, control=control,
-                    temporary_parent=temporary_parent)
+                    temporary_parent=temporary_parent, trace_phases=diagnostics)
                 report = parse_semgrep(process.stdout, process.returncode, tuple(files), root)
                 if report.status not in ("STRUCTURAL_CLEAR", "FINDINGS"):
                     raise ContractError(f"Semgrep config compile/fixture coverage failed: {report.detail}; {process.stderr[-1500:]}")

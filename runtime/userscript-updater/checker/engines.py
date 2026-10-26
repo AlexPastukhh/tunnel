@@ -40,7 +40,8 @@ class EngineConfig:
             raise ValueError("Absolute Node executable is required")
 
 
-def build_argv(config: EngineConfig, files: tuple[Path, ...]) -> list[str]:
+def build_argv(config: EngineConfig, files: tuple[Path, ...], *,
+               diagnostics: bool = False) -> list[str]:
     """No shell and no flags or candidate paths from project configuration."""
     if config.kind == "eslint":
         return [
@@ -49,10 +50,17 @@ def build_argv(config: EngineConfig, files: tuple[Path, ...]) -> list[str]:
             "--config", str(config.config), "--", *(str(file) for file in files),
         ]
     if config.kind == "semgrep":
-        prefix = ([str(config.executable), "-I", "-S", "-B", "-c",
-                   "import os,sys; from pathlib import Path; "
-                   "_dll=os.add_dll_directory(str(Path(sys.executable).parent.parent/'pydeps/pywin32_system32')) if os.name=='nt' else None; "
-                   "from semgrep.console_scripts.entrypoint import main; sys.argv[0]='semgrep'; main()"]
+        # Only safe, owner-run setup diagnostics print fixed startup labels.
+        # Never expose scanned source/command/environment in these markers.
+        script = ("import os,sys; from pathlib import Path; "
+                  "_dll=os.add_dll_directory(str(Path(sys.executable).parent.parent/'pydeps/pywin32_system32')) if os.name=='nt' else None; "
+                  + ("sys.stderr.write('checker-semgrep:import_start\\n'); sys.stderr.flush(); "
+                     if diagnostics else "")
+                  + "from semgrep.console_scripts.entrypoint import main; "
+                  + ("sys.stderr.write('checker-semgrep:cli_start\\n'); sys.stderr.flush(); "
+                     if diagnostics else "")
+                  + "sys.argv[0]='semgrep'; main()")
+        prefix = ([str(config.executable), "-I", "-S", "-B", "-c", script]
                   if config.executable.name.casefold() in ("python.exe", "pythonw.exe")
                   else [str(config.executable)])
         return [

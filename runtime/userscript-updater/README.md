@@ -90,6 +90,15 @@ process environment получает TEMP/TMP/TMPDIR. Длина самого в
 включая deadline/cancel cleanup; source, target и app не перемещаются.
 Это исправление в исходниках не является подтверждённым Windows PASS.
 
+После первого повтора с коротким TEMP владелец снова получил 30-секундный
+Semgrep deadline, без stdout/stderr и без прежней ошибки socketpair. Причина
+нового зависания не установлена. Для следующего повторного resume добавлена
+узкая диагностика безопасных config fixtures: `parent_phase` и
+`phase_markers` в JSON показывают запуск управляющего процесса, передачу
+команды и начало Python CLI Semgrep. Они не означают успешный анализ и не
+содержат source/argv/environment. При новом FAIL передайте весь отчёт,
+особенно эти два поля; прежний runtime, зависимости и реестр сохраняются.
+
 Если Resume снова завершился ERROR/тайм-аутом, покажите этот отчёт:
 
 ```powershell

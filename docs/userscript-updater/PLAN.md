@@ -126,9 +126,14 @@ backup/write-ahead journal/readback, полный target preview и GUI восс
    короткий TEMP непосредственно под `settings.state_root` только для дочерних
    команд и отказывает при превышении 80 UTF-8 байт самого каталога.
    Системный TEMP и дедлайны не изменяются; Semgrep остаётся обязательным.
-   Успех Windows Semgrep/GUI по-прежнему ждёт ручного повтора владельца.
-   При FAIL смотреть setup-validation-report.json, не менять сетевые настройки
-   и не увеличивать лимиты вместо устранения причины. Проверить сохранённый реестр,
+   **Owner повторил resume после этого исправления: Semgrep снова достиг
+   30-секундного deadline с пустыми хвостами stderr/stdout**, без повторного
+   сообщения socketpair. Причина нового зависания не установлена. Следующий
+   source шаг — фазовые отметки только для безопасного bootstrap; владелец
+   повторяет тот же resume и передаёт parent_phase/phase_markers из
+   setup-validation-report.json. Пока это не успешный Windows PASS.
+   При FAIL не менять сетевые настройки и не увеличивать лимиты вместо
+   диагностики. После успешного resume проверить сохранённый реестр,
    каталог starter и безопасный пример: Check→preview→consent→update→history/rollback.
    Зафиксировать native ошибки и исправить их в Repo, без Docker transport/backend.
 2. После функционального owner walkthrough собрать новый независимый кандидат

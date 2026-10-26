@@ -27,6 +27,8 @@ class DeadlineExceeded(RuntimeError):
     stderr = ""
     command = ()
     engine = ""
+    parent_phase = ""
+    phase_markers = ()
 
 
 class _WindowsJob:
@@ -90,27 +92,32 @@ class RunControl:
         if time.monotonic() >= self.deadline:
             raise DeadlineExceeded("Job deadline exceeded")
 
-    def run(self, argv, *, cwd, env, timeout=30, **_kwargs):
+    def run(self, argv, *, cwd, env, timeout=30, trace_phases=False, **_kwargs):
         self.check()
         command_deadline = min(self.deadline, time.monotonic() + timeout)
         gate = Path(__file__).with_name("process_gate.py").resolve()
         job = None
         process = None
         failure = None
+        parent_phase = "before_gate"
         with tempfile.TemporaryFile(dir=cwd) as out, tempfile.TemporaryFile(dir=cwd) as err:
             try:
                 gate_env = dict(env)
                 process = subprocess.Popen([sys.executable, "-I", "-B", "-S", str(gate)],
                     stdin=subprocess.PIPE, stdout=out, stderr=err, cwd=cwd, env=gate_env,
                     shell=False, start_new_session=os.name == "posix")
+                parent_phase = "gate_spawned"
                 if os.name == "nt":
                     # The gate is waiting for stdin: no CLI child exists before job assignment.
                     job = _WindowsJob(process)
-                payload = json.dumps({"argv": argv, "cwd": str(cwd), "env": gate_env}).encode("utf-8")
+                parent_phase = "gate_contained"
+                payload = json.dumps({"argv": argv, "cwd": str(cwd), "env": gate_env,
+                                      "trace_phases": trace_phases is True}).encode("utf-8")
                 if len(payload) >= 8 * 1024 * 1024:
                     raise ValueError("Command request exceeds size limit")
                 process.stdin.write(payload)
                 process.stdin.close()
+                parent_phase = "request_sent"
                 while process.poll() is None:
                     self.check()
                     if time.monotonic() >= command_deadline:
@@ -145,6 +152,7 @@ class RunControl:
                     process.wait(timeout=5)
                 if failure is not None:
                     failure.command = tuple(map(str, argv))
+                    failure.parent_phase = parent_phase
                     for name, stream in (("stdout", out), ("stderr", err)):
                         try:
                             size = os.fstat(stream.fileno()).st_size
@@ -152,6 +160,18 @@ class RunControl:
                             setattr(failure, name, stream.read(8192).decode("utf-8", errors="replace"))
                         except OSError:
                             pass  # Preserve the original deadline failure.
+                    if trace_phases:
+                        # Read only fixed labels from a bounded prefix; do not
+                        # copy CLI debug output into the structured report.
+                        try:
+                            err.seek(0)
+                            prefix = err.read(65536).decode("utf-8", errors="replace")
+                            labels = ("checker-gate:request_received", "checker-gate:child_launch",
+                                      "checker-semgrep:import_start", "checker-semgrep:cli_start",
+                                      "checker-gate:child_exited")
+                            failure.phase_markers = tuple(label for label in labels if label in prefix)
+                        except OSError:
+                            pass
 
 
 # OCaml's Windows socketpair uses a UTF-8 pathname in a 108-byte sun_path.
@@ -194,9 +214,13 @@ def command_environment(environment, temporary_parent):
         yield child
 
 
-def execute(argv, *, control: RunControl | None = None, temporary_parent: Path | None = None, **kwargs):
+def execute(argv, *, control: RunControl | None = None, temporary_parent: Path | None = None,
+            trace_phases: bool = False, **kwargs):
     if kwargs.get("text"):
         kwargs.setdefault("encoding", "utf-8")
+    if trace_phases and control is None:
+        raise ValueError("Phase tracing requires contained RunControl execution")
     with command_environment(kwargs.get("env"), temporary_parent) as environment:
         kwargs["env"] = environment
-        return control.run(argv, **kwargs) if control else subprocess.run(argv, **kwargs)
+        return (control.run(argv, trace_phases=trace_phases, **kwargs)
+                if control else subprocess.run(argv, **kwargs))

@@ -1,5 +1,41 @@
 # Project Checker — implementation log and evidence
 
+## 26 October 2026 — owner Semgrep deadline persists; bounded startup phase evidence
+
+Owner retried source-runtime resume after the short private TEMP commit `4f5fbbf`
+using the already installed Windows runtime (no reinstall). ESLint validation
+completed at 11.589s, Semgrep started at 11.606s and hit the **30-second
+command deadline** at 41.664s. `setup-validation-report.json` contained
+`DeadlineExceeded`, engine `semgrep`, and empty stdout/stderr tails; no
+new `socketpair` exception appeared. This proves neither successful RPC
+setup nor a repeated path-length failure. Native source-runtime readiness and
+Windows functional walkthrough remain **FAIL/PENDING**.
+
+Investigated the pinned Semgrep 1.182.1 Python RPC implementation locally.
+It starts `semgrep-core.exe -rpc` through Python subprocess and awaits a
+framed result; its own stderr forwarding is not sufficient to identify where
+the parent or CLI blocked in this observed timeout. Added opt-in bounded
+diagnostics **only** to safe bootstrap config validation: process-gate
+`request_received/child_launch/child_exited` and Python Semgrep
+`import_start/cli_start` labels, plus containing parent's last known
+phase. The deadline report saves an allowlisted `phase_markers` array read
+from bounded stderr prefix and `parent_phase`; no argv, environment, candidate
+contents, arbitrary CLI logs or private project paths are added to markers.
+Ordinary Check commands do not enable phase traces. Existing process
+containment, 30/180-second deadlines, strict Semgrep parsing/config coverage
+and closed-on-error behaviour are unchanged.
+
+Targeted process regressions **9/9 PASS**, zero skips, including real child
+deadline and tracing isolation:
+`/workspace/repo/project-checker-devtools/v1-semgrep-phase-process-tests.log`.
+**205/205 full-suite tests PASS**, zero skips, 290.798 seconds, real
+ESLint/Semgrep enabled; `/workspace/repo/project-checker-devtools/v1-semgrep-phase-tests.log`
+(exit code 0). Native phase evidence is still pending; this is diagnostic
+hardening, **not a proven Windows Semgrep fix**. Owner can repeat the same
+`--resume-source-runtime` command; do not reinstall dependencies or claim
+`Ready` until actual validation.
+No host ACL, network, Tunnel, Loader or external target touched.
+
 ## 26 October 2026 — native Semgrep socketpair short private TEMP (Docker tested; Windows pending)
 
 Owner's latest Windows `--resume-source-runtime` report narrowed the earlier Semgrep
