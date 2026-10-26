@@ -1,6 +1,6 @@
 # Безопасность и изоляция Fortis Repo / Tunnel
 
-**Текущий функциональный инцидент:** 26.10.2026, WF-055–058 — Repo1 quiet canary прошёл ограниченный live smoke, Repo2 и постоянный default ещё не восстановлены; V-16/F-R-15. Последняя ассистентская Linux confinement-проверка — WF-054; owner проверил новый временный Direct MCP в WF-055. Это разные scoped observations, не непрерывная аттестация.
+**Текущий функциональный инцидент:** 26.10.2026, WF-055–069 — Repo1 live MCP работает; Repo2 quiet доступен по owner-report и pinned live DC. Desktop Start/Repo2 shortcuts после owner Apply переключены на quiet с backup/ACL PASS, Web не менялся; cold boot и проверка запуска с новых ярлыков после завершения текущих туннелей открыты; V-16/F-R-15. Последняя ассистентская Linux confinement-проверка — WF-054; owner проверил новый временный Direct MCP в WF-055. Это разные scoped observations, не непрерывная аттестация.
 
 ## 0. Назначение и действующее ограничение
 
