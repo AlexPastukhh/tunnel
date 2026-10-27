@@ -12,12 +12,15 @@ negative и явное разрешение владельца.
 **Подготовлено: 2026-10-18. Не установлено; текущий репозиторий НЕ является доверенным местом исполнения под владельцем.**
 Разрешение пользователя на установку получено. Доступные инструменты работают в Linux Repo и ограниченном G2; они **не исполняют команды основного Windows-пользователя**. Это ручная передача точных действий основному пользователю, не задание G2 на обход прав.
 
-## Owner PowerShell: проверить, закрепить шесть файлов, запустить
+## Исторический owner runbook — не запускать после смены Workfiles
+
+Repo-side inbox теперь `/workspace/repo/Workfiles/FortisObservatory-v1/inbox/repo` в Docker. Он не отображается в Windows; новый транспорт не настроен. Ниже сохранён прежний установочный блок для истории, не действующая инструкция.
 
 Открой обычный **PowerShell основного Windows-пользователя** (не «Администратор», не FortisHostG1). Просмотри блок, затем вставь целиком. Он НЕ изменяет ACL, mounts или действующие процессы. Если что-то не совпадает, выполнение остановится. Нельзя запускать Python или установочный скрипт прямо из доступной Repo RW директории.
 
 ~~~powershell
 $ErrorActionPreference = 'Stop'
+throw 'Legacy Workfiles transport retired: this historical installer must not be run'
 $identity = [Security.Principal.WindowsIdentity]::GetCurrent().Name
 if ($identity.Split('\')[-1] -ne 'alexa') { throw 'Нужен основной Windows-пользователь' }
 $source = Join-Path $env:USERPROFILE 'Repos\tunnel\observatory\v1'

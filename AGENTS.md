@@ -5,7 +5,7 @@
 - Выполнять задачу пользователя. Не трактовать подключение MCP-плагина как запрос создать сайт.
 - Различать native HOST, native Repo Docker и два Site MCP endpoint. Диагностика одного не доказывает состояние другого.
 - HOST: только разрешённые файловые/терминальные действия. Автоматизация основного Windows GUI, screenshots и ввод не разрешены.
-- Repo Docker: /workspace/repos и /workspace/files напрямую изменяют Windows-файлы. /workspace/repo — отдельный внутренний volume.
+- Repo Docker: рабочие файлы и результаты сохранять в `/workspace/repo/Workfiles` — внутреннем Docker volume. Прежнюю Windows Workfiles не использовать и не удалять. До отдельной смены mounts старые binds остаются доступом к Windows; `/workspace/repos` пока тоже может изменять Windows-файлы.
 - Не публиковать ключи, профили с секретами, логи с payload, snapshots ZIP или приватные upstream URL. Не расширять аудиторию Site или экспорт Bridge попутно.
 - После timeout мутации сначала проверить состояние. Не повторять вслепую.
 - Не удалять/чинить metadata Windows linked worktrees из Linux только из-за недоступных Windows-путей.

@@ -14,7 +14,7 @@
 
 G2 и Repo — разные native routes. Old owner HOST stopped E43, его key/connector сохранены для intentional recovery. Repo имеет Windows RW mounts, а Site project root не sandbox. [Итог](ISOLATION_GUIDE.md).
 
-Для Repo реальные границы файлового доступа определяют Docker mounts. /workspace/repos и /workspace/files — writable Windows-папки: изменения и удаления сразу видны на HOST. MCP allowedDirectories помогает файловым инструментам, но не является самостоятельной защитой от shell.
+Для Repo реальные границы файлового доступа определяют Docker mounts. Рабочая папка файлов и результатов — `/workspace/repo/Workfiles`, внутренний Docker volume. Windows Workfiles не использовать. Старые binds до отдельной миграции остаются writable Windows-папками: изменения и удаления через них сразу видны на HOST. MCP allowedDirectories помогает файловым инструментам, но не является самостоятельной защитой от shell.
 
 Основной Windows GUI/экран/clipboard сессии `alexa` защищается. Собственные guest GUI/экран/clipboard G2 разрешены в согласованном scope; начальный bounded scope принят E43 с явными ограничениями. Docker не даёт Windows GUI автоматически. Полные разрешения и критерии — [в актуальном плане G2](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md).
 

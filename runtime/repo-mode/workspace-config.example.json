@@ -8,19 +8,20 @@
     {
       "host": "C:\\Users\\alexa\\Repos",
       "container": "/workspace/repos"
-    },
-    {
-      "host": "C:\\Users\\alexa\\Workfiles",
-      "container": "/workspace/files"
     }
   ],
   "allowedDirectories": [
     "/workspace/repos",
-    "/workspace/files",
     "/workspace/repo"
   ],
   "gitAutocrlf": "true",
   "internalVolume": "fortis-repo-workspace",
   "rollbackContainer": "fortis-repo-test-before-access-20261010t112331268z",
-  "backupDirectory": "C:\\Users\\alexa\\chatgpt-repo-mode\\backups\\access-20261010T112331268Z"
+  "backupDirectory": "C:\\Users\\alexa\\chatgpt-repo-mode\\backups\\access-20261010T112331268Z",
+  "workfiles": {
+    "container": "/workspace/repo/Workfiles",
+    "volume": "fortis-repo-workspace",
+    "subpath": "Workfiles"
+  },
+  "configurationScope": "Source example with Docker Workfiles. Does not remove existing mounts or update the running Direct DC configuration."
 }

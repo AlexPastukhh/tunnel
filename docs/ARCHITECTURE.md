@@ -9,7 +9,7 @@ Own GUI/clipboard/browser/Workspace разрешены в bounded scope; owner G
 в доказанных пределах. Old owner HOST остановлен E43, connector/key сохранены для recovery.
 
 Repo native: Windows launcher от alexa → narrow API E38 → Docker UID1000.
-Repos/Workfiles Windows RW, отдельный volume /workspace/repo; это НЕ guest Windows SID.
+Рабочие файлы — `/workspace/repo/Workfiles` во внутреннем Docker volume; это НЕ guest Windows SID. Прежние Windows binds ещё не отключены; актуальная граница и оставшийся шаг — в security-реестре.
 Hosted Sites и Snapshot Broker — независимые authority/routes, не whole-chat isolation.
 [Итог и source map](ISOLATION_GUIDE.md), [E44](G3_DOCS_CONSOLIDATION_AND_REPO_BOUNDARY_2026-10-16.md).
 

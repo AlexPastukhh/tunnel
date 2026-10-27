@@ -840,22 +840,13 @@ ChatGPT, не устанавливает дополнение Edge и не на�
 3. Проверить owner-only архив, пример:
    C:\Users\alexa\Documents\FortisObservatoryHistory
    (пока не создан и ACL не проверен).
-4. При необходимости выделить Repo inbox внутри уже разрешённого
-   Windows Workfiles mount, без расширения ACL/mount, например:
-   C:\Users\alexa\Workfiles\FortisObservatory-v1\inbox\repo
-   Repo-side path: /workspace/files/FortisObservatory-v1/inbox/repo
-   (пока не создан).
-5. После E46 acceptance, owner-контекст и путь защищённого deployment
-   запустить из своей интерактивной owner PowerShell:
-
-~~~powershell
-py -3 .\server.py --archive "C:\Users\alexa\Documents\FortisObservatoryHistory" --repo-inbox "C:\Users\alexa\Workfiles\FortisObservatory-v1\inbox\repo" --repo-sender-inbox "/workspace/files/FortisObservatory-v1/inbox/repo" --port 18753
-~~~
-
-Открыть в Edge: http://127.0.0.1:18753/
-Скопировать токен из owner-консоли в форму панели, не в чат.
-Пути выше — примеры, не проверенные текущие пути deployment.
-G2-route включается отдельно, только после разрешённого inbox.
+4. Repo-side inbox находится в Docker: `/workspace/repo/Workfiles/FortisObservatory-v1/inbox/repo`.
+   Это локальная папка Docker, не общий Windows inbox. Прежний пример запуска
+   Windows-сервера через Workfiles bind больше не применять. Новый транспорт
+   в owner Windows здесь не настроен; установка/перезапуск не выполнялись.
+5. До Windows-запуска отдельно закрепить source/ACL и согласовать проверяемый
+   транспорт. Не передавать Linux-путь как локальный путь Windows-серверу.
+   Owner token в Docker не копировать.
 
 ## Пример события
 
@@ -863,7 +854,7 @@ G2-route включается отдельно, только после разр
 Событие от Repo:
 
 ~~~bash
-python3 /workspace/repos/tunnel/observatory/v1/emit.py --inbox /workspace/files/FortisObservatory-v1/inbox/repo --session rs_ID --task task_ID --route repo --sequence 0 --event started --stage planning --summary "Начата работа"
+python3 /workspace/repos/tunnel/observatory/v1/emit.py --inbox /workspace/repo/Workfiles/FortisObservatory-v1/inbox/repo --session rs_ID --task task_ID --route repo --sequence 0 --event started --stage planning --summary "Начата работа"
 ~~~
 
 Далее sequence увеличивается на 1. Допустимые event:

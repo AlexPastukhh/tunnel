@@ -9,7 +9,7 @@ import sys
 import time
 import uuid
 
-SHARED = Path("/workspace/files/.fortis-bridge-broker-v1")
+SHARED = Path("/workspace/repo/Workfiles/.fortis-bridge-broker-v1")
 INBOX = SHARED / "in"
 OUTBOX = SHARED / "out"
 ALIAS = re.compile(r"[a-zA-Z0-9][a-zA-Z0-9_-]{0,70}\Z")
@@ -51,7 +51,7 @@ def main():
             except ValueError as exc:
                 parser.error(str(exc))
         if not INBOX.is_dir() or not OUTBOX.is_dir():
-            parser.error("Windows Broker queue is not mounted")
+            parser.error("Docker Broker queue is missing; no Windows transport is configured")
         rid = str(uuid.uuid4())
         req = {"version": 1, "id": rid, "op": ns.op}
         if ns.op in ("preview", "snapshot"):

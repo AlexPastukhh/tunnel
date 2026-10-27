@@ -1,5 +1,13 @@
 # Windows Broker V2 — эксплуатационный runbook
 
+## Текущий путь и статус транспорта — 27.10.2026
+
+Рабочие файлы теперь в `/workspace/repo/Workfiles` внутри Docker volume. Docker-клиент брокера использует `/workspace/repo/Workfiles/.fortis-bridge-broker-v1`. Это **не общая папка с Windows**. Владелец сообщает, что брокер, вероятно, не работает; live-состояние Windows Task не проверено. Прежний Windows worker не перенастроен и не запущен. Не использовать старый Workfiles bind и не запускать прежние команды как текущую процедуру. Для нового транспорта нужна отдельная реализация и проверка.
+
+## Прежний транспорт через Windows Workfiles — историческая справка
+
+Следующие пути и команды сохранены для разбора прежней установки и не являются действующим runbook.
+
 > G2 boundary E41, 16 октября: [selected queue/control/parent capability checks](../../docs/G3_OWNER_BRIDGES_RESIDUAL_REVIEW_2026-10-16.md) получили 78 DENY5 из G2 normal/C$, при 6 own positives. Task metadata Ready/Enabled/RunLevel0/no triggers, owner SID1001; worker hash совпал с Repo source. Task не запускали, requests/snapshot/permits/registry contents не читали и не меняли. Это не отзыв разрешённого Repo доступа к очереди и не новый snapshot scope.
 
 **Сначала:** [общий сценарий и границы безопасности](../../docs/SNAPSHOT.md). **Текущий срез и список исключений:** [CURRENT_STATE.md](../../docs/CURRENT_STATE.md). Этот документ — технические действия, не вторая копия статуса. Исторические тесты и архитектурные решения: [план V2](../../docs/BROKER_V2_PLAN.md), [V1](../../docs/BROKER_V1_PLAN.md).

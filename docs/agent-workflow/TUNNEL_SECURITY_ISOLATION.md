@@ -14,6 +14,10 @@
 
 Основные evidence: [первый аудит](reviews/repo-protection-20261025.md), [dual Direct audit](reviews/dual-direct-postinstall-audit-20261025.md), [rollout/recovery](reviews/permanent-direct-mcp-rollout-20261025.md), [WF-050 L-01–L-07](reviews/security-handoff-verification-20261026.md). Ранние формулировки про действующий Bridge/неустановленный второй Direct — датированная история. Значения статусов и способ сопровождения — в [едином протоколе](README.md).
 
+## Workfiles — рабочий путь с 27.10.2026
+
+Рабочие файлы сохранять в `/workspace/repo/Workfiles` внутри `fortis-repo-workspace`. Полная копия Windows Workfiles проверена SHA-256 (200 файлов); оригиналы сохранены. Изменены ссылки в рабочих инструкциях и Docker-клиенте, не mounts. Приведённая ниже схема старых binds по-прежнему описывает доступ до отдельного пересоздания контейнера: копирование и смена ссылок этот доступ не отзывают. Windows-транспорт Broker/Observatory не перенастроен. Старый план с новым пустым FilesVolume не применять.
+
 ## 2. Модель исполнения и границы
 
 ```mermaid
