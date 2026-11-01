@@ -13,6 +13,7 @@
 | Проверить текущее состояние, не принять старый срез за live | [Текущее состояние](docs/CURRENT_STATE.md) |
 | Продолжить Fortis G2: разрешения, доказательства и оставшаяся работа | [Актуальный план G2](docs/G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md), [решение о Windows-сессии](docs/G3_SESSION_BOUNDARY_OUTCOME_DECISION_2026-10-15.md) |
 | Запустить, остановить, восстановить подключение | [Операции](docs/OPERATIONS.md) |
+| Обновить Guard и Windows launchers после изменения Docker | [Git → Windows: безопасный reconnect](docs/FORTIS_GIT_WINDOWS_LAUNCHER_WORKFLOW.md) |
 | Определить права, mounts, ключи и сетевые границы | [Доступ](docs/ACCESS.md) |
 | Узнать, что логируется и как проектируется запрет операций | [Аудит и политика](docs/AUDIT.md) |
 | Посмотреть диагностику и планы GUI | [Наблюдаемость](docs/OBSERVABILITY.md) |
