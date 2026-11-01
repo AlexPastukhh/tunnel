@@ -6,7 +6,7 @@ Status: **transition 2026-11-01**. This document records the owner-requested wor
 
 - Develop the Fortis Repo 1/2 Windows launcher source, shared Guard and Control Center UI in the existing Docker Git checkout `/workspace/repos/script-control-center`. The native Tunnel's infrastructure documentation belongs to `tunnel`, but the canonical Windows launchers are **not duplicated** here.
 - Run source tests and review SHA-256 pins, then commit/push to `AlexPastukhh/script-control-center`. Windows uses a **separate Git clone**, at `%USERPROFILE%\Repos\script-control-center` (the canonical Windows mirror root is `%USERPROFILE%\Repos`, distinct from Docker `/workspace/repo/Repos`), and `git pull --ff-only origin main`; no shared writable mount between Docker and Windows.
-- The Desktop `Fortis RDG Control Center` shortcut targets `Start-ControlCenter.ps1` **inside that Windows Git clone**. The UI's built-in five worker adapters refer to their own clone's `launchers/` source. Worker registration and `git pull` never automatically run code.
+- The Desktop `Fortis RDG Control Center` shortcut targets **`Start-ScriptCatalog.ps1`** inside that Windows Git clone. That is the standalone script catalog; `Start-ControlCenter.ps1` is the optional older four-card shell and **not** the desired Desktop entry point. Five registered worker adapters refer to their own clone's `launchers/` source. Registrations persist across `git pull`; neither registration nor pull automatically launches workers.
 - Machine-local tunnel profiles, native Windows runtime, `runtime.key`, catalog runtime state, logs and personal credentials stay **out** of Git. The RDG updater is a separate external dependency; its separate promotion/deployment design remains to be completed.
 
 ## Mandatory check when changing Docker
@@ -23,7 +23,7 @@ Status: **transition 2026-11-01**. This document records the owner-requested wor
 
 - Repo 1's **installed** quiet launcher reported `Preview=PASS` and its MCP connection was verified from ChatGPT. This does **not** verify the **new Git-cloned** launcher.
 - Repo 2's installed launcher rejected the modified Guard due to an outdated SHA-256 fingerprint. A corrected pinned pair has been committed to the source repository but still requires Windows clone read-only previews and a genuine reconnect test.
-- The previously installed Control Center shortcut targeted `%LOCALAPPDATA%`, not the Git clone. `script-control-center/tools/Update-Windows-ControlCenter.ps1` prepares the Windows shortcut switch after explicit `-Apply` and successful local preflight; no automatic worker launch.
+- The owner has now **verified the standalone catalog UI** launches from a Windows Git-clone shortcut at `Start-ScriptCatalog.ps1`; the five built-in registrations were re-pointed to the clone with backups. This does not verify a Repo 1/2 cold-start reconnect. The corrected `script-control-center/tools/Update-Windows-ControlCenter.ps1` also targets the standalone catalog after explicit `-Apply` and successful local preflight; it is **not needed for routine pulls** and does not start workers.
 - The old install snapshot was captured before the latest five resource-check changes. The canonical candidate was reconstructed from source and owner-confirmed checksums; do not treat the snapshot as a current Windows installation.
 - Additional legacy scripts and the RDG updater are not all migrated into this repository yet. Do not delete their installed copies until their owner/test/cutover is settled.
 
