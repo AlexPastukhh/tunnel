@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "status": "STAGED_SOURCE_ONLY__NOT_WINDOWS_ACCEPTED",
+  "canonical_target": "%USERPROFILE%\\Repos\\tunnel\\runtime\\windows-repo",
+  "provenance": "Exact byte copies from locally tracked script-control-center/launchers on 2026-11-02; no Windows installed-state verification.",
+  "files": [
+    {
+      "path": "repo1/control.ps1",
+      "sha256": "62A93BFA5F4C957C5A89267AC3416CE09BB28FAB71EBD87DB976F20E21092D58"
+    },
+    {
+      "path": "repo1/run-tunnel-quiet-logs.ps1",
+      "sha256": "406881F20495B28A5EB97CE5F852801A21D02A9CC3220D35E7DB6BDD0FEDEAD9"
+    },
+    {
+      "path": "repo2/Repo2DirectGuard.ps1",
+      "sha256": "08AB2A7B3051E6899A47AF8CD09FC2FFE6E560CD7638B8160D1B2C3A40402241"
+    },
+    {
+      "path": "repo2/FortisRepo2-quiet-logs.ps1",
+      "sha256": "027F421B5B43F3EE0A3051AD734B9FA1E2FE3120FFDB259804A9DAF1D3B1E707"
+    }
+  ]
+}

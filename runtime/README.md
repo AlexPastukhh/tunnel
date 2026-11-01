@@ -11,6 +11,18 @@ G2 [entry](host-g2/runtime-api-migration/start-g2-guest-session.ps1),
 Owner HOST retired E43, recovery intentional only. Dockerfile не задаёт actual mounts/flags.
 [Итог/source map](../docs/ISOLATION_GUIDE.md).
 
+## Repo1/Repo2 Windows source mirror (paired release)
+
+The byte-exact Windows worker/launcher mirror, pinned manifest, read-only
+Preview/Start dispatcher, inventory and release tests live in
+[windows-repo/README.md](windows-repo/README.md). Script Center adapters resolve
+this source only from the sibling Windows Git clone
+`%USERPROFILE%\Repos\tunnel\runtime\windows-repo\current`; they validate
+the approved clean `main` clone and all eight SHA-256 values before execution.
+Windows Tunnel Client binaries, profiles, keys, ACLs and logs remain local and
+are not part of this source mirror. The paired Script Center adapter change
+must also be pulled before the new delegation is active on Windows.
+
 ## Старый текст README (исторический)
 
 ### Датированные копии исходников

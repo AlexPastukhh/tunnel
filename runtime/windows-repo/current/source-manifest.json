@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "BYTE_EXACT_MIRROR_OF_CURRENT_SCRIPT_CONTROL_CENTER_WORKING_CHAIN",
+  "source_repository": "script-control-center",
+  "source_revision": "001ddff9b0ece358e5cfa1b336a104c7d66bee68",
+  "files": [
+    {
+      "path": "Repo1-Worker.ps1",
+      "sha256": "051F965F5A69CC0D4FC77DE948C244895A7775BD3F2BC3C94B916223F7E699A2"
+    },
+    {
+      "path": "Repo2-Worker.ps1",
+      "sha256": "201B8BB1BE028982CD2E7A634D166E4002451EF54F1FA7AEF604332B62860714"
+    },
+    {
+      "path": "launchers/chatgpt-repo-mode/control.ps1",
+      "sha256": "62A93BFA5F4C957C5A89267AC3416CE09BB28FAB71EBD87DB976F20E21092D58"
+    },
+    {
+      "path": "launchers/chatgpt-repo-mode/run-tunnel-quiet-logs.ps1",
+      "sha256": "406881F20495B28A5EB97CE5F852801A21D02A9CC3220D35E7DB6BDD0FEDEAD9"
+    },
+    {
+      "path": "launchers/FortisRDGLauncherV2/Common.ps1",
+      "sha256": "FAD28A418D397AA526B33571880F53B56071F7F3823D0E422D0929F7AF2CB007"
+    },
+    {
+      "path": "launchers/FortisRDGLauncherV2/Start-Fortis.ps1",
+      "sha256": "33B1CC62B56B82BEB77E04B391B9C14376FB97D5C67E7817F38623F37EC5741A"
+    },
+    {
+      "path": "launchers/FortisRepoPlus2/Repo2DirectGuard.ps1",
+      "sha256": "08AB2A7B3051E6899A47AF8CD09FC2FFE6E560CD7638B8160D1B2C3A40402241"
+    },
+    {
+      "path": "launchers/FortisRepoPlus2/FortisRepo2-quiet-logs.ps1",
+      "sha256": "027F421B5B43F3EE0A3051AD734B9FA1E2FE3120FFDB259804A9DAF1D3B1E707"
+    }
+  ],
+  "source_ref": "script-control-center:main"
+}
