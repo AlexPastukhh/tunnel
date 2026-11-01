@@ -21,6 +21,10 @@
 | Пользоваться Snapshot Bridge / Broker | [Snapshot](docs/SNAPSHOT.md), [Broker runbook](runtime/broker/README.md) |
 | Найти происхождение файлов / историю переноса | [Provenance](docs/PROVENANCE.md), [Migration](docs/MIGRATION.md) |
 
+## Зеркальная директория Fortis Repo (Git, не bind mount)
+
+Папка проекта в Docker — `/workspace/repo/Repos/<repo>` (то же место, что `/workspace/repos/<repo>`). Соответствующий Windows Git-клон — `%USERPROFILE%\Repos\<repo>`; для Control Center: `C:\Users\alexa\Repos\script-control-center`. **Это две отдельные файловые системы, не общая папка:** обмен происходит только через `git commit/push` из Docker и `git pull --ff-only` на Windows после проверки. Незакоммиченные изменения не зеркалируются. Windows-клон и ярлык не обновляются автоматически. Никогда не монтировать Windows `Repos` как обход схемы Git-продвижения. Подробная процедура — [Fortis Windows Git launcher workflow](docs/FORTIS_GIT_WINDOWS_LAUNCHER_WORKFLOW.md).
+
 ## Где истина
 
 - Реальные права определяются **действующим** Windows/Docker runtime, ACL, mounts, конфигурацией и доступностью маршрута; Markdown — документированный срез, не enforcement.

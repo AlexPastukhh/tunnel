@@ -5,7 +5,7 @@ Status: **transition 2026-11-01**. This document records the owner-requested wor
 ## Source of truth
 
 - Develop the Fortis Repo 1/2 Windows launcher source, shared Guard and Control Center UI in the existing Docker Git checkout `/workspace/repos/script-control-center`. The native Tunnel's infrastructure documentation belongs to `tunnel`, but the canonical Windows launchers are **not duplicated** here.
-- Run source tests and review SHA-256 pins, then commit/push to `AlexPastukhh/script-control-center`. Windows uses a **separate Git clone**, typically `%USERPROFILE%\repos\script-control-center`, and `git pull --ff-only origin main`; no shared writable mount between Docker and Windows.
+- Run source tests and review SHA-256 pins, then commit/push to `AlexPastukhh/script-control-center`. Windows uses a **separate Git clone**, at `%USERPROFILE%\Repos\script-control-center` (the canonical Windows mirror root is `%USERPROFILE%\Repos`, distinct from Docker `/workspace/repo/Repos`), and `git pull --ff-only origin main`; no shared writable mount between Docker and Windows.
 - The Desktop `Fortis RDG Control Center` shortcut targets `Start-ControlCenter.ps1` **inside that Windows Git clone**. The UI's built-in five worker adapters refer to their own clone's `launchers/` source. Worker registration and `git pull` never automatically run code.
 - Machine-local tunnel profiles, native Windows runtime, `runtime.key`, catalog runtime state, logs and personal credentials stay **out** of Git. The RDG updater is a separate external dependency; its separate promotion/deployment design remains to be completed.
 
