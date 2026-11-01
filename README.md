@@ -14,6 +14,7 @@
 | Продолжить Fortis G2: разрешения, доказательства и оставшаяся работа | [Актуальный план G2](docs/G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md), [решение о Windows-сессии](docs/G3_SESSION_BOUNDARY_OUTCOME_DECISION_2026-10-15.md) |
 | Запустить, остановить, восстановить подключение | [Операции](docs/OPERATIONS.md) |
 | Обновить Guard и Windows launchers после изменения Docker | [Git → Windows: безопасный reconnect](docs/FORTIS_GIT_WINDOWS_LAUNCHER_WORKFLOW.md) |
+| Fortis Repo 1/2 из Script Center: Windows worker chain, runtime-зависимости и paired Git release | [Windows source mirror](runtime/windows-repo/README.md), [Defender / installed inventory](runtime/windows-repo/DEFENDER-AND-INSTALLED-INVENTORY.md) |
 | Определить права, mounts, ключи и сетевые границы | [Доступ](docs/ACCESS.md) |
 | Узнать, что логируется и как проектируется запрет операций | [Аудит и политика](docs/AUDIT.md) |
 | Посмотреть диагностику и планы GUI | [Наблюдаемость](docs/OBSERVABILITY.md) |
@@ -23,7 +24,7 @@
 
 ## Зеркальная директория Fortis Repo (Git, не bind mount)
 
-Папка проекта в Docker — `/workspace/repo/Repos/<repo>` (то же место, что `/workspace/repos/<repo>`). Соответствующий Windows Git-клон — `%USERPROFILE%\Repos\<repo>`; для Control Center: `C:\Users\alexa\Repos\script-control-center`. **Это две отдельные файловые системы, не общая папка:** обмен происходит только через `git commit/push` из Docker и `git pull --ff-only` на Windows после проверки. Незакоммиченные изменения не зеркалируются. Windows-клон и ярлык не обновляются автоматически. Никогда не монтировать Windows `Repos` как обход схемы Git-продвижения. Подробная процедура — [Fortis Windows Git launcher workflow](docs/FORTIS_GIT_WINDOWS_LAUNCHER_WORKFLOW.md).
+Папка проекта в Docker — `/workspace/repo/Repos/<repo>` (то же место, что `/workspace/repos/<repo>`). Соответствующий Windows Git-клон — `%USERPROFILE%\Repos\<repo>`. Для Fortis Repo 1/2 Script Center и Tunnel — **два соседних клона** `%USERPROFILE%\Repos\script-control-center` и `%USERPROFILE%\Repos\tunnel`: первый содержит UI и тонкие адаптеры, второй — единственный Windows worker/launcher source mirror. **Это отдельные файловые системы, не общая папка:** обмен происходит только через `git commit/push` из Docker и упорядоченный `git pull --ff-only` на Windows (`tunnel`, затем `script-control-center`). Незакоммиченные изменения не зеркалируются. Windows-клоны и ярлык не обновляются автоматически. Никогда не монтировать Windows `Repos` как обход схемы Git-продвижения. Подробности — [Fortis Windows Git launcher workflow](docs/FORTIS_GIT_WINDOWS_LAUNCHER_WORKFLOW.md) и [Windows source mirror](runtime/windows-repo/README.md).
 
 ## Где истина
 
