@@ -18,7 +18,7 @@ Preview/Start dispatcher, inventory and release tests live in
 [windows-repo/README.md](windows-repo/README.md). Script Center adapters resolve
 this source only from the sibling Windows Git clone
 `%USERPROFILE%\Repos\tunnel\runtime\windows-repo\current`; they validate
-the approved clean `main` clone and all eight SHA-256 values before execution.
+the approved clean `main` clone and all nine SHA-256 values before execution.
 Windows Tunnel Client binaries, profiles, keys, ACLs and logs remain local and
 are not part of this source mirror. The paired Script Center adapter change
 must also be pulled before the new delegation is active on Windows.

@@ -1,5 +1,5 @@
-# Windows Git-clone entry. Dispatches to the byte-exact current Control Center workers.
-# Default = read-only Preview. Start requires a clean main clone and typed owner confirmation.
+# Windows Git-clone entry. Default Preview; Start requires a clean canonical main and typed owner confirmation.
+# Default = read-only Preview of the isolated candidate tree.
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)][ValidateSet('Repo1','Repo2')][string]$Repo,
@@ -14,7 +14,7 @@ if (-not [string]::Equals($actualRoot,$expectedRoot,[StringComparison]::OrdinalI
 }
 $currentRoot = Join-Path $PSScriptRoot 'current'
 $manifestPath = Join-Path $currentRoot 'source-manifest.json'
-$expectedManifestHash = 'D47234936171E7E47B870533AB06452BFA13E0DAA30F90ABB1367C4B66EC91E0'
+$expectedManifestHash = '8B035C231D08D326D8D12DF4D35EE7303E925AFB1C0F46596EEC5FD02B0C226C'
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf) -or
     (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash -cne $expectedManifestHash) {
     throw 'Current worker source manifest fingerprint mismatch.'
@@ -28,10 +28,15 @@ $expectedFiles = @(
     'launchers/FortisRDGLauncherV2/Common.ps1',
     'launchers/FortisRDGLauncherV2/Start-Fortis.ps1',
     'launchers/FortisRepoPlus2/Repo2DirectGuard.ps1',
-    'launchers/FortisRepoPlus2/FortisRepo2-quiet-logs.ps1'
+    'launchers/FortisRepoPlus2/FortisRepo2-quiet-logs.ps1',
+    'launchers/shared/FortisContainerPolicy.ps1'
 )
 if ($manifest.schema_version -ne 1 -or
-    $manifest.status -cne 'BYTE_EXACT_MIRROR_OF_CURRENT_SCRIPT_CONTROL_CENTER_WORKING_CHAIN' -or
+    $manifest.status -cne 'TUNNEL_CANONICAL_SHARED_GUARD_POLICY_GO3C' -or
+    $manifest.source_repository -cne 'tunnel' -or
+    $manifest.source_ref -cne 'tunnel:main' -or
+    $manifest.source_revision_type -cne 'sha256_file_inventory_v1' -or
+    $manifest.source_revision -cne '1192D3D34FD457B000E16B770AACD06A7505C164345B2809B0BE26795794AAE0' -or
     @($manifest.files).Count -ne $expectedFiles.Count) {
     throw 'Unexpected current worker manifest schema/status. Nothing started.'
 }
@@ -63,17 +68,25 @@ if ($Action -eq 'Preview') {
     return
 }
 # Explicit Windows owner gate. No git pull, service stop, or Docker restart here.
+$origin = @(& git -C $actualRoot remote get-url origin)
+if ($LASTEXITCODE -ne 0 -or $origin.Count -ne 1 -or $origin[0] -cnotmatch '^https://github\.com/AlexPastukhh/tunnel(?:\.git)?$') {
+    throw 'Windows tunnel clone has an unexpected origin. Nothing started.'
+}
 $branch = (& git -C $actualRoot branch --show-current)
 if ($LASTEXITCODE -ne 0 -or $branch.Trim() -cne 'main') {
     throw 'Windows tunnel clone must be on main. Nothing started.'
+}
+$sync = @(& git -C $actualRoot rev-list --left-right --count 'HEAD...origin/main')
+if ($LASTEXITCODE -ne 0 -or $sync.Count -ne 1 -or ([string]$sync[0]).Trim() -notmatch '^0\s+0$') {
+    throw 'Windows tunnel main must be synchronized with origin/main. Nothing started.'
 }
 $dirty = @(& git -C $actualRoot status --porcelain --untracked-files=normal)
 if ($LASTEXITCODE -ne 0 -or $dirty.Count -ne 0) {
     throw 'Windows tunnel clone must be clean. Nothing started.'
 }
-$confirmation = Read-Host ('Type START ' + $Repo + ' to launch only that profile (no other tunnel is stopped)')
+$confirmation = Read-Host ('Type START ' + $Repo + ' to launch only that profile (no other tunnel or container is stopped)')
 if ($confirmation -cne ('START ' + $Repo)) { throw 'Owner confirmation missing. Nothing started.' }
-Write-Output ('Launching unchanged current ' + $Repo + ' worker chain...')
+Write-Output ('Launching current ' + $Repo + ' worker chain; this dispatcher does not stop or recreate Fortis...')
 if ($Repo -eq 'Repo1') {
     & $repo1Worker
 } else {

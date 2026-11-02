@@ -42,11 +42,15 @@ class ReleaseContract(unittest.TestCase):
             'launchers/FortisRDGLauncherV2/Start-Fortis.ps1',
             'launchers/FortisRepoPlus2/Repo2DirectGuard.ps1',
             'launchers/FortisRepoPlus2/FortisRepo2-quiet-logs.ps1',
+            'launchers/shared/FortisContainerPolicy.ps1',
         }
         self.assertEqual(manifest['schema_version'], 1)
-        self.assertEqual(manifest['status'], 'BYTE_EXACT_MIRROR_OF_CURRENT_SCRIPT_CONTROL_CENTER_WORKING_CHAIN')
-        self.assertEqual(manifest['source_ref'], 'script-control-center:main')
-        self.assertRegex(manifest['source_revision'], r'^[0-9a-f]{40}$')
+        self.assertEqual(manifest['status'], 'TUNNEL_CANONICAL_SHARED_GUARD_POLICY_GO3C')
+        self.assertEqual(manifest['source_repository'], 'tunnel')
+        self.assertEqual(manifest['source_ref'], 'tunnel:main')
+        self.assertEqual(manifest['source_revision_type'], 'sha256_file_inventory_v1')
+        inventory = ''.join(f"{entry['path']}\t{entry['sha256']}\n" for entry in manifest['files'])
+        self.assertEqual(hashlib.sha256(inventory.encode()).hexdigest().upper(), manifest['source_revision'])
         self.assertEqual({entry['path'] for entry in manifest['files']}, expected)
         wrapper = (BUNDLE / 'Invoke-FortisRepo.ps1').read_text(encoding='utf-8')
         manifest_hash = hashlib.sha256((current / 'source-manifest.json').read_bytes()).hexdigest().upper()
@@ -90,10 +94,13 @@ class ReleaseContract(unittest.TestCase):
         self.assertIn('& $repo2Guard -Mode Preview', wrapper)
         self.assertIn('& $repo1Worker', wrapper)
         self.assertIn('& $repo2Worker', wrapper)
+        self.assertIn("Join-Path $PSScriptRoot '..\\..'", wrapper)
+        self.assertIn('remote get-url origin', wrapper)
+        self.assertIn('rev-list --left-right --count', wrapper)
         self.assertNotIn('& $repo1 -Mode Run', wrapper)
         self.assertNotIn('& $repo2 -Action Start', wrapper)
-        for command in ('Stop-Process', 'Stop-Service', 'docker stop', 'docker start',
-                        'wsl --shutdown', 'Start-Process'):
+        for command in ('Stop-Process', 'Stop-Service', 'docker stop', 'docker start', 'docker restart', 'docker rm',
+                        'docker create', 'wsl --shutdown', 'Start-Process'):
             self.assertNotIn(command, wrapper)
         self.assertNotRegex(wrapper, r'(?m)^\s*git\s+pull\b')
 

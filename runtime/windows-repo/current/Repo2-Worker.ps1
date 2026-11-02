@@ -8,8 +8,11 @@ try {
     $repo2 = Join-Path $PSScriptRoot 'launchers\FortisRepoPlus2\FortisRepo2-quiet-logs.ps1'
     if (-not (Test-Path -LiteralPath $prepare -PathType Leaf)) { throw "Не найден $prepare" }
     if (-not (Test-Path -LiteralPath $repo2 -PathType Leaf)) { throw "Не найден $repo2" }
-    & $prepare
-    if (-not $?) { throw 'Подготовка Fortis Guard завершилась неуспешно.' }
+    $prepareOutput = @(& $prepare)
+    if ($prepareOutput.Count -ne 1 -or [string]$prepareOutput[0] -cnotmatch '^[0-9a-f]{64}$') {
+        throw 'Подготовка Fortis не вернула один проверенный Container ID.'
+    }
+    $containerId = [string]$prepareOutput[0]
 
     # Publish a PID + process-start marker while this worker owns the Repo 2 session.
     $runDir = Join-Path $env:LOCALAPPDATA 'FortisRdgControlCenter\scripts\runs'
@@ -27,7 +30,7 @@ try {
     $markerTemp = $null
 
     Write-Output 'Запуск Fortis Repo 2 (оригинальный quiet-logs скрипт)...'
-    & $repo2 -Action Start
+    & $repo2 -Action Start -ContainerId $containerId
     if (-not $?) { throw 'Fortis Repo 2 завершился с ошибкой.' }
 } catch {
     [Console]::Error.WriteLine('REPO2 ERROR: ' + $_.Exception.Message)

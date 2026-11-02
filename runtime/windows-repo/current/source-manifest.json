@@ -1,8 +1,10 @@
 {
   "schema_version": 1,
-  "status": "BYTE_EXACT_MIRROR_OF_CURRENT_SCRIPT_CONTROL_CENTER_WORKING_CHAIN",
-  "source_repository": "script-control-center",
-  "source_revision": "001ddff9b0ece358e5cfa1b336a104c7d66bee68",
+  "status": "TUNNEL_CANONICAL_SHARED_GUARD_POLICY_GO3C",
+  "source_repository": "tunnel",
+  "source_ref": "tunnel:main",
+  "source_revision_type": "sha256_file_inventory_v1",
+  "source_revision": "1192D3D34FD457B000E16B770AACD06A7505C164345B2809B0BE26795794AAE0",
   "files": [
     {
       "path": "Repo1-Worker.ps1",
@@ -10,7 +12,7 @@
     },
     {
       "path": "Repo2-Worker.ps1",
-      "sha256": "201B8BB1BE028982CD2E7A634D166E4002451EF54F1FA7AEF604332B62860714"
+      "sha256": "EE5571F0BCD600CE1BBF514E8E8AB0BD05F378A1ECB7677FE42DAAF7D5B029DF"
     },
     {
       "path": "launchers/chatgpt-repo-mode/control.ps1",
@@ -18,24 +20,27 @@
     },
     {
       "path": "launchers/chatgpt-repo-mode/run-tunnel-quiet-logs.ps1",
-      "sha256": "406881F20495B28A5EB97CE5F852801A21D02A9CC3220D35E7DB6BDD0FEDEAD9"
+      "sha256": "213C44B75EA9D0EEAED6EFC98ECE96ABD64AA2B1BF2DD686DCCB34DE67FDC2AA"
     },
     {
       "path": "launchers/FortisRDGLauncherV2/Common.ps1",
-      "sha256": "FAD28A418D397AA526B33571880F53B56071F7F3823D0E422D0929F7AF2CB007"
+      "sha256": "B7FB755E8AF8CE5E25F9D3E93056E7766CCC3391B3C9AA10F1F125DFA78B0AFA"
     },
     {
       "path": "launchers/FortisRDGLauncherV2/Start-Fortis.ps1",
-      "sha256": "33B1CC62B56B82BEB77E04B391B9C14376FB97D5C67E7817F38623F37EC5741A"
+      "sha256": "88A29ACF2B99F01CEF319D8EF4A98AF8FF67DAB2E4FDE198D71E08181A2656A5"
     },
     {
       "path": "launchers/FortisRepoPlus2/Repo2DirectGuard.ps1",
-      "sha256": "08AB2A7B3051E6899A47AF8CD09FC2FFE6E560CD7638B8160D1B2C3A40402241"
+      "sha256": "29A885E33E7B034E13C7CB228E108D9074567FA66FAC69A6A70ED318BA17BB73"
     },
     {
       "path": "launchers/FortisRepoPlus2/FortisRepo2-quiet-logs.ps1",
-      "sha256": "027F421B5B43F3EE0A3051AD734B9FA1E2FE3120FFDB259804A9DAF1D3B1E707"
+      "sha256": "7FF2503239EDC5461446DE34FE722178CB818B371CDF78BBDA192447FD51FF5B"
+    },
+    {
+      "path": "launchers/shared/FortisContainerPolicy.ps1",
+      "sha256": "8F64ADAC35145B427D836FBBECA98F666FEA604AA84C4A1A7CF146BFD4DBD9F7"
     }
-  ],
-  "source_ref": "script-control-center:main"
+  ]
 }
