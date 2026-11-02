@@ -3,7 +3,7 @@
 
 $script:FortisPolicy = @{
     OwnerSid = 'S-1-5-21-303538662-3368424508-2654684973-1001'
-    PolicySourceSha256 = 'F05614816F869A4A93B33CAC016933EB34E612A1134705830B7239EE072E9323'
+    PolicySourceSha256 = 'C7EA99D7030635C62A1BF856C6F751B043E62C5248EDC5E03440400CCAF8422E'
     ContainerName = 'fortis-repo-test'
     LinuxUser = '1000:1000'
     RequiredNetwork = 'fortis-repo-egress'
@@ -138,15 +138,28 @@ function Assert-FortisContainerPolicy {
         throw 'Unexpected Docker bind mount; only the reviewed named volumes are allowed.'
     }
     $requestedMounts = @(Get-FortisObjectValue $hostConfig 'Mounts')
-    $effectiveMounts = @((Get-FortisObjectValue $Info 'Mounts') | Where-Object { $_.Type -ne 'tmpfs' })
+    # Docker inspect objects can omit optional properties. Read Type defensively:
+    # only an explicit tmpfs is filtered; missing/unknown metadata stays in the
+    # list and is rejected below (fail closed, without a StrictMode property error).
+    $effectiveMounts = @((Get-FortisObjectValue $Info 'Mounts') | Where-Object {
+        [string](Get-FortisObjectValue $_ 'Type' '') -cne 'tmpfs'
+    })
     $allowedMounts = @($script:FortisPolicy.RequiredMounts) + @($script:FortisPolicy.OptionalMounts)
     $allowedTargets = @($allowedMounts | ForEach-Object { $_.Target })
     if ($requestedMounts.Count -notin @(3,4) -or $effectiveMounts.Count -ne $requestedMounts.Count) {
         throw 'Unexpected Docker mount count or disagreement between requested and effective mounts.'
     }
+    foreach ($mount in $effectiveMounts) {
+        foreach ($field in @('Type','Name','Destination','RW')) {
+            $value = Get-FortisObjectValue $mount $field
+            if ($null -eq $value -or [string]::IsNullOrWhiteSpace([string]$value)) {
+                throw "Effective Docker mount metadata is incomplete: $field"
+            }
+        }
+    }
     foreach ($target in $allowedTargets) {
-        $requested = @($requestedMounts | Where-Object { $_.Target -ceq $target })
-        $effective = @($effectiveMounts | Where-Object { $_.Destination -ceq $target })
+        $requested = @($requestedMounts | Where-Object { (Get-FortisObjectValue $_ 'Target' '') -ceq $target })
+        $effective = @($effectiveMounts | Where-Object { (Get-FortisObjectValue $_ 'Destination' '') -ceq $target })
         $required = @($script:FortisPolicy.RequiredMounts | Where-Object { $_.Target -ceq $target }).Count -eq 1
         if ($required -and ($requested.Count -ne 1 -or $effective.Count -ne 1)) {
             throw "Required Fortis mount is missing or duplicated: $target"
@@ -170,15 +183,15 @@ function Assert-FortisContainerPolicy {
             $requested[0].Target -cne $rule.Target -or
             $subpath -cne $rule.Subpath -or
             $requestedReadOnly -ne $rule.ReadOnly -or
-            $effective[0].Type -cne $rule.Type -or
-            $effective[0].Name -cne $rule.Source -or
-            $effective[0].Destination -cne $rule.Target -or
+            (Get-FortisObjectValue $effective[0] 'Type' '') -cne $rule.Type -or
+            (Get-FortisObjectValue $effective[0] 'Name' '') -cne $rule.Source -or
+            (Get-FortisObjectValue $effective[0] 'Destination' '') -cne $rule.Target -or
             $effectiveReadWrite -ne [bool](-not $rule.ReadOnly)) {
             throw "Fortis mount identity or access mode changed: $target"
         }
     }
     $unknownRequested = @($requestedMounts | Where-Object { $allowedTargets -cnotcontains $_.Target })
-    $unknownEffective = @($effectiveMounts | Where-Object { $allowedTargets -cnotcontains $_.Destination })
+    $unknownEffective = @($effectiveMounts | Where-Object { $allowedTargets -cnotcontains (Get-FortisObjectValue $_ 'Destination' '') })
     if ($unknownRequested.Count -ne 0 -or $unknownEffective.Count -ne 0) {
         throw 'Unexpected extra Docker mount (including Docker socket or unreviewed host path).'
     }

@@ -78,6 +78,8 @@ class Go3CSharedPolicyContract(unittest.TestCase):
         self.assertIsNotNone(anchor)
         normalized = re.sub(r"(?m)^    PolicySourceSha256 = '[0-9A-F]{64}'$", "    PolicySourceSha256 = '<SELF>'", policy_text)
         self.assertEqual(hashlib.sha256(normalized.encode("utf-8")).hexdigest().upper(), anchor.group(1))
+        self.assertIn("Get-FortisObjectValue $_ 'Type' ''", policy_text)
+        self.assertIn("Effective Docker mount metadata is incomplete", policy_text)
         self.assertIn("function Assert-FortisPolicyIntegrity", policy_text)
         self.assertIn("Assert-FortisPolicyIntegrity", policy_text)
         for source in (repo1, repo2, common, quiet):

@@ -4,7 +4,7 @@
   "source_repository": "tunnel",
   "source_ref": "tunnel:main",
   "source_revision_type": "sha256_file_inventory_v1",
-  "source_revision": "1192D3D34FD457B000E16B770AACD06A7505C164345B2809B0BE26795794AAE0",
+  "source_revision": "E44858F973018F602F8EB772B5875F2E4E74DAC5537C81A4CCB8455BA097F468",
   "files": [
     {
       "path": "Repo1-Worker.ps1",
@@ -40,7 +40,7 @@
     },
     {
       "path": "launchers/shared/FortisContainerPolicy.ps1",
-      "sha256": "8F64ADAC35145B427D836FBBECA98F666FEA604AA84C4A1A7CF146BFD4DBD9F7"
+      "sha256": "123659F0CB39677293ED11E93AB78B4C3CE3CB4D6C7A1D838279B91D94620101"
     }
   ]
 }

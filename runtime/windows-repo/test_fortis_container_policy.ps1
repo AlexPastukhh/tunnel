@@ -60,6 +60,8 @@ $i.HostConfig.Mounts += [pscustomobject]@{ Type='volume'; Source='fortis-r7-clie
 $i.Mounts += [pscustomobject]@{ Type='volume'; Name='fortis-r7-client'; Destination='/run/fortis-client'; RW=$false }
 Check-Case 'optional-client-ro' $i $true; $count++
 
+$i = New-Info; $i.Mounts[0].PSObject.Properties.Remove('Type'); Check-Case 'missing-effective-mount-type-fails-closed' $i $false; $count++
+
 $mutations = @(
     @{Name='wrong-user'; Change={param($x)$x.Config.User='0:0'}},
     @{Name='privileged'; Change={param($x)$x.HostConfig.Privileged=$true}},

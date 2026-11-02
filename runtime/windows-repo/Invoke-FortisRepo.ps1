@@ -14,7 +14,7 @@ if (-not [string]::Equals($actualRoot,$expectedRoot,[StringComparison]::OrdinalI
 }
 $currentRoot = Join-Path $PSScriptRoot 'current'
 $manifestPath = Join-Path $currentRoot 'source-manifest.json'
-$expectedManifestHash = '8B035C231D08D326D8D12DF4D35EE7303E925AFB1C0F46596EEC5FD02B0C226C'
+$expectedManifestHash = '285A5F16059AF9061731D67BA0AF62211199E4DB961E5A4C3EE59693EA0DC221'
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf) -or
     (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash -cne $expectedManifestHash) {
     throw 'Current worker source manifest fingerprint mismatch.'
@@ -36,7 +36,7 @@ if ($manifest.schema_version -ne 1 -or
     $manifest.source_repository -cne 'tunnel' -or
     $manifest.source_ref -cne 'tunnel:main' -or
     $manifest.source_revision_type -cne 'sha256_file_inventory_v1' -or
-    $manifest.source_revision -cne '1192D3D34FD457B000E16B770AACD06A7505C164345B2809B0BE26795794AAE0' -or
+    $manifest.source_revision -cne 'E44858F973018F602F8EB772B5875F2E4E74DAC5537C81A4CCB8455BA097F468' -or
     @($manifest.files).Count -ne $expectedFiles.Count) {
     throw 'Unexpected current worker manifest schema/status. Nothing started.'
 }
