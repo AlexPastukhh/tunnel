@@ -80,6 +80,9 @@ class Go3CSharedPolicyContract(unittest.TestCase):
         self.assertEqual(hashlib.sha256(normalized.encode("utf-8")).hexdigest().upper(), anchor.group(1))
         self.assertIn("Get-FortisObjectValue $_ 'Type' ''", policy_text)
         self.assertIn("Effective Docker mount metadata is incomplete", policy_text)
+        self.assertIn("function ConvertFrom-FortisDockerInspectObject", policy_text)
+        self.assertIn("--format '{{json .}}'", policy_text)
+        self.assertNotIn("$requestedMounts.Count -notin @(3,4)", policy_text)
         self.assertIn("function Assert-FortisPolicyIntegrity", policy_text)
         self.assertIn("Assert-FortisPolicyIntegrity", policy_text)
         for source in (repo1, repo2, common, quiet):

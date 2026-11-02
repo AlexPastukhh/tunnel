@@ -3,7 +3,7 @@
 
 $script:FortisPolicy = @{
     OwnerSid = 'S-1-5-21-303538662-3368424508-2654684973-1001'
-    PolicySourceSha256 = 'C7EA99D7030635C62A1BF856C6F751B043E62C5248EDC5E03440400CCAF8422E'
+    PolicySourceSha256 = '49C05A4EB8AE78C6530E74DF4AFC7265754E1AE10CB8AC688895B3C6A366D9EA'
     ContainerName = 'fortis-repo-test'
     LinuxUser = '1000:1000'
     RequiredNetwork = 'fortis-repo-egress'
@@ -60,6 +60,30 @@ function Assert-FortisWindowsOwner {
 
 function Get-FortisDockerPath {
     return (Get-Command docker.exe -CommandType Application -ErrorAction Stop).Source
+}
+
+function ConvertFrom-FortisDockerInspectObject {
+    param([string[]]$Lines, [string]$Kind)
+    $json = @($Lines) -join "`n"
+    if ([string]::IsNullOrWhiteSpace($json)) {
+        throw "Docker $Kind inspect returned no JSON."
+    }
+    if (-not $json.TrimStart().StartsWith('{', [StringComparison]::Ordinal)) {
+        throw "Docker $Kind inspect did not return one JSON object."
+    }
+    try {
+        $value = ConvertFrom-Json -InputObject $json -ErrorAction Stop
+    } catch {
+        throw "Docker $Kind inspect returned invalid JSON."
+    }
+    # Ask Docker for '{{json .}}' so PowerShell receives one object, not the
+    # top-level array from plain `docker inspect`. Reject an unexpected array
+    # instead of letting PS 5.1 wrap it and hide properties such as Mounts.
+    if ($null -eq $value -or $value -is [System.Array] -or
+        $value -is [string] -or $value -is [System.ValueType]) {
+        throw "Docker $Kind inspect did not return one JSON object."
+    }
+    return $value
 }
 
 function Assert-FortisContainerPolicy {
@@ -146,9 +170,9 @@ function Assert-FortisContainerPolicy {
     })
     $allowedMounts = @($script:FortisPolicy.RequiredMounts) + @($script:FortisPolicy.OptionalMounts)
     $allowedTargets = @($allowedMounts | ForEach-Object { $_.Target })
-    if ($requestedMounts.Count -notin @(3,4) -or $effectiveMounts.Count -ne $requestedMounts.Count) {
-        throw 'Unexpected Docker mount count or disagreement between requested and effective mounts.'
-    }
+    # Exact mount cardinality is enforced per destination below: required targets
+    # occur once, optional targets at most once, and all unknown targets are denied.
+    # This avoids a second, brittle total-count literal that must track policy edits.
     foreach ($mount in $effectiveMounts) {
         foreach ($field in @('Type','Name','Destination','RW')) {
             $value = Get-FortisObjectValue $mount $field
@@ -178,9 +202,9 @@ function Assert-FortisContainerPolicy {
         $requestedReadOnly = $false
         if ($null -ne $readOnlyProperty) { $requestedReadOnly = [bool]$readOnlyProperty.Value }
         $effectiveReadWrite = [bool](Get-FortisObjectValue $effective[0] 'RW' $false)
-        if ($requested[0].Type -cne $rule.Type -or
-            $requested[0].Source -cne $rule.Source -or
-            $requested[0].Target -cne $rule.Target -or
+        if ((Get-FortisObjectValue $requested[0] 'Type' '') -cne $rule.Type -or
+            (Get-FortisObjectValue $requested[0] 'Source' '') -cne $rule.Source -or
+            (Get-FortisObjectValue $requested[0] 'Target' '') -cne $rule.Target -or
             $subpath -cne $rule.Subpath -or
             $requestedReadOnly -ne $rule.ReadOnly -or
             (Get-FortisObjectValue $effective[0] 'Type' '') -cne $rule.Type -or
@@ -190,7 +214,7 @@ function Assert-FortisContainerPolicy {
             throw "Fortis mount identity or access mode changed: $target"
         }
     }
-    $unknownRequested = @($requestedMounts | Where-Object { $allowedTargets -cnotcontains $_.Target })
+    $unknownRequested = @($requestedMounts | Where-Object { $allowedTargets -cnotcontains (Get-FortisObjectValue $_ 'Target' '') })
     $unknownEffective = @($effectiveMounts | Where-Object { $allowedTargets -cnotcontains (Get-FortisObjectValue $_ 'Destination' '') })
     if ($unknownRequested.Count -ne 0 -or $unknownEffective.Count -ne 0) {
         throw 'Unexpected extra Docker mount (including Docker socket or unreviewed host path).'
@@ -212,9 +236,9 @@ function Assert-FortisContainerPolicy {
     }
     if ($networkNames -ccontains $script:FortisPolicy.OptionalInternalNetwork) {
         if ([string]::IsNullOrWhiteSpace($DockerPath)) { throw 'Docker path is required to verify the optional RDG network.' }
-        $networkRaw = @(& $DockerPath network inspect $script:FortisPolicy.OptionalInternalNetwork 2>$null)
+        $networkRaw = @(& $DockerPath network inspect --format '{{json .}}' -- $script:FortisPolicy.OptionalInternalNetwork 2>$null)
         if ($LASTEXITCODE -ne 0 -or $networkRaw.Count -eq 0) { throw 'Could not inspect the optional RDG network.' }
-        $networkInfo = @(($networkRaw -join "`n") | ConvertFrom-Json)[0]
+        $networkInfo = ConvertFrom-FortisDockerInspectObject -Lines $networkRaw -Kind 'network'
         if ($networkInfo.Name -cne $script:FortisPolicy.OptionalInternalNetwork -or
             $networkInfo.Driver -cne 'bridge' -or $networkInfo.Internal -ne $true) {
             throw 'Optional RDG network must remain an internal bridge.'
@@ -234,11 +258,9 @@ function Get-FortisContainerContext {
     $docker = Get-FortisDockerPath
     $target = $script:FortisPolicy.ContainerName
     if (-not [string]::IsNullOrWhiteSpace($ContainerId)) { $target = $ContainerId }
-    $raw = @(& $docker inspect --type container -- $target 2>$null)
+    $raw = @(& $docker inspect --type container --format '{{json .}}' -- $target 2>$null)
     if ($LASTEXITCODE -ne 0 -or $raw.Count -eq 0) { throw 'Fortis container is missing or Docker is unavailable.' }
-    $items = @(($raw -join "`n") | ConvertFrom-Json)
-    if ($items.Count -ne 1) { throw 'Docker inspect did not return exactly one Fortis container.' }
-    $info = $items[0]
+    $info = ConvertFrom-FortisDockerInspectObject -Lines $raw -Kind 'container'
     if (-not [string]::IsNullOrWhiteSpace($ContainerId) -and $info.Id -cne $ContainerId) {
         throw 'The inspected container ID changed.'
     }

@@ -48,6 +48,16 @@ function Check-Case([string]$Name, $Info, [bool]$ExpectedPass) {
     Write-Output "POLICY_PASS=$Name"
 }
 
+$inspectJson = '{"Id":"' + ('f' * 64) + '","Name":"/fortis-repo-test","Mounts":[{"Type":"volume"},{"Type":"volume"},{"Type":"volume"}]}'
+$inspectObject = ConvertFrom-FortisDockerInspectObject -Lines @($inspectJson) -Kind 'container'
+if ($inspectObject -is [System.Array] -or $inspectObject.Id -cne ('f' * 64) -or @($inspectObject.Mounts).Count -ne 3) {
+    throw 'DOCKER_INSPECT_OBJECT_SHAPE_FAIL'
+}
+$arrayRejected = $false
+try { $null = ConvertFrom-FortisDockerInspectObject -Lines @('[' + $inspectJson + ']') -Kind 'container' } catch { $arrayRejected = $true }
+if (-not $arrayRejected) { throw 'DOCKER_INSPECT_ARRAY_SHOULD_FAIL_CLOSED' }
+Write-Output 'DOCKER_INSPECT_OBJECT_PARSING_PASS'
+
 $count = 0
 $i = New-Info; Check-Case 'baseline' $i $true; $count++
 $i = New-Info; $i.Image='sha256:' + ('c' * 64); Check-Case 'image-rebuild-does-not-break-policy' $i $true; $count++
