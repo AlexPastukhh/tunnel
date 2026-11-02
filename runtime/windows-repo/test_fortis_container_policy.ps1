@@ -120,8 +120,10 @@ Write-Output "GO3C_SHARED_POLICY_CASES_PASS=$count"
 
 # Verify Docker exec always places the inspected immutable ID after options.
 $execContext = [pscustomobject]@{ DockerPath='/bin/echo'; ContainerId=('d' * 64) }
-$execOutput = Invoke-FortisDockerExec -Context $execContext -Options @('--user','1000:1000') -Command @('node','-e','42')
-$execExpected = 'exec --user 1000:1000 ' + $execContext.ContainerId + ' node -e 42'
+$execOutput = Invoke-FortisDockerExec -Context $execContext -Options @('--user','1000:1000') -Command @('node','-e','const answer="42";console.log(answer)')
+$encodedExecSource = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('const answer="42";console.log(answer)'))
+$execBootstrap = "eval(Buffer.from('$encodedExecSource','base64').toString('utf8'))"
+$execExpected = 'exec --user 1000:1000 ' + $execContext.ContainerId + ' node -e ' + $execBootstrap
 if (@($execOutput).Count -ne 1 -or [string](@($execOutput)[0]) -cne $execExpected) {
     throw 'DOCKER_EXEC_ID_BINDING_FAIL'
 }

@@ -3,7 +3,7 @@
 
 $script:FortisPolicy = @{
     OwnerSid = 'S-1-5-21-303538662-3368424508-2654684973-1001'
-    PolicySourceSha256 = '49C05A4EB8AE78C6530E74DF4AFC7265754E1AE10CB8AC688895B3C6A366D9EA'
+    PolicySourceSha256 = '7083D27460D81503CAE8273808D24E378A9EDD97C876F9DFFBF6E5184534AAE3'
     ContainerName = 'fortis-repo-test'
     LinuxUser = '1000:1000'
     RequiredNetwork = 'fortis-repo-egress'
@@ -278,7 +278,18 @@ function Start-FortisContainer {
 
 function Invoke-FortisDockerExec {
     param($Context, [string[]]$Command, [string[]]$Options = @())
-    $output = @(& $Context.DockerPath exec @Options $Context.ContainerId @Command 2>$null)
+    $execCommand = @($Command)
+    # Windows PowerShell 5.1 can rewrite embedded double quotes when it builds
+    # native argv for docker.exe. Encode Node -e source so the only script
+    # argument contains Base64 characters and no whitespace or double quotes.
+    if ($execCommand.Count -ge 3 -and
+        [IO.Path]::GetFileName([string]$execCommand[0]) -in @('node','node.exe') -and
+        $execCommand[1] -ceq '-e') {
+        $sourceBytes = [Text.Encoding]::UTF8.GetBytes([string]$execCommand[2])
+        $encodedSource = [Convert]::ToBase64String($sourceBytes)
+        $execCommand[2] = "eval(Buffer.from('$encodedSource','base64').toString('utf8'))"
+    }
+    $output = @(& $Context.DockerPath exec @Options $Context.ContainerId @execCommand 2>$null)
     if ($LASTEXITCODE -ne 0) { throw 'Guarded Docker exec failed.' }
     return $output
 }

@@ -82,6 +82,8 @@ class Go3CSharedPolicyContract(unittest.TestCase):
         self.assertIn("Effective Docker mount metadata is incomplete", policy_text)
         self.assertIn("function ConvertFrom-FortisDockerInspectObject", policy_text)
         self.assertIn("--format '{{json .}}'", policy_text)
+        self.assertIn("eval(Buffer.from('$encodedSource','base64').toString('utf8'))", policy_text)
+        self.assertIn("GetFileName([string]$execCommand[0])", policy_text)
         self.assertNotIn("$requestedMounts.Count -notin @(3,4)", policy_text)
         self.assertIn("function Assert-FortisPolicyIntegrity", policy_text)
         self.assertIn("Assert-FortisPolicyIntegrity", policy_text)

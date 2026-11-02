@@ -44,7 +44,9 @@ workspace target must appear exactly once, the optional client target at most
 once, and every unknown target or bind mount is rejected. There is no separate
 hard-coded total-mount count. Docker inspect is requested as a single JSON
 object (`--format '{{json .}}'`) so Windows PowerShell 5.1 cannot accidentally
-wrap a one-container top-level JSON array and hide the `Mounts` property.
+wrap a one-container top-level JSON array and hide the `Mounts` property. Node
+`-e` probes are UTF-8/Base64 wrapped before crossing the Windows native-process
+boundary, avoiding PowerShell 5.1 rewriting embedded JavaScript quotes.
 
 The policy intentionally validates the effective isolation contract rather
 than exact Docker image ID or Desktop Commander module SHA. The image ID is
