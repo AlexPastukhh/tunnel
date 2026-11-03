@@ -1,27 +1,26 @@
-# Runtime source copies — current AFTER и исторические BEFORE
+# Runtime source map
 
-Копии не деплоятся автоматически. Repo E38 current AFTER Windows
-[run](host-g2/runtime-api-migration/repo-run-tunnel.ps1) и
-[control](host-g2/runtime-api-migration/repo-control.ps1).
-Старые repo-mode/run-tunnel.ps1 и repo-mode/control.ps1 — BEFORE, не current deployed.
-[Bridge source](repo-mode/fortis-mcp-bridge.mjs) совпал hash с live volume в E44,
-но source edit не меняет live /workspace/repo/.fortis.
-G2 [entry](host-g2/runtime-api-migration/start-g2-guest-session.ps1),
-[gate](host-g2/g2-stdio-gate.py), [ACL source](host-g2/protect-shared-runtime.ps1).
-Owner HOST retired E43, recovery intentional only. Dockerfile не задаёт actual mounts/flags.
-[Итог/source map](../docs/ISOLATION_GUIDE.md).
+`runtime/` contains source, candidates and historical snapshots; changing a file here does not install it into Windows or alter a running Docker container. Current installed/runtime facts must be checked independently.
 
-## Repo1/Repo2 Windows source mirror (paired release)
+## Current Repo1/Repo2 Windows worker source
 
-The byte-exact Windows worker/launcher mirror, pinned manifest, read-only
-Preview/Start dispatcher, inventory and release tests live in
-[windows-repo/README.md](windows-repo/README.md). Script Center adapters resolve
-this source only from the sibling Windows Git clone
-`%USERPROFILE%\Repos\tunnel\runtime\windows-repo\current`; they validate
-the approved clean `main` clone and all nine SHA-256 values before execution.
-Windows Tunnel Client binaries, profiles, keys, ACLs and logs remain local and
-are not part of this source mirror. The paired Script Center adapter change
-must also be pulled before the new delegation is active on Windows.
+- The canonical worker chain, shared Guard policy, manifest, dispatcher and offline tests are in [windows-repo/README.md](windows-repo/README.md).
+- Shared policy: `windows-repo/current/launchers/shared/FortisContainerPolicy.ps1`.
+- Repo1-specific behavior: `windows-repo/current/launchers/chatgpt-repo-mode/`.
+- Repo2-specific Guard/quiet launcher: `windows-repo/current/launchers/FortisRepoPlus2/`; orchestration: `windows-repo/current/launchers/FortisRDGLauncherV2/`.
+- `tunnel` owns these workers and Guards. `script-control-center` owns the UI, thin adapters, resolver and paired Windows updater; it does not own a second active copy of the Guard policy.
+- Windows profiles, keys, ACLs, logs, shortcuts and Tunnel Client binaries remain Windows-local and are not source files.
+
+See [Guard review before Docker/worker restart](../docs/FORTIS_GIT_WINDOWS_LAUNCHER_WORKFLOW.md) for the trigger checklist. See [Script Center's Windows update runbook](https://github.com/AlexPastukhh/script-control-center/blob/main/docs/GIT-WINDOWS-SOURCE-OF-TRUTH.md) for the paired Windows pull/Preview/Apply procedure.
+
+## Other runtime areas
+
+- G2 guest entry and supporting source: [host-g2](host-g2/); G2/old HOST notes are historical and must not be treated as the current Repo1/Repo2 launcher chain.
+- Snapshot Broker: [source/runbook](broker/README.md).
+
+## Исторический текст README
+
+Следующий блок сохранён для происхождения и прежних этапов. Его пути E38, Bridge, G2 и статусы на 2026-10-10 не являются инструкцией для текущей Repo1/Repo2 Windows worker chain.
 
 ## Старый текст README (исторический)
 

@@ -1,6 +1,6 @@
 # Repo1/Repo2 Windows Git-clone source mirror
 
-**Status (2026-11-02): GO-3C SHARED GUARD SOURCE RELEASE PREPARED; WINDOWS PULL, WINDOWS POWERSHELL 5.1 ACCEPTANCE AND LIVE RECONNECT PENDING.**
+**Status (2026-11-02): GO-3C SHARED GUARD POLICY IS PUBLISHED IN `tunnel/main`.** Owner-provided Windows output reports manifest `8036348F69BB37F94F5E6FDE529BF44A292F4EB91977CE91A491E9860AADBFCA`, paired-source/static preflight PASS, Windows PowerShell/WinForms compilation PASS, Repo1 and Repo2 Guard Preview PASS, and the Script Catalog shortcut switched to the Git clone. The owner subsequently reported that both Repo1 and Repo2 reconnected and are working. This is owner-provided evidence/report, not an independent live observation from Docker. Cold boot/reboot, alternate startup order, long-duration stability and an exercised rollback remain unverified.
 
 `current/` is now the canonical Repo1/Repo2 worker chain. Both profiles consume
 one shared Windows/Docker/Linux security policy at
@@ -77,8 +77,9 @@ The dispatcher and paired Windows updater do not stop/restart Fortis, Docker or
 either tunnel. The Repo2 launcher may start the already-existing container if
 it is already stopped; that behavior is not invoked by this release. The
 separate Repo1 `control.ps1` retains an explicit manual StopContainer action,
-but the worker/dispatcher does not call it. No tunnel or container stop has
-been run as part of this work.
+but the worker/dispatcher does not call it. The later owner-reported Repo1/Repo2
+reconnect was a separate Windows action; no Docker container stop/recreate was
+reported in the provided evidence.
 
 ## Paired delivery and Windows update
 
@@ -96,10 +97,9 @@ been run as part of this work.
    pull/Preview is not a live MCP reconnect acceptance. Any later reconnect is
    a separate owner-controlled maintenance action, one profile at a time.
 
-The current Docker-mounted Windows clones have pre-existing local changes; the
-paired updater correctly refuses dirty or wrong-branch clones. Do not reset,
-clean or stash those changes to force the update. Preserve/reconcile them
-separately before running `-Apply`.
+The paired updater refuses dirty or wrong-branch clones. If a future update
+stops at that gate, preserve and review the local changes first; do not reset,
+clean or stash them merely to force `-Apply`.
 
 ## Validation
 
@@ -108,10 +108,15 @@ Run from the tunnel repository:
 ```bash
 python3 -B runtime/windows-repo/test_release_contract.py
 python3 -B runtime/windows-repo/test_shared_policy_contract.py
-/workspace/repo/Workfiles/rdg-ci-pwsh-7.6.9/pwsh -NoLogo -NoProfile -File runtime/windows-repo/test_fortis_container_policy.ps1
+DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1 /workspace/repo/Workfiles/rdg-ci-pwsh-7.6.9/pwsh -NoLogo -NoProfile -File runtime/windows-repo/test_fortis_container_policy.ps1
 ```
 
-Windows PowerShell 5.1 parsing, owner Windows Preview, Docker metadata Preview,
-shortcut verification, live Repo1/Repo2 MCP smoke, rollback/reconnect and cold
-boot remain pending. No live container or tunnel is touched by the offline
-validation above.
+Docker offline results checked 2026-11-02: release contract **6/6 PASS**,
+shared-policy contract **6/6 PASS**, PowerShell policy matrix **43/43 PASS**.
+The bundled `pwsh` needs `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` in this
+container because ICU is not installed; this affects the test host, not the
+Guard source. Owner-provided Windows output reports PowerShell/WinForms compile,
+both read-only Previews and shortcut switch PASS; the owner reports both live
+Repo1/Repo2 reconnects working. These Windows/live results are not independently
+observable from this Docker session. Cold boot, alternate startup order,
+long-duration stability and an exercised rollback remain open.

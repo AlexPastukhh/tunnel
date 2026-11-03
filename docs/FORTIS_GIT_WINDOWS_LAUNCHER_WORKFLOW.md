@@ -1,30 +1,25 @@
-# Fortis Windows launcher / Guard updates after Docker changes
+# Fortis Repo: Guard review before Docker or worker restart
 
-Status: **transition 2026-11-01**. This document records the owner-requested workflow, not evidence that Windows Git-clone launchers have passed real reconnect acceptance.
+This is the **trigger checklist** for changes that can affect Repo1/Repo2 startup. The canonical source map and detailed assertions live in [the Tunnel Windows Repo runbook](../runtime/windows-repo/README.md); the paired Windows updater procedure lives in [Script Center's runbook](https://github.com/AlexPastukhh/script-control-center/blob/main/docs/GIT-WINDOWS-SOURCE-OF-TRUTH.md). Do not copy their full procedures here.
 
-## Source of truth
+## Ownership
 
-- Develop the Fortis Repo 1/2 Windows launcher source, shared Guard and Control Center UI in the existing Docker Git checkout `/workspace/repos/script-control-center`. The native Tunnel's infrastructure documentation belongs to `tunnel`, but the canonical Windows launchers are **not duplicated** here.
-- Run source tests and review SHA-256 pins, then commit/push to `AlexPastukhh/script-control-center`. Windows uses a **separate Git clone**, at `%USERPROFILE%\Repos\script-control-center` (the canonical Windows mirror root is `%USERPROFILE%\Repos`, distinct from Docker `/workspace/repo/Repos`), and `git pull --ff-only origin main`; no shared writable mount between Docker and Windows.
-- The Desktop `Fortis RDG Control Center` shortcut targets **`Start-ScriptCatalog.ps1`** inside that Windows Git clone. That is the standalone script catalog; `Start-ControlCenter.ps1` is the optional older four-card shell and **not** the desired Desktop entry point. Five registered worker adapters refer to their own clone's `launchers/` source. Registrations persist across `git pull`; neither registration nor pull automatically launches workers.
-- Machine-local tunnel profiles, native Windows runtime, `runtime.key`, catalog runtime state, logs and personal credentials stay **out** of Git. The RDG updater is a separate external dependency; its separate promotion/deployment design remains to be completed.
+- **`tunnel/main`** owns both Repo worker chains and the shared policy: `runtime/windows-repo/current/launchers/shared/FortisContainerPolicy.ps1`. Repo-specific profile, key/ACL and quiet-launch behavior remains in the corresponding Repo1/Repo2 launchers.
+- **`script-control-center/main`** owns the Script Catalog/Control Center UI, thin worker adapters, resolver, paired updater and Windows UI tests. Its old `launchers/` tree is not the active Guard source.
+- Windows profiles, keys, ACLs, Tunnel Client binaries, Docker state and logs remain Windows/runtime-local; never copy them into Git.
 
-## Mandatory check when changing Docker
+## What requires a Guard review
 
-**If the existing `fortis-repo-test` Docker image, container identity, memory, PIDs, CPU, tmpfs, mounts, network, user or security options change, review both Repo startup guards and their pins before terminating the last working MCP session.** An already running tunnel can keep working even though the next launch will fail. Container recreation may itself interrupt a tunnel: prepare recovery *before* any destructive change.
+Review the shared policy if a change affects effective mounts or their source/access, networks or published ports, Windows owner identity, Linux user/UID, namespaces, devices/groups, capabilities, seccomp, `no-new-privileges`, rootfs, inherited `NODE_OPTIONS`, allowed workspace roots or guarded tmpfs repair.
 
-1. Read-only Docker `inspect` and map the actual differences to both Repo 1 and Repo 2 Guard/quiet-launcher assertions. Current selected contract is memory **4–8 GiB inclusive**, PIDs **256–1024 inclusive**; do not silently weaken other checks.
-2. Modify the scripts in `script-control-center`, update any SHA-256 pin **only after verifying the exact new source bytes**; check the repo's `launchers/**/*.ps1 -text` Git attribute to avoid checkout hash drift.
-3. Run `python3 -B test_static_catalog.py` and `python3 -B test_git_launcher_contract.py` inside Docker; review the scoped Git diff for secrets/unrelated changes, commit/push.
-4. On Windows pull the reviewed revision. Run source-only WinForms compile checks and **read-only** `launchers/chatgpt-repo-mode/run-tunnel-quiet-logs.ps1 -Mode Preview` and `launchers/FortisRepoPlus2/Repo2DirectGuard.ps1 -Mode Preview` directly from the Windows clone. Verify source hashes and file paths. `Preview=PASS` is necessary but not proof that MCP transport can reconnect.
-5. In an owner-controlled maintenance window, confirm a working reconnect/recovery path before deliberately stopping any existing Repo. Never stop a live tunnel or the shared container to test only the shortcut. Leave the old Windows shortcuts/installed files intact for rollback until acceptance.
+A new project inside an already allowed workspace root does not by itself require a Guard change. A different image ID or stricter CPU/RAM/PID values within the policy ceilings are not automatically a reason to rewrite Guards. GO-3C checks the effective isolation contract rather than exact image ID or Desktop Commander module SHA; this is **not** signed-image supply-chain attestation. The Windows Tunnel Runtime executable remains pinned.
 
-## As-built gaps on 2026-11-01
+## Required sequence before applying a risky change
 
-- Repo 1's **installed** quiet launcher reported `Preview=PASS` and its MCP connection was verified from ChatGPT. This does **not** verify the **new Git-cloned** launcher.
-- Repo 2's installed launcher rejected the modified Guard due to an outdated SHA-256 fingerprint. A corrected pinned pair has been committed to the source repository but still requires Windows clone read-only previews and a genuine reconnect test.
-- The owner has now **verified the standalone catalog UI** launches from a Windows Git-clone shortcut at `Start-ScriptCatalog.ps1`; the five built-in registrations were re-pointed to the clone with backups. This does not verify a Repo 1/2 cold-start reconnect. The corrected `script-control-center/tools/Update-Windows-ControlCenter.ps1` also targets the standalone catalog after explicit `-Apply` and successful local preflight; it is **not needed for routine pulls** and does not start workers.
-- The old install snapshot was captured before the latest five resource-check changes. The canonical candidate was reconstructed from source and owner-confirmed checksums; do not treat the snapshot as a current Windows installation.
-- Additional legacy scripts and the RDG updater are not all migrated into this repository yet. Do not delete their installed copies until their owner/test/cutover is settled.
+1. Prepare source/config changes without touching the running container. Read-only inspect the actual container and compare the proposed effective configuration with the shared policy.
+2. Run Repo1 and Repo2 Guard Preview. Any FAIL, unknown value or requested/effective mismatch is STOP. Do not disable a check to make Preview pass and do not stop the last working MCP connection.
+3. If a security invariant really changes, update `FortisContainerPolicy.ps1` **once**, keep profile-specific checks in their own launchers, run the offline release/shared-policy/PowerShell tests, regenerate `current/source-manifest.json`, and update its pins in `Invoke-FortisRepo.ps1` and the Script Center resolver.
+4. Review the scoped diff and secrets, then publish the paired commits: `tunnel/main` first, matching `script-control-center/main` second. On Windows use the documented Preview/Apply updater; it validates source and shortcut but does not start/stop workers or Docker.
+5. Treat worker reconnect and Docker stop/restart/recreate as separate owner-controlled operations. Reconnect one Repo at a time, keep the other route and recovery path available, and verify real MCP responses. A successful Preview is not a reconnect test.
 
-See `AlexPastukhh/script-control-center/docs/GIT-WINDOWS-SOURCE-OF-TRUTH.md` for the implementation checklist. This document is procedural guidance only; the actual running runtime and checks take precedence over Markdown.
+Never recreate the shared `fortis-repo-test` container as part of an ordinary Windows source update. If the container itself must be restarted or recreated, plan backup/recovery and verify both Guards against the target configuration **before** the operation; verify both MCP routes afterwards.

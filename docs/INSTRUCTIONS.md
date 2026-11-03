@@ -1,17 +1,12 @@
 # Обновление инструкций после изменений
 
-## Актуальный выбор source/deployed и owner действий
+## Текущая карта source/deployed (2026-11-02)
 
-G2 entry: [source](../runtime/host-g2/runtime-api-migration/start-g2-guest-session.ps1);
-gate: [source](../runtime/host-g2/g2-stdio-gate.py); actual guest login/key отдельно от Git.
-Repo deployed E38 AFTER sources:
-[run](../runtime/host-g2/runtime-api-migration/repo-run-tunnel.ps1),
-[control](../runtime/host-g2/runtime-api-migration/repo-control.ps1).
-Старые repo-mode/run/control — BEFORE, НЕ current deployed source.
-Linux [Bridge source](../runtime/repo-mode/fortis-mcp-bridge.mjs) не обновляет live volume
-автоматически. Old owner HOST retired, не запускать при key rotation ради docs.
-Изменения E44 — Markdown/JSON, без reinstall/runtime deploy/restart/commit/push.
-[Итог](ISOLATION_GUIDE.md).
+Для Repo1/Repo2 актуальная Windows worker chain и общая Guard policy находятся в [`runtime/windows-repo/current/`](../runtime/windows-repo/README.md); общий policy module — `current/launchers/shared/FortisContainerPolicy.ps1`. `tunnel` владеет workers и Guards. `script-control-center` владеет UI, thin adapters, resolver и paired Windows updater — см. его [README](https://github.com/AlexPastukhh/script-control-center/blob/main/README.md) и [Windows update runbook](https://github.com/AlexPastukhh/script-control-center/blob/main/docs/GIT-WINDOWS-SOURCE-OF-TRUTH.md).
+
+Windows profiles, keys, ACLs, Tunnel Client binaries, shortcuts and logs остаются вне Git. Публикация source не равна установке, Preview не равен live reconnect, а pull не перезапускает workers. Для Docker/worker restart trigger checklist — [FORTIS_GIT_WINDOWS_LAUNCHER_WORKFLOW](FORTIS_GIT_WINDOWS_LAUNCHER_WORKFLOW.md).
+
+Следующие ниже датированные записи E38/E44, G2 и Bridge сохранены как история прежних этапов; **не использовать их Repo launcher paths и статусы как текущую Repo1/Repo2 инструкцию**.
 
 ## Repo key rotation source-only (2026-10-16)
 
