@@ -1,5 +1,7 @@
 # Личные туннели и MCP-плагины
 
+> **Граница документации:** этот репозиторий владеет Tunnel, Repo1/Repo2 workers и Windows Guards. Текущая топология общего Fortis Repo workspace, volumes, Fortis Approvals, GitHub credentials и Qwen integration теперь описывается в соседнем проекте `fortis-container` (`/workspace/repos/fortis-container/README.md`). Датированные документы Tunnel от 2026-10-16 сохраняются как история и не должны переопределять mount evidence от 2026-11-03.
+
 Документация существующей инфраструктуры ChatGPT ↔ Windows HOST, Fortis Repo (Docker), независимых hosted Sites и Snapshot Bridge/Broker. **Этот репозиторий не является автоматически применяемой конфигурацией**: runtime и Sites обновляются отдельно.
 
 **Начать здесь:** [Навигация по задачам](docs/README.md) · [Как устроена система](docs/ARCHITECTURE.md) · [Проверенное состояние](docs/CURRENT_STATE.md). Для AI-ассистента обязательны [AGENTS.md](AGENTS.md).

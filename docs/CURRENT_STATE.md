@@ -1,5 +1,7 @@
 # Текущее состояние — датированный срез
 
+> **HISTORICAL SNAPSHOT — 2026-10-16.** Дальнейшие разделы фиксируют E43/E44 на указанную дату. Они не являются текущим состоянием Fortis Repo на 2026-11-03 и не подтверждают нынешние Docker mounts, credentials или R7 deployment. Текущий baseline: `/workspace/repos/fortis-container/docs/CURRENT-STATE.md`.
+
 ## Текущее резюме E43/E44
 
 **Принято E43:** G3 bounded, G4 initial, G6 manual; selected G5 PASS(scope).

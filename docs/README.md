@@ -1,5 +1,7 @@
 # Навигация по инфраструктуре
 
+> **Актуальная граница:** для текущей карты Fortis Repo volumes/mounts, Fortis Approvals, AI integrations, machine authorization, GitHub credential stores и общего Git recovery см. соседний проект `fortis-container` (`/workspace/repos/fortis-container/docs/`). Этот индекс и часть датированных документов ниже описывают Tunnel/G2 состояние на 2026-10-16; они не являются источником текущего mount layout.
+
 **Точка входа:** [главный README](../README.md). Этот индекс отвечает на вопрос «где читать / где менять», а не дублирует конфигурацию. Перед действием сверять [датированный срез](CURRENT_STATE.md) с live-системой.
 
 ## От вопроса к документу

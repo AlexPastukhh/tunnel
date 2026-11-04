@@ -1,5 +1,7 @@
 # Наши плагины через Site
 
+> **SCOPE NOTE — 2026-11-03:** этот файл — инвентарь hosted Sites и их опубликованных версий, не источник актуального Docker mount layout. Утверждение о текущих `/workspace/repos` и `/workspace/files` ниже устарело: в проверенной среде это подкаталоги общего ext4 `fortis-repo-workspace` volume, а не отдельные Windows mounts. Текущая карта — `/workspace/repos/fortis-container/docs/CONTAINERS-AND-VOLUMES.md`.
+
 Это справочник только по **hosted Sites**: IDs, Worker/upstream, published source и gate. Независимые native-маршруты и их связь с Site — в [ARCHITECTURE](ARCHITECTURE.md); точка входа по задаче — [README](README.md).
 
 Site здесь — hosted MCP proxy с небольшой диагностической веб-страницей. Страница не обязательна для вызова инструментов из ChatGPT. MCP App с интерактивной карточкой внутри чата — отдельный механизм, не любой сайт.
@@ -38,7 +40,7 @@ Native Secure Tunnel ID **не является** готовым HTTPS upstream 
 
 ## Расхождение, выявленное при актуализации
 
-Hosted Repo версия 7 всё ещё описывает /workspace/repo без Windows mounts; deployment/ хранит прежние scripts/config с offline network и ручным key. Текущий native Repo уже имеет /workspace/repos, /workspace/files, internet и saved-key reference.
+Hosted Repo версия 7 всё ещё описывает прежний `/workspace/repo`; deployment/ хранит старые scripts/config с offline network и ручным key. Историческое описание native Repo как имеющего отдельные Windows mounts в `/workspace/repos` и `/workspace/files` не соответствует проверенному состоянию 2026-11-03: эти пути являются подкаталогами общего ext4 `fortis-repo-workspace` volume. Сетевой egress и Git auth проверяются отдельно; наличие saved-key reference не доказывает успешную авторизацию.
 
 Обновлённые документы здесь описывают native состояние. **Hosted Site в рамках переноса документации не изменён и не перепубликован.** При следующем изменении Site нужно согласовать README, deployment snapshot, initialize.instructions, диагностические тексты и страницу с фактическим состоянием, сохранив Site gate закрытым до настройки его собственного endpoint.
 

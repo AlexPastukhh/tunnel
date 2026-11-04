@@ -8,6 +8,12 @@ Windows profiles, keys, ACLs, Tunnel Client binaries, shortcuts and logs ост�
 
 Следующие ниже датированные записи E38/E44, G2 и Bridge сохранены как история прежних этапов; **не использовать их Repo launcher paths и статусы как текущую Repo1/Repo2 инструкцию**.
 
+## Repo MCP guidance follow-up (2026-11-04; source-only)
+
+`runtime/repo-mode/fortis-mcp-bridge.mjs` — legacy wrapper. Текущие Repo1/Repo2 workers запускают прямой Desktop Commander entry point и этот wrapper не вызывают. Исправление guidance в этом source mirror не меняет активные MCP descriptions и не требует Repo Tunnel restart. Unit tests: 4/4 PASS; schema check: 19 expected schemas matched.
+
+Описание `start_process` формируется отдельно установленным Desktop Commander package: `server.js` добавляет `OS_GUIDANCE`, а `dist/utils/system-info.js` содержит generic path translation. Поэтому изменения legacy bridge не исправляют текущее описание `start_process`. Для этого нужен отдельный package-level candidate/deployment, затем reconnect Fortis Repo MCP и проверка live `tools/list` в ChatGPT. Подробности и source/installed hashes — [`runtime/repo-mode/README.md`](../runtime/repo-mode/README.md). Ни package deployment, ни runtime restart этой source-only правкой не выполнялись.
+
 ## Repo key rotation source-only (2026-10-16)
 
 Добавлен `runtime/repo-mode/Rotate-RepoRuntimeKey.ps1` с owner-only Preview/Install/Rollback; PowerShell AST разобран без ошибок на Windows G2, но owner Preview/Install и rollback live не выполнялись. Старый ключ/файл/profiles/ACL/runtime не читались и не менялись в этом task. Новый ключ и отзыв — отдельно на OpenAI API Platform; `Install` нужен только после Preview и согласования Repo-only restart. Процедура [ACCESS](ACCESS.md), [OPERATIONS](OPERATIONS.md). G2 имеет отдельный ввод ключа при штатном ручном старте.
@@ -97,7 +103,8 @@ Candidate/BLOCKED/NEXT ниже — датированная история ст
 | Изменение | Где править | Как доставить |
 |---|---|---|
 | Docker folders/network/identity | Фактический контейнер, workspace-config.json, probe.mjs | Проверенный recreate/config update, затем native Repo restart |
-| Native Repo guidance / legacy UI | fortis-mcp-bridge.mjs, installed /workspace/repo/.fortis/mcp-bridge.mjs | Копия в volume, restart Repo Tunnel, refresh connection |
+| Legacy Repo-mode bridge guidance | `runtime/repo-mode/fortis-mcp-bridge.mjs`, installed `/workspace/repo/.fortis/mcp-bridge.mjs` | Только если профиль явно запускает legacy bridge. Текущие Repo1/Repo2 workers используют direct Desktop Commander entry point; этот wrapper не участвует и его source update не требует Repo restart. |
+| Current Desktop Commander `start_process` guidance | Installed package `server.js` (`OS_GUIDANCE`) и `dist/utils/system-info.js` | Отдельный package-level candidate/deployment, затем Fortis Repo MCP reconnect и live `tools/list` verification. Bridge source update это описание не меняет. См. [`runtime/repo-mode/README.md`](../runtime/repo-mode/README.md). |
 | Native HOST launcher/env | trusted.cmd, profile, HOST launcher | Локальная проверка и restart HOST при необходимости |
 | Native G2 / отключение встроенного UI | `runtime/host-g2/g2-stdio-gate.py` → тестовая Windows-обёртка | Self-test + MCP discovery; перезапуск только G2 с локальным вводом отдельного ключа, затем refresh tools. См. `runtime/host-g2/README.md` |
 | Site MCP инструкции/tools/UI | Worker initialize.instructions, schemas/descriptions/_meta/resources, page/status | Existing Site source workflow → version → deploy |

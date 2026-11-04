@@ -1,5 +1,7 @@
 # E42 — начальный scope G2, приёмка и порядок работы
 
+> **HISTORICAL SNAPSHOT — 2026-10-16.** Это scope/runbook старого G2 этапа. Mount и runtime assumptions не являются текущей картой Fortis Repo на 2026-11-03; актуальные mounts и trust boundaries описаны в `/workspace/repos/fortis-container/docs/`.
+
 16 октября 2026. **Scope принят; old HOST остановлен, after-check выполнен E43.**
 [Фактический итог E43](G3_G2_SCOPE_ACCEPTANCE_AND_HOST_RETIREMENT_2026-10-16.md).
 [JSON](G3_G2_INITIAL_SCOPE_AND_RUNBOOK_2026-10-16.json) ·

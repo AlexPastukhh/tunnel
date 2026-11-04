@@ -1,5 +1,7 @@
 # Доступ, ключи и интернет
 
+> **HISTORICAL BASELINE — 2026-10-16.** Этот документ описывает прежние G2/Repo access assumptions. Утверждение о Windows RW mounts в `/workspace/repos` и `/workspace/files` не соответствует mountinfo текущего Fortis Repo от 2026-11-03. Для актуальных workspace mounts, Repo→R7 machine grant, Owner WebAuthn и GitHub PAT см. `/workspace/repos/fortis-container/docs/AUTHORIZATION-AND-APPROVALS.md` и `CONTAINERS-AND-VOLUMES.md`.
+
 Маршруты и границы доверия — в [ARCHITECTURE](ARCHITECTURE.md); аудит вызовов и будущий Policy Gate — в [AUDIT](AUDIT.md). Настоящий документ отвечает за источники **действующих полномочий**, а не за систему логирования.
 
 ## Где задаётся доступ

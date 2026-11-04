@@ -1,5 +1,7 @@
 # G3: localhost API — проверенный runtime и план переключения
 
+> **HISTORICAL SNAPSHOT — 2026-10-13.** Этот runtime review и все предположения о Windows mounts/owner HOST относятся к старой конфигурации. Не применять их к текущему Fortis Repo; mountinfo от 2026-11-03 описывает общий ext4 `fortis-repo-workspace` volume. Текущая карта: `/workspace/repos/fortis-container/docs/`.
+
 Срез 2026-10-13 16:06 Asia/Bangkok (2026-10-13T09:06:04.4413853Z). **Изолированные тесты PASS; production-переключение PENDING; общий G3 OPEN.**
 Подробные наблюдения: [JSON evidence](G3_LOCAL_API_RUNTIME_2026-10-13.json). Предыдущий этап: [проверка после ACL](G3_POST_ACL_VERIFICATION_2026-10-13.md).
 

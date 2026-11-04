@@ -1,5 +1,7 @@
 # E44 — актуализация документов и bounded Repo metadata
 
+> **HISTORICAL SNAPSHOT — 2026-10-16.** Утверждение ниже о Windows 9p RW mounts в `/workspace/repos` и `/workspace/files` superseded mountinfo от 2026-11-03: сейчас это подкаталоги общего ext4 `fortis-repo-workspace` volume. Текущая топология: `/workspace/repos/fortis-container/docs/CONTAINERS-AND-VOLUMES.md`.
+
 16 октября 2026. [Итог](ISOLATION_GUIDE.md) · [JSON receipt](G3_DOCS_CONSOLIDATION_AND_REPO_BOUNDARY_2026-10-16.json).
 
 ## Непосредственно проверено

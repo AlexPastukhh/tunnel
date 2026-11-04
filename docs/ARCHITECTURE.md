@@ -1,5 +1,7 @@
 # Архитектура: ChatGPT, native Tunnel, MCP, Sites и Broker
 
+> **HISTORICAL BASELINE — 2026-10-16.** Этот документ сохраняет прежнюю архитектуру G2/Repo и её границы. Описания `/workspace/repos` и `/workspace/files` как Windows RW mounts устарели для текущего Fortis Repo: mountinfo от 2026-11-03 показывает подкаталоги общего ext4 `fortis-repo-workspace` volume. Текущая карта — `/workspace/repos/fortis-container/docs/ARCHITECTURE.md` и `CONTAINERS-AND-VOLUMES.md`.
+
 **Назначение:** единая карта компонентов и границ доверия. Даты, версии и фактическое состояние — в [CURRENT_STATE](CURRENT_STATE.md); запуск — в [OPERATIONS](OPERATIONS.md); идентификаторы hosted Sites — в [SITES](SITES.md).
 
 ## Действующие независимые контуры после E43
@@ -9,7 +11,7 @@ Own GUI/clipboard/browser/Workspace разрешены в bounded scope; owner G
 в доказанных пределах. Old owner HOST остановлен E43, connector/key сохранены для recovery.
 
 Repo native: Windows launcher от alexa → narrow API E38 → Docker UID1000.
-Repos/Workfiles Windows RW, отдельный volume /workspace/repo; это НЕ guest Windows SID.
+Текущая Docker topology: named volume `fortis-repo-workspace` подключён RW к `/workspace/repo`, `/workspace/repos` и `/workspace/files`; последние два пути — subpaths `Repos` и `Workfiles`. Отдельный named volume `fortis-r7-client` подключён RO к `/run/fortis-client`. Это не Windows bind mounts и не guest Windows SID. См. актуальную карту в рабочем checkout: `/workspace/repos/fortis-container/docs/CONTAINERS-AND-VOLUMES.md`.
 Hosted Sites и Snapshot Broker — независимые authority/routes, не whole-chat isolation.
 [Итог и source map](ISOLATION_GUIDE.md), [E44](G3_DOCS_CONSOLIDATION_AND_REPO_BOUNDARY_2026-10-16.md).
 
