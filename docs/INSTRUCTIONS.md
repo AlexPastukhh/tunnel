@@ -1,5 +1,12 @@
 # Обновление инструкций после изменений
 
+## Навигация по повторяемым задачам
+
+Guard/reconnect сценарии — [локальный реестр](use-cases/README.md), общий
+workflow — главный реестр Fortis из `/workspace/repo/README.md`.
+Документационные изменения сами по себе не требуют Windows copy/restart,
+image build или повторного запуска Guards; применение runtime — отдельный шаг.
+
 ## Текущая карта source/deployed (2026-11-02)
 
 Для Repo1/Repo2 актуальная Windows worker chain и общая Guard policy находятся в [`runtime/windows-repo/current/`](../runtime/windows-repo/README.md); общий policy module — `current/launchers/shared/FortisContainerPolicy.ps1`. `tunnel` владеет workers и Guards. `script-control-center` владеет UI, thin adapters, resolver и paired Windows updater — см. его [README](https://github.com/AlexPastukhh/script-control-center/blob/main/README.md) и [Windows update runbook](https://github.com/AlexPastukhh/script-control-center/blob/main/docs/GIT-WINDOWS-SOURCE-OF-TRUTH.md).

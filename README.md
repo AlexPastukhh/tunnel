@@ -6,6 +6,12 @@
 
 **Начать здесь:** [Навигация по задачам](docs/README.md) · [Как устроена система](docs/ARCHITECTURE.md) · [Проверенное состояние](docs/CURRENT_STATE.md). Для AI-ассистента обязательны [AGENTS.md](AGENTS.md).
 
+## Локальные Use Cases
+
+[Реестр Tunnel](docs/use-cases/README.md) — Guards и reconnect. Общий workflow —
+в [главном реестре Fortis](https://github.com/AlexPastukhh/fortis-container/blob/main/docs/use-cases/README.md).
+Каждый новый чат читает полностью UC-CONT-002/003; весь каталог читать не нужно.
+
 ## По задаче
 
 | Нужно | Документ |

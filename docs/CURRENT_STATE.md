@@ -1,6 +1,9 @@
 # Текущее состояние — датированный срез
 
-> **HISTORICAL SNAPSHOT — 2026-10-16.** Дальнейшие разделы фиксируют E43/E44 на указанную дату. Они не являются текущим состоянием Fortis Repo на 2026-11-03 и не подтверждают нынешние Docker mounts, credentials или R7 deployment. Текущий baseline: `/workspace/repos/fortis-container/docs/CURRENT-STATE.md`.
+> **HISTORICAL SNAPSHOT — 2026-10-16.** Дальнейшие разделы фиксируют E43/E44 на указанную дату. Они не являются текущим состоянием Fortis Repo на 2026-11-03 и не подтверждают нынешние Docker mounts, credentials или R7 deployment. Вход в действующую документацию:
+[главный реестр Fortis](https://github.com/AlexPastukhh/fortis-container/blob/main/docs/use-cases/README.md).
+Текущий Guard/source owner — [Windows Repo runbook](../runtime/windows-repo/README.md);
+перед действием проверять live runtime.
 
 ## Текущее резюме E43/E44
 
