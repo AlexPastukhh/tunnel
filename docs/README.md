@@ -17,7 +17,7 @@
 | Как ChatGPT связан с Windows и Docker? | [ARCHITECTURE](ARCHITECTURE.md) | [CURRENT_STATE](CURRENT_STATE.md) |
 | Site обязателен? Чем Site отличается от native? | [ARCHITECTURE](ARCHITECTURE.md) | [SITES](SITES.md) |
 | Какие плагины и версии Site существуют? | [SITES](SITES.md) | [INSTRUCTIONS](INSTRUCTIONS.md) |
-| Что фактически готово сейчас? | [CURRENT_STATE](CURRENT_STATE.md) | [OPERATIONS](OPERATIONS.md) |
+| Что проверялось в историческом E43/E44 baseline? | [CURRENT_STATE](CURRENT_STATE.md) | Для текущего source/Guard — [Windows Repo runbook](../runtime/windows-repo/README.md) |
 | Продолжить Fortis G2 и оценить необходимость каждого шага | [Актуальный G2 plan](G3_NEXT_ACTIONS_AND_PROTECTION_PLAN_2026-10-15.md) | [Session decision](G3_SESSION_BOUNDARY_OUTCOME_DECISION_2026-10-15.md), evidence E01–E44 в плане |
 | Начальный G2 scope, daily entry/stop/recovery и вывод прежнего HOST | [E42 scope/runbook](G3_G2_INITIAL_SCOPE_AND_RUNBOOK_2026-10-16.md) | Принят(scope), old HOST остановлен: [E43](G3_G2_SCOPE_ACCEPTANCE_AND_HOST_RETIREMENT_2026-10-16.md) |
 | Как запустить, остановить или восстановить туннель? | [OPERATIONS](OPERATIONS.md) | [ACCESS](ACCESS.md) |
