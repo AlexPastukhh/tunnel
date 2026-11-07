@@ -2,7 +2,14 @@
 
 **Historical owner report (2026-11-02): GO-3C SHARED GUARD POLICY was published in `tunnel/main`.** Owner-provided Windows output reported manifest `8036348F69BB37F94F5E6FDE529BF44A292F4EB91977CE91A491E9860AADBFCA`, paired-source/static preflight PASS, Windows PowerShell/WinForms compilation PASS, both Guard Previews PASS, and the Script Catalog shortcut switched to the Git clone. The owner then reported that both Repo1 and Repo2 had reconnected and were working. This is a date-bounded owner report, not current acceptance for a later container baseline.
 
-**Current GO3 baseline (2026-11-04):** both read-only Guard Previews and the image/mount release verifier PASS against container `04fed7b7...`, but the verifier ends `REPO_RECONNECT_PENDING`. Repo1 inventory reports zero recognized tunnel listeners and one process matching the `repo-mode` profile pattern. That process has not yet been identified; do not invoke Repo1 Start, restart or Stop until a Windows-side read-only process/port inventory explains it. Current Repo1/Repo2 reconnect and functional acceptance therefore remain pending. Cold boot/reboot, alternate startup order, long-duration stability and an exercised rollback also remain unverified.
+**Runtime evidence ownership:** the 2026-11-04 pre-cutover GO3 report is a dated
+baseline, not today's container ID or reconnect verdict. Subsequent path-guidance
+and MCP-UI-headless deployment/owner reconnect results are recorded in
+[Fortis Container evidence](https://github.com/AlexPastukhh/fortis-container/blob/main/patches/desktop-commander-0.2.52-mcp-ui-headless/README.md).
+Before a new operation, run the current shared Guard Preview against the actual
+runtime. An unidentified process in a fresh preflight is STOP; do not infer one
+from an old report. Pending acceptance lives only in the
+[Tunnel backlog](../../docs/BACKLOG-IMPROVEMENTS.md).
 
 `current/` is now the canonical Repo1/Repo2 worker chain. Both profiles consume
 one shared Windows/Docker/Linux security policy at
@@ -85,23 +92,15 @@ reported in the provided evidence.
 
 ## Paired delivery and Windows update
 
-1. Push the reviewed `tunnel/main` source release first.
-2. Push the matching Script Center resolver/adapters/tests/docs to
-   `script-control-center/main` second.
-3. On Windows, after both canonical sibling clones are clean `main` and fetched
-   from their approved origins, run `tools/Update-Windows-ControlCenter.ps1
-   -Apply` from the Script Center clone. It pulls `tunnel` first and Script
-   Center second, validates the manifest and all nine hashes, parses PowerShell,
-   compiles WinForms, runs read-only Repo1/Repo2 Previews and repairs the
-   existing Script Catalog shortcut. It does not start a worker, stop a tunnel
-   or stop/recreate Docker.
-4. Keep the existing live tunnels and recovery route untouched. A successful
-   pull/Preview is not a live MCP reconnect acceptance. Any later reconnect is
-   a separate owner-controlled maintenance action, one profile at a time.
-
-The paired updater refuses dirty or wrong-branch clones. If a future update
-stops at that gate, preserve and review the local changes first; do not reset,
-clean or stash them merely to force `-Apply`.
+Publish reviewed source through task worktree → Gateway → PR/CI → owner GitHub
+UI merge under UC-CONT-002; do not push directly to main. The Windows paired
+update order is Tunnel first, Script Center second. Its command, manifest/clone
+checks and shortcut handling have one owner:
+[Script Center Windows update runbook](https://github.com/AlexPastukhh/script-control-center/blob/main/docs/GIT-WINDOWS-SOURCE-OF-TRUTH.md).
+This source publication does not start workers or reconnect MCP. Any runtime
+reconnect is a separate owner operation, one profile at a time, keeping the
+other connection and recovery path available. Preserve dirty/wrong-branch
+clones; do not reset, clean or stash to force the updater past its gate.
 
 ## Validation
 
@@ -120,5 +119,5 @@ container because ICU is not installed; this affects the test host, not the
 Guard source. Owner-provided Windows output reports PowerShell/WinForms compile,
 both read-only Previews and shortcut switch PASS; the owner reports both live
 Repo1/Repo2 reconnects working. These Windows/live results are not independently
-observable from this Docker session. Cold boot, alternate startup order,
-long-duration stability and an exercised rollback remain open.
+observable from this Docker session. Remaining acceptance is tracked only in
+[BACKLOG-IMPROVEMENTS](../../docs/BACKLOG-IMPROVEMENTS.md).
