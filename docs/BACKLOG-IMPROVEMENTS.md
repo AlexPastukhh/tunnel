@@ -12,7 +12,7 @@
 ## Повторяемый производственный цикл
 
 - Добавить regression tests для Docker-effective settings → shared `FortisContainerPolicy.ps1` verdict, включая Repo1/Repo2 profile differences, отсутствие неожиданных mounts и сохранение Qwen connections. Полные host/Windows проверки всё равно остаются у владельца.
-- Для любого host-only шага применять **общий** Fortis handoff `UC-CONT-015`: source in project repo → owner-reviewed PowerShell 5.1 → проверяемый вывод/STOP; не превращать этот backlog в ещё один runbook передачи файлов.
+- Для любого host-only шага применять **общий** Fortis host-only UC-CONT-025 (UC-CONT-015 — только передача артефакта): source in project repo → owner-reviewed PowerShell 5.1 → проверяемый вывод/STOP; не превращать этот backlog в ещё один runbook передачи файлов.
 - После GitHub-only source update проверять separate Windows Preview и controlled reconnect: опубликованный коммит не перезапускает workers.
 
 ## Навигация
