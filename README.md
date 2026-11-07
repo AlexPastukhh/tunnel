@@ -23,6 +23,7 @@
 | Создать плагин / обновить существующие компоненты | [Создание](docs/WORKFLOW.md) / [Обновление](docs/INSTRUCTIONS.md) |
 | Пользоваться Snapshot Bridge / Broker | [Snapshot](docs/SNAPSHOT.md), [Broker runbook](runtime/broker/README.md) |
 | Найти происхождение файлов / историю переноса | [Provenance](docs/PROVENANCE.md), [Migration](docs/MIGRATION.md) |
+| Планируемые улучшения и технический долг | [Backlog](docs/BACKLOG-IMPROVEMENTS.md) |
 
 ## Зеркальная директория Fortis Repo (Git, не bind mount)
 
