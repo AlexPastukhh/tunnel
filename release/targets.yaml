@@ -1,0 +1,52 @@
+# Release planning source catalog v1. Not evidence of any live deployment.
+schemaVersion: 1
+repository: tunnel
+buildUnits:
+  - id: repo-mode-container-image
+    artifactType: docker-image
+    recipe: runtime/repo-mode/Dockerfile
+    inputs:
+      - runtime/repo-mode/**
+targets:
+  - id: windows-repo-workers
+    deployment:
+      kind: windows-source
+      procedure: runtime/windows-repo/README.md
+      environments:
+        - windows-owner
+    verification:
+      - paired-source-manifest
+      - windows-guard-preview
+      - owner-worker-readback
+    inputs:
+      - runtime/windows-repo/current/**
+  - id: windows-broker-source
+    deployment:
+      kind: windows-source
+      procedure: runtime/broker/README.md
+      environments:
+        - windows-owner
+    verification:
+      - broker-offline-tests
+      - owner-transport-review
+    inputs:
+      - runtime/broker/**
+  - id: repo-mode-container-source
+    deployment:
+      kind: owner-controlled
+      procedure: runtime/repo-mode/README.md
+      environments:
+        - review
+    verification:
+      - docker-source-review
+      - owner-guard-preview
+    buildUnit: repo-mode-container-image
+noDeploymentPaths:
+  - docs/**
+  - observatory/**
+  - history/**
+  - AGENTS.md
+  - README.md
+  - .gitignore
+  - .gitattributes
+  - .github/**
