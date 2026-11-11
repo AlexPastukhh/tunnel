@@ -1,5 +1,6 @@
+# Read-only pilot: Release Impact emits suggestedLabels; no GitHub label mutations.
 # Pilot: shared, read-only Release Impact gate. No deployment or label writes.
-# Shared action is pinned to the exact accepted fortis-container PR #15 merge.
+# Public action pinned to owner-merged fortis-release-impact-action PR #3.
 name: Fortis Release Impact
 on:
   pull_request:
@@ -26,4 +27,4 @@ jobs:
         with:
           python-version: "3.11"
       - name: Validate catalog and PR Release Impact
-        uses: AlexPastukhh/fortis-release-impact-action@8c9abefdfbe4699aae97b9363a2a66c596680e62
+        uses: AlexPastukhh/fortis-release-impact-action@232796df32142a81e8f46113424e578355950b93
