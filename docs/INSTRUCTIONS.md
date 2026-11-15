@@ -15,6 +15,10 @@ Windows profiles, keys, ACLs, Tunnel Client binaries, shortcuts and logs ост�
 
 Следующие ниже датированные записи E38/E44, G2 и Bridge сохранены как история прежних этапов; **не использовать их Repo launcher paths и статусы как текущую Repo1/Repo2 инструкцию**.
 
+## Repo1 runtime diagnostics (2026-11-15; source-only)
+
+Repo1 launcher source now exposes runtime stdout/stderr to Script Catalog and prints `RuntimeLog=` beside `RunId=`. Debug JSONL and `--log.http-raw-unsafe=false` remain enabled. The MCP logging-notification filter and shared Guard are unchanged. The paired Script Center resolver pins the updated manifest. Neither Windows source nor running workers was updated or restarted from Docker. Investigation and owner-local log readback: [Repo1 diagnostics](REPO1-RUNTIME-DIAGNOSTICS.md).
+
 ## Repo MCP guidance follow-up (2026-11-04; source-only)
 
 `runtime/repo-mode/fortis-mcp-bridge.mjs` — legacy wrapper. Текущие Repo1/Repo2 workers запускают прямой Desktop Commander entry point и этот wrapper не вызывают. Исправление guidance в этом source mirror не меняет активные MCP descriptions и не требует Repo Tunnel restart. Unit tests: 4/4 PASS; schema check: 19 expected schemas matched.

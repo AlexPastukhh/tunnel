@@ -93,14 +93,28 @@ $fortisQuietRunId = [Guid]::NewGuid().ToString('N')
 $fortisQuietLogFile = Join-Path $fortisRoot ('runtime-diag-' + $fortisQuietRunId + '.jsonl')
 if (Test-Path -LiteralPath $fortisQuietLogFile) { throw 'Quiet canary log already exists; runtime not started.' }
 Write-Host ('RunId=' + $fortisQuietRunId)
-Write-Host 'Starting pinned direct Desktop Commander with the quiet-log canary.'
+Write-Host ('RuntimeLog=' + $fortisQuietLogFile)
+Write-Host 'Starting pinned direct Desktop Commander with visible runtime diagnostics.'
 Write-Host 'Keep this window open. Do not forward raw profile/runtime logs.'
 $priorPreference = $ErrorActionPreference
+$fortisLogStream = $null
+$fortisLogWriter = $null
 try {
+    # Mirror console events ourselves: --log.file can select a file-only sink.
+    # CreateNew prevents overwriting a prior run; UTF-8 and AutoFlush retain live evidence.
+    $fortisLogStream = [IO.File]::Open($fortisQuietLogFile, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::Read)
+    $fortisLogWriter = [IO.StreamWriter]::new($fortisLogStream, [Text.UTF8Encoding]::new($false))
+    $fortisLogWriter.AutoFlush = $true
     $ErrorActionPreference = 'Continue'
-    & $fortisRuntime run --profile repo-mode --mcp.command $mcpCommand '--harpoon.additional-transport=' --log.level debug --log.format json --log.file $fortisQuietLogFile '--log.http-raw-unsafe=false' *> $null
+    & $fortisRuntime run --profile repo-mode --mcp.command $mcpCommand '--harpoon.additional-transport=' --log.level debug --log.format json '--log.file=' '--log.http-raw-unsafe=false' 2>&1 | ForEach-Object {
+        $line = [string]$_
+        $fortisLogWriter.WriteLine($line)
+        Write-Output $line
+    }
     $exitCode = $LASTEXITCODE
 } finally {
+    if ($null -ne $fortisLogWriter) { $fortisLogWriter.Dispose() }
+    elseif ($null -ne $fortisLogStream) { $fortisLogStream.Dispose() }
     $ErrorActionPreference = $priorPreference
 }
-throw "Repo direct runtime ended (exit code $exitCode). Use the documented independent local recovery; do not restart blindly."
+throw "Repo direct runtime ended (exit code $exitCode; RunId=$fortisQuietRunId). Inspect $fortisQuietLogFile before reconnecting Repo1."
