@@ -4,7 +4,7 @@
   "source_repository": "tunnel",
   "source_ref": "tunnel:main",
   "source_revision_type": "sha256_file_inventory_v1",
-  "source_revision": "AEF7D17084F951AEAB6F98CF91E7A39E1D6043A0DAC6BC123DBF99463887B0F9",
+  "source_revision": "009D9FEBE34DBB952426219C10F969605F410FE37D902F1B0A5FB3292A10D6F7",
   "files": [
     {
       "path": "Repo1-Worker.ps1",
@@ -20,7 +20,7 @@
     },
     {
       "path": "launchers/chatgpt-repo-mode/run-tunnel-quiet-logs.ps1",
-      "sha256": "213C44B75EA9D0EEAED6EFC98ECE96ABD64AA2B1BF2DD686DCCB34DE67FDC2AA"
+      "sha256": "79F1D170AEDAA878E188317661F9C5F57CFBEF84029516D78DCEE956CAD70801"
     },
     {
       "path": "launchers/FortisRDGLauncherV2/Common.ps1",
