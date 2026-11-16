@@ -106,6 +106,31 @@ Preview действующей установки и проверку каждо
 points, обе суммы и PE amd64. Присутствующий правильный EXE даёт
 `FORTIS_RUNTIME_ALREADY_INSTALLED_HASH_PASS`; несовпадающий не перезаписывается.
 
+### Совместимость с действующей ACL общего runtime
+
+Owner readback обнаружил существующие `Authenticated Users: Modify` и отдельный
+запрет SID `S-1-5-21-303538662-3368424508-2654684973-1009` (FortisHostG1).
+Это согласованная ранее [схема shared runtime](G3_RUNTIME_ACL_PROPOSAL_2026-10-13.md).
+Установщик сохраняет эту границу: owner должен быть доверенным; пишущие grants
+допускаются для owner/SYSTEM/Administrators либо для Authenticated Users в пределах
+Modify, если перед ними в фактическом порядке DACL уже стоит полный guest DENY
+маски `0xD0156`. Неизвестные writers, FullControl для AU, неполный/чужой DENY,
+noncanonical/null DACL и неподдерживаемые права отклоняются с путём и SID.
+
+Для существующего runtime parent и version directory дополнительно обязательны
+`ContainerInherit + ObjectInherit` без `NoPropagateInherit`: запрет должен дойти
+до нового version directory и EXE. Оба созданных объекта проверяются повторно.
+Inherit-only `CREATOR OWNER` принимается только как шаблон будущего владельца;
+владелец каждого создаваемого объекта проверяется отдельно.
+
+Это проверка конкретной принятой схемы ACL, а не общий Windows AccessCheck и не
+обещание изоляции от всех остальных authenticated accounts. Их существующие
+Modify grants сохраняются. Installer не вызывает Set-Acl, не добавляет grants,
+не удаляет DENY и не требует менять ACL `C:\Tools` или запускать его elevated.
+Windows CI проверяет синтетические отрицательные случаи и реальное наследование
+на временных NTFS-каталогах. Live owner Preview и staged Repo acceptance остаются
+отдельными шагами.
+
 До переключения source pins новый бинарник должен уже существовать.
 Для первого перехода использовать owner-reviewed bootstrap bundle,
 сформированный из опубликованного проверенного commit: installer,
@@ -124,7 +149,7 @@ workspace README, через `docker cp` из выделенного task direct
 
 Ожидаются `FORTIS_RUNTIME_INSTALL_PREVIEW_PASS`, затем
 `FORTIS_RUNTIME_INSTALL_APPLY_PASS` и версия/flavor установленного EXE.
-Отсутствующий parent, чужой owner, доступ другого principal на запись,
+Отсутствующий parent, чужой owner, пишущая ACL вне описанной выше границы,
 reparse point, неверная архитектура/hash/состав ZIP или занятый target — STOP.
 Не обходить это запуском с elevation или ослаблением ACL.
 Каталог v0.0.15 сохраняется. При ошибке после записи нового файла прежняя

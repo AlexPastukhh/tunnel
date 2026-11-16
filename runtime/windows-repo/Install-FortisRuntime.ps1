@@ -7,32 +7,73 @@ $policyPath = Join-Path $PSScriptRoot 'current\launchers\shared\FortisContainerP
 . $policyPath
 $identity = Assert-FortisWindowsOwner
 
-function Assert-FortisInstallAccess {
-    param([string]$Path)
-    $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
-    if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
-        throw 'Install path must not contain reparse points.'
-    }
+function Assert-FortisInstallAclRules {
+    param([string]$Path, [string]$OwnerSid, [object[]]$Rules, [bool]$Canonical,
+          [switch]$RequireDescendantDeny)
     $trusted = @($script:FortisPolicy.OwnerSid, 'S-1-5-18', 'S-1-5-32-544')
-    $acl = Get-Acl -LiteralPath $Path
-    $owner = $acl.GetOwner([Security.Principal.SecurityIdentifier]).Value
-    if ($trusted -cnotcontains $owner) { throw 'Install path owner is not trusted.' }
-    $writeMask = [Security.AccessControl.FileSystemRights]'Write, Delete, DeleteSubdirectoriesAndFiles, ChangePermissions, TakeOwnership'
-    foreach ($rule in $acl.Access) {
-        $sid = $rule.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value
-        if ($rule.AccessControlType -eq [Security.AccessControl.AccessControlType]::Allow -and
-            ($rule.FileSystemRights -band $writeMask) -ne 0 -and $trusted -cnotcontains $sid) {
-            throw 'Install path permits another principal to write; ACL was not changed.'
+    if ($trusted -cnotcontains $OwnerSid) { throw "Install path owner is not trusted: $Path" }
+    if (-not $Canonical -or $null -eq $Rules -or $Rules.Count -eq 0) {
+        throw "Install path requires a nonempty canonical DACL: $Path"
+    }
+    # Existing approved boundary: G3_RUNTIME_ACL_PROPOSAL_2026-10-13.md.
+    # AU Modify remains allowed only behind the named guest's complete DENY.
+    # This is not a general AccessCheck or isolation from every Windows account.
+    $guestSid = 'S-1-5-21-303538662-3368424508-2654684973-1009'
+    $writeMask = [int][Security.AccessControl.FileSystemRights]'Write, Delete, DeleteSubdirectoriesAndFiles, ChangePermissions, TakeOwnership'
+    $knownRights = [int][Security.AccessControl.FileSystemRights]::FullControl
+    $modify = [int][Security.AccessControl.FileSystemRights]::Modify
+    $both = [int][Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+    $inheritOnly = [int][Security.AccessControl.PropagationFlags]::InheritOnly
+    $noPropagate = [int][Security.AccessControl.PropagationFlags]::NoPropagateInherit
+    $selfDenied = 0; $descendantsDenied = 0
+    foreach ($rule in $Rules) {
+        $sid = [string]$rule.Sid; $rights = [int]$rule.Rights
+        $inherit = [int]$rule.Inheritance; $propagate = [int]$rule.Propagation
+        if ($rights -lt 0 -or ($rights -band (-bnot $knownRights)) -ne 0 -or
+            $inherit -lt 0 -or $inherit -gt 3 -or $propagate -lt 0 -or $propagate -gt 3 -or
+            ($inherit -eq 0 -and $propagate -ne 0) -or @('Allow','Deny') -cnotcontains $rule.Type) {
+            throw "Unsupported install ACL entry: path=$Path; sid=$sid"
         }
+        $onlyChildren = ($propagate -band $inheritOnly) -ne 0
+        if ($rule.Type -ceq 'Deny' -and $sid -ceq $guestSid) {
+            if (-not $onlyChildren) { $selfDenied = $selfDenied -bor ($rights -band $writeMask) }
+            if (($inherit -band $both) -eq $both -and ($propagate -band $noPropagate) -eq 0) {
+                $descendantsDenied = $descendantsDenied -bor ($rights -band $writeMask)
+            }
+        }
+        if ($rule.Type -cne 'Allow' -or ($rights -band $writeMask) -eq 0 -or $trusted -ccontains $sid) { continue }
+        # CREATOR OWNER is a child-owner template, never an effective current grant.
+        # Each created directory/file is independently checked for trusted ownership.
+        if ($sid -ceq 'S-1-3-0' -and $onlyChildren) { continue }
+        $legacy = $sid -ceq 'S-1-5-11' -and (($rights -band $writeMask) -band (-bnot $modify)) -eq 0
+        # Only DENYs already encountered in actual DACL order can protect this grant.
+        if ($legacy -and ($selfDenied -band $writeMask) -eq $writeMask -and
+            (-not $RequireDescendantDeny -or ($descendantsDenied -band $writeMask) -eq $writeMask)) { continue }
+        throw ('Install ACL write grant is outside the accepted boundary: path={0}; sid={1}; rights=0x{2:X}; inheritance={3}; propagation={4}; descendantDenyRequired={5}' -f $Path,$sid,$rights,$inherit,$propagate,[bool]$RequireDescendantDeny)
     }
 }
 
-function Assert-FortisInstallDirectory {
-    param([string]$Path)
-    if (-not (Get-Item -LiteralPath $Path -Force -ErrorAction Stop).PSIsContainer) {
-        throw 'Install parent must be a directory.'
+function Assert-FortisInstallAccess {
+    param([string]$Path, [switch]$RequireDescendantDeny)
+    $item = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
+    if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0) {
+        throw "Install path must not contain reparse points: $Path"
     }
-    Assert-FortisInstallAccess -Path $Path
+    $acl = Get-Acl -LiteralPath $Path
+    $owner = $acl.GetOwner([Security.Principal.SecurityIdentifier]).Value
+    $rules = @($acl.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier]) | ForEach-Object {
+        [pscustomobject]@{ Sid=$_.IdentityReference.Value; Type=$_.AccessControlType.ToString();
+            Rights=[int]$_.FileSystemRights; Inheritance=[int]$_.InheritanceFlags; Propagation=[int]$_.PropagationFlags }
+    })
+    Assert-FortisInstallAclRules -Path $Path -OwnerSid $owner -Rules $rules -Canonical $acl.AreAccessRulesCanonical -RequireDescendantDeny:$RequireDescendantDeny
+}
+
+function Assert-FortisInstallDirectory {
+    param([string]$Path, [switch]$RequireDescendantDeny)
+    if (-not (Get-Item -LiteralPath $Path -Force -ErrorAction Stop).PSIsContainer) {
+        throw "Install parent must be a directory: $Path"
+    }
+    Assert-FortisInstallAccess -Path $Path -RequireDescendantDeny:$RequireDescendantDeny
 }
 
 function Assert-FortisAmd64Executable {
@@ -90,9 +131,9 @@ $versionDirectory = Split-Path -Parent $target
 $runtimeDirectory = Split-Path -Parent $versionDirectory
 # Existing dependency tree must already be present; do not bootstrap or change its ACL.
 for ($part = $runtimeDirectory; -not [string]::IsNullOrEmpty((Split-Path -Parent $part)); $part = Split-Path -Parent $part) {
-    Assert-FortisInstallDirectory -Path $part
+    Assert-FortisInstallDirectory -Path $part -RequireDescendantDeny:($part -ceq $runtimeDirectory)
 }
-if (Test-Path -LiteralPath $versionDirectory) { Assert-FortisInstallDirectory -Path $versionDirectory }
+if (Test-Path -LiteralPath $versionDirectory) { Assert-FortisInstallDirectory -Path $versionDirectory -RequireDescendantDeny }
 if (Test-Path -LiteralPath $target) {
     $file = Get-Item -LiteralPath $target -Force
     if (($file.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or $file.PSIsContainer) {
@@ -113,6 +154,7 @@ if (-not [string]::IsNullOrWhiteSpace($ArchivePath)) { $bytes = Read-FortisRunti
     ArchiveSha256 = $script:FortisPolicy.WindowsRuntimeArchiveSha256
     ExecutableSha256 = $script:FortisPolicy.WindowsRuntimeSha256
     Target = $target; ExistingRuntimePreserved = $true
+    AclBoundary = 'Owner/private or approved FortisHostG1 deny; existing AU Modify preserved'
     ArchiveChecked = ($null -ne $bytes); WorkersRestarted = $false
 } | ConvertTo-Json
 if (-not $Apply) { Write-Output 'FORTIS_RUNTIME_INSTALL_PREVIEW_PASS'; return }
@@ -133,10 +175,10 @@ try {
     }
     # Recheck trusted ancestors immediately before the write. Never overwrite a target.
     for ($part = $runtimeDirectory; -not [string]::IsNullOrEmpty((Split-Path -Parent $part)); $part = Split-Path -Parent $part) {
-        Assert-FortisInstallDirectory -Path $part
+        Assert-FortisInstallDirectory -Path $part -RequireDescendantDeny:($part -ceq $runtimeDirectory)
     }
     $null = [IO.Directory]::CreateDirectory($versionDirectory)
-    Assert-FortisInstallDirectory -Path $versionDirectory
+    Assert-FortisInstallDirectory -Path $versionDirectory -RequireDescendantDeny
     $file = [IO.File]::Open($target, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
     try { $file.Write($bytes, 0, $bytes.Length); $file.Flush() }
     finally { $file.Dispose() }
