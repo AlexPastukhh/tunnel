@@ -56,6 +56,7 @@ function Read-FortisRuntimeArchive {
     if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash -cne $script:FortisPolicy.WindowsRuntimeArchiveSha256) {
         throw 'Runtime archive SHA-256 mismatch; nothing installed.'
     }
+    Add-Type -AssemblyName System.IO.Compression
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $zip = [IO.Compression.ZipFile]::OpenRead($file.FullName)
     try {

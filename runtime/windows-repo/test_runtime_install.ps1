@@ -78,6 +78,7 @@ try {
     $wrong = [byte[]]$bytes.Clone(); $wrong[0x3c]=0xFF
     Reject 'pe-offset-out-of-bounds' { Assert-FortisAmd64Executable $wrong }
     Reject 'truncated-pe' { Assert-FortisAmd64Executable ([byte[]]@(0x4D,0x5A)) }
+    Add-Type -AssemblyName System.IO.Compression
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     $archive = Join-Path $folder 'valid.zip'
     New-TestArchive $archive $bytes
