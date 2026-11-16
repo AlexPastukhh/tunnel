@@ -1,0 +1,128 @@
+{
+  "recorded_at_utc": "2026-11-15T22:13:22.519665+00:00",
+  "scope": "Linux source and isolated runtime fixtures; no production credentials or Docker changes",
+  "checks": [
+    {
+      "name": "release-contract",
+      "exit_code": 0
+    },
+    {
+      "name": "shared-policy",
+      "exit_code": 0
+    },
+    {
+      "name": "guard-matrix",
+      "exit_code": 0
+    },
+    {
+      "name": "installer-and-logs",
+      "exit_code": 0
+    },
+    {
+      "name": "official-windows-archive",
+      "exit_code": 0
+    },
+    {
+      "name": "broker",
+      "exit_code": 0
+    },
+    {
+      "name": "static-catalog",
+      "exit_code": 0
+    },
+    {
+      "name": "runtime-old-final",
+      "exit_code": 0
+    },
+    {
+      "name": "runtime-new-final",
+      "exit_code": 0
+    }
+  ],
+  "manifest_sha256": "451FA3583D0F82BCB62AF9A4A6A4E74425688A6E296CD3824B34A3D812708FED",
+  "source_revision": "45A163AF7F7052EAAD3649DD219025DA14F80C3169586721F640C1457AE2E086",
+  "old_runtime": {
+    "status": "PASS",
+    "expectation": "old-failure",
+    "checks": [
+      "data-uri-command-argument-preserved",
+      "initialization-and-tool-call",
+      "old-response-post-failure-shuts-down-runtime-reproduced"
+    ],
+    "runtime_exit": 0,
+    "synthetic_tool_executions": {
+      "before-fault": 1,
+      "fault-once": 1
+    },
+    "terminal_post_attempts": 3,
+    "child_generations": 1
+  },
+  "new_runtime": {
+    "status": "PASS",
+    "expectation": "resilient",
+    "checks": [
+      "runtime-pid-file-matches-process",
+      "loopback-health-without-admin-ui",
+      "legacy-tunnel-id-metrics-compatible",
+      "data-uri-command-argument-preserved",
+      "initialization-and-tool-call",
+      "failed-post-preserves-stdio",
+      "next-tool-call-succeeds",
+      "poll-eof-recovers",
+      "poll-timeout-recovers",
+      "poll-401-recovers",
+      "poll-403-recovers",
+      "authorization-errors-visible",
+      "unexpected-child-exit-recovers",
+      "legacy-initialization-guard",
+      "caller-reinitializes-replacement",
+      "no-tool-execution-replay",
+      "intentional-stop-no-respawn"
+    ],
+    "runtime_exit": 0,
+    "synthetic_tool_executions": {
+      "before-fault": 1,
+      "fault-once": 1,
+      "after-fault": 1,
+      "after-poll-eof": 1,
+      "after-poll-timeout": 1,
+      "after-poll-401": 1,
+      "after-poll-403": 1,
+      "child-exit-once": 1,
+      "after-child-reinitialize": 1
+    },
+    "terminal_post_attempts": 3,
+    "child_generations": 2
+  },
+  "windows_live_deployment": "NOT_PERFORMED",
+  "tunnel_changed_paths": [
+    " M .github/workflows/source-ci.yml",
+    " M docs/BACKLOG-IMPROVEMENTS.md",
+    " M docs/INSTRUCTIONS.md",
+    " M release/targets.yaml",
+    " M runtime/windows-repo/Invoke-FortisRepo.ps1",
+    " M runtime/windows-repo/README.md",
+    " M runtime/windows-repo/current/README.md",
+    " M runtime/windows-repo/current/launchers/FortisRepoPlus2/FortisRepo2-quiet-logs.ps1",
+    " M runtime/windows-repo/current/launchers/chatgpt-repo-mode/run-tunnel-quiet-logs.ps1",
+    " M runtime/windows-repo/current/launchers/shared/FortisContainerPolicy.ps1",
+    " M runtime/windows-repo/current/source-manifest.json",
+    " M runtime/windows-repo/test_shared_policy_contract.py",
+    "?? docs/REPO-RUNTIME-RESILIENCE.md",
+    "?? runtime/windows-repo/Install-FortisRuntime.ps1",
+    "?? runtime/windows-repo/prepare_test_runtimes.py",
+    "?? runtime/windows-repo/test_runtime_install.ps1",
+    "?? runtime/windows-repo/test_runtime_resilience.py"
+  ],
+  "script-control-center_changed_paths": [
+    " M Get-TunnelWindowsMirror.ps1",
+    " M docs/GIT-WINDOWS-SOURCE-OF-TRUTH.md",
+    " M test_static_catalog.py",
+    "?? .github/"
+  ],
+  "fixture_sha256": "c4672450c42a18996ef04162ea1a1188f2448b602548aa78c485e6fd8b0ad554",
+  "ci_workflow_sha256": {
+    "tunnel": "7b9ee24725878f767d3c47e67fe4008d8e6b98db48d470e9f2ebf2ef76ffca30",
+    "script-control-center": "f1e92e7830fbf98ebcc5ea2878c8d52ae6aeedf595f7e72c2c3a3722e52f7f48"
+  }
+}

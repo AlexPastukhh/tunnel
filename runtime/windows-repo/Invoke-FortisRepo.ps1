@@ -14,7 +14,7 @@ if (-not [string]::Equals($actualRoot,$expectedRoot,[StringComparison]::OrdinalI
 }
 $currentRoot = Join-Path $PSScriptRoot 'current'
 $manifestPath = Join-Path $currentRoot 'source-manifest.json'
-$expectedManifestHash = '45EEF5FB15B8AD3873C7939EF25A32D75137DCDB7CDD81F6CD0EDAE94027CD36'
+$expectedManifestHash = '451FA3583D0F82BCB62AF9A4A6A4E74425688A6E296CD3824B34A3D812708FED'
 if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf) -or
     (Get-FileHash -LiteralPath $manifestPath -Algorithm SHA256).Hash -cne $expectedManifestHash) {
     throw 'Current worker source manifest fingerprint mismatch.'
