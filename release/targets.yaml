@@ -19,7 +19,7 @@ targets:
       - windows-guard-preview
       - owner-worker-readback
     inputs:
-      - runtime/windows-repo/**
+      - runtime/windows-repo/current/**
   - id: windows-broker-source
     deployment:
       kind: windows-source
