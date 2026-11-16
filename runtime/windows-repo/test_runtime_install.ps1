@@ -8,7 +8,7 @@ $tokens = $null; $errors = $null
 $ast = [Management.Automation.Language.Parser]::ParseFile($installer, [ref]$tokens, [ref]$errors)
 if ($errors.Count -ne 0) { throw 'Installer syntax failed.' }
 # Load only pure archive/PE functions. Never invoke installer entrypoint or bypass its owner gate.
-foreach ($name in @('Assert-FortisAmd64Executable', 'Read-FortisRuntimeArchive', 'Assert-FortisInstallAccess', 'Assert-FortisInstallDirectory')) {
+foreach ($name in @('Assert-FortisAmd64Executable', 'Read-FortisRuntimeArchive', 'Assert-FortisInstallAclRules', 'Assert-FortisInstallAccess', 'Assert-FortisInstallDirectory')) {
     $function = $ast.Find({ param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -ceq $name }, $true)
     if ($null -eq $function) { throw "Function missing: $name" }
     . ([scriptblock]::Create($function.Extent.Text))
@@ -69,6 +69,7 @@ try {
         try { Reject 'reparse-install-directory' { Assert-FortisInstallDirectory $junction } }
         finally { [IO.Directory]::Delete($junction) }
     }
+    . (Join-Path $PSScriptRoot 'test_runtime_install_acl.ps1')
     $bytes = New-Object byte[] 256
     $bytes[0]=0x4D; $bytes[1]=0x5A; $bytes[0x3c]=0x40
     $bytes[0x40]=0x50; $bytes[0x41]=0x45; $bytes[0x44]=0x64; $bytes[0x45]=0x86

@@ -17,6 +17,8 @@ Windows profiles, keys, ACLs, Tunnel Client binaries, shortcuts and logs ост�
 
 ## Repo1/Repo2 runtime resilience (2026-11-16; source-only)
 
+The installer preserves the accepted shared-runtime ACL boundary: trusted owner plus either private grants or existing Authenticated Users Modify behind the exact FortisHostG1 mutation DENY. It validates ACE order and descendant propagation; production ACLs are never changed. This is the documented named-guest boundary, not isolation from every authenticated Windows account. See the ACL section in the runtime resilience runbook.
+
 Windows PowerShell 5.1 installer and fixture explicitly load both ZIP assemblies; Guard fixtures are portable across Windows and Linux. Exact-head Windows CI is required before rollout.
 
 The canonical shared policy targets narrow runtime v0.0.21; both launchers use the same diagnostic/runtime helper. The old response-POST EOF shutdown was reproduced with v0.0.15 and the corresponding v0.0.21 path passed in an isolated loopback fixture. Windows installation and live reconnect are separate from source changes. Binary verification, paired delivery, staged rollout and rollback: [runtime resilience](REPO-RUNTIME-RESILIENCE.md).
