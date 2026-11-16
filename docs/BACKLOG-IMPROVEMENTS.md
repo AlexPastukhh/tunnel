@@ -11,6 +11,8 @@
 
 ## Ожидающая owner acceptance
 
+- Runtime v0.0.21: подтвердить Windows installer/Guard Preview и последовательный cutover Repo1, затем Repo2 (10 безопасных вызовов и 30 минут для каждого), а также рабочий paired rollback. [Процедура и стенд](REPO-RUNTIME-RESILIENCE.md). Source/CI не являются live acceptance.
+
 - Подтвердить cold boot/reboot, альтернативный порядок старта и длительную
   стабильность Repo1/Repo2 на выбранном runtime; после каждого нового cutover
   отделять Guard Preview от реального MCP reconnect.

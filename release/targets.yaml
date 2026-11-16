@@ -19,8 +19,7 @@ targets:
       - windows-guard-preview
       - owner-worker-readback
     inputs:
-      - runtime/windows-repo/current/**
-      - runtime/windows-repo/Invoke-FortisRepo.ps1
+      - runtime/windows-repo/**
   - id: windows-broker-source
     deployment:
       kind: windows-source

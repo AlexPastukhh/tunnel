@@ -39,3 +39,7 @@ control actions, but the worker/dispatcher does not call its Stop actions.
 
 Windows-local profiles, keys, ACLs, runtime logs, installed Tunnel Client
 binaries, Docker state and the existing container remain outside Git.
+
+## Shared runtime diagnostics
+
+The source targets narrow runtime v0.0.21. Both launchers call `Invoke-FortisRepoRuntime` in the shared policy for explicit restart, loopback health, per-run console/JSONL mirroring and runtime PID evidence. Profiles, keys and Docker isolation remain separate concerns. Installation and staged verification: [runtime resilience](../../../docs/REPO-RUNTIME-RESILIENCE.md).

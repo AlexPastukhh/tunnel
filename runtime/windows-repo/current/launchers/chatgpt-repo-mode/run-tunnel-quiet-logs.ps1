@@ -89,32 +89,8 @@ $fortisPinnedConfig = $fortisConfigState -eq 'Pinned'
 if (-not $fortisPinnedConfig) { throw 'Shared DC config repair did not reach the pinned state.' }
 # Repo1 and Repo2 share the same bootstrap; no Repo-specific copy exists.
 $mcpCommand = 'command=docker exec -i --env NODE_OPTIONS=' + $fortisQuietNodeOption + ' ' + $fortisContainer + ' ' + $script:FortisPolicy.LinuxNodePath + ' ' + $script:FortisPolicy.DirectEntryPath
-$fortisQuietRunId = [Guid]::NewGuid().ToString('N')
-$fortisQuietLogFile = Join-Path $fortisRoot ('runtime-diag-' + $fortisQuietRunId + '.jsonl')
-if (Test-Path -LiteralPath $fortisQuietLogFile) { throw 'Quiet canary log already exists; runtime not started.' }
-Write-Host ('RunId=' + $fortisQuietRunId)
-Write-Host ('RuntimeLog=' + $fortisQuietLogFile)
 Write-Host 'Starting pinned direct Desktop Commander with visible runtime diagnostics.'
 Write-Host 'Keep this window open. Do not forward raw profile/runtime logs.'
-$priorPreference = $ErrorActionPreference
-$fortisLogStream = $null
-$fortisLogWriter = $null
-try {
-    # Mirror console events ourselves: --log.file can select a file-only sink.
-    # CreateNew prevents overwriting a prior run; UTF-8 and AutoFlush retain live evidence.
-    $fortisLogStream = [IO.File]::Open($fortisQuietLogFile, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::Read)
-    $fortisLogWriter = [IO.StreamWriter]::new($fortisLogStream, [Text.UTF8Encoding]::new($false))
-    $fortisLogWriter.AutoFlush = $true
-    $ErrorActionPreference = 'Continue'
-    & $fortisRuntime run --profile repo-mode --mcp.command $mcpCommand '--harpoon.additional-transport=' --log.level debug --log.format json '--log.file=' '--log.http-raw-unsafe=false' 2>&1 | ForEach-Object {
-        $line = [string]$_
-        $fortisLogWriter.WriteLine($line)
-        Write-Output $line
-    }
-    $exitCode = $LASTEXITCODE
-} finally {
-    if ($null -ne $fortisLogWriter) { $fortisLogWriter.Dispose() }
-    elseif ($null -ne $fortisLogStream) { $fortisLogStream.Dispose() }
-    $ErrorActionPreference = $priorPreference
-}
-throw "Repo direct runtime ended (exit code $exitCode; RunId=$fortisQuietRunId). Inspect $fortisQuietLogFile before reconnecting Repo1."
+Invoke-FortisRepoRuntime -Repo Repo1 -LogDirectory $fortisRoot -RuntimeArguments @(
+    '--profile', 'repo-mode', '--mcp.command', $mcpCommand, '--harpoon.additional-transport='
+)

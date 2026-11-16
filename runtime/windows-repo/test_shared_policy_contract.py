@@ -64,7 +64,7 @@ class Go3CSharedPolicyContract(unittest.TestCase):
             "rdg-personal_agents",
             "8589934592",
             "2000000000",
-            "A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A",
+            "DB590A52993C830A4C806108C3F25345EA986C6248210B86DF640E5081FF6A0B",
         ):
             self.assertIn(value, policy)
             for source in (repo1, repo2, common, quiet):

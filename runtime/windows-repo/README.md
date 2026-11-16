@@ -73,7 +73,7 @@ it does not resolve the reusable name again.
 ## Runtime placement and boundaries
 
 - **Windows host:** PowerShell launchers, `docker.exe`, Tunnel Client and
-  `tunnel-client-runtime.exe` v0.0.15. These binaries are not copied into Git.
+  `tunnel-client-runtime.exe` v0.0.21 is the source target. These binaries are not copied into Git.
 - **Docker/Linux:** `/usr/local/bin/node` and the Direct Desktop Commander entry
   under `/opt/dc`; the policy verifies effective runtime isolation and entry
   file availability, not an exact image/module digest.
@@ -121,3 +121,7 @@ both read-only Previews and shortcut switch PASS; the owner reports both live
 Repo1/Repo2 reconnects working. These Windows/live results are not independently
 observable from this Docker session. Remaining acceptance is tracked only in
 [BACKLOG-IMPROVEMENTS](../../docs/BACKLOG-IMPROVEMENTS.md).
+
+## Runtime resilience v0.0.21
+
+Both launchers use the shared runtime/logging helper and pinned v0.0.21 with explicit stdio restart. Install the verified EXE side-by-side before applying paired source pins; switch one Repo at a time. Source publication does not update running Windows processes. Artifact validation, fault tests, bootstrap, rollout and rollback: [runtime resilience runbook](../../docs/REPO-RUNTIME-RESILIENCE.md).

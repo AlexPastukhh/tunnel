@@ -3,7 +3,7 @@
 
 $script:FortisPolicy = @{
     OwnerSid = 'S-1-5-21-303538662-3368424508-2654684973-1001'
-    PolicySourceSha256 = '7083D27460D81503CAE8273808D24E378A9EDD97C876F9DFFBF6E5184534AAE3'
+    PolicySourceSha256 = 'C08806C5ACEFD8F63909E0FBE88314F2CC9D7213A2481A447318C37BB9DFC14A'
     ContainerName = 'fortis-repo-test'
     LinuxUser = '1000:1000'
     RequiredNetwork = 'fortis-repo-egress'
@@ -21,8 +21,12 @@ $script:FortisPolicy = @{
     MaxMemoryBytes = 8589934592
     MaxNanoCpus = 2000000000
     MaxPids = 1024
-    WindowsRuntimePath = 'C:\Tools\tunnel-client\runtime\v0.0.15\tunnel-client-runtime.exe'
-    WindowsRuntimeSha256 = 'A922D372D6BE0649156FBC1C8A040597F1F4BB5B4356890151D7875602593B1A'
+    WindowsRuntimeVersion = '0.0.21'
+    WindowsRuntimeCommit = '714f2d67844b660af25754f1d19b0360b346b13b'
+    WindowsRuntimeArchiveUrl = 'https://github.com/openai/tunnel-client/releases/download/v0.0.21/tunnel-client-runtime-v0.0.21-windows-amd64.zip'
+    WindowsRuntimeArchiveSha256 = 'D991623BD171049E2100B402D72AF7EBC8EDF558051AE8FC924173373D1611A8'
+    WindowsRuntimePath = 'C:\Tools\tunnel-client\runtime\v0.0.21\tunnel-client-runtime.exe'
+    WindowsRuntimeSha256 = 'DB590A52993C830A4C806108C3F25345EA986C6248210B86DF640E5081FF6A0B'
     QuietNodeOption = '--import=data:text/javascript;base64,Ly8gREMgMC4yLjUyIGVtaXRzIGVhY2ggbG9nZ2luZyBub3RpZmljYXRpb24gaW4gb25lIGNvbXBsZXRlIHN0ZG91dC53cml0ZS4KLy8gVGhpcyBhdmFpbGFiaWxpdHkgcG9saWN5IGlzIG5vdCBhIHNlY3VyaXR5IGJvdW5kYXJ5IG9yIGEgZ2VuZXJpYyBNQ1AgcHJveHkuCi8vIFVucmVjb2duaXNlZCwgbWFsZm9ybWVkLCBmcmFnbWVudGVkIGFuZCBiYXRjaGVkIHdyaXRlcyBwYXNzIHRocm91Z2ggdW5jaGFuZ2VkLgoKY29uc3Qgb3duT3B0aW9uID0gYC0taW1wb3J0PSR7aW1wb3J0Lm1ldGEudXJsfWA7CmlmIChwcm9jZXNzLmVudi5OT0RFX09QVElPTlMgPT09IG93bk9wdGlvbikgewogIC8vIFRoZSBwcmVsb2FkIGJlbG9uZ3MgdG8gdGhlIE1DUCBzZXJ2ZXIsIG5vdCBkZXZlbG9wbWVudCBjb21tYW5kcyBpdCBzcGF3bnMuCiAgZGVsZXRlIHByb2Nlc3MuZW52Lk5PREVfT1BUSU9OUzsKfQoKY29uc3Qgb3JpZ2luYWxXcml0ZSA9IHByb2Nlc3Muc3Rkb3V0LndyaXRlOwpjb25zdCBoYXNPd24gPSBPYmplY3QucHJvdG90eXBlLmhhc093blByb3BlcnR5OwoKZnVuY3Rpb24gaXNMb2dnaW5nTm90aWZpY2F0aW9uKGNodW5rLCBlbmNvZGluZykgewogIGlmIChlbmNvZGluZyAhPSBudWxsICYmIHR5cGVvZiBlbmNvZGluZyAhPT0gJ3N0cmluZycgJiYgdHlwZW9mIGVuY29kaW5nICE9PSAnZnVuY3Rpb24nKSByZXR1cm4gZmFsc2U7CiAgaWYgKHR5cGVvZiBlbmNvZGluZyA9PT0gJ3N0cmluZycgJiYgIUJ1ZmZlci5pc0VuY29kaW5nKGVuY29kaW5nKSkgcmV0dXJuIGZhbHNlOwogIGlmICh0eXBlb2YgY2h1bmsgIT09ICdzdHJpbmcnICYmICFCdWZmZXIuaXNCdWZmZXIoY2h1bmspKSByZXR1cm4gZmFsc2U7CiAgaWYgKHR5cGVvZiBjaHVuayA9PT0gJ3N0cmluZycgJiYgdHlwZW9mIGVuY29kaW5nID09PSAnc3RyaW5nJyAmJgogICAgICAhWyd1dGY4JywgJ3V0Zi04J10uaW5jbHVkZXMoZW5jb2RpbmcudG9Mb3dlckNhc2UoKSkpIHJldHVybiBmYWxzZTsKCiAgY29uc3QgdGV4dCA9IHR5cGVvZiBjaHVuayA9PT0gJ3N0cmluZycgPyBjaHVuayA6IGNodW5rLnRvU3RyaW5nKCd1dGY4Jyk7CiAgLy8gSW5zcGVjdCBvbmx5IGNvbXBsZXRlIHNpbmdsZS1saW5lIG1lc3NhZ2VzLCBhcyB3cml0dGVuIGJ5IHRoZSBwaW5uZWQgREMuCiAgaWYgKCF0ZXh0LmVuZHNXaXRoKCdcbicpIHx8IHRleHQuaW5kZXhPZignXG4nKSAhPT0gdGV4dC5sZW5ndGggLSAxIHx8CiAgICAgICF0ZXh0LmluY2x1ZGVzKCcibm90aWZpY2F0aW9ucy9tZXNzYWdlIicpKSByZXR1cm4gZmFsc2U7CiAgdHJ5IHsKICAgIGNvbnN0IHBhY2tldCA9IEpTT04ucGFyc2UodGV4dCk7CiAgICByZXR1cm4gcGFja2V0ICE9PSBudWxsICYmIHR5cGVvZiBwYWNrZXQgPT09ICdvYmplY3QnICYmICFBcnJheS5pc0FycmF5KHBhY2tldCkgJiYKICAgICAgcGFja2V0Lmpzb25ycGMgPT09ICcyLjAnICYmIHBhY2tldC5tZXRob2QgPT09ICdub3RpZmljYXRpb25zL21lc3NhZ2UnICYmCiAgICAgICFoYXNPd24uY2FsbChwYWNrZXQsICdpZCcpOwogIH0gY2F0Y2ggewogICAgcmV0dXJuIGZhbHNlOwogIH0KfQoKcHJvY2Vzcy5zdGRvdXQud3JpdGUgPSBmdW5jdGlvbiBxdWlldE1jcExvZ3MoY2h1bmssIGVuY29kaW5nLCBjYWxsYmFjaykgewogIGlmICgoY2FsbGJhY2sgPT0gbnVsbCB8fCB0eXBlb2YgY2FsbGJhY2sgPT09ICdmdW5jdGlvbicpICYmCiAgICAgIGlzTG9nZ2luZ05vdGlmaWNhdGlvbihjaHVuaywgZW5jb2RpbmcpKSB7CiAgICBjb25zdCBkb25lID0gdHlwZW9mIGVuY29kaW5nID09PSAnZnVuY3Rpb24nID8gZW5jb2RpbmcgOiBjYWxsYmFjazsKICAgIGlmICh0eXBlb2YgZG9uZSA9PT0gJ2Z1bmN0aW9uJykgcHJvY2Vzcy5uZXh0VGljayhkb25lKTsKICAgIHJldHVybiB0cnVlOwogIH0KICAvLyBQcmVzZXJ2ZSB0aGUgb3JpZ2luYWwgYnl0ZXMsIG92ZXJsb2FkcywgcmV0dXJuIHZhbHVlIGFuZCBiYWNrcHJlc3N1cmUuCiAgcmV0dXJuIFJlZmxlY3QuYXBwbHkob3JpZ2luYWxXcml0ZSwgdGhpcywgYXJndW1lbnRzKTsKfTsK'
     QuietPreloadSha256 = 'a18a0d409cd1e40bcb6bbb82935a041297aec43de34c65ac26015fa1f7422eb3'
     LinuxNodePath = '/usr/local/bin/node'
@@ -427,6 +431,78 @@ function Repair-FortisLinuxRuntimeConfig {
     if ($after.ConfigState -ne 'Pinned') { throw 'Runtime config repair did not verify.' }
     return $after
 }
+
+function Invoke-FortisRepoRuntime {
+    param(
+        [ValidateSet('Repo1','Repo2')][string]$Repo,
+        [string[]]$RuntimeArguments,
+        [string]$LogDirectory
+    )
+    $runtime = Assert-FortisTunnelRuntime
+    if (-not (Test-Path -LiteralPath $LogDirectory -PathType Container)) {
+        throw 'Runtime log directory is missing; nothing started.'
+    }
+    $runId = [Guid]::NewGuid().ToString('N')
+    $logFile = Join-Path $LogDirectory ('runtime-diag-' + $runId + '.jsonl')
+    $pidFile = Join-Path $LogDirectory ('runtime-pid-' + $runId + '.txt')
+    if (Test-Path -LiteralPath $pidFile) { throw 'Runtime PID file already exists; nothing started.' }
+    $runtimeProcessId = 0
+    $stream = $null
+    $writer = $null
+    $exitCode = $null
+    $priorPreference = $ErrorActionPreference
+    try {
+        $stream = [IO.File]::Open($logFile, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::Read)
+        $writer = [IO.StreamWriter]::new($stream, [Text.UTF8Encoding]::new($false))
+        $writer.AutoFlush = $true
+        Write-Host ('RunId=' + $runId)
+        Write-Host ('RuntimeLog=' + $logFile)
+        $started = [ordered]@{
+            time = [DateTimeOffset]::Now.ToString('o'); level = 'INFO'; msg = 'fortis runtime starting'
+            repo = $Repo; run_id = $runId; launcher_pid = $PID
+            runtime_path = $runtime; runtime_version = $script:FortisPolicy.WindowsRuntimeVersion
+            runtime_sha256 = $script:FortisPolicy.WindowsRuntimeSha256; stdio_failure_policy = 'restart'
+        } | ConvertTo-Json -Compress
+        $writer.WriteLine($started)
+        Write-Output $started
+        $ErrorActionPreference = 'Continue'
+        $global:LASTEXITCODE = $null
+        # Explicit CLI settings override profile/env. Never log argv or profile contents.
+        & $runtime run @RuntimeArguments ('--pid.file=' + $pidFile) '--mcp.stdio-failure-policy=restart' '--health.listen-addr=127.0.0.1:0' '--log.level=debug' '--log.format=json' '--log.file=' '--log.http-raw-unsafe=false' 2>&1 | ForEach-Object {
+            if ($runtimeProcessId -eq 0 -and (Test-Path -LiteralPath $pidFile -PathType Leaf)) {
+                $pidText = [IO.File]::ReadAllText($pidFile).Trim()
+                $parsedPid = 0
+                if ([int]::TryParse($pidText, [ref]$parsedPid) -and $parsedPid -gt 0) {
+                    $runtimeProcessId = $parsedPid
+                    $pidEvent = [ordered]@{
+                        time = [DateTimeOffset]::Now.ToString('o'); level = 'INFO'; msg = 'fortis runtime pid observed'
+                        repo = $Repo; run_id = $runId; runtime_pid = $runtimeProcessId; launcher_pid = $PID
+                    } | ConvertTo-Json -Compress
+                    $writer.WriteLine($pidEvent)
+                    Write-Output $pidEvent
+                }
+            }
+            $line = [string]$_
+            $writer.WriteLine($line)
+            Write-Output $line
+        }
+        $exitCode = $LASTEXITCODE
+        $ended = [ordered]@{
+            time = [DateTimeOffset]::Now.ToString('o'); level = 'INFO'; msg = 'fortis runtime exited'
+            repo = $Repo; run_id = $runId; exit_code = $exitCode; runtime_pid = $runtimeProcessId; launcher_pid = $PID
+        } | ConvertTo-Json -Compress
+        $writer.WriteLine($ended)
+        Write-Output $ended
+    } finally {
+        if ($null -ne $writer) { $writer.Dispose() }
+        elseif ($null -ne $stream) { $stream.Dispose() }
+        $ErrorActionPreference = $priorPreference
+    }
+    if ($null -eq $exitCode -or $exitCode -ne 0) {
+        throw "$Repo runtime ended (exit code $exitCode; RunId=$runId). Inspect $logFile before reconnecting."
+    }
+}
+
 
 function Assert-FortisTunnelRuntime {
     $path = $script:FortisPolicy.WindowsRuntimePath
