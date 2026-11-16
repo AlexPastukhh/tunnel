@@ -11,9 +11,6 @@
 
 ## Ожидающая owner acceptance
 
-- Installer ACL compatibility: повторить owner Preview после исправления проверки согласованного AU Modify + FortisHostG1 DENY; actual ACL не изменялась. Windows CI и readback не заменяют live cutover.
-- Runtime v0.0.21: подтвердить Windows installer/Guard Preview и последовательный cutover Repo1, затем Repo2 (10 безопасных вызовов и 30 минут для каждого), а также рабочий paired rollback. [Процедура и стенд](REPO-RUNTIME-RESILIENCE.md). Source/CI не являются live acceptance.
-
 - Подтвердить cold boot/reboot, альтернативный порядок старта и длительную
   стабильность Repo1/Repo2 на выбранном runtime; после каждого нового cutover
   отделять Guard Preview от реального MCP reconnect.

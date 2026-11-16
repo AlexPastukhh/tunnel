@@ -4,7 +4,7 @@
   "source_repository": "tunnel",
   "source_ref": "tunnel:main",
   "source_revision_type": "sha256_file_inventory_v1",
-  "source_revision": "45A163AF7F7052EAAD3649DD219025DA14F80C3169586721F640C1457AE2E086",
+  "source_revision": "AEF7D17084F951AEAB6F98CF91E7A39E1D6043A0DAC6BC123DBF99463887B0F9",
   "files": [
     {
       "path": "Repo1-Worker.ps1",
@@ -20,7 +20,7 @@
     },
     {
       "path": "launchers/chatgpt-repo-mode/run-tunnel-quiet-logs.ps1",
-      "sha256": "6ABF2598DFD003884BBCF5FD0865ADA5BB9BF854EF52956B1A1EA2E8165CE957"
+      "sha256": "213C44B75EA9D0EEAED6EFC98ECE96ABD64AA2B1BF2DD686DCCB34DE67FDC2AA"
     },
     {
       "path": "launchers/FortisRDGLauncherV2/Common.ps1",
@@ -36,11 +36,11 @@
     },
     {
       "path": "launchers/FortisRepoPlus2/FortisRepo2-quiet-logs.ps1",
-      "sha256": "193A606037A5546866130FD0C425350ED916286109A958A7495FA3102E7525F7"
+      "sha256": "7FF2503239EDC5461446DE34FE722178CB818B371CDF78BBDA192447FD51FF5B"
     },
     {
       "path": "launchers/shared/FortisContainerPolicy.ps1",
-      "sha256": "E073267EE71486E65FC9478DC03DF2785A64FDF791FF8BD25F485B3B11351D85"
+      "sha256": "9B1D3C3E4BD18CBF6B8B281DFD1ABBE3E9F03B1EC27F2A0B244DCB3DB5E3D53F"
     }
   ]
 }
