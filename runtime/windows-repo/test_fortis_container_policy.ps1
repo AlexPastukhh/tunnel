@@ -118,8 +118,14 @@ foreach ($mutation in $mutations) {
 }
 Write-Output "GO3C_SHARED_POLICY_CASES_PASS=$count"
 
+# Portable offline executable boundary; no Docker or OS-specific echo is invoked.
+function FortisTestDockerEcho {
+    $global:LASTEXITCODE = 0
+    Write-Output ($args -join ' ')
+}
+
 # Verify Docker exec always places the inspected immutable ID after options.
-$execContext = [pscustomobject]@{ DockerPath='/bin/echo'; ContainerId=('d' * 64) }
+$execContext = [pscustomobject]@{ DockerPath='FortisTestDockerEcho'; ContainerId=('d' * 64) }
 $execOutput = Invoke-FortisDockerExec -Context $execContext -Options @('--user','1000:1000') -Command @('node','-e','const answer="42";console.log(answer)')
 $encodedExecSource = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes('const answer="42";console.log(answer)'))
 $execBootstrap = "eval(Buffer.from('$encodedExecSource','base64').toString('utf8'))"
@@ -139,7 +145,7 @@ function Invoke-FortisDockerExec {
     }
     return @($script:MockProbeJson)
 }
-$runtimeContext = [pscustomobject]@{ DockerPath='/bin/echo'; ContainerId=('e' * 64) }
+$runtimeContext = [pscustomobject]@{ DockerPath='FortisTestDockerEcho'; ContainerId=('e' * 64) }
 $script:MockProbeJson = '{"uid":1000,"euid":1000,"gid":1000,"egid":1000,"homeSafe":true,"configDirectorySafe":true,"configFileSafe":true,"capEff":"00000000","capBnd":"00000000","noNewPrivs":"1","seccomp":"2","rootReadOnly":true,"directEntryAvailable":true,"configMissing":false,"allowedDirectories":["/workspace/repos","/workspace/files","/workspace/repo"]}'
 $runtimeSnapshot = Get-FortisLinuxRuntimeSnapshot -Context $runtimeContext
 if ($runtimeSnapshot.ConfigState -ne 'Pinned') { throw 'RUNTIME_CONFIG_PINNED_CLASSIFICATION_FAIL' }
