@@ -202,10 +202,8 @@ switch ($Action) {
         & $Client doctor --profile $ProfileName --profile-dir $ProfileDir --mcp.command "command=$Bridge" --explain *> $null
         if ($LASTEXITCODE -ne 0) {throw 'Second tunnel doctor failed. No runtime started.'}
         Write-Output 'Starting SECOND tunnel via pinned narrow runtime. Ctrl+C stops this instance.'
-        Invoke-FortisRepoRuntime -Repo Repo2 -LogDirectory $Root -RuntimeArguments @(
-            '--profile', $ProfileName, '--profile-dir', $ProfileDir,
-            '--mcp.command', "command=$Bridge", '--harpoon.additional-transport='
-        )
+        & $Runtime run --profile $ProfileName --profile-dir $ProfileDir --mcp.command "command=$Bridge" '--harpoon.additional-transport='
+        if ($LASTEXITCODE -ne 0) {throw 'Second tunnel runtime exited with an error'}
         return
     }
 }

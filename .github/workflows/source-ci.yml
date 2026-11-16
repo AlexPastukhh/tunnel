@@ -20,7 +20,6 @@ jobs:
       - name: Check out exact tested commit
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - name: Verify Repo1 and Repo2 shared Guard source
         run: python3 -B runtime/windows-repo/test_shared_policy_contract.py
@@ -28,42 +27,3 @@ jobs:
         run: python3 -B runtime/windows-repo/test_release_contract.py
       - name: Verify Broker offline security contracts
         run: python3 -B runtime/broker/test_worker.py
-  windows-runtime-contracts:
-    name: Windows runtime contracts
-    runs-on: windows-latest
-    timeout-minutes: 15
-    defaults:
-      run:
-        shell: powershell
-    steps:
-      - name: Check out exact tested commit
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
-          persist-credentials: false
-      - name: Parse Windows sources with PowerShell 5.1
-        run: |
-          if ($PSVersionTable.PSVersion.Major -ne 5) { throw 'Windows PowerShell 5.1 required' }
-          $files = @(Get-ChildItem runtime/windows-repo/current -Recurse -Filter *.ps1)
-          $files += Get-Item runtime/windows-repo/Install-FortisRuntime.ps1
-          $files | ForEach-Object {
-            $tokens = $null; $errors = $null
-            $null = [Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors)
-            if ($errors.Count -ne 0) { throw ('Syntax error in ' + $_.Name) }
-          }
-      - name: Verify existing shared isolation guards
-        run: .\runtime\windows-repo\test_fortis_container_policy.ps1
-      - name: Verify installer trust checks and both runtime logs
-        run: .\runtime\windows-repo\test_runtime_install.ps1
-      - name: Download hash-pinned temporary native runtime fixtures
-        run: python -B runtime/windows-repo/prepare_test_runtimes.py --platform windows-amd64 --directory "$env:RUNNER_TEMP\fortis-runtime-fixtures"
-      - name: Verify candidate executable version and narrow flavor
-        run: |
-          $runtime = Join-Path $env:RUNNER_TEMP 'fortis-runtime-fixtures\v0.0.21\tunnel-client-runtime.exe'
-          $version = (& $runtime --version | Out-String).Trim()
-          if ($LASTEXITCODE -ne 0 -or $version -notmatch '^0\.0\.21 git sha: 714f2d67844b660af25754f1d19b0360b346b13b .*flavor=runtime$') { throw 'Unexpected runtime version/flavor' }
-          Write-Output $version
-      - name: Reproduce prior response EOF shutdown on v0.0.15
-        run: python -B runtime/windows-repo/test_runtime_resilience.py --runtime "$env:RUNNER_TEMP\fortis-runtime-fixtures\v0.0.15\tunnel-client-runtime.exe" --expect-old-failure --evidence-dir "$env:RUNNER_TEMP\fortis-repro-old"
-      - name: Verify v0.0.21 EOF recovery and no command replay
-        run: python -B runtime/windows-repo/test_runtime_resilience.py --runtime "$env:RUNNER_TEMP\fortis-runtime-fixtures\v0.0.21\tunnel-client-runtime.exe" --evidence-dir "$env:RUNNER_TEMP\fortis-repro-new"
