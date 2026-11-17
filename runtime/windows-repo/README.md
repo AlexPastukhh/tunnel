@@ -70,6 +70,25 @@ Repo1 and Repo2 remain separate profiles. Repo2 passes the inspected full
 Container ID from `Start-Fortis.ps1` through its launcher and Docker exec path;
 it does not resolve the reusable name again.
 
+## Repo1 startup resource headroom
+
+Repo1 checks startup availability separately from the shared security policy.
+For cgroup v2 it estimates the working set as `memory.current - inactive_file`
+and requires at least 256 MiB between that working set and `memory.max`, plus
+48 spare PID slots. Only inactive file cache is credited; active file cache,
+tmpfs and anonymous memory are not independently subtracted. This follows the
+[Docker CLI cgroup-v2 cache accounting](https://docs.docker.com/reference/cli/docker/container/stats/)
+and is an estimate, not a reservation or a guarantee against later OOM.
+Missing, malformed, duplicate or inconsistent counters stop startup.
+
+The launcher reports low memory, low PID headroom or invalid counters explicitly
+before repair, process stop or runtime start. Preview includes the working set,
+inactive file cache, estimated memory headroom and spare PID slots. The separate
+quiet-log compatibility canary still preserves progress and result messages.
+Repo2 retains its existing startup checks; both use the unchanged shared
+isolation policy. Use the paired Windows update procedure below for source
+and pin delivery; its checks do not establish a live reconnect.
+
 ## Runtime placement and boundaries
 
 - **Windows host:** PowerShell launchers, `docker.exe`, Tunnel Client and

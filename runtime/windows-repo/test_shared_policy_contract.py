@@ -141,5 +141,103 @@ class Go3CSharedPolicyContract(unittest.TestCase):
         self.assertNotIn("FortisImageId", policy)
 
 
+class Repo1HeadroomRegression(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        import shutil
+        cls.node = shutil.which("node")
+        if not cls.node:
+            raise RuntimeError("Node is required for the executable Repo1 regression tests")
+        cls.launcher = CURRENT / "launchers/chatgpt-repo-mode/run-tunnel-quiet-logs.ps1"
+        cls.source = cls.launcher.read_text(encoding="utf-8")
+        cls.probe = re.search(r"\$fortisHeadroomProbeCode = @'\n(.*?)\n'@", cls.source, re.S).group(1)
+
+    def run_probe(self, overrides=None):
+        import subprocess
+        files = {"memory.max": str(4096 * 2**20), "memory.current": str(3926 * 2**20),
+                 "memory.stat": "anon 314904576\ninactive_file 614465536\nactive_file 2946965504\n",
+                 "pids.max": "512", "pids.current": "169"}
+        files.update(overrides or {})
+        harness = """const vm=require('vm'),fs=require('fs');
+const input=JSON.parse(fs.readFileSync(0,'utf8')),output=[];
+const fakeFs={readFileSync(path){const key=path.replace('/sys/fs/cgroup/','');
+ if(input.files[key]===null||input.files[key]===undefined)throw Error('Unavailable counter');return input.files[key];}};
+vm.runInNewContext(input.code,{require(name){if(name!=='fs')throw Error('Unexpected dependency');return fakeFs;},
+ process:{stdout:{write(value){output.push(value);}}}},{timeout:1000});
+if(output.length!==1)throw Error('Unexpected probe output');process.stdout.write(output[0]);"""
+        result = subprocess.run([self.node, "-e", harness], input=json.dumps({"code": self.probe, "files": files}), text=True, capture_output=True, timeout=10, check=True)
+        return json.loads(result.stdout)
+
+    def test_cache_heavy_container_can_start(self):
+        result = self.run_probe()
+        self.assertEqual(result["status"], "PASS")
+        self.assertLess(result["memoryLimitBytes"] - result["memoryCurrentBytes"], 256 * 2**20)
+        self.assertEqual(result["memoryHeadroomBytes"], 756 * 2**20)
+
+    def test_real_memory_shortage_and_active_cache_are_not_credited(self):
+        for stat in ("inactive_file 0\n", "inactive_file 0\nactive_file 3600000000\nshmem 3600000000\n"):
+            with self.subTest(stat=stat):
+                self.assertEqual(self.run_probe({"memory.stat": stat})["status"], "MEMORY_HEADROOM_LOW")
+
+    def test_memory_threshold_is_unchanged(self):
+        for free, expected in [(255, "MEMORY_HEADROOM_LOW"), (256, "PASS")]:
+            with self.subTest(free=free):
+                result = self.run_probe({"memory.current": str((4096 - free) * 2**20), "memory.stat": "inactive_file 0\n"})
+                self.assertEqual(result["status"], expected)
+
+    def test_pid_threshold_is_unchanged(self):
+        for spare, expected in [(47, "PID_HEADROOM_LOW"), (48, "PASS")]:
+            with self.subTest(spare=spare):
+                self.assertEqual(self.run_probe({"pids.current": str(512 - spare)})["status"], expected)
+
+    def test_counter_errors_fail_closed(self):
+        cases = [{"memory.stat": x} for x in [None, "", "inactive_file bad\n", "inactive_file 0\ninactive_file 0\n", "inactive_file 9999999999\n"]]
+        cases += [{key: value} for key in ["memory.max", "memory.current", "pids.max", "pids.current"] for value in [None, "max", "-1", "1.5", "9007199254740992"]]
+        for overrides in cases:
+            with self.subTest(overrides=overrides):
+                self.assertEqual(self.run_probe(overrides), {"status": "RESOURCE_COUNTERS_INVALID"})
+
+    def test_quiet_canary_keeps_progress_and_result(self):
+        import os, subprocess
+        policy = (CURRENT / "launchers/shared/FortisContainerPolicy.ps1").read_text(encoding="utf-8")
+        option = re.search(r"QuietNodeOption = '([^']+)'", policy).group(1)
+        code = re.search(r"\$fortisQuietProbeCode = @'\n(.*?)\n'@", self.source, re.S).group(1)
+        env = os.environ.copy(); env["NODE_OPTIONS"] = option
+        result = subprocess.run([self.node, "-e", code], env=env, text=True, capture_output=True, timeout=10, check=True)
+        messages = [json.loads(x) for x in result.stdout.splitlines()]
+        self.assertEqual(messages, [
+            {"jsonrpc": "2.0", "method": "notifications/progress", "params": {"progressToken": "fortis-quiet-preview", "progress": 1}},
+            {"jsonrpc": "2.0", "id": 1, "result": {"quietPreloadOk": True}},
+        ])
+
+    def test_powershell_reports_specific_failure_without_running_launcher(self):
+        import os, shutil, subprocess
+        pwsh = os.environ.get("FORTIS_TEST_PWSH") or shutil.which("pwsh")
+        if not pwsh:
+            self.skipTest("PowerShell is unavailable; executable Node regression tests still run")
+        script = """$ErrorActionPreference='Stop'
+$tokens=$null;$errors=$null
+$ast=[System.Management.Automation.Language.Parser]::ParseFile($env:FORTIS_HEADROOM_SOURCE,[ref]$tokens,[ref]$errors)
+if($errors.Count -ne 0){throw 'Launcher syntax failed'}
+$fn=@($ast.FindAll({param($n)$n -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $n.Name -eq 'Assert-FortisRepo1Headroom'},$true))
+if($fn.Count -ne 1){throw 'Headroom assertion is missing'}
+. ([scriptblock]::Create($fn[0].Extent.Text))
+$output=@(foreach($probe in ($env:FORTIS_HEADROOM_FIXTURES | ConvertFrom-Json)) {
+ try {Assert-FortisRepo1Headroom -Probe $probe; 'PASS'} catch {$_.Exception.Message}
+})
+$output | ConvertTo-Json -Compress
+"""
+        fixtures = [self.run_probe(), self.run_probe({"memory.stat": "inactive_file 0\n"}),
+                    self.run_probe({"pids.current": "511"}), self.run_probe({"memory.stat": None})]
+        env = os.environ.copy(); env["FORTIS_HEADROOM_SOURCE"] = str(self.launcher)
+        env["FORTIS_HEADROOM_FIXTURES"] = json.dumps(fixtures)
+        result = subprocess.run([pwsh, "-NoLogo", "-NoProfile", "-NonInteractive", "-Command", script], env=env, text=True, capture_output=True, timeout=30, check=True)
+        messages = json.loads(result.stdout)
+        self.assertEqual(messages[0], "PASS")
+        self.assertIn("estimated memory headroom 170 MiB < 256 MiB", messages[1])
+        self.assertIn("PID headroom 1 < 48", messages[2])
+        self.assertIn("counters are missing, invalid or inconsistent", messages[3])
+        self.assertTrue(all("Nothing started or repaired" in msg for msg in messages[1:]))
+
 if __name__ == "__main__":
     unittest.main()

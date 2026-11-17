@@ -20,6 +20,9 @@ targets:
       - owner-worker-readback
     inputs:
       - runtime/windows-repo/current/**
+      - runtime/windows-repo/Invoke-FortisRepo.ps1
+      - runtime/windows-repo/test_shared_policy_contract.py
+      - runtime/windows-repo/README.md
   - id: windows-broker-source
     deployment:
       kind: windows-source
