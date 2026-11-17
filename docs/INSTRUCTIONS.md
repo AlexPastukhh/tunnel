@@ -1,5 +1,7 @@
 # Обновление инструкций после изменений
 
+Repo1 startup memory/PID diagnostics and cache accounting: [Windows Repo source runbook](../runtime/windows-repo/README.md#repo1-startup-resource-headroom). Deliver launcher and paired resolver pins together through the existing Windows updater.
+
 ## Навигация по повторяемым задачам
 
 Guard/reconnect сценарии — [локальный реестр](use-cases/README.md), общий

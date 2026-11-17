@@ -11,6 +11,8 @@
 
 ## Ожидающая owner acceptance
 
+- Repo1 cache-aware headroom: после paired source publication подтвердить owner Windows PowerShell 5.1 Guard Preview и отдельный Repo1 MCP reconnect, сохранив работающий Repo2. Docker regression tests не заменяют эту приёмку.
+
 - Подтвердить cold boot/reboot, альтернативный порядок старта и длительную
   стабильность Repo1/Repo2 на выбранном runtime; после каждого нового cutover
   отделять Guard Preview от реального MCP reconnect.
